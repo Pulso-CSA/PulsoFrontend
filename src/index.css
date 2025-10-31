@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Paleta Neon Glassmorphism - Light Mode */
+    --background: 230 40% 8%; /* Darker background for better neon contrast */
+    --foreground: 0 0% 100%; /* Pure white text */
+
+    --card: 230 35% 12%; /* Darker cards with transparency */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 230 35% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primárias - Cyan Neon Ultra Bright */
+    --primary: 180 100% 60%; /* Ultra bright cyan */
+    --primary-foreground: 230 40% 8%;
+    --primary-deep: 180 100% 40%; 
+    --primary-light: 180 100% 85%;
+
+    /* Neutros com glassmorphism */
+    --secondary: 300 100% 70%; /* Bright magenta neon */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 230 35% 18%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 330 100% 70%; /* Brighter pink neon */
+    --accent-foreground: 0 0% 100%;
+
+    /* Semânticas Neon */
+    --success: 150 100% 60%; /* Brighter neon green */
+    --success-foreground: 230 40% 8%;
+
+    --warning: 45 100% 60%; /* Brighter neon yellow */
+    --warning-foreground: 230 40% 8%;
+
+    --destructive: 0 100% 65%; /* Brighter neon red */
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 200 100% 60%; /* Brighter neon blue */
+    --info-foreground: 230 40% 8%;
+
+    /* Acentos por Seção - Neon Ultra Bright */
+    --finops: 150 100% 60%; /* Ultra bright neon green */
+    --finops-foreground: 230 40% 8%;
+
+    --data-ai: 270 100% 75%; /* Ultra bright neon purple */
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 180 100% 60% / 0.3; /* Brighter neon cyan with transparency */
+    --input: 230 35% 18%;
+    --ring: 180 100% 60%;
+
+    --radius: 1rem;
+
+    /* Chat Neon */
+    --chat-user: 180 100% 60%;
+    --chat-system: 270 90% 70%;
+  }
+
+  .dark {
+    /* Paleta Neon Glassmorphism - Dark Mode */
+    --background: 230 45% 6%; /* Ultra dark for maximum neon contrast */
+    --foreground: 0 0% 100%;
+
+    --card: 230 40% 10%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 230 40% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primárias - Ultra Bright Cyan Neon */
+    --primary: 180 100% 65%; /* Maximum brightness cyan */
+    --primary-foreground: 230 45% 6%;
+    --primary-deep: 180 100% 45%;
+    --primary-light: 180 100% 90%;
+
+    /* Neutros Dark Neon */
+    --secondary: 300 100% 75%; /* Ultra bright magenta neon */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 230 40% 14%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 330 100% 70%; /* Ultra bright pink neon */
+    --accent-foreground: 0 0% 100%;
+
+    /* Semânticas Neon Dark */
+    --success: 150 100% 65%; /* Maximum brightness neon green */
+    --success-foreground: 230 45% 6%;
+
+    --warning: 45 100% 65%; /* Maximum brightness neon yellow */
+    --warning-foreground: 230 45% 6%;
+
+    --destructive: 0 100% 70%; /* Maximum brightness neon red */
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 200 100% 65%; /* Maximum brightness neon blue */
+    --info-foreground: 230 45% 6%;
+
+    /* Acentos por Seção Dark Neon */
+    --finops: 150 100% 65%; /* Ultra bright neon green */
+    --finops-foreground: 230 45% 6%;
+
+    --data-ai: 270 100% 80%; /* Ultra bright neon purple */
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 180 100% 65% / 0.3; /* Ultra bright neon cyan with transparency */
+    --input: 230 40% 14%;
+    --ring: 180 100% 65%;
+
+    /* Chat Neon Dark */
+    --chat-user: 180 100% 65%;
+    --chat-system: 270 95% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/40 backdrop-blur-xl border border-primary/20;
+  }
+  
+  .glass-strong {
+    @apply bg-card/60 backdrop-blur-2xl border border-primary/30;
+  }
+  
+  .glass-hover {
+    @apply hover:bg-card/50 hover:border-primary/40 transition-all duration-300;
+  }
+
+  .neon-glow {
+    @apply shadow-[0_0_25px_rgba(0,255,255,0.5),0_0_50px_rgba(0,255,255,0.2)];
+  }
+
+  .neon-glow-strong {
+    @apply shadow-[0_0_40px_rgba(0,255,255,0.6),0_0_80px_rgba(0,255,255,0.3)];
+  }
+  
+  .neon-text {
+    @apply drop-shadow-[0_0_8px_rgba(0,255,255,0.8)];
+  }
+}
