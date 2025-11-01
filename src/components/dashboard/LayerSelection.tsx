@@ -32,8 +32,8 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
               w-40 h-40 rounded-3xl
               transition-all duration-500 ease-out
               ${activeLayers.pulso 
-                ? 'glass-strong neon-glow-strong bg-gradient-to-br from-primary/60 to-primary/40 scale-100' 
-                : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105'
+                ? 'glass-strong neon-glow-strong bg-gradient-to-br from-primary/80 to-primary-deep/60 scale-100 border-2 border-primary' 
+                : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-br from-primary/20 to-primary-deep/10 border-2 border-primary/40'
               }
             `}
             aria-label="Toggle Pulso CSA"
@@ -41,10 +41,10 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
             <div className="absolute inset-0 flex items-center justify-center">
               <Zap 
                 className={`
-                  transition-all duration-500
+                  transition-all duration-500 drop-shadow-[0_0_10px_rgba(0,255,255,0.7)]
                   ${activeLayers.pulso 
-                    ? 'w-20 h-20 text-white' 
-                    : 'w-16 h-16 text-muted-foreground group-hover:text-foreground group-hover:w-20 group-hover:h-20'
+                    ? 'w-20 h-20 text-primary-light' 
+                    : 'w-16 h-16 text-primary group-hover:text-primary-light group-hover:w-20 group-hover:h-20'
                   }
                 `}
                 strokeWidth={1.5}
@@ -85,8 +85,8 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
               w-40 h-40 rounded-3xl
               transition-all duration-500 ease-out
               ${activeLayers.finops 
-                ? 'glass-strong neon-glow-strong bg-gradient-to-br from-finops/60 to-finops/40 scale-100' 
-                : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105'
+                ? 'glass-strong bg-gradient-to-br from-finops/80 to-success/60 scale-100 border-2 border-finops shadow-[0_0_40px_rgba(0,255,153,0.6),0_0_80px_rgba(0,255,153,0.3)]' 
+                : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-br from-finops/20 to-success/10 border-2 border-finops/40'
               }
             `}
             aria-label="Toggle Camada 5 - FinOps"
@@ -94,10 +94,10 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
             <div className="absolute inset-0 flex items-center justify-center">
               <Activity 
                 className={`
-                  transition-all duration-500
+                  transition-all duration-500 drop-shadow-[0_0_10px_rgba(0,255,153,0.7)]
                   ${activeLayers.finops 
                     ? 'w-20 h-20 text-white' 
-                    : 'w-16 h-16 text-muted-foreground group-hover:text-foreground group-hover:w-20 group-hover:h-20'
+                    : 'w-16 h-16 text-finops group-hover:text-white group-hover:w-20 group-hover:h-20'
                   }
                 `}
                 strokeWidth={1.5}
@@ -138,8 +138,8 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
               w-40 h-40 rounded-3xl
               transition-all duration-500 ease-out
               ${activeLayers.data 
-                ? 'glass-strong neon-glow-strong bg-gradient-to-br from-dataAi/60 to-dataAi/40 scale-100' 
-                : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105'
+                ? 'glass-strong bg-gradient-to-br from-dataAi/80 to-secondary/60 scale-100 border-2 border-dataAi shadow-[0_0_40px_rgba(191,0,255,0.6),0_0_80px_rgba(191,0,255,0.3)]' 
+                : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-br from-dataAi/20 to-secondary/10 border-2 border-dataAi/40'
               }
             `}
             aria-label="Toggle Camada 6 - Dados & IA"
@@ -147,10 +147,10 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
             <div className="absolute inset-0 flex items-center justify-center">
               <BarChart3 
                 className={`
-                  transition-all duration-500
+                  transition-all duration-500 drop-shadow-[0_0_10px_rgba(191,0,255,0.7)]
                   ${activeLayers.data 
                     ? 'w-20 h-20 text-white' 
-                    : 'w-16 h-16 text-muted-foreground group-hover:text-foreground group-hover:w-20 group-hover:h-20'
+                    : 'w-16 h-16 text-dataAi group-hover:text-white group-hover:w-20 group-hover:h-20'
                   }
                 `}
                 strokeWidth={1.5}

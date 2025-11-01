@@ -64,19 +64,33 @@ const Dashboard = () => {
           {/* Área de Chats */}
           <div className="flex-1 space-y-6">
           {!activeLayers.preview && !activeLayers.pulso && !activeLayers.finops && !activeLayers.data && (
-              <div className="glass neon-glow rounded-lg p-8 text-center">
-                <div className="max-w-md mx-auto space-y-4">
-                  <div className="flex justify-center gap-4">
-                    <Monitor className="h-12 w-12 text-primary neon-glow" />
-                    <Zap className="h-12 w-12 text-secondary neon-glow" />
-                    <Activity className="h-12 w-12 text-finops neon-glow" />
-                    <Database className="h-12 w-12 text-data-ai neon-glow" />
+              <div className="glass-strong border-2 border-primary/30 rounded-2xl p-12 text-center shadow-[0_0_30px_rgba(0,255,255,0.2)] animate-fade-in">
+                <div className="max-w-2xl mx-auto space-y-6">
+                  <div className="flex justify-center gap-6 mb-6">
+                    <div className="relative group">
+                      <Monitor className="h-16 w-16 text-primary drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform" />
+                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
+                    </div>
+                    <div className="relative group">
+                      <Zap className="h-16 w-16 text-primary drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform" />
+                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
+                    </div>
+                    <div className="relative group">
+                      <Activity className="h-16 w-16 text-finops drop-shadow-[0_0_15px_rgba(0,255,153,0.8)] group-hover:scale-110 transition-transform" />
+                      <div className="absolute inset-0 bg-finops/20 rounded-full blur-xl group-hover:bg-finops/30 transition-colors" />
+                    </div>
+                    <div className="relative group">
+                      <Database className="h-16 w-16 text-dataAi drop-shadow-[0_0_15px_rgba(191,0,255,0.8)] group-hover:scale-110 transition-transform" />
+                      <div className="absolute inset-0 bg-dataAi/20 rounded-full blur-xl group-hover:bg-dataAi/30 transition-colors" />
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    Ative uma camada para começar
+                  <h3 className="text-2xl font-bold text-foreground">
+                    Selecione uma camada para começar
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Selecione Preview, Pulso CSA, Camada 5 (FinOps) ou Camada 6 (Dados & IA) para iniciar
+                  <p className="text-foreground/70 leading-relaxed">
+                    Escolha entre <span className="text-primary font-semibold">Pulso CSA</span> para gerar blueprints, 
+                    <span className="text-finops font-semibold"> FinOps</span> para otimizar custos, ou 
+                    <span className="text-dataAi font-semibold"> Analytics</span> para análise de dados com IA
                   </p>
                 </div>
               </div>
@@ -88,7 +102,11 @@ const Dashboard = () => {
                   <Button
                     variant={activeLayers.preview ? "default" : "outline"}
                     size="sm"
-                    className="flex items-center gap-2"
+                    className={`flex items-center gap-2 glass glass-hover border-2 ${
+                      activeLayers.preview 
+                        ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)]' 
+                        : 'border-primary/40 hover:border-primary/60'
+                    }`}
                     onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}
                   >
                     <Monitor className="h-4 w-4" />
