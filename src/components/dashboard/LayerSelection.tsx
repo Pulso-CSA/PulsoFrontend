@@ -1,4 +1,4 @@
-import { Zap, Activity, BarChart3 } from "lucide-react";
+import { Network, TrendingDown, BrainCircuit } from "lucide-react";
 
 interface LayerSelectionProps {
   activeLayers: {
@@ -30,30 +30,30 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
             className={`
               group relative
               w-40 h-40 rounded-3xl
-              transition-all duration-500 ease-out
+              transition-all duration-300 ease-out
               ${activeLayers.pulso 
-                ? 'glass-strong neon-glow-strong bg-gradient-to-br from-primary/80 to-primary-deep/60 scale-100 border-2 border-primary' 
+                ? 'glass-strong bg-gradient-to-br from-primary/80 to-primary-deep/60 scale-105 border-2 border-primary shadow-[0_0_30px_rgba(0,255,255,0.5)]' 
                 : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-br from-primary/20 to-primary-deep/10 border-2 border-primary/40'
               }
             `}
             aria-label="Toggle Pulso CSA"
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <Zap 
+              <Network 
                 className={`
-                  transition-all duration-500 drop-shadow-[0_0_10px_rgba(0,255,255,0.7)]
+                  transition-all duration-300 drop-shadow-[0_0_15px_rgba(0,255,255,0.9)]
                   ${activeLayers.pulso 
-                    ? 'w-20 h-20 text-primary-light' 
-                    : 'w-16 h-16 text-primary group-hover:text-primary-light group-hover:w-20 group-hover:h-20'
+                    ? 'w-20 h-20 text-white' 
+                    : 'w-16 h-16 text-primary group-hover:text-white group-hover:w-18 group-hover:h-18'
                   }
                 `}
-                strokeWidth={1.5}
+                strokeWidth={2}
               />
             </div>
             
             {/* Pulse animation quando ativo */}
             {activeLayers.pulso && (
-              <div className="absolute inset-0 rounded-3xl bg-primary animate-ping opacity-20" />
+              <div className="absolute inset-0 rounded-3xl bg-primary/30 animate-pulse" />
             )}
           </button>
           
@@ -83,30 +83,30 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
             className={`
               group relative
               w-40 h-40 rounded-3xl
-              transition-all duration-500 ease-out
+              transition-all duration-300 ease-out
               ${activeLayers.finops 
-                ? 'glass-strong bg-gradient-to-br from-finops/80 to-success/60 scale-100 border-2 border-finops shadow-[0_0_40px_rgba(0,255,153,0.6),0_0_80px_rgba(0,255,153,0.3)]' 
+                ? 'glass-strong bg-gradient-to-br from-finops/80 to-success/60 scale-105 border-2 border-finops shadow-[0_0_30px_rgba(0,255,153,0.5)]' 
                 : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-br from-finops/20 to-success/10 border-2 border-finops/40'
               }
             `}
             aria-label="Toggle Camada 5 - FinOps"
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <Activity 
+              <TrendingDown 
                 className={`
-                  transition-all duration-500 drop-shadow-[0_0_10px_rgba(0,255,153,0.7)]
+                  transition-all duration-300 drop-shadow-[0_0_15px_rgba(0,255,153,0.9)]
                   ${activeLayers.finops 
                     ? 'w-20 h-20 text-white' 
-                    : 'w-16 h-16 text-finops group-hover:text-white group-hover:w-20 group-hover:h-20'
+                    : 'w-16 h-16 text-finops group-hover:text-white group-hover:w-18 group-hover:h-18'
                   }
                 `}
-                strokeWidth={1.5}
+                strokeWidth={2}
               />
             </div>
             
             {/* Pulse animation quando ativo */}
             {activeLayers.finops && (
-              <div className="absolute inset-0 rounded-3xl bg-finops animate-ping opacity-20" />
+              <div className="absolute inset-0 rounded-3xl bg-finops/30 animate-pulse" />
             )}
           </button>
           
@@ -136,30 +136,30 @@ const LayerSelection = ({ activeLayers, setActiveLayers }: LayerSelectionProps) 
             className={`
               group relative
               w-40 h-40 rounded-3xl
-              transition-all duration-500 ease-out
+              transition-all duration-300 ease-out
               ${activeLayers.data 
-                ? 'glass-strong bg-gradient-to-br from-dataAi/80 to-secondary/60 scale-100 border-2 border-dataAi shadow-[0_0_40px_rgba(191,0,255,0.6),0_0_80px_rgba(191,0,255,0.3)]' 
+                ? 'glass-strong bg-gradient-to-br from-dataAi/80 to-secondary/60 scale-105 border-2 border-dataAi shadow-[0_0_30px_rgba(191,0,255,0.5)]' 
                 : 'glass glass-hover shadow-lg hover:shadow-xl hover:scale-105 bg-gradient-to-br from-dataAi/20 to-secondary/10 border-2 border-dataAi/40'
               }
             `}
             aria-label="Toggle Camada 6 - Dados & IA"
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <BarChart3 
+              <BrainCircuit 
                 className={`
-                  transition-all duration-500 drop-shadow-[0_0_10px_rgba(191,0,255,0.7)]
+                  transition-all duration-300 drop-shadow-[0_0_15px_rgba(191,0,255,0.9)]
                   ${activeLayers.data 
                     ? 'w-20 h-20 text-white' 
-                    : 'w-16 h-16 text-dataAi group-hover:text-white group-hover:w-20 group-hover:h-20'
+                    : 'w-16 h-16 text-dataAi group-hover:text-white group-hover:w-18 group-hover:h-18'
                   }
                 `}
-                strokeWidth={1.5}
+                strokeWidth={2}
               />
             </div>
             
             {/* Pulse animation quando ativo */}
             {activeLayers.data && (
-              <div className="absolute inset-0 rounded-3xl bg-dataAi animate-ping opacity-20" />
+              <div className="absolute inset-0 rounded-3xl bg-dataAi/30 animate-pulse" />
             )}
           </button>
           

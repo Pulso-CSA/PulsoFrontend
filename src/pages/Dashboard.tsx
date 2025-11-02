@@ -46,12 +46,19 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="glass-strong border-b">
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+      {/* Background animated elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-dataAi/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
+      <div className="glass-strong border-b relative z-10">
         <DashboardHeader />
       </div>
       
-      <main className="flex-1 container mx-auto p-4 lg:p-6">
+      <main className="flex-1 container mx-auto p-4 lg:p-6 relative z-10">
         <div className="flex flex-col gap-6">
           {/* Seleção de Camadas */}
           <div className="w-full">
@@ -100,11 +107,11 @@ const Dashboard = () => {
               <div className="space-y-4">
                 <div className="flex justify-end">
                   <Button
-                    variant={activeLayers.preview ? "default" : "outline"}
+                    variant="outline"
                     size="sm"
-                    className={`flex items-center gap-2 glass glass-hover border-2 ${
+                    className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-200 ${
                       activeLayers.preview 
-                        ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)]' 
+                        ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] text-white [&>span]:text-white [&>svg]:text-white' 
                         : 'border-primary/40 hover:border-primary/60'
                     }`}
                     onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}
@@ -115,12 +122,13 @@ const Dashboard = () => {
                 </div>
                 
                 {activeLayers.preview && (
-                  <div className="glass-strong neon-glow rounded-lg p-4">
+                  <div className="glass-strong rounded-lg p-4 border-2 border-primary/30">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold text-primary neon-glow">
+                      <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                        <Monitor className="h-4 w-4 text-primary" />
                         Preview do Frontend
                       </h3>
-                      <span className="text-xs text-primary/70 font-mono">
+                      <span className="text-xs text-muted-foreground font-mono px-2 py-1 rounded bg-primary/10">
                         localhost:3000
                       </span>
                     </div>

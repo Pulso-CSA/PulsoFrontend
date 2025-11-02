@@ -26,7 +26,9 @@ const plans = [
   {
     name: "Basic",
     priceMonthly: 29.99,
-    priceYearly: 24.99,
+    priceYearly: 305.05,
+    priceMonthlyWithAPI: 24.99,
+    priceYearlyWithAPI: 254.90,
     features: [
       "Até 10 projetos",
       "Blueprint básico",
@@ -40,7 +42,9 @@ const plans = [
   {
     name: "Plus",
     priceMonthly: 44.77,
-    priceYearly: 34.77,
+    priceYearly: 456.65,
+    priceMonthlyWithAPI: 34.77,
+    priceYearlyWithAPI: 354.65,
     features: [
       "Até 50 projetos",
       "Blueprint avançado",
@@ -55,7 +59,9 @@ const plans = [
   {
     name: "Pro",
     priceMonthly: 59.77,
-    priceYearly: 49.77,
+    priceYearly: 609.65,
+    priceMonthlyWithAPI: 49.77,
+    priceYearlyWithAPI: 507.65,
     features: [
       "Projetos ilimitados",
       "Blueprint + FinOps + Analytics",
@@ -70,7 +76,9 @@ const plans = [
   {
     name: "Elite",
     priceMonthly: 69.77,
-    priceYearly: 54.77,
+    priceYearly: 711.65,
+    priceMonthlyWithAPI: 54.77,
+    priceYearlyWithAPI: 558.65,
     features: [
       "Tudo do Pro",
       "IA personalizada",
@@ -120,6 +128,7 @@ const Billing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -200,15 +209,15 @@ const Billing = () => {
           </div>
 
           {/* Billing Cycle Toggle */}
-          <div className="flex justify-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="flex flex-col items-center gap-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <div className="glass-strong rounded-full p-1 inline-flex gap-1 border-2 border-primary/30">
               <Button
                 variant={billingCycle === "monthly" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setBillingCycle("monthly")}
                 className={billingCycle === "monthly" 
-                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)]" 
-                  : "rounded-full"}
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-200" 
+                  : "rounded-full transition-all duration-200"}
               >
                 Mensal
               </Button>
@@ -217,25 +226,44 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("yearly")}
                 className={billingCycle === "yearly" 
-                  ? "rounded-full bg-gradient-to-r from-finops/80 to-success/60 shadow-[0_0_20px_rgba(0,255,153,0.4)]" 
-                  : "rounded-full"}
+                  ? "rounded-full bg-gradient-to-r from-finops/80 to-success/60 shadow-[0_0_20px_rgba(0,255,153,0.4)] transition-all duration-200" 
+                  : "rounded-full transition-all duration-200"}
               >
                 Anual
                 <Badge variant="secondary" className="ml-2 text-xs">-15%</Badge>
               </Button>
             </div>
+
+            {/* OpenAI API Key Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setHasOpenAIKey(!hasOpenAIKey)}
+              className={`glass glass-hover border-2 gap-2 transition-all duration-300 ${
+                hasOpenAIKey 
+                  ? 'border-dataAi bg-gradient-to-r from-dataAi/30 to-secondary/30 shadow-[0_0_20px_rgba(191,0,255,0.5)] scale-105' 
+                  : 'border-primary/30 hover:border-dataAi/50 hover:scale-105'
+              }`}
+            >
+              <Sparkles className={`h-5 w-5 transition-all duration-300 ${hasOpenAIKey ? 'text-dataAi animate-pulse' : 'text-muted-foreground'}`} />
+              <span className="font-semibold">
+                {hasOpenAIKey ? '✓ Desconto OpenAI Ativo (15%)' : 'Tenho Chave API OpenAI'}
+              </span>
+            </Button>
           </div>
 
           {/* Plans Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan, idx) => {
               const Icon = plan.icon;
-              const price = billingCycle === "monthly" ? plan.priceMonthly : plan.priceYearly;
+              const price = billingCycle === "monthly" 
+                ? (hasOpenAIKey ? plan.priceMonthlyWithAPI : plan.priceMonthly)
+                : (hasOpenAIKey ? plan.priceYearlyWithAPI : plan.priceYearly);
               
               return (
                 <Card
                   key={plan.name}
-                  className={`relative glass-strong p-6 border-2 hover:scale-105 transition-all duration-500 animate-fade-in ${
+                  className={`relative glass-strong p-6 border-2 hover:scale-105 transition-all duration-200 animate-fade-in ${
                     plan.popular 
                       ? 'border-primary shadow-[0_0_30px_rgba(0,255,255,0.3)]' 
                       : 'border-primary/30 hover:border-primary/50'
@@ -261,11 +289,18 @@ const Billing = () => {
 
                     <div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-bold">USD$ {price.toFixed(2)}</span>
+                        <span className={`text-3xl font-bold transition-all duration-500 ${hasOpenAIKey ? 'animate-fade-in' : ''}`}>
+                          USD$ {price.toFixed(2)}
+                        </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        por {billingCycle === "monthly" ? "mês" : "mês (cobrado anualmente)"}
+                        {billingCycle === "monthly" ? "por mês" : "por ano"}
                       </p>
+                      {(billingCycle === "yearly" || hasOpenAIKey) && (
+                        <p className="text-xs text-finops font-semibold animate-fade-in">
+                          15% de desconto {hasOpenAIKey && '(OpenAI API)'}
+                        </p>
+                      )}
                     </div>
 
                     <Separator />
@@ -281,7 +316,7 @@ const Billing = () => {
 
                     <Button
                       onClick={() => handleSelectPlan(plan.name)}
-                      className={`w-full glass-hover border-2 ${
+                      className={`w-full glass-hover border-2 transition-all duration-200 ${
                         plan.popular
                           ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]'
                           : 'border-primary/40 hover:border-primary/60'
@@ -311,7 +346,7 @@ const Billing = () => {
                         <button
                           key={method.id}
                           onClick={() => handlePaymentMethodSelect(method.id)}
-                          className={`glass glass-hover p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                          className={`glass glass-hover p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                             selectedPayment === method.id
                               ? 'border-primary shadow-[0_0_20px_rgba(0,255,255,0.3)] scale-105'
                               : 'border-primary/30 hover:border-primary/50'
@@ -434,7 +469,7 @@ const Billing = () => {
                   <Button
                     onClick={handleSubmitPayment}
                     disabled={!selectedPayment}
-                    className="w-full glass-strong border-2 border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] hover:shadow-[0_0_30px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-300"
+                    className="w-full glass-strong border-2 border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] hover:shadow-[0_0_30px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200"
                   >
                     Confirmar Pagamento
                   </Button>

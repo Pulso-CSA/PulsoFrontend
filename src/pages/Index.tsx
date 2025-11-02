@@ -35,10 +35,10 @@ const Index = () => {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-primary/40 hover:border-primary transition-all duration-500 hover:scale-105 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-primary/40 hover:border-primary transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <div className="relative mb-4">
-              <Zap className="h-12 w-12 text-primary mx-auto drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
+              <Zap className="h-12 w-12 text-primary mx-auto drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform duration-200" strokeWidth={1.5} />
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors duration-200" />
             </div>
             <h3 className="font-bold text-xl text-primary mb-3">Prompt Central</h3>
             <p className="text-sm text-foreground/80 leading-relaxed">
@@ -46,10 +46,10 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-finops/40 hover:border-finops transition-all duration-500 hover:scale-105 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-finops/40 hover:border-finops transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: '0.8s' }}>
             <div className="relative mb-4">
-              <Activity className="h-12 w-12 text-finops mx-auto drop-shadow-[0_0_15px_rgba(0,255,153,0.8)] group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-              <div className="absolute inset-0 bg-finops/20 rounded-full blur-xl group-hover:bg-finops/30 transition-colors" />
+              <Activity className="h-12 w-12 text-finops mx-auto drop-shadow-[0_0_15px_rgba(0,255,153,0.8)] group-hover:scale-110 transition-transform duration-200" strokeWidth={1.5} />
+              <div className="absolute inset-0 bg-finops/20 rounded-full blur-xl group-hover:bg-finops/30 transition-colors duration-200" />
             </div>
             <h3 className="font-bold text-xl text-finops mb-3">FinOps Inteligente</h3>
             <p className="text-sm text-foreground/80 leading-relaxed">
@@ -57,10 +57,10 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-dataAi/40 hover:border-dataAi transition-all duration-500 hover:scale-105 animate-fade-in" style={{ animationDelay: '1s' }}>
+          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-dataAi/40 hover:border-dataAi transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: '1s' }}>
             <div className="relative mb-4">
-              <Database className="h-12 w-12 text-dataAi mx-auto drop-shadow-[0_0_15px_rgba(191,0,255,0.8)] group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-              <div className="absolute inset-0 bg-dataAi/20 rounded-full blur-xl group-hover:bg-dataAi/30 transition-colors" />
+              <Database className="h-12 w-12 text-dataAi mx-auto drop-shadow-[0_0_15px_rgba(191,0,255,0.8)] group-hover:scale-110 transition-transform duration-200" strokeWidth={1.5} />
+              <div className="absolute inset-0 bg-dataAi/20 rounded-full blur-xl group-hover:bg-dataAi/30 transition-colors duration-200" />
             </div>
             <h3 className="font-bold text-xl text-dataAi mb-3">Inteligência de Dados</h3>
             <p className="text-sm text-foreground/80 leading-relaxed">
@@ -72,7 +72,7 @@ const Index = () => {
         <Button 
           size="lg" 
           onClick={() => navigate("/auth")}
-          className="glass-strong text-lg px-12 py-7 rounded-xl font-bold border-2 border-primary hover:border-primary-light shadow-[0_0_30px_rgba(0,255,255,0.4)] hover:shadow-[0_0_50px_rgba(0,255,255,0.6)] transition-all duration-300 hover:scale-105 animate-fade-in bg-gradient-to-r from-primary/80 to-primary-deep/60 text-white"
+          className="glass-strong text-lg px-12 py-7 rounded-xl font-bold border-2 border-primary hover:border-primary-light shadow-[0_0_30px_rgba(0,255,255,0.4)] hover:shadow-[0_0_50px_rgba(0,255,255,0.6)] transition-all duration-200 hover:scale-105 animate-fade-in bg-gradient-to-r from-primary/80 to-primary-deep/60 text-white"
           style={{ animationDelay: '1.2s' }}
         >
           <Sparkles className="mr-2 h-5 w-5" />
