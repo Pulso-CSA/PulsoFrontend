@@ -1,32 +1,34 @@
+# ==============================
 # Etapa 1: Build
+# ==============================
 FROM node:20-alpine AS builder
 
-# Define diretório de trabalho
 WORKDIR /app
 
-# Copia apenas os arquivos essenciais primeiro (para otimizar cache)
 COPY package*.json ./
-
-# Instala dependências (usa npm ci se houver package-lock.json)
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Copia o restante do código
 COPY . .
+RUN npm run build
 
-# Compila o código TypeScript (se houver script de build)
-RUN if npm run | grep -q "build"; then npm run build; else echo "Nenhum build encontrado (usando npm run dev direto)"; fi
-
-
+# ==============================
 # Etapa 2: Execução
-FROM node:20-alpine
+# ==============================
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copia apenas o necessário da etapa de build
-COPY --from=builder /app ./
+# Copia o código buildado e dependências
+COPY --from=builder /app /app
 
-# Exponha a porta usada pelo app (ajuste conforme necessário)
-EXPOSE 3000
+# Instala TODAS as dependências (incluindo vite)
+RUN npm install
 
-# Comando de inicialização
-CMD ["npm", "run", "dev"]
+# Porta padrão do Vite Preview
+EXPOSE 4173
+
+# Executa o preview com host liberado
+CMD ["npm", "run", "preview", "--", "--host", "--port", "4173"]
+# docker build -t pulso-frontend .
+# docker run -d -p 4173:4173 pulso-frontend
+# docker system prune -af

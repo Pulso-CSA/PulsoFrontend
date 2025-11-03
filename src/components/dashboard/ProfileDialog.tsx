@@ -156,13 +156,13 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
           <div className="glass-strong rounded-lg p-6 space-y-4 border border-primary/20">
             <div className="flex flex-col items-center gap-4">
               <div className="relative group">
-                <Avatar className="h-28 w-28 border-4 border-primary/50 neon-glow transition-all duration-300 group-hover:border-primary group-hover:scale-105">
+                <div className="absolute inset-0 rounded-full blur-md bg-primary/50 animate-pulse"></div>
+                <Avatar className="h-28 w-28 border-4 border-primary shadow-[0_0_30px_rgba(0,255,255,0.8)] transition-all duration-300 group-hover:shadow-[0_0_50px_rgba(0,255,255,1)] group-hover:scale-105 relative z-10">
                   <AvatarImage src={formData.avatarUrl} alt={formData.name} />
                   <AvatarFallback className="bg-primary/20 text-primary text-3xl font-bold">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute inset-0 rounded-full bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               
               <div className="flex items-center gap-2">
@@ -240,12 +240,12 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
           </div>
 
           {/* Billing & Payments Section */}
-          <div className="glass-strong rounded-lg p-5 space-y-4 border-2 border-finops/30">
+          <div className="glass-strong rounded-lg p-5 space-y-4 border-2 border-primary/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-finops drop-shadow-[0_0_10px_rgba(0,255,153,0.6)]" />
+                <Crown className="h-5 w-5 text-primary drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
                 <div>
-                  <h3 className="text-sm font-semibold text-finops">Plano & Pagamento</h3>
+                  <h3 className="text-sm font-semibold text-primary">Plano & Pagamento</h3>
                   <p className="text-xs text-muted-foreground">Gerencie assinatura e métodos de pagamento</p>
                 </div>
               </div>
@@ -255,13 +255,13 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   onOpenChange(false);
                   navigate("/billing");
                 }}
-                className="bg-finops/20 hover:bg-finops/30 border-2 border-finops/50 gap-2 hover:shadow-[0_0_15px_rgba(0,255,153,0.3)] transition-all duration-200 text-finops hover:border-finops"
+                className="bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 text-primary hover:border-primary gap-2 hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-200"
               >
                 <CreditCard className="h-4 w-4" />
-                Upgrade & Pagamentos
+                Acessar Pagamentos
               </Button>
             </div>
-            <Separator className="bg-finops/20" />
+            <Separator className="bg-primary/20" />
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Plano Atual:</span>
               <span className="font-semibold text-foreground">Gratuito</span>
