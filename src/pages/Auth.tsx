@@ -64,9 +64,7 @@ const Auth = () => {
     { label: "Símbolo", valid: /[^A-Za-z0-9]/.test(formData.password) },
   ];
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateProfile = () => {
     try {
@@ -115,7 +113,6 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Validações
     if (!validateEmail(formData.email)) {
       toast({
         title: "E-mail inválido",
@@ -148,7 +145,6 @@ const Auth = () => {
       }
     }
 
-    // Simular autenticação
     setTimeout(() => {
       localStorage.setItem("isAuthenticated", "true");
       
@@ -159,7 +155,6 @@ const Auth = () => {
         });
         navigate("/dashboard");
       } else {
-        // Para signup, mostrar diálogo de criação de perfil obrigatório
         setShowProfileDialog(true);
       }
       
@@ -169,7 +164,6 @@ const Auth = () => {
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    // Simular login com Google
     setTimeout(() => {
       localStorage.setItem("isAuthenticated", "true");
       toast({
@@ -183,7 +177,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Background animated elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-20 w-72 h-72 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
@@ -203,7 +196,6 @@ const Auth = () => {
         </div>
 
         <div className="glass-strong border-2 border-primary/30 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,255,255,0.2)]">
-          {/* Google Login Button */}
           <Button
             type="button"
             variant="outline"
@@ -269,6 +261,13 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+
+              {/* 🔹 Validação mínima de senha curta */}
+              {formData.password && formData.password.length < 6 && (
+                <p className="text-xs text-destructive mt-1">
+                  A senha deve ter pelo menos 6 caracteres.
+                </p>
+              )}
               
               {!isLogin && formData.password && (
                 <div className="mt-2 space-y-2">
@@ -373,7 +372,6 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Create First Profile Dialog */}
       <Dialog open={showProfileDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader className="space-y-3">
