@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Camera, Mail, Save, Lock, Eye, EyeOff, CreditCard, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileManagement, { Profile } from "./ProfileManagement";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -27,9 +29,17 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   
   // Carregar dados do localStorage
   const savedProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
+
+  useEffect(() => {
+    const savedProfiles = localStorage.getItem("userProfiles");
+    if (savedProfiles) {
+      setProfiles(JSON.parse(savedProfiles));
+    }
+  }, []);
   
   const [formData, setFormData] = useState({
     name: savedProfile.name || "",
@@ -109,7 +119,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       localStorage.setItem("userProfile", JSON.stringify(profileData));
       
       toast({
-        title: "Perfil atualizado",
+        title: "Conta atualizada",
         description: formData.newPassword 
           ? "Suas informações e senha foram atualizadas com sucesso" 
           : "Suas informações foram salvas com sucesso",
@@ -138,20 +148,32 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       .slice(0, 2);
   };
 
+  const handleProfilesChange = (updatedProfiles: Profile[]) => {
+    setProfiles(updatedProfiles);
+    localStorage.setItem("userProfiles", JSON.stringify(updatedProfiles));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3 pb-4">
           <DialogTitle className="text-2xl font-bold neon-text flex items-center gap-2" style={{ color: 'hsl(180 100% 65%)' }}>
             <User className="h-6 w-6" />
-            Perfil do Usuário
+            Configurações
           </DialogTitle>
           <DialogDescription className="text-base">
-            Gerencie suas informações pessoais e configurações de segurança
+            Gerencie sua conta, perfis e configurações de segurança
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-2">
+        <Tabs defaultValue="account" className="mt-2">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="account">Conta</TabsTrigger>
+            <TabsTrigger value="profiles">Perfis</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="account" className="mt-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
           {/* Avatar Section */}
           <div className="glass-strong rounded-lg p-6 space-y-4 border border-primary/20">
             <div className="flex flex-col items-center gap-4">
@@ -202,7 +224,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
           <div className="glass rounded-lg p-5 space-y-4 border border-primary/10">
             <h3 className="text-sm font-semibold text-primary flex items-center gap-2">
               <User className="h-4 w-4" />
-              Informações Pessoais
+              Informações da Conta
             </h3>
             
             <div className="space-y-4">
@@ -371,6 +393,16 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
             </Button>
           </div>
         </form>
+          </TabsContent>
+
+          <TabsContent value="profiles" className="mt-6">
+            <ProfileManagement 
+              profiles={profiles}
+              onProfilesChange={handleProfilesChange}
+              maxProfiles={5}
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

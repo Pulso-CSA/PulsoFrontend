@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { User, Activity, Database, Zap, Monitor } from "lucide-react";
+import { User, Activity, Database, Zap, Monitor, Terminal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import PromptPanel from "@/components/dashboard/PromptPanel";
+import LogsPanel from "@/components/dashboard/LogsPanel";
 import LayerSelection from "@/components/dashboard/LayerSelection";
 import FinOpsChat from "@/components/dashboard/FinOpsChat";
 import DataChat from "@/components/dashboard/DataChat";
@@ -16,6 +17,7 @@ const Dashboard = () => {
     finops: false,
     data: false,
   });
+  const [showLogs, setShowLogs] = useState(false);
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
@@ -105,7 +107,20 @@ const Dashboard = () => {
 
             {activeLayers.pulso && (
               <div className="space-y-4">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-200 ${
+                      showLogs
+                        ? 'border-finops bg-gradient-to-r from-finops/80 to-finops/60 shadow-[0_0_20px_rgba(0,255,153,0.4)] text-white [&>span]:text-white [&>svg]:text-white' 
+                        : 'border-finops/40 hover:border-finops/60'
+                    }`}
+                    onClick={() => setShowLogs(!showLogs)}
+                  >
+                    <Terminal className="h-4 w-4" />
+                    <span>Controle de Logs</span>
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -242,6 +257,10 @@ const Dashboard = () => {
                       />
                     </div>
                   </div>
+                )}
+
+                {showLogs && (
+                  <LogsPanel />
                 )}
                 
                 <PromptPanel />

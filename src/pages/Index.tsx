@@ -72,11 +72,12 @@ const Index = () => {
         <Button 
           size="lg" 
           onClick={() => navigate("/auth")}
-          className="glass-strong text-lg px-12 py-7 rounded-xl font-bold border-2 border-primary hover:border-primary-light shadow-[0_0_30px_rgba(0,255,255,0.4)] hover:shadow-[0_0_50px_rgba(0,255,255,0.6)] transition-all duration-200 hover:scale-105 animate-fade-in bg-gradient-to-r from-primary/80 to-primary-deep/60 text-white"
+          className="group relative text-lg px-12 py-7 rounded-xl font-bold border-2 border-primary bg-background/40 backdrop-blur-sm text-primary hover:bg-primary/10 hover:border-primary-light hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.6)] transition-all duration-300 animate-fade-in overflow-hidden"
           style={{ animationDelay: '1.2s' }}
         >
-          <Sparkles className="mr-2 h-5 w-5" />
-          Acessar Dashboard
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+          <Sparkles className="mr-2 h-5 w-5 group-hover:animate-pulse" />
+          <span className="relative">Acessar Dashboard</span>
         </Button>
       </div>
     </div>

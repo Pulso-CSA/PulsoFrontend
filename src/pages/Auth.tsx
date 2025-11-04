@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, CheckCircle2, XCircle, Chrome } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, XCircle, Chrome, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,12 +7,34 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { z } from "zod";
+
+const profileSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, "Nome é obrigatório")
+    .max(50, "Nome deve ter no máximo 50 caracteres"),
+  description: z.string()
+    .trim()
+    .max(200, "Descrição deve ter no máximo 200 caracteres")
+    .optional(),
+});
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [profileData, setProfileData] = useState({ name: "", description: "" });
+  const [profileErrors, setProfileErrors] = useState<{ name?: string; description?: string }>({});
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,6 +66,49 @@ const Auth = () => {
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateProfile = () => {
+    try {
+      profileSchema.parse(profileData);
+      setProfileErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: { name?: string; description?: string } = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            newErrors[err.path[0] as keyof typeof newErrors] = err.message;
+          }
+        });
+        setProfileErrors(newErrors);
+      }
+      return false;
+    }
+  };
+
+  const handleCreateProfile = () => {
+    if (!validateProfile()) return;
+
+    const newProfile = {
+      id: Date.now().toString(),
+      name: profileData.name.trim(),
+      description: profileData.description.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem("userProfiles", JSON.stringify([newProfile]));
+    localStorage.setItem("userProfile", JSON.stringify({
+      name: formData.name,
+      email: formData.email,
+    }));
+
+    setShowProfileDialog(false);
+    toast({
+      title: "Conta criada com sucesso",
+      description: `Perfil "${newProfile.name}" criado. Bem-vindo!`,
+    });
+    navigate("/dashboard");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,11 +151,18 @@ const Auth = () => {
     // Simular autenticação
     setTimeout(() => {
       localStorage.setItem("isAuthenticated", "true");
-      toast({
-        title: isLogin ? "Login realizado" : "Conta criada",
-        description: isLogin ? "Bem-vindo de volta!" : "Sua conta foi criada com sucesso",
-      });
-      navigate("/dashboard");
+      
+      if (isLogin) {
+        toast({
+          title: "Login realizado",
+          description: "Bem-vindo de volta!",
+        });
+        navigate("/dashboard");
+      } else {
+        // Para signup, mostrar diálogo de criação de perfil obrigatório
+        setShowProfileDialog(true);
+      }
+      
       setLoading(false);
     }, 1000);
   };
@@ -300,6 +372,62 @@ const Auth = () => {
           )}
         </div>
       </div>
+
+      {/* Create First Profile Dialog */}
+      <Dialog open={showProfileDialog} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl font-bold neon-text flex items-center gap-2" style={{ color: 'hsl(180 100% 65%)' }}>
+              <UserPlus className="h-6 w-6" />
+              Crie seu Primeiro Perfil
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Para começar a usar a plataforma, você precisa criar pelo menos um perfil de trabalho.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="profile-name">Nome do Perfil*</Label>
+              <Input
+                id="profile-name"
+                placeholder="Ex: Produção, Desenvolvimento"
+                value={profileData.name}
+                onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                className={profileErrors.name ? "border-destructive" : "border-primary/20 focus:border-primary"}
+              />
+              {profileErrors.name && (
+                <p className="text-xs text-destructive">{profileErrors.name}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profile-description">Descrição</Label>
+              <Input
+                id="profile-description"
+                placeholder="Breve descrição do perfil"
+                value={profileData.description}
+                onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
+                className={profileErrors.description ? "border-destructive" : "border-primary/20 focus:border-primary"}
+              />
+              {profileErrors.description && (
+                <p className="text-xs text-destructive">{profileErrors.description}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Você poderá criar até 5 perfis no total
+              </p>
+            </div>
+
+            <Button
+              onClick={handleCreateProfile}
+              className="w-full gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105 mt-6"
+            >
+              <UserPlus className="h-4 w-4" />
+              Criar Perfil e Começar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

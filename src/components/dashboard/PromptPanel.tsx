@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X } from "lucide-react";
+import { useState, useRef } from "react";
+import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ const PromptPanel = () => {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<PromptHistory[]>([]);
   const [fileStructure, setFileStructure] = useState<FileNode[] | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const addEnvVariable = () => {
@@ -153,6 +154,66 @@ const PromptPanel = () => {
     document.getElementById('prompt-input')?.focus();
   };
 
+  const handleEnvFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      const lines = content.split('\n');
+      const newVars: EnvVariable[] = [];
+
+      lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          const [name, ...valueParts] = trimmed.split('=');
+          if (name && valueParts.length > 0) {
+            const value = valueParts.join('=').replace(/^["']|["']$/g, '');
+            newVars.push({ name: name.trim(), value: value.trim() });
+          }
+        }
+      });
+
+      if (newVars.length > 0) {
+        setEnvVars((prev) => {
+          const existing = new Map(prev.map(v => [v.name, v]));
+          newVars.forEach(v => existing.set(v.name, v));
+          return Array.from(existing.values());
+        });
+        toast({
+          title: "Arquivo carregado",
+          description: `${newVars.length} variável(eis) importada(s)`,
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.name.endsWith('.env') || file.type === 'text/plain')) {
+      const fakeEvent = {
+        target: { files: [file] }
+      } as any;
+      handleEnvFileUpload(fakeEvent);
+    } else {
+      toast({
+        title: "Arquivo inválido",
+        description: "Por favor, envie um arquivo .env",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Área de input */}
@@ -161,7 +222,7 @@ const PromptPanel = () => {
         <div className="space-y-2">
           <Label htmlFor="folder-path" className="text-sm font-medium text-foreground flex items-center gap-2">
             <FolderOpen className="h-4 w-4 text-primary" />
-            Caminho da Pasta
+            Caminho da Pasta Raiz do Projeto
           </Label>
           <Input
             id="folder-path"
@@ -170,14 +231,47 @@ const PromptPanel = () => {
             onChange={(e) => setFolderPath(e.target.value)}
             className="border-primary/30 bg-background/50 focus-visible:ring-primary"
           />
+          <p className="text-xs text-muted-foreground">
+            Informe o caminho completo da pasta raiz do seu projeto
+          </p>
         </div>
 
         {/* Variáveis de Ambiente */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-            <FileCode className="h-4 w-4 text-primary" />
-            Variáveis de Ambiente
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <FileCode className="h-4 w-4 text-primary" />
+              Variáveis de Ambiente
+            </Label>
+            <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".env,text/plain"
+                onChange={handleEnvFileUpload}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="h-8 text-xs"
+              >
+                <Upload className="h-3 w-3 mr-1" />
+                Carregar .env
+              </Button>
+            </div>
+          </div>
+          
+          <div
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className="border-2 border-dashed border-primary/30 rounded-lg p-3 text-center bg-background/30 hover:border-primary/50 transition-colors"
+          >
+            <p className="text-xs text-muted-foreground">
+              Arraste um arquivo .env aqui ou use o botão acima
+            </p>
+          </div>
           
           {/* Tabela de variáveis */}
           {envVars.length > 0 && (
@@ -277,6 +371,14 @@ const PromptPanel = () => {
               </>
             )}
           </Button>
+          <Button
+            variant="outline"
+            className="h-12 px-6 border-finops/40 hover:border-finops hover:bg-finops/10 text-finops"
+            title="Testar aplicação"
+          >
+            <PlayCircle className="h-5 w-5 mr-2" />
+            Testar
+          </Button>
           <Button 
             variant="outline" 
             onClick={handleClear}
@@ -310,7 +412,7 @@ const PromptPanel = () => {
               {requestId}
             </span>
           </div>
-          <div className="bg-secondary/30 rounded-xl p-4 max-h-96 overflow-y-auto">
+          <div className="bg-background/30 rounded-xl p-4 max-h-96 overflow-y-auto border border-primary/20">
             <FileTree structure={fileStructure} />
           </div>
         </div>
@@ -327,7 +429,7 @@ const PromptPanel = () => {
               <button
                 key={item.id}
                 onClick={() => handleReusePrompt(item.text)}
-                className="w-full text-left p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-all duration-200 hover:shadow-md group"
+                className="w-full text-left p-4 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 hover:border-primary/30 transition-all duration-200 hover:shadow-md group"
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm text-foreground line-clamp-2 flex-1">
