@@ -1,10 +1,17 @@
 import { useState, useRef } from "react";
-import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, PlayCircle } from "lucide-react";
+import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, TestTube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import FileTree from "./FileTree";
 
 interface EnvVariable {
@@ -34,6 +41,7 @@ const PromptPanel = () => {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<PromptHistory[]>([]);
   const [fileStructure, setFileStructure] = useState<FileNode[] | null>(null);
+  const [showTestDialog, setShowTestDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -214,6 +222,40 @@ const PromptPanel = () => {
     }
   };
 
+  const handleCopyCurl = (curl: string) => {
+    navigator.clipboard.writeText(curl);
+    toast({
+      title: "cURL copiado",
+      description: "Comando copiado para a área de transferência",
+    });
+  };
+
+  const testCurls = [
+    {
+      name: "Health Check",
+      curl: `curl -X GET http://localhost:8000/health`,
+    },
+    {
+      name: "API Status",
+      curl: `curl -X GET http://localhost:8000/api/status`,
+    },
+    {
+      name: "List Users",
+      curl: `curl -X GET http://localhost:8000/api/users`,
+    },
+    {
+      name: "Create User",
+      curl: `curl -X POST http://localhost:8000/api/users \\
+  -H "Content-Type: application/json" \\
+  -d '{"name": "John Doe", "email": "john@example.com"}'`,
+    },
+    {
+      name: "Upload File",
+      curl: `curl -X POST http://localhost:8000/api/upload \\
+  -F "file=@/path/to/file.pdf"`,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Área de input */}
@@ -373,10 +415,11 @@ const PromptPanel = () => {
           </Button>
           <Button
             variant="outline"
+            onClick={() => setShowTestDialog(true)}
             className="h-12 px-6 border-finops/40 hover:border-finops hover:bg-finops/10 text-finops"
             title="Testar aplicação"
           >
-            <PlayCircle className="h-5 w-5 mr-2" />
+            <TestTube className="h-5 w-5 mr-2" />
             Testar
           </Button>
           <Button 
@@ -463,6 +506,43 @@ const PromptPanel = () => {
           </p>
         </div>
       )}
+
+      {/* Dialog de Testes com cURL */}
+      <Dialog open={showTestDialog} onOpenChange={setShowTestDialog}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-2">
+              <TestTube className="h-6 w-6" />
+              Exemplos de Testes cURL
+            </DialogTitle>
+            <DialogDescription>
+              Comandos de teste para seu backend
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {testCurls.map((test, index) => (
+              <div key={index} className="glass p-4 rounded-lg border border-primary/20">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-foreground">{test.name}</h4>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCopyCurl(test.curl)}
+                    className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
+                  >
+                    <Copy className="h-3 w-3 mr-1" />
+                    Copiar
+                  </Button>
+                </div>
+                <pre className="text-xs bg-background/50 p-3 rounded border border-primary/10 overflow-x-auto">
+                  <code className="text-muted-foreground font-mono">{test.curl}</code>
+                </pre>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

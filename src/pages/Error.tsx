@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Home, ArrowLeft, Rocket, Coffee, Bug, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const NotFound = () => {
+const Error = () => {
   const location = useLocation();
   const [message, setMessage] = useState("");
 
@@ -17,9 +17,9 @@ const NotFound = () => {
   ];
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    console.error("404 Error: User attempted to access /error route");
     setMessage(funMessages[Math.floor(Math.random() * funMessages.length)]);
-  }, [location.pathname]);
+  }, []);
 
   const icons = [Rocket, Coffee, Bug, Compass];
   const RandomIcon = icons[Math.floor(Math.random() * icons.length)];
@@ -86,4 +86,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default Error;

@@ -21,8 +21,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
+    const currentProfile = localStorage.getItem("currentProfile");
+    
     if (!isAuthenticated) {
       navigate("/auth");
+      return;
+    }
+    
+    if (!currentProfile) {
+      navigate("/profile-selection");
     }
   }, [navigate]);
 

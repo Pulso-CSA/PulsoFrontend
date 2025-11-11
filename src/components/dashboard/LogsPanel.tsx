@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Terminal, Info, AlertTriangle, XCircle, Filter, Trash2 } from "lucide-react";
+import { Terminal, Info, AlertTriangle, XCircle, Filter, Trash2, Play, RotateCw, Power, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 interface LogEntry {
   id: string;
@@ -12,6 +15,7 @@ interface LogEntry {
 }
 
 const LogsPanel = () => {
+  const { toast } = useToast();
   const [logs, setLogs] = useState<LogEntry[]>([
     {
       id: "1",
@@ -44,6 +48,10 @@ const LogsPanel = () => {
   ]);
   const [filter, setFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("all");
+  const [environmentStatus, setEnvironmentStatus] = useState<"stopped" | "running">("stopped");
+  const [environmentType, setEnvironmentType] = useState<"docker" | "venv" | null>(null);
+  const [showAppLogs, setShowAppLogs] = useState(false);
+  const [testEnvironment, setTestEnvironment] = useState<"docker" | "venv">("docker");
 
   const getLevelIcon = (level: string) => {
     switch (level) {
@@ -81,6 +89,90 @@ const LogsPanel = () => {
 
   const clearLogs = () => {
     setLogs([]);
+    toast({
+      title: "Logs limpos",
+      description: "Todos os logs foram removidos",
+    });
+  };
+
+  const addLog = (level: LogEntry["level"], message: string, source?: string) => {
+    const newLog: LogEntry = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      level,
+      message,
+      source,
+    };
+    setLogs((prev) => [newLog, ...prev]);
+  };
+
+  const handleStartEnvironment = () => {
+    setEnvironmentType(testEnvironment);
+    setEnvironmentStatus("running");
+    
+    addLog("info", `Iniciando ambiente ${testEnvironment === "docker" ? "Docker" : "Virtual Environment"}...`, "environment");
+    
+    setTimeout(() => {
+      addLog("info", `Ambiente ${testEnvironment === "docker" ? "Docker" : "Virtual Environment"} iniciado com sucesso`, "environment");
+      toast({
+        title: "Ambiente iniciado",
+        description: `${testEnvironment === "docker" ? "Docker" : "Virtual Environment"} está rodando`,
+      });
+    }, 2000);
+  };
+
+  const handleRestartEnvironment = () => {
+    if (environmentStatus === "stopped") {
+      toast({
+        title: "Ambiente parado",
+        description: "Inicie o ambiente antes de reiniciar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addLog("warning", `Reiniciando ambiente ${environmentType}...`, "environment");
+    
+    setTimeout(() => {
+      addLog("info", `Ambiente ${environmentType} reiniciado com sucesso`, "environment");
+      toast({
+        title: "Ambiente reiniciado",
+        description: "O ambiente foi reiniciado com sucesso",
+      });
+    }, 2000);
+  };
+
+  const handleStopEnvironment = () => {
+    if (environmentStatus === "stopped") {
+      toast({
+        title: "Ambiente já parado",
+        description: "O ambiente não está rodando",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addLog("warning", `Parando ambiente ${environmentType}...`, "environment");
+    
+    setTimeout(() => {
+      setEnvironmentStatus("stopped");
+      setEnvironmentType(null);
+      addLog("info", "Ambiente desligado com sucesso", "environment");
+      toast({
+        title: "Ambiente desligado",
+        description: "O ambiente foi desligado com sucesso",
+      });
+    }, 1500);
+  };
+
+  const toggleAppLogs = () => {
+    setShowAppLogs(!showAppLogs);
+    toast({
+      title: showAppLogs ? "Logs da aplicação ocultos" : "Logs da aplicação visíveis",
+      description: showAppLogs 
+        ? "Mostrando apenas logs do sistema" 
+        : "Mostrando logs da aplicação",
+    });
   };
 
   return (
@@ -93,6 +185,11 @@ const LogsPanel = () => {
             <h2 className="text-lg font-bold text-foreground">
               Controle de Logs
             </h2>
+            {environmentStatus === "running" && environmentType && (
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary border border-primary/30">
+                {environmentType === "docker" ? "Docker" : "venv"} • rodando
+              </span>
+            )}
           </div>
           <Button
             variant="outline"
@@ -102,6 +199,82 @@ const LogsPanel = () => {
           >
             <Trash2 className="h-3 w-3 mr-1" />
             Limpar
+          </Button>
+        </div>
+
+        {/* Switch Docker/venv */}
+        <div className="mb-6 flex items-center gap-4 p-4 glass border border-primary/20 rounded-xl">
+          <Label className="text-sm font-medium text-foreground">
+            Ambiente de teste:
+          </Label>
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium transition-colors ${
+              testEnvironment === "docker" ? "text-blue-500" : "text-muted-foreground"
+            }`}>
+              Docker
+            </span>
+            <Switch
+              checked={testEnvironment === "venv"}
+              onCheckedChange={(checked) => setTestEnvironment(checked ? "venv" : "docker")}
+              className={
+                testEnvironment === "venv"
+                  ? "data-[state=checked]:bg-emerald-500"
+                  : "data-[state=unchecked]:bg-blue-500"
+              }
+            />
+            <span className={`text-sm font-medium transition-colors ${
+              testEnvironment === "venv" ? "text-emerald-500" : "text-muted-foreground"
+            }`}>
+              venv
+            </span>
+          </div>
+        </div>
+
+        {/* Controles de Ambiente */}
+        <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleAppLogs}
+            className={`border-primary/40 hover:border-primary hover:bg-primary/10 ${
+              showAppLogs ? "bg-primary/20 border-primary" : ""
+            }`}
+          >
+            <FileText className="h-3.5 w-3.5 mr-2" />
+            Logs da App
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleStartEnvironment}
+            disabled={environmentStatus === "running"}
+            className="border-primary/40 hover:border-primary hover:bg-primary/10 disabled:opacity-50"
+          >
+            <Play className="h-3.5 w-3.5 mr-2" />
+            Subir Ambiente
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRestartEnvironment}
+            disabled={environmentStatus === "stopped"}
+            className="border-finops/40 hover:border-finops hover:bg-finops/10 disabled:opacity-50"
+          >
+            <RotateCw className="h-3.5 w-3.5 mr-2" />
+            Reiniciar
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleStopEnvironment}
+            disabled={environmentStatus === "stopped"}
+            className="border-destructive/40 hover:border-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            <Power className="h-3.5 w-3.5 mr-2" />
+            Desligar
           </Button>
         </div>
 
@@ -188,6 +361,7 @@ const LogsPanel = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
