@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import { Terminal, Info, AlertTriangle, XCircle, Filter, Trash2, Play, RotateCw, Power, FileText } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -14,8 +16,11 @@ interface LogEntry {
   source?: string;
 }
 
+const DEPLOY_BASE = "http://127.0.0.1:8001";
+
 const LogsPanel = () => {
   const { toast } = useToast();
+
   const [logs, setLogs] = useState<LogEntry[]>([
     {
       id: "1",
@@ -53,6 +58,8 @@ const LogsPanel = () => {
   const [showAppLogs, setShowAppLogs] = useState(false);
   const [testEnvironment, setTestEnvironment] = useState<"docker" | "venv">("docker");
 
+  const isDockerActive = environmentStatus === "running" && environmentType === "docker";
+
   const getLevelIcon = (level: string) => {
     switch (level) {
       case "info":
@@ -87,14 +94,6 @@ const LogsPanel = () => {
     return matchesText && matchesLevel;
   });
 
-  const clearLogs = () => {
-    setLogs([]);
-    toast({
-      title: "Logs limpos",
-      description: "Todos os logs foram removidos",
-    });
-  };
-
   const addLog = (level: LogEntry["level"], message: string, source?: string) => {
     const newLog: LogEntry = {
       id: Date.now().toString(),
@@ -106,22 +105,84 @@ const LogsPanel = () => {
     setLogs((prev) => [newLog, ...prev]);
   };
 
-  const handleStartEnvironment = () => {
+  // --- Mínimas adições: helper para chamar as rotas locais de deploy ---
+  const callDeploy = async (path: string, opts?: RequestInit) => {
+    try {
+      const res = await fetch(`${DEPLOY_BASE}${path}`, {
+        method: "POST",
+        ...opts,
+        // Permite GET quando necessário (ex.: logs)
+        method: opts?.method || (path.includes("/logs") ? "GET" : "POST"),
+        headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
+      });
+
+      const text = await res.text();
+      const ok = res.ok;
+
+      // Tenta interpretar JSON simples {message, level} mas mantém compatibilidade com texto puro
+      try {
+        const json = JSON.parse(text);
+        if (json?.message) {
+          addLog((json.level as LogEntry["level"]) || "info", json.message, "deploy");
+        } else {
+          addLog("info", text || `OK ${path}`, "deploy");
+        }
+      } catch {
+        // Se não for JSON, registra texto cru
+        if (text.trim()) addLog("info", text.trim(), "deploy");
+        else addLog(ok ? "info" : "error", `${ok ? "OK" : "Erro"} em ${path}`, "deploy");
+      }
+
+      return { ok, text };
+    } catch (e: any) {
+      addLog("error", `Falha em ${path}: ${e?.message || e}`, "deploy");
+      toast({
+        title: "Erro na operação",
+        description: `Falha ao chamar ${path}`,
+        variant: "destructive",
+      });
+      return { ok: false, text: "" };
+    }
+  };
+
+  const clearLogs = async () => {
+    if (isDockerActive) {
+      await callDeploy("/deploy/docker/logs/clear");
+    }
+    setLogs([]);
+    toast({
+      title: "Logs limpos",
+      description: "Todos os logs foram removidos",
+    });
+  };
+
+  const handleStartEnvironment = async () => {
     setEnvironmentType(testEnvironment);
-    setEnvironmentStatus("running");
-    
-    addLog("info", `Iniciando ambiente ${testEnvironment === "docker" ? "Docker" : "Virtual Environment"}...`, "environment");
-    
-    setTimeout(() => {
-      addLog("info", `Ambiente ${testEnvironment === "docker" ? "Docker" : "Virtual Environment"} iniciado com sucesso`, "environment");
+    // Se for Docker, aciona rota /deploy/docker/start
+    if (testEnvironment === "docker") {
+      await callDeploy("/deploy/docker/start");
+      setEnvironmentStatus("running");
+      addLog("info", "Ambiente Docker marcado como em execução", "environment");
       toast({
         title: "Ambiente iniciado",
-        description: `${testEnvironment === "docker" ? "Docker" : "Virtual Environment"} está rodando`,
+        description: "Docker está rodando",
+      });
+      return;
+    }
+
+    // Comportamento anterior para venv
+    setEnvironmentStatus("running");
+    addLog("info", `Iniciando ambiente Virtual Environment...`, "environment");
+    setTimeout(() => {
+      addLog("info", `Ambiente Virtual Environment iniciado com sucesso`, "environment");
+      toast({
+        title: "Ambiente iniciado",
+        description: `Virtual Environment está rodando`,
       });
     }, 2000);
   };
 
-  const handleRestartEnvironment = () => {
+  const handleRestartEnvironment = async () => {
     if (environmentStatus === "stopped") {
       toast({
         title: "Ambiente parado",
@@ -131,8 +192,19 @@ const LogsPanel = () => {
       return;
     }
 
+    if (isDockerActive) {
+      addLog("warning", `Reiniciando ambiente docker...`, "environment");
+      await callDeploy("/deploy/docker/rebuild");
+      addLog("info", `Ambiente docker reiniciado com sucesso`, "environment");
+      toast({
+        title: "Ambiente reiniciado",
+        description: "O ambiente foi reiniciado com sucesso",
+      });
+      return;
+    }
+
+    // Comportamento anterior para venv
     addLog("warning", `Reiniciando ambiente ${environmentType}...`, "environment");
-    
     setTimeout(() => {
       addLog("info", `Ambiente ${environmentType} reiniciado com sucesso`, "environment");
       toast({
@@ -142,7 +214,7 @@ const LogsPanel = () => {
     }, 2000);
   };
 
-  const handleStopEnvironment = () => {
+  const handleStopEnvironment = async () => {
     if (environmentStatus === "stopped") {
       toast({
         title: "Ambiente já parado",
@@ -152,8 +224,21 @@ const LogsPanel = () => {
       return;
     }
 
+    if (isDockerActive) {
+      addLog("warning", `Parando ambiente docker...`, "environment");
+      await callDeploy("/deploy/docker/shutdown");
+      setEnvironmentStatus("stopped");
+      setEnvironmentType(null);
+      addLog("info", "Ambiente desligado com sucesso", "environment");
+      toast({
+        title: "Ambiente desligado",
+        description: "O ambiente foi desligado com sucesso",
+      });
+      return;
+    }
+
+    // Comportamento anterior para venv
     addLog("warning", `Parando ambiente ${environmentType}...`, "environment");
-    
     setTimeout(() => {
       setEnvironmentStatus("stopped");
       setEnvironmentType(null);
@@ -165,13 +250,35 @@ const LogsPanel = () => {
     }, 1500);
   };
 
-  const toggleAppLogs = () => {
+  const handleFetchAppLogs = async () => {
+    if (isDockerActive) {
+      const res = await callDeploy("/deploy/docker/logs", { method: "GET" });
+      // Se vier texto contendo múltiplas linhas, adiciona cada uma como log informativo
+      const text = res.text || "";
+      const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+      if (lines.length > 0) {
+        const entries: LogEntry[] = lines.map((line) => ({
+          id: `${Date.now()}-${Math.random()}`,
+          timestamp: new Date(),
+          level: "info",
+          message: line,
+          source: "app",
+        }));
+        setLogs((prev) => [...entries, ...prev]);
+      }
+      setShowAppLogs(true);
+      toast({
+        title: "Logs da aplicação",
+        description: "Logs obtidos do ambiente Docker",
+      });
+      return;
+    }
+
+    // Comportamento anterior quando não for Docker ativo
     setShowAppLogs(!showAppLogs);
     toast({
       title: showAppLogs ? "Logs da aplicação ocultos" : "Logs da aplicação visíveis",
-      description: showAppLogs 
-        ? "Mostrando apenas logs do sistema" 
-        : "Mostrando logs da aplicação",
+      description: showAppLogs ? "Mostrando apenas logs do sistema" : "Mostrando logs da aplicação",
     });
   };
 
@@ -208,9 +315,11 @@ const LogsPanel = () => {
             Ambiente de teste:
           </Label>
           <div className="flex items-center gap-3">
-            <span className={`text-sm font-medium transition-colors ${
-              testEnvironment === "docker" ? "text-blue-500" : "text-muted-foreground"
-            }`}>
+            <span
+              className={`text-sm font-medium transition-colors ${
+                testEnvironment === "docker" ? "text-blue-500" : "text-muted-foreground"
+              }`}
+            >
               Docker
             </span>
             <Switch
@@ -222,9 +331,11 @@ const LogsPanel = () => {
                   : "data-[state=unchecked]:bg-blue-500"
               }
             />
-            <span className={`text-sm font-medium transition-colors ${
-              testEnvironment === "venv" ? "text-emerald-500" : "text-muted-foreground"
-            }`}>
+            <span
+              className={`text-sm font-medium transition-colors ${
+                testEnvironment === "venv" ? "text-emerald-500" : "text-muted-foreground"
+              }`}
+            >
               venv
             </span>
           </div>
@@ -235,7 +346,7 @@ const LogsPanel = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={toggleAppLogs}
+            onClick={handleFetchAppLogs}
             className={`border-primary/40 hover:border-primary hover:bg-primary/10 ${
               showAppLogs ? "bg-primary/20 border-primary" : ""
             }`}
@@ -243,7 +354,6 @@ const LogsPanel = () => {
             <FileText className="h-3.5 w-3.5 mr-2" />
             Logs da App
           </Button>
-          
           <Button
             variant="outline"
             size="sm"
@@ -361,7 +471,6 @@ const LogsPanel = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
