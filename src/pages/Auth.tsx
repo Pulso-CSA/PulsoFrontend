@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { z } from "zod";
 
-// ⭐ NOVO: mínimo necessário
-const API_URL = "https://pulsoapi-production-d109.up.railway.app/auth";
+// ⭐ CORREÇÃO DEFINITIVA
+const API_URL = "https://pulsoapi-production-d109.up.railway.app/auth/";
 
 const profileSchema = z.object({
   name: z.string()
@@ -114,7 +114,7 @@ const Auth = () => {
     navigate("/profile-selection");
   };
 
-  // ⭐ ALTERAÇÃO MÍNIMA: Substituí o setTimeout fake por chamada real ao backend
+  // ⭐ ALTERAÇÃO MÍNIMA REAL AQUI
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -154,7 +154,8 @@ const Auth = () => {
         }
       }
 
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      // ⭐ FETCH CORRIGIDO
+      const res = await fetch(`${API_URL}${endpoint.replace("/", "")}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -219,7 +220,6 @@ const Auth = () => {
         </div>
 
         <div className="glass-strong border-2 border-primary/30 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,255,255,0.2)]">
-          {/* Google Login Button */}
           <Button
             type="button"
             variant="outline"
@@ -280,12 +280,11 @@ const Auth = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              
+
               {!isLogin && formData.password && (
                 <div className="mt-2 space-y-2">
                   <div className="flex items-center gap-2">
@@ -294,6 +293,7 @@ const Auth = () => {
                       {passwordStrength(formData.password).level}
                     </span>
                   </div>
+
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {passwordChecklist.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-1">
@@ -328,7 +328,6 @@ const Auth = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -389,7 +388,6 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Create First Profile Dialog */}
       <Dialog open={showProfileDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader className="space-y-3">
