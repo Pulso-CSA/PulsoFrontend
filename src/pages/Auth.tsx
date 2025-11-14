@@ -17,7 +17,7 @@ import {
 import { z } from "zod";
 
 // ⭐ NOVO: mínimo necessário
-const API_URL = "http://localhost:8001/auth";
+const API_URL = "pulsoapi-production-d109.up.railway.app/auth";
 
 const profileSchema = z.object({
   name: z.string()
