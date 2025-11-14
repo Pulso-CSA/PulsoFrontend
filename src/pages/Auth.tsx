@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/dialog";
 import { z } from "zod";
 
+// ⭐ NOVO: mínimo necessário
+const API_URL = "http://localhost:8001/auth";
+
 const profileSchema = z.object({
   name: z.string()
     .trim()
@@ -111,11 +114,11 @@ const Auth = () => {
     navigate("/profile-selection");
   };
 
+  // ⭐ ALTERAÇÃO MÍNIMA: Substituí o setTimeout fake por chamada real ao backend
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Validações
     if (!validateEmail(formData.email)) {
       toast({
         title: "E-mail inválido",
@@ -126,73 +129,72 @@ const Auth = () => {
       return;
     }
 
-    if (!isLogin) {
-      if (formData.password !== formData.confirmPassword) {
-        toast({
-          title: "Senhas não coincidem",
-          description: "As senhas devem ser iguais",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
+    try {
+      let endpoint = isLogin ? "/login" : "/register";
+
+      if (!isLogin) {
+        if (formData.password !== formData.confirmPassword) {
+          toast({
+            title: "Senhas não coincidem",
+            description: "As senhas devem ser iguais",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (!formData.acceptTerms) {
+          toast({
+            title: "Aceite os termos",
+            description: "É necessário concordar com a política de uso",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
       }
 
-      if (!formData.acceptTerms) {
-        toast({
-          title: "Aceite os termos",
-          description: "É necessário concordar com a política de uso",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || "Erro inesperado");
+
+      localStorage.setItem("isAuthenticated", "true");
+      if (data.access_token) localStorage.setItem("token", data.access_token);
+
+      toast({
+        title: isLogin ? "Login realizado" : "Conta criada",
+        description: "Bem-vindo!",
+      });
+
+      navigate("/profile-selection");
+
+    } catch (err: any) {
+      toast({
+        title: "Erro",
+        description: err.message,
+        variant: "destructive",
+      });
     }
 
-    // Simular autenticação
-    setTimeout(() => {
-      localStorage.setItem("isAuthenticated", "true");
-      
-      if (isLogin) {
-        const storedProfiles = localStorage.getItem("profiles");
-        toast({
-          title: "Login realizado",
-          description: "Bem-vindo de volta!",
-        });
-        
-        if (!storedProfiles || JSON.parse(storedProfiles).length === 0) {
-          setShowProfileDialog(true);
-        } else {
-          navigate("/profile-selection");
-        }
-      } else {
-        // Para signup, mostrar diálogo de criação de perfil obrigatório
-        setShowProfileDialog(true);
-      }
-      
-      setLoading(false);
-    }, 1000);
+    setLoading(false);
   };
 
   const handleGoogleLogin = () => {
-    setLoading(true);
-    // Simular login com Google
-    setTimeout(() => {
-      localStorage.setItem("isAuthenticated", "true");
-      const storedProfiles = localStorage.getItem("profiles");
-      
-      toast({
-        title: "Login realizado",
-        description: "Bem-vindo via Google!",
-      });
-      
-      if (!storedProfiles || JSON.parse(storedProfiles).length === 0) {
-        setShowProfileDialog(true);
-      } else {
-        navigate("/profile-selection");
-      }
-      
-      setLoading(false);
-    }, 1000);
+    toast({
+      title: "Google OAuth indisponível",
+      description: "Disponível apenas no backend real",
+      variant: "destructive",
+    });
   };
 
   return (
