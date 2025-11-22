@@ -48,7 +48,20 @@ const ProfileSelection = () => {
       const profilesList = Array.isArray(data) ? data : (data.profiles || []);
       
       setProfiles(profilesList);
-      // Não salvar perfis completos no localStorage - apenas o ID do perfil selecionado
+      
+      // Restaurar perfil selecionado do localStorage se existir e for válido
+      const savedProfileId = localStorage.getItem("selectedProfileId");
+      if (savedProfileId) {
+        // Verificar se o perfil salvo existe na lista de perfis carregados
+        const profileExists = profilesList.some((p: Profile) => p.id === savedProfileId);
+        if (profileExists) {
+          setSelectedProfileId(savedProfileId);
+        } else {
+          // Perfil salvo não existe mais (foi deletado ou é de outro dispositivo)
+          // Limpar o ID salvo e deixar o usuário escolher
+          localStorage.removeItem("selectedProfileId");
+        }
+      }
     } catch (err: any) {
       toast({
         title: "Erro ao carregar perfis",

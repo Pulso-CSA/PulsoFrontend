@@ -248,28 +248,8 @@ const Auth = () => {
       if (!isLogin) {
         setShowProfileDialog(true);
       } else {
-        // Ao fazer login, buscar perfis do servidor
-        try {
-          const profilesRes = await fetch(`${PROFILES_URL}`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${data.access_token}`,
-            },
-          });
-
-          if (profilesRes.ok) {
-            const profilesData = await profilesRes.json();
-            const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-            // Salvar apenas o ID do primeiro perfil selecionado (opcional)
-            if (profilesList.length > 0) {
-              localStorage.setItem("selectedProfileId", profilesList[0].id);
-            }
-          }
-        } catch (err) {
-          // Se falhar ao buscar perfis, continuar mesmo assim
-          console.error("Erro ao buscar perfis após login:", err);
-        }
-        
+        // Ao fazer login, não selecionar perfil automaticamente
+        // Deixar o usuário escolher na página de seleção de perfis
         navigate("/profile-selection");
       }
 

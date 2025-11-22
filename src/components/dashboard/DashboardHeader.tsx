@@ -28,7 +28,14 @@ const DashboardHeader = () => {
         const token = localStorage.getItem("token");
         const selectedProfileId = localStorage.getItem("selectedProfileId");
         
-        if (!token || !selectedProfileId) {
+        if (!token) {
+          return;
+        }
+
+        // Se não há perfil selecionado, buscar lista de perfis mas não selecionar automaticamente
+        if (!selectedProfileId) {
+          // Limpar perfil atual e deixar usuário escolher na página de seleção
+          setCurrentProfile(null);
           return;
         }
 
@@ -46,26 +53,14 @@ const DashboardHeader = () => {
             name: profile.name,
             description: profile.description || "",
           });
-        } else if (res.status === 404) {
-          // Perfil não encontrado, buscar lista de perfis e usar o primeiro
-          const profilesRes = await fetch(`${PROFILES_URL}`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-            },
-          });
-
-          if (profilesRes.ok) {
-            const profilesData = await profilesRes.json();
-            const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-            if (profilesList.length > 0) {
-              const firstProfile = profilesList[0];
-              setCurrentProfile({
-                name: firstProfile.name,
-                description: firstProfile.description || "",
-              });
-              localStorage.setItem("selectedProfileId", firstProfile.id);
-            }
+        } else if (res.status === 404 || res.status === 403) {
+          // Perfil não encontrado ou sem acesso, remover do localStorage
+          localStorage.removeItem("selectedProfileId");
+          setCurrentProfile(null);
+          
+          // Redirecionar para seleção de perfis se não estiver lá
+          if (!window.location.pathname.includes("profile-selection")) {
+            navigate("/profile-selection");
           }
         }
       } catch (error) {
@@ -74,7 +69,7 @@ const DashboardHeader = () => {
     };
 
     loadCurrentProfile();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");

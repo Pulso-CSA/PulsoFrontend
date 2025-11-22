@@ -107,21 +107,36 @@ const ProfileManagement = ({
         throw new Error(data.detail || data.message || "Erro ao criar perfil");
       }
 
-      const newProfile: Profile = {
-        id: data.id || data._id || Date.now().toString(),
-        name: data.name,
-        description: data.description || "",
-        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-      };
+      // Recarregar perfis do servidor para garantir sincronização
+      const profilesRes = await fetch(`${PROFILES_URL}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
-      onProfilesChange([...profiles, newProfile]);
+      if (profilesRes.ok) {
+        const profilesData = await profilesRes.json();
+        const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+        onProfilesChange(profilesList);
+      } else {
+        // Se não conseguir recarregar, adicionar o novo perfil ao estado local
+        const newProfile: Profile = {
+          id: data.id || data._id || Date.now().toString(),
+          name: data.name,
+          description: data.description || "",
+          createdAt: data.createdAt || data.created_at || new Date().toISOString(),
+        };
+        onProfilesChange([...profiles, newProfile]);
+      }
+
       setFormData({ name: "", description: "" });
       setIsCreating(false);
       setErrors({});
 
       toast({
         title: "Perfil criado",
-        description: `Perfil "${newProfile.name}" criado com sucesso`,
+        description: `Perfil criado com sucesso`,
       });
     } catch (err: any) {
       toast({
@@ -164,17 +179,32 @@ const ProfileManagement = ({
         throw new Error(data.detail || data.message || "Erro ao atualizar perfil");
       }
 
-      const updatedProfiles = profiles.map((profile) =>
-        profile.id === id
-          ? { 
-              ...profile, 
-              name: data.name || formData.name.trim(), 
-              description: data.description || formData.description.trim() 
-            }
-          : profile
-      );
+      // Recarregar perfis do servidor para garantir sincronização
+      const profilesRes = await fetch(`${PROFILES_URL}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
-      onProfilesChange(updatedProfiles);
+      if (profilesRes.ok) {
+        const profilesData = await profilesRes.json();
+        const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+        onProfilesChange(profilesList);
+      } else {
+        // Se não conseguir recarregar, atualizar o estado local
+        const updatedProfiles = profiles.map((profile) =>
+          profile.id === id
+            ? { 
+                ...profile, 
+                name: data.name || formData.name.trim(), 
+                description: data.description || formData.description.trim() 
+              }
+            : profile
+        );
+        onProfilesChange(updatedProfiles);
+      }
+
       setEditingId(null);
       setFormData({ name: "", description: "" });
       setErrors({});
@@ -221,12 +251,45 @@ const ProfileManagement = ({
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || data.message || "Erro ao deletar perfil");
+        // Tentar ler JSON de erro apenas se o status não for 204
+        let errorMessage = "Erro ao deletar perfil";
+        if (res.status !== 204) {
+          try {
+            const data = await res.json();
+            errorMessage = data.detail || data.message || errorMessage;
+          } catch {
+            // Se não conseguir ler JSON, usar mensagem padrão
+          }
+        }
+        throw new Error(errorMessage);
       }
 
-      const updatedProfiles = profiles.filter((profile) => profile.id !== id);
-      onProfilesChange(updatedProfiles);
+      // Backend retorna 204 (No Content) quando deleta com sucesso
+      // Verificar se o perfil deletado é o selecionado
+      const selectedProfileId = localStorage.getItem("selectedProfileId");
+      if (selectedProfileId === id) {
+        // Se for o perfil selecionado, limpar e deixar usuário escolher outro
+        localStorage.removeItem("selectedProfileId");
+      }
+
+      // Recarregar perfis do servidor para garantir sincronização
+      const profilesRes = await fetch(`${PROFILES_URL}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (profilesRes.ok) {
+        const profilesData = await profilesRes.json();
+        const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+        onProfilesChange(profilesList);
+      } else {
+        // Se não conseguir recarregar, remover do estado local
+        const updatedProfiles = profiles.filter((profile) => profile.id !== id);
+        onProfilesChange(updatedProfiles);
+      }
+
       setDeletingId(null);
 
       toast({
