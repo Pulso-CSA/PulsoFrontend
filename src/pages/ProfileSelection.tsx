@@ -48,8 +48,7 @@ const ProfileSelection = () => {
       const profilesList = Array.isArray(data) ? data : (data.profiles || []);
       
       setProfiles(profilesList);
-      // Atualizar localStorage como cache
-      localStorage.setItem("profiles", JSON.stringify(profilesList));
+      // Não salvar perfis completos no localStorage - apenas o ID do perfil selecionado
     } catch (err: any) {
       toast({
         title: "Erro ao carregar perfis",
@@ -74,15 +73,14 @@ const ProfileSelection = () => {
 
   const handleProfilesChange = (updatedProfiles: Profile[]) => {
     setProfiles(updatedProfiles);
-    // Atualizar localStorage como cache (mas a fonte de verdade é o servidor)
-    localStorage.setItem("profiles", JSON.stringify(updatedProfiles));
+    // Não salvar perfis completos no localStorage - a fonte de verdade é o servidor
   };
 
   const handleSelectProfile = (profileId: string) => {
     setSelectedProfileId(profileId);
   };
 
-  const handleAccessPlatform = () => {
+  const handleAccessPlatform = async () => {
     if (!selectedProfileId) {
       toast({
         title: "Selecione um perfil",
@@ -92,14 +90,15 @@ const ProfileSelection = () => {
       return;
     }
 
-    const selectedProfile = profiles.find(p => p.id === selectedProfileId);
-    localStorage.setItem("currentProfile", JSON.stringify(selectedProfile));
+    // Salvar apenas o ID do perfil selecionado
+    localStorage.setItem("selectedProfileId", selectedProfileId);
     navigate("/dashboard");
   };
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("currentProfile");
+    localStorage.removeItem("token");
+    localStorage.removeItem("selectedProfileId");
     navigate("/auth");
   };
 

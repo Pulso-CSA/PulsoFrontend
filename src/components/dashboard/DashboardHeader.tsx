@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ProfileDialog from "./ProfileDialog";
 
+const API_URL = "https://pulsoapi-production-d109.up.railway.app";
+const PROFILES_URL = `${API_URL}/profiles`;
+
 const DashboardHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -20,15 +23,63 @@ const DashboardHeader = () => {
   const [currentProfile, setCurrentProfile] = useState<{ name: string; description: string } | null>(null);
 
   useEffect(() => {
-    const profile = localStorage.getItem("currentProfile");
-    if (profile) {
-      setCurrentProfile(JSON.parse(profile));
-    }
+    const loadCurrentProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const selectedProfileId = localStorage.getItem("selectedProfileId");
+        
+        if (!token || !selectedProfileId) {
+          return;
+        }
+
+        // Buscar perfil específico do backend
+        const res = await fetch(`${PROFILES_URL}/${selectedProfileId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const profile = await res.json();
+          setCurrentProfile({
+            name: profile.name,
+            description: profile.description || "",
+          });
+        } else if (res.status === 404) {
+          // Perfil não encontrado, buscar lista de perfis e usar o primeiro
+          const profilesRes = await fetch(`${PROFILES_URL}`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+
+          if (profilesRes.ok) {
+            const profilesData = await profilesRes.json();
+            const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+            if (profilesList.length > 0) {
+              const firstProfile = profilesList[0];
+              setCurrentProfile({
+                name: firstProfile.name,
+                description: firstProfile.description || "",
+              });
+              localStorage.setItem("selectedProfileId", firstProfile.id);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar perfil atual:", error);
+      }
+    };
+
+    loadCurrentProfile();
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("currentProfile");
+    localStorage.removeItem("token");
+    localStorage.removeItem("selectedProfileId");
     toast({
       title: "Sessão encerrada",
       description: "Até logo!",
@@ -37,7 +88,7 @@ const DashboardHeader = () => {
   };
 
   const handleSwitchProfile = () => {
-    localStorage.removeItem("currentProfile");
+    localStorage.removeItem("selectedProfileId");
     toast({
       title: "Trocar de perfil",
       description: "Selecione outro perfil",
@@ -47,8 +98,8 @@ const DashboardHeader = () => {
 
   const handleSwitchAccount = () => {
     localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("userProfile");
-    localStorage.removeItem("currentProfile");
+    localStorage.removeItem("token");
+    localStorage.removeItem("selectedProfileId");
     toast({
       title: "Trocar de conta",
       description: "Faça login com outra conta",

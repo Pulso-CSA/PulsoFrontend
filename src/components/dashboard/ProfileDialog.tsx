@@ -22,6 +22,9 @@ interface ProfileDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const API_URL = "https://pulsoapi-production-d109.up.railway.app";
+const PROFILES_URL = `${API_URL}/profiles`;
+
 const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -30,25 +33,64 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+  });
   
-  // Carregar dados do localStorage
-  const savedProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
-
+  // Buscar dados do usuário e perfis do backend quando o diálogo abrir
   useEffect(() => {
-    const savedProfiles = localStorage.getItem("userProfiles");
-    if (savedProfiles) {
-      setProfiles(JSON.parse(savedProfiles));
+    if (open) {
+      const loadData = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) return;
+
+          // Buscar perfis do backend
+          const profilesRes = await fetch(`${PROFILES_URL}`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+
+          if (profilesRes.ok) {
+            const profilesData = await profilesRes.json();
+            const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+            setProfiles(profilesList);
+          }
+
+          // Nota: Se houver um endpoint para dados do usuário (ex: /auth/me), usar aqui
+          // Por enquanto, os dados do usuário não são salvos no backend, apenas no token JWT
+          // Pode ser necessário decodificar o token JWT ou criar um endpoint específico
+        } catch (error) {
+          console.error("Erro ao carregar dados:", error);
+        }
+      };
+
+      loadData();
     }
-  }, []);
+  }, [open]);
   
   const [formData, setFormData] = useState({
-    name: savedProfile.name || "",
-    email: savedProfile.email || "",
-    avatarUrl: savedProfile.avatarUrl || "",
+    name: "",
+    email: "",
+    avatarUrl: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // Sincronizar formData com userData quando userData mudar
+  useEffect(() => {
+    if (userData.name || userData.email) {
+      setFormData(prev => ({
+        ...prev,
+        name: userData.name || prev.name,
+        email: userData.email || prev.email,
+      }));
+    }
+  }, [userData]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,20 +151,33 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       }
     }
 
-    // Simular salvamento
-    setTimeout(() => {
-      const profileData = {
+    // Nota: Esta funcionalidade requer endpoints no backend para:
+    // 1. Atualizar dados do usuário (PUT /auth/me ou similar)
+    // 2. Alterar senha (PUT /auth/change-password ou similar)
+    // Por enquanto, apenas exibimos mensagem informativa
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Token não encontrado. Faça login novamente.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // TODO: Implementar chamadas ao backend quando os endpoints estiverem disponíveis
+      // Por enquanto, apenas atualizar o estado local
+      setUserData({
         name: formData.name,
         email: formData.email,
-        avatarUrl: formData.avatarUrl,
-      };
-      localStorage.setItem("userProfile", JSON.stringify(profileData));
+      });
       
       toast({
-        title: "Conta atualizada",
-        description: formData.newPassword 
-          ? "Suas informações e senha foram atualizadas com sucesso" 
-          : "Suas informações foram salvas com sucesso",
+        title: "Informação",
+        description: "A atualização de perfil será implementada quando os endpoints do backend estiverem disponíveis.",
       });
       
       // Limpar campos de senha
@@ -135,7 +190,14 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       
       setLoading(false);
       onOpenChange(false);
-    }, 500);
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível atualizar as informações.",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
   };
 
   const getInitials = () => {
@@ -150,7 +212,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
   const handleProfilesChange = (updatedProfiles: Profile[]) => {
     setProfiles(updatedProfiles);
-    localStorage.setItem("userProfiles", JSON.stringify(updatedProfiles));
+    // Não salvar perfis no localStorage - a fonte de verdade é o backend
   };
 
   return (

@@ -127,15 +127,8 @@ const Auth = () => {
         throw new Error(data.detail || data.message || "Erro ao criar perfil");
       }
 
-      // Salva os dados do perfil retornado pelo backend
-      const savedProfiles = [data];
-      localStorage.setItem("profiles", JSON.stringify(savedProfiles));
-      
-      // Mantém os dados do usuário no localStorage (se necessário)
-      localStorage.setItem("userProfile", JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-      }));
+      // Salva apenas o ID do perfil selecionado no localStorage
+      localStorage.setItem("selectedProfileId", data.id);
       
       // Recarrega os perfis do servidor para garantir sincronização
       try {
@@ -147,12 +140,11 @@ const Auth = () => {
         });
 
         if (profilesRes.ok) {
-          const profilesData = await profilesRes.json();
-          const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-          localStorage.setItem("profiles", JSON.stringify(profilesList));
+          // Perfis são carregados do backend, não salvos no localStorage
+          // O ID do perfil selecionado já foi salvo acima
         }
       } catch (err) {
-        // Se falhar, usar o perfil recém-criado
+        // Se falhar, continuar mesmo assim
         console.error("Erro ao recarregar perfis:", err);
       }
 
@@ -177,9 +169,16 @@ const Auth = () => {
   // ⭐ FLUXO DE LOGIN/REGISTRO
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevenir múltiplos envios
+    if (loading) return;
+    
     setLoading(true);
 
-    if (!validateEmail(formData.email)) {
+    // Normalizar email (lowercase e trim)
+    const normalizedEmail = formData.email.toLowerCase().trim();
+
+    if (!validateEmail(normalizedEmail)) {
       toast({
         title: "E-mail inválido",
         description: "Informe um e-mail válido",
@@ -216,17 +215,32 @@ const Auth = () => {
 
       const res = await fetch(`${AUTH_URL}${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+        },
+        cache: "no-store", // Prevenir cache
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
+          name: formData.name.trim(),
+          email: normalizedEmail, // Email normalizado
           password: formData.password,
         }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.detail || "Erro inesperado");
+      // Tratamento específico para erro 409 (email já cadastrado)
+      if (!res.ok) {
+        if (res.status === 409) {
+          toast({
+            title: "E-mail já cadastrado",
+            description: "Este e-mail já está cadastrado. Faça login ou use outro e-mail.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+        throw new Error(data.detail || data.message || "Erro inesperado");
+      }
 
       localStorage.setItem("isAuthenticated", "true");
       if (data.access_token) localStorage.setItem("token", data.access_token);
@@ -246,7 +260,10 @@ const Auth = () => {
           if (profilesRes.ok) {
             const profilesData = await profilesRes.json();
             const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-            localStorage.setItem("profiles", JSON.stringify(profilesList));
+            // Salvar apenas o ID do primeiro perfil selecionado (opcional)
+            if (profilesList.length > 0) {
+              localStorage.setItem("selectedProfileId", profilesList[0].id);
+            }
           }
         } catch (err) {
           // Se falhar ao buscar perfis, continuar mesmo assim
@@ -339,7 +356,7 @@ const Auth = () => {
                 type="email"
                 placeholder="nome@empresa.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value.trim() })}
                 required
               />
             </div>

@@ -21,14 +21,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
-    const currentProfile = localStorage.getItem("currentProfile");
+    const token = localStorage.getItem("token");
+    const selectedProfileId = localStorage.getItem("selectedProfileId");
     
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !token) {
       navigate("/auth");
       return;
     }
     
-    if (!currentProfile) {
+    // Verificar se há um perfil selecionado
+    if (!selectedProfileId) {
       navigate("/profile-selection");
     }
   }, [navigate]);
