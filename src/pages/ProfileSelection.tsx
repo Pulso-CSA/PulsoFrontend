@@ -137,17 +137,37 @@ const ProfileSelection = () => {
         throw new Error("Erro ao validar perfil");
       }
 
-      // ⚠️ IMPORTANTE: Salvar o perfil selecionado no backend
-      // O backend precisa implementar uma das seguintes rotas:
-      // Opção 1: PUT/PATCH /auth/user/selected-profile
-      // Opção 2: PUT/PATCH /auth/user com campo selectedProfileId
-      // Opção 3: Adicionar campo selectedProfileId ao modelo de User no banco
-      // 
-      // Por enquanto, tentamos salvar via uma possível rota de usuário
-      // Se não existir, o localStorage serve como fallback, mas não sincroniza entre dispositivos
+      // ⚠️ PROBLEMA IDENTIFICADO:
+      // As rotas para salvar o perfil selecionado no backend NÃO ESTÃO SENDO DISPARADAS
+      // porque as rotas não existem no backend ou estão retornando erro.
+      //
+      // SOLUÇÃO NECESSÁRIA NO BACKEND:
+      // O backend PRECISA implementar uma das seguintes rotas para sincronizar o perfil entre dispositivos:
+      //
+      // Opção 1 (Recomendada): PUT /auth/user/selected-profile
+      //   - Body: { "selectedProfileId": "profile_id_aqui" }
+      //   - Response: { "success": true, "selectedProfileId": "profile_id_aqui" }
+      //
+      // Opção 2: PUT /auth/user
+      //   - Body: { "selectedProfileId": "profile_id_aqui" }
+      //   - Deve atualizar o campo selectedProfileId no modelo User
+      //
+      // Opção 3: Adicionar campo selectedProfileId ao modelo User no banco e criar rota para atualizar
+      //
+      // IMPORTANTE: Sem essas rotas, o perfil será salvo APENAS no localStorage local,
+      // o que significa que NÃO será sincronizado entre diferentes dispositivos/navegadores!
+      
+      console.log("🔍 Tentando salvar perfil selecionado no backend...");
+      console.log("📤 Perfil ID:", selectedProfileId);
+      console.log("📤 URL da API:", API_URL);
+      
       let savedToBackend = false;
+      let lastError: string | null = null;
+      let lastStatus: number | null = null;
+      
       try {
         // Tentativa 1: Rota específica para perfil selecionado
+        console.log("🔄 Tentativa 1: PUT /auth/user/selected-profile");
         const saveRes = await fetch(`${API_URL}/auth/user/selected-profile`, {
           method: "PUT",
           headers: {
@@ -157,35 +177,99 @@ const ProfileSelection = () => {
           body: JSON.stringify({ selectedProfileId }),
         });
 
+        console.log("📥 Resposta recebida - Status:", saveRes.status, saveRes.statusText);
+
         if (saveRes.ok) {
           savedToBackend = true;
-        } else if (saveRes.status === 404) {
-          // Rota não existe, tentar outra abordagem
-          try {
+          console.log("✅ SUCESSO! Perfil selecionado salvo no backend via /auth/user/selected-profile");
+          const responseData = await saveRes.json();
+          console.log("📥 Dados da resposta:", responseData);
+        } else {
+          lastStatus = saveRes.status;
+          
+          if (saveRes.status === 404) {
+            console.warn("⚠️ Rota /auth/user/selected-profile não existe (404). Tentando alternativa...");
+            lastError = "Rota não encontrada (404)";
+            
             // Tentativa 2: Rota de atualização de usuário
-            const userRes = await fetch(`${API_URL}/auth/user`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-              },
-              body: JSON.stringify({ selectedProfileId }),
-            });
+            console.log("🔄 Tentativa 2: PUT /auth/user");
+            try {
+              const userRes = await fetch(`${API_URL}/auth/user`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify({ selectedProfileId }),
+              });
 
-            if (userRes.ok) {
-              savedToBackend = true;
+              console.log("📥 Resposta /auth/user - Status:", userRes.status, userRes.statusText);
+
+              if (userRes.ok) {
+                savedToBackend = true;
+                console.log("✅ SUCESSO! Perfil selecionado salvo via /auth/user");
+                const responseData = await userRes.json();
+                console.log("📥 Dados da resposta:", responseData);
+              } else {
+                lastStatus = userRes.status;
+                const errorText = await userRes.text();
+                lastError = `Status ${userRes.status}: ${errorText.substring(0, 100)}`;
+                console.error("❌ Falha ao salvar via /auth/user:", userRes.status, errorText);
+              }
+            } catch (userErr: any) {
+              lastError = userErr.message || "Erro na requisição";
+              console.error("❌ Erro ao tentar salvar via /auth/user:", userErr);
             }
-          } catch {
-            // Rota não disponível
+          } else {
+            // Outro erro (401, 403, 500, etc)
+            const errorText = await saveRes.text();
+            lastError = `Status ${saveRes.status}: ${errorText.substring(0, 100)}`;
+            console.error("❌ Erro ao salvar perfil selecionado:", saveRes.status);
+            console.error("❌ Detalhes do erro:", errorText);
           }
         }
 
         if (!savedToBackend) {
-          console.warn("⚠️ BACKEND: Rota para salvar perfil selecionado não encontrada. Implemente uma das rotas acima para sincronização entre dispositivos.");
+          console.error("============================================");
+          console.error("❌ FALHA AO SALVAR PERFIL SELECIONADO NO BACKEND!");
+          console.error("============================================");
+          console.error("📊 Status HTTP:", lastStatus || "N/A");
+          console.error("📝 Mensagem:", lastError || "Rota não encontrada");
+          console.error("🔧 AÇÃO NECESSÁRIA: Implemente uma das rotas no backend:");
+          console.error("   1. PUT /auth/user/selected-profile");
+          console.error("   2. PUT /auth/user (com campo selectedProfileId no body)");
+          console.error("⚠️  IMPACTO: Perfil será salvo APENAS no localStorage local");
+          console.error("⚠️  CONSEQUÊNCIA: NÃO será sincronizado entre dispositivos!");
+          console.error("============================================");
+          
+          // Mostrar aviso visual ao usuário (apenas em desenvolvimento)
+          if (process.env.NODE_ENV === 'development') {
+            toast({
+              title: "⚠️ Backend: Rota não encontrada",
+              description: `Status ${lastStatus || 'N/A'}: ${lastError || 'Rota para salvar perfil selecionado não existe'}`,
+              variant: "default",
+            });
+          }
+        } else {
+          console.log("✅✅✅ Perfil selecionado salvo com SUCESSO no backend! ✅✅✅");
         }
-      } catch (err) {
-        // Se não houver rota disponível, apenas logamos o erro e continuamos
-        console.warn("⚠️ BACKEND: Não foi possível salvar perfil selecionado no backend. Usando localStorage como fallback:", err);
+      } catch (err: any) {
+        console.error("============================================");
+        console.error("❌ ERRO DE REDE ao salvar perfil selecionado!");
+        console.error("============================================");
+        console.error("📝 Erro:", err.message);
+        console.error("📊 Tipo:", err.name);
+        console.error("🔗 URL tentada:", `${API_URL}/auth/user/selected-profile`);
+        console.error("⚠️  O perfil será salvo apenas no localStorage local");
+        console.error("============================================");
+        
+        lastError = err.message || "Erro de rede";
+        
+        toast({
+          title: "Erro de conexão",
+          description: "Não foi possível conectar ao servidor. O perfil será salvo apenas localmente.",
+          variant: "destructive",
+        });
       }
 
       // Salvar no localStorage como fallback/cache local
