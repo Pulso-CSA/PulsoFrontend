@@ -136,6 +136,25 @@ const Auth = () => {
         name: formData.name,
         email: formData.email,
       }));
+      
+      // Recarrega os perfis do servidor para garantir sincronização
+      try {
+        const profilesRes = await fetch(`${PROFILES_URL}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (profilesRes.ok) {
+          const profilesData = await profilesRes.json();
+          const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+          localStorage.setItem("profiles", JSON.stringify(profilesList));
+        }
+      } catch (err) {
+        // Se falhar, usar o perfil recém-criado
+        console.error("Erro ao recarregar perfis:", err);
+      }
 
       setShowProfileDialog(false);
       toast({
@@ -215,6 +234,25 @@ const Auth = () => {
       if (!isLogin) {
         setShowProfileDialog(true);
       } else {
+        // Ao fazer login, buscar perfis do servidor
+        try {
+          const profilesRes = await fetch(`${PROFILES_URL}`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${data.access_token}`,
+            },
+          });
+
+          if (profilesRes.ok) {
+            const profilesData = await profilesRes.json();
+            const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
+            localStorage.setItem("profiles", JSON.stringify(profilesList));
+          }
+        } catch (err) {
+          // Se falhar ao buscar perfis, continuar mesmo assim
+          console.error("Erro ao buscar perfis após login:", err);
+        }
+        
         navigate("/profile-selection");
       }
 

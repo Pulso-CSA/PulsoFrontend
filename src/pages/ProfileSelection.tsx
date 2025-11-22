@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Plus, ArrowRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,59 @@ import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import { Profile } from "@/components/dashboard/ProfileManagement";
 import { useToast } from "@/hooks/use-toast";
 
+const API_URL = "https://pulsoapi-production-d109.up.railway.app";
+const PROFILES_URL = `${API_URL}/profiles`;
+
 const ProfileSelection = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Buscar perfis do servidor
+  const fetchProfiles = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/auth");
+        return;
+      }
+
+      const res = await fetch(`${PROFILES_URL}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem("isAuthenticated");
+          localStorage.removeItem("token");
+          navigate("/auth");
+          return;
+        }
+        throw new Error("Erro ao buscar perfis");
+      }
+
+      const data = await res.json();
+      // A API pode retornar um array ou um objeto com perfis
+      const profilesList = Array.isArray(data) ? data : (data.profiles || []);
+      
+      setProfiles(profilesList);
+      // Atualizar localStorage como cache
+      localStorage.setItem("profiles", JSON.stringify(profilesList));
+    } catch (err: any) {
+      toast({
+        title: "Erro ao carregar perfis",
+        description: err.message || "Não foi possível carregar os perfis. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate, toast]);
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
@@ -20,15 +68,13 @@ const ProfileSelection = () => {
       return;
     }
 
-    const storedProfiles = localStorage.getItem("profiles");
-    if (storedProfiles) {
-      const parsedProfiles = JSON.parse(storedProfiles);
-      setProfiles(parsedProfiles);
-    }
-  }, [navigate]);
+    // Sempre buscar do servidor ao invés de usar apenas localStorage
+    fetchProfiles();
+  }, [navigate, fetchProfiles]);
 
   const handleProfilesChange = (updatedProfiles: Profile[]) => {
     setProfiles(updatedProfiles);
+    // Atualizar localStorage como cache (mas a fonte de verdade é o servidor)
     localStorage.setItem("profiles", JSON.stringify(updatedProfiles));
   };
 
@@ -95,8 +141,15 @@ const ProfileSelection = () => {
             </p>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Carregando perfis...</p>
+            </div>
+          )}
+
           {/* Profile Selection Grid */}
-          {profiles.length > 0 && (
+          {!loading && profiles.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground">
                 Perfis Disponíveis
@@ -150,13 +203,15 @@ const ProfileSelection = () => {
           )}
 
           {/* Profile Management */}
-          <div className="glass-strong rounded-2xl p-6 border-2 border-primary/20">
-            <ProfileManagement
-              profiles={profiles}
-              onProfilesChange={handleProfilesChange}
-              maxProfiles={5}
-            />
-          </div>
+          {!loading && (
+            <div className="glass-strong rounded-2xl p-6 border-2 border-primary/20">
+              <ProfileManagement
+                profiles={profiles}
+                onProfilesChange={handleProfilesChange}
+                maxProfiles={5}
+              />
+            </div>
+          )}
         </div>
       </main>
     </div>

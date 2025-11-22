@@ -17,6 +17,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const API_URL = "https://pulsoapi-production-d109.up.railway.app";
+const PROFILES_URL = `${API_URL}/profiles`;
+
 const profileSchema = z.object({
   name: z.string()
     .trim()
@@ -72,48 +75,124 @@ const ProfileManagement = ({
     }
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!validateForm()) return;
 
-    const newProfile: Profile = {
-      id: Date.now().toString(),
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Token não encontrado. Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    onProfilesChange([...profiles, newProfile]);
-    setFormData({ name: "", description: "" });
-    setIsCreating(false);
-    setErrors({});
+      const res = await fetch(`${PROFILES_URL}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          description: formData.description.trim() || undefined,
+        }),
+      });
 
-    toast({
-      title: "Perfil criado",
-      description: `Perfil "${newProfile.name}" criado com sucesso`,
-    });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || "Erro ao criar perfil");
+      }
+
+      const newProfile: Profile = {
+        id: data.id || data._id || Date.now().toString(),
+        name: data.name,
+        description: data.description || "",
+        createdAt: data.createdAt || data.created_at || new Date().toISOString(),
+      };
+
+      onProfilesChange([...profiles, newProfile]);
+      setFormData({ name: "", description: "" });
+      setIsCreating(false);
+      setErrors({});
+
+      toast({
+        title: "Perfil criado",
+        description: `Perfil "${newProfile.name}" criado com sucesso`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erro ao criar perfil",
+        description: err.message || "Não foi possível criar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUpdate = (id: string) => {
+  const handleUpdate = async (id: string) => {
     if (!validateForm()) return;
 
-    const updatedProfiles = profiles.map((profile) =>
-      profile.id === id
-        ? { ...profile, name: formData.name.trim(), description: formData.description.trim() }
-        : profile
-    );
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Token não encontrado. Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    onProfilesChange(updatedProfiles);
-    setEditingId(null);
-    setFormData({ name: "", description: "" });
-    setErrors({});
+      const res = await fetch(`${PROFILES_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          description: formData.description.trim() || undefined,
+        }),
+      });
 
-    toast({
-      title: "Perfil atualizado",
-      description: "Alterações salvas com sucesso",
-    });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || "Erro ao atualizar perfil");
+      }
+
+      const updatedProfiles = profiles.map((profile) =>
+        profile.id === id
+          ? { 
+              ...profile, 
+              name: data.name || formData.name.trim(), 
+              description: data.description || formData.description.trim() 
+            }
+          : profile
+      );
+
+      onProfilesChange(updatedProfiles);
+      setEditingId(null);
+      setFormData({ name: "", description: "" });
+      setErrors({});
+
+      toast({
+        title: "Perfil atualizado",
+        description: "Alterações salvas com sucesso",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: err.message || "Não foi possível atualizar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (profiles.length <= 1) {
       toast({
         title: "Não é possível deletar",
@@ -123,14 +202,44 @@ const ProfileManagement = ({
       return;
     }
 
-    const updatedProfiles = profiles.filter((profile) => profile.id !== id);
-    onProfilesChange(updatedProfiles);
-    setDeletingId(null);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Token não encontrado. Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    toast({
-      title: "Perfil deletado",
-      description: "Perfil removido com sucesso",
-    });
+      const res = await fetch(`${PROFILES_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || data.message || "Erro ao deletar perfil");
+      }
+
+      const updatedProfiles = profiles.filter((profile) => profile.id !== id);
+      onProfilesChange(updatedProfiles);
+      setDeletingId(null);
+
+      toast({
+        title: "Perfil deletado",
+        description: "Perfil removido com sucesso",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erro ao deletar perfil",
+        description: err.message || "Não foi possível deletar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const startEdit = (profile: Profile) => {
