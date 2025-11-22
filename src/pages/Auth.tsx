@@ -17,7 +17,9 @@ import {
 import { z } from "zod";
 
 // ⭐ BACKEND REAL
-const API_URL = "https://pulsoapi-production-d109.up.railway.app/auth";
+const API_URL = "https://pulsoapi-production-d109.up.railway.app";
+const AUTH_URL = `${API_URL}/auth`;
+const PROFILES_URL = `${API_URL}/profiles`;
 
 const profileSchema = z.object({
   name: z.string()
@@ -35,6 +37,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [profileData, setProfileData] = useState({ name: "", description: "" });
   const [profileErrors, setProfileErrors] = useState<{ name?: string; description?: string }>({});
@@ -88,28 +91,68 @@ const Auth = () => {
     }
   };
 
-  const handleCreateProfile = () => {
+  const handleCreateProfile = async () => {
     if (!validateProfile()) return;
 
-    const newProfile = {
-      id: Date.now().toString(),
-      name: profileData.name.trim(),
-      description: profileData.description.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    setProfileLoading(true);
 
-    localStorage.setItem("profiles", JSON.stringify([newProfile]));
-    localStorage.setItem("userProfile", JSON.stringify({
-      name: formData.name,
-      email: formData.email,
-    }));
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Token não encontrado. Faça login novamente.",
+          variant: "destructive",
+        });
+        setProfileLoading(false);
+        return;
+      }
 
-    setShowProfileDialog(false);
-    toast({
-      title: "Conta criada com sucesso",
-      description: `Perfil "${newProfile.name}" criado. Bem-vindo!`,
-    });
-    navigate("/profile-selection");
+      const res = await fetch(`${PROFILES_URL}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: profileData.name.trim(),
+          description: profileData.description.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || "Erro ao criar perfil");
+      }
+
+      // Salva os dados do perfil retornado pelo backend
+      const savedProfiles = [data];
+      localStorage.setItem("profiles", JSON.stringify(savedProfiles));
+      
+      // Mantém os dados do usuário no localStorage (se necessário)
+      localStorage.setItem("userProfile", JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+      }));
+
+      setShowProfileDialog(false);
+      toast({
+        title: "Conta criada com sucesso",
+        description: `Perfil "${data.name}" criado. Bem-vindo!`,
+      });
+      navigate("/profile-selection");
+
+    } catch (err: any) {
+      toast({
+        title: "Erro ao criar perfil",
+        description: err.message || "Não foi possível criar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
   // ⭐ FLUXO DE LOGIN/REGISTRO
@@ -152,7 +195,7 @@ const Auth = () => {
         }
       }
 
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      const res = await fetch(`${AUTH_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -193,7 +236,7 @@ const Auth = () => {
 
   // ⭐ LOGIN COM GOOGLE
   const handleGoogleLogin = () => {
-    window.location.href = `${API_URL}/login/google`;
+    window.location.href = `${AUTH_URL}/login/google`;
   };
 
   return (
@@ -433,9 +476,10 @@ const Auth = () => {
             <Button
               onClick={handleCreateProfile}
               className="w-full gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105 mt-6"
+              disabled={profileLoading}
             >
               <UserPlus className="h-4 w-4" />
-              Criar Perfil e Começar
+              {profileLoading ? "Criando perfil..." : "Criar Perfil e Começar"}
             </Button>
           </div>
         </DialogContent>
