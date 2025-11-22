@@ -103,9 +103,107 @@ const ProfileSelection = () => {
       return;
     }
 
-    // Salvar apenas o ID do perfil selecionado
-    localStorage.setItem("selectedProfileId", selectedProfileId);
-    navigate("/dashboard");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Token não encontrado. Faça login novamente.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      // Verificar se o perfil selecionado existe e pertence ao usuário
+      const profileRes = await fetch(`${PROFILES_URL}/${selectedProfileId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!profileRes.ok) {
+        if (profileRes.status === 404) {
+          toast({
+            title: "Perfil não encontrado",
+            description: "O perfil selecionado não existe mais. Selecione outro perfil.",
+            variant: "destructive",
+          });
+          // Recarregar lista de perfis
+          fetchProfiles();
+          return;
+        }
+        throw new Error("Erro ao validar perfil");
+      }
+
+      // ⚠️ IMPORTANTE: Salvar o perfil selecionado no backend
+      // O backend precisa implementar uma das seguintes rotas:
+      // Opção 1: PUT/PATCH /auth/user/selected-profile
+      // Opção 2: PUT/PATCH /auth/user com campo selectedProfileId
+      // Opção 3: Adicionar campo selectedProfileId ao modelo de User no banco
+      // 
+      // Por enquanto, tentamos salvar via uma possível rota de usuário
+      // Se não existir, o localStorage serve como fallback, mas não sincroniza entre dispositivos
+      let savedToBackend = false;
+      try {
+        // Tentativa 1: Rota específica para perfil selecionado
+        const saveRes = await fetch(`${API_URL}/auth/user/selected-profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ selectedProfileId }),
+        });
+
+        if (saveRes.ok) {
+          savedToBackend = true;
+        } else if (saveRes.status === 404) {
+          // Rota não existe, tentar outra abordagem
+          try {
+            // Tentativa 2: Rota de atualização de usuário
+            const userRes = await fetch(`${API_URL}/auth/user`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({ selectedProfileId }),
+            });
+
+            if (userRes.ok) {
+              savedToBackend = true;
+            }
+          } catch {
+            // Rota não disponível
+          }
+        }
+
+        if (!savedToBackend) {
+          console.warn("⚠️ BACKEND: Rota para salvar perfil selecionado não encontrada. Implemente uma das rotas acima para sincronização entre dispositivos.");
+        }
+      } catch (err) {
+        // Se não houver rota disponível, apenas logamos o erro e continuamos
+        console.warn("⚠️ BACKEND: Não foi possível salvar perfil selecionado no backend. Usando localStorage como fallback:", err);
+      }
+
+      // Salvar no localStorage como fallback/cache local
+      localStorage.setItem("selectedProfileId", selectedProfileId);
+      
+      toast({
+        title: "Perfil selecionado",
+        description: "Acessando a plataforma...",
+      });
+
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast({
+        title: "Erro ao selecionar perfil",
+        description: err.message || "Não foi possível selecionar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLogout = () => {

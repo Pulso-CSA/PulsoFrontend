@@ -248,8 +248,47 @@ const Auth = () => {
       if (!isLogin) {
         setShowProfileDialog(true);
       } else {
-        // Ao fazer login, não selecionar perfil automaticamente
-        // Deixar o usuário escolher na página de seleção de perfis
+        // Ao fazer login, buscar perfil selecionado do backend (se existir)
+        try {
+          // Tentar buscar o perfil selecionado do backend
+          const userRes = await fetch(`${API_URL}/auth/user`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${data.access_token}`,
+            },
+          });
+
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            // Se o usuário tem um perfil selecionado salvo no backend
+            if (userData.selectedProfileId) {
+              // Verificar se o perfil ainda existe
+              const profileCheckRes = await fetch(`${PROFILES_URL}/${userData.selectedProfileId}`, {
+                method: "GET",
+                headers: {
+                  "Authorization": `Bearer ${data.access_token}`,
+                },
+              });
+
+              if (profileCheckRes.ok) {
+                // Perfil existe, salvar no localStorage
+                localStorage.setItem("selectedProfileId", userData.selectedProfileId);
+              } else {
+                // Perfil não existe mais, limpar do localStorage
+                localStorage.removeItem("selectedProfileId");
+              }
+            }
+          } else if (userRes.status !== 404) {
+            // Se a rota não existir (404), ignoramos e continuamos
+            // Outros erros também são ignorados para não bloquear o login
+            console.warn("Não foi possível buscar dados do usuário do backend:", userRes.status);
+          }
+        } catch (err) {
+          // Se não houver rota disponível, apenas logamos e continuamos
+          console.warn("Rota para buscar perfil selecionado não disponível, usando localStorage:", err);
+        }
+
+        // Navegar para seleção de perfis
         navigate("/profile-selection");
       }
 
