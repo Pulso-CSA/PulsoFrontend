@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { z } from "zod";
 
-// ⭐ CORREÇÃO DEFINITIVA
-const API_URL = "https://pulsoapi-production-d109.up.railway.app/auth/";
+// ⭐ BACKEND REAL
+const API_URL = "https://pulsoapi-production-d109.up.railway.app/auth";
 
 const profileSchema = z.object({
   name: z.string()
@@ -67,9 +67,7 @@ const Auth = () => {
     { label: "Símbolo", valid: /[^A-Za-z0-9]/.test(formData.password) },
   ];
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateProfile = () => {
     try {
@@ -114,7 +112,7 @@ const Auth = () => {
     navigate("/profile-selection");
   };
 
-  // ⭐ ALTERAÇÃO MÍNIMA REAL AQUI
+  // ⭐ FLUXO DE LOGIN/REGISTRO
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -130,7 +128,7 @@ const Auth = () => {
     }
 
     try {
-      let endpoint = isLogin ? "/login" : "/register";
+      const endpoint = isLogin ? "/login" : "/register";
 
       if (!isLogin) {
         if (formData.password !== formData.confirmPassword) {
@@ -154,8 +152,7 @@ const Auth = () => {
         }
       }
 
-      // ⭐ FETCH CORRIGIDO
-      const res = await fetch(`${API_URL}${endpoint.replace("/", "")}`, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -172,12 +169,16 @@ const Auth = () => {
       localStorage.setItem("isAuthenticated", "true");
       if (data.access_token) localStorage.setItem("token", data.access_token);
 
+      if (!isLogin) {
+        setShowProfileDialog(true);
+      } else {
+        navigate("/profile-selection");
+      }
+
       toast({
         title: isLogin ? "Login realizado" : "Conta criada",
         description: "Bem-vindo!",
       });
-
-      navigate("/profile-selection");
 
     } catch (err: any) {
       toast({
@@ -190,12 +191,9 @@ const Auth = () => {
     setLoading(false);
   };
 
+  // ⭐ LOGIN COM GOOGLE
   const handleGoogleLogin = () => {
-    toast({
-      title: "Google OAuth indisponível",
-      description: "Disponível apenas no backend real",
-      variant: "destructive",
-    });
+    window.location.href = `${API_URL}/login/google`;
   };
 
   return (
