@@ -1,85 +1,120 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Database, Zap, Sparkles } from "lucide-react";
+import { ArrowRight, Workflow, CloudCog, TrendingDown, Brain } from "lucide-react";
+import ThemeSelector from "@/components/ThemeSelector";
 
 const Index = () => {
   const navigate = useNavigate();
 
+  const features = [
+    {
+      icon: Workflow,
+      title: "Pulso CSA",
+      description: "Gere código completo com IA",
+      color: "primary",
+    },
+    {
+      icon: CloudCog,
+      title: "Cloud IaC",
+      description: "Infraestrutura como código",
+      color: "primary",
+    },
+    {
+      icon: TrendingDown,
+      title: "FinOps",
+      description: "Otimize custos na nuvem",
+      color: "finops",
+    },
+    {
+      icon: Brain,
+      title: "Data AI",
+      description: "Explore dados com IA",
+      color: "dataAi",
+    }
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background overflow-hidden relative">
-      {/* Background animated elements */}
+    <div className="min-h-screen bg-background overflow-hidden relative flex flex-col">
+      {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-dataAi/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-finops/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-dataAi/8 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '3s' }} />
+        
+        {/* Grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }}
+        />
       </div>
 
-      <div className="text-center max-w-4xl px-4 relative z-10 animate-fade-in">
-        <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 glass rounded-full border border-primary/30">
-          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-          <span className="text-sm text-primary font-medium">Dashboard Operacional de Nova Geração</span>
-        </div>
-
-        <h1 className="mb-6 text-7xl font-bold neon-text animate-fade-in" style={{ 
-          background: 'linear-gradient(135deg, hsl(180 100% 70%) 0%, hsl(150 100% 65%) 50%, hsl(270 100% 80%) 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          animationDelay: '0.2s'
-        }}>
-          Pulso
-        </h1>
+      {/* Header */}
+      <header className="relative z-10 flex items-center justify-between px-6 lg:px-12 py-5">
+        <div /> {/* Spacer */}
         
-        <p className="text-2xl text-foreground/90 mb-12 font-light animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          Transforme ideias em arquiteturas completas com inteligência artificial
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-primary/40 hover:border-primary transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <div className="relative mb-4">
-              <Zap className="h-12 w-12 text-primary mx-auto drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform duration-200" strokeWidth={1.5} />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors duration-200" />
-            </div>
-            <h3 className="font-bold text-xl text-primary mb-3">Prompt Central</h3>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Descreva sua aplicação em linguagem natural e receba blueprints técnicos completos com estrutura de pastas, endpoints REST e arquitetura de microserviços
-            </p>
+        <div className="flex items-center gap-2">
+          <ThemeSelector />
+          <Button 
+            variant="outline"
+            onClick={() => navigate("/auth?mode=login")}
+            className="border-primary/40 hover:border-primary hover:bg-primary/10 text-foreground"
+          >
+            Entrar
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero Section - Centered */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Main Title */}
+          <h1 
+            className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 animate-fade-in tracking-tight"
+            style={{ 
+              background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 50%, hsl(var(--finops)) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            Pulso
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 animate-fade-in leading-relaxed" style={{ animationDelay: '0.1s' }}>
+            Plataforma completa para desenvolvimento e gestão de aplicações com IA
+          </p>
+
+          {/* Features Grid - Inline */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            {features.map((feature) => (
+              <div 
+                key={feature.title}
+                className="flex flex-col items-center p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/30 hover:border-primary/50 transition-all duration-300"
+              >
+                <feature.icon className={`w-8 h-8 text-${feature.color} mb-2`} strokeWidth={1.5} />
+                <span className={`text-sm font-semibold text-${feature.color}`}>{feature.title}</span>
+                <span className="text-xs text-muted-foreground text-center mt-1">{feature.description}</span>
+              </div>
+            ))}
           </div>
-          
-          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-finops/40 hover:border-finops transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-            <div className="relative mb-4">
-              <Activity className="h-12 w-12 text-finops mx-auto drop-shadow-[0_0_15px_rgba(0,255,153,0.8)] group-hover:scale-110 transition-transform duration-200" strokeWidth={1.5} />
-              <div className="absolute inset-0 bg-finops/20 rounded-full blur-xl group-hover:bg-finops/30 transition-colors duration-200" />
-            </div>
-            <h3 className="font-bold text-xl text-finops mb-3">FinOps Inteligente</h3>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Otimize custos na nuvem com análises em tempo real, sugestões de economia automáticas e insights sobre recursos subutilizados em AWS, Azure e GCP
-            </p>
-          </div>
-          
-          <div className="group glass glass-hover p-8 rounded-2xl border-2 border-dataAi/40 hover:border-dataAi transition-all duration-200 hover:scale-105 animate-fade-in" style={{ animationDelay: '1s' }}>
-            <div className="relative mb-4">
-              <Database className="h-12 w-12 text-dataAi mx-auto drop-shadow-[0_0_15px_rgba(191,0,255,0.8)] group-hover:scale-110 transition-transform duration-200" strokeWidth={1.5} />
-              <div className="absolute inset-0 bg-dataAi/20 rounded-full blur-xl group-hover:bg-dataAi/30 transition-colors duration-200" />
-            </div>
-            <h3 className="font-bold text-xl text-dataAi mb-3">Inteligência de Dados</h3>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Explore dados com IA, crie visualizações automatizadas, descubra correlações ocultas e construa modelos de machine learning sem código
-            </p>
+
+          {/* CTA Button */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <Button 
+              size="lg"
+              onClick={() => navigate("/auth?mode=signup")}
+              className="group relative px-8 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-primary-deep hover:from-primary-light hover:to-primary text-primary-foreground rounded-xl transition-all duration-300 hover:scale-105 shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.5)]"
+            >
+              <span>Começar Agora</span>
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
         </div>
-
-        <Button 
-          size="lg" 
-          onClick={() => navigate("/auth")}
-          className="group relative text-lg px-12 py-7 rounded-xl font-bold border-2 border-primary bg-background/40 backdrop-blur-sm text-primary hover:bg-primary/10 hover:border-primary-light hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.6)] transition-all duration-300 animate-fade-in overflow-hidden"
-          style={{ animationDelay: '1.2s' }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-          <Sparkles className="mr-2 h-5 w-5 group-hover:animate-pulse" />
-          <span className="relative">Acessar Dashboard</span>
-        </Button>
-      </div>
+      </main>
     </div>
   );
 };

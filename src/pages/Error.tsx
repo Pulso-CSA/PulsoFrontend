@@ -73,14 +73,6 @@ const Error = () => {
           </Button>
         </div>
 
-        <div className="pt-6 space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Rota não encontrada:
-          </p>
-          <code className="glass px-4 py-2 rounded-lg text-primary inline-block break-all">
-            {location.pathname}
-          </code>
-        </div>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, CheckCircle2, XCircle, Chrome, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
@@ -15,11 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { z } from "zod";
-
-// ⭐ BACKEND REAL
-const API_URL = "https://pulsoapi-production-d109.up.railway.app";
-const AUTH_URL = `${API_URL}/auth`;
-const PROFILES_URL = `${API_URL}/profiles`;
+import ThemeSelector from "@/components/ThemeSelector";
 
 const profileSchema = z.object({
   name: z.string()
@@ -33,11 +29,16 @@ const profileSchema = z.object({
 });
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(() => searchParams.get("mode") !== "signup");
+  
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    setIsLogin(mode !== "signup");
+  }, [searchParams]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(false);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [profileData, setProfileData] = useState({ name: "", description: "" });
   const [profileErrors, setProfileErrors] = useState<{ name?: string; description?: string }>({});
@@ -70,7 +71,9 @@ const Auth = () => {
     { label: "Símbolo", valid: /[^A-Za-z0-9]/.test(formData.password) },
   ];
 
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   const validateProfile = () => {
     try {
@@ -91,94 +94,36 @@ const Auth = () => {
     }
   };
 
-  const handleCreateProfile = async () => {
+  const handleCreateProfile = () => {
     if (!validateProfile()) return;
 
-    setProfileLoading(true);
+    const newProfile = {
+      id: Date.now().toString(),
+      name: profileData.name.trim(),
+      description: profileData.description.trim(),
+      createdAt: new Date().toISOString(),
+    };
 
-    try {
-      const token = localStorage.getItem("token");
-      
-      if (!token) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Token não encontrado. Faça login novamente.",
-          variant: "destructive",
-        });
-        setProfileLoading(false);
-        return;
-      }
+    localStorage.setItem("profiles", JSON.stringify([newProfile]));
+    localStorage.setItem("userProfile", JSON.stringify({
+      name: formData.name,
+      email: formData.email,
+    }));
 
-      const res = await fetch(`${PROFILES_URL}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: profileData.name.trim(),
-          description: profileData.description.trim() || undefined,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || data.message || "Erro ao criar perfil");
-      }
-
-      // Salva apenas o ID do perfil selecionado no localStorage
-      localStorage.setItem("selectedProfileId", data.id);
-      
-      // Recarrega os perfis do servidor para garantir sincronização
-      try {
-        const profilesRes = await fetch(`${PROFILES_URL}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (profilesRes.ok) {
-          // Perfis são carregados do backend, não salvos no localStorage
-          // O ID do perfil selecionado já foi salvo acima
-        }
-      } catch (err) {
-        // Se falhar, continuar mesmo assim
-        console.error("Erro ao recarregar perfis:", err);
-      }
-
-      setShowProfileDialog(false);
-      toast({
-        title: "Conta criada com sucesso",
-        description: `Perfil "${data.name}" criado. Bem-vindo!`,
-      });
-      navigate("/profile-selection");
-
-    } catch (err: any) {
-      toast({
-        title: "Erro ao criar perfil",
-        description: err.message || "Não foi possível criar o perfil. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setProfileLoading(false);
-    }
+    setShowProfileDialog(false);
+    toast({
+      title: "Conta criada com sucesso",
+      description: `Perfil "${newProfile.name}" criado. Bem-vindo!`,
+    });
+    navigate("/profile-selection");
   };
 
-  // ⭐ FLUXO DE LOGIN/REGISTRO
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Prevenir múltiplos envios
-    if (loading) return;
-    
     setLoading(true);
 
-    // Normalizar email (lowercase e trim)
-    const normalizedEmail = formData.email.toLowerCase().trim();
-
-    if (!validateEmail(normalizedEmail)) {
+    // Validações
+    if (!validateEmail(formData.email)) {
       toast({
         title: "E-mail inválido",
         description: "Informe um e-mail válido",
@@ -188,133 +133,82 @@ const Auth = () => {
       return;
     }
 
-    try {
-      const endpoint = isLogin ? "/login" : "/register";
-
-      if (!isLogin) {
-        if (formData.password !== formData.confirmPassword) {
-          toast({
-            title: "Senhas não coincidem",
-            description: "As senhas devem ser iguais",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-
-        if (!formData.acceptTerms) {
-          toast({
-            title: "Aceite os termos",
-            description: "É necessário concordar com a política de uso",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
+    if (!isLogin) {
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Senhas não coincidem",
+          description: "As senhas devem ser iguais",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
       }
 
-      const res = await fetch(`${AUTH_URL}${endpoint}`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        cache: "no-store", // Prevenir cache
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: normalizedEmail, // Email normalizado
-          password: formData.password,
-        }),
-      });
-
-      const data = await res.json();
-
-      // Tratamento específico para erro 409 (email já cadastrado)
-      if (!res.ok) {
-        if (res.status === 409) {
-          toast({
-            title: "E-mail já cadastrado",
-            description: "Este e-mail já está cadastrado. Faça login ou use outro e-mail.",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-        throw new Error(data.detail || data.message || "Erro inesperado");
+      if (!formData.acceptTerms) {
+        toast({
+          title: "Aceite os termos",
+          description: "É necessário concordar com a política de uso",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
       }
-
-      localStorage.setItem("isAuthenticated", "true");
-      if (data.access_token) localStorage.setItem("token", data.access_token);
-
-      if (!isLogin) {
-        setShowProfileDialog(true);
-      } else {
-        // Ao fazer login, buscar perfil selecionado do backend (se existir)
-        try {
-          // Tentar buscar o perfil selecionado do backend
-          const userRes = await fetch(`${API_URL}/auth/user`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${data.access_token}`,
-            },
-          });
-
-          if (userRes.ok) {
-            const userData = await userRes.json();
-            // Se o usuário tem um perfil selecionado salvo no backend
-            if (userData.selectedProfileId) {
-              // Verificar se o perfil ainda existe
-              const profileCheckRes = await fetch(`${PROFILES_URL}/${userData.selectedProfileId}`, {
-                method: "GET",
-                headers: {
-                  "Authorization": `Bearer ${data.access_token}`,
-                },
-              });
-
-              if (profileCheckRes.ok) {
-                // Perfil existe, salvar no localStorage
-                localStorage.setItem("selectedProfileId", userData.selectedProfileId);
-              } else {
-                // Perfil não existe mais, limpar do localStorage
-                localStorage.removeItem("selectedProfileId");
-              }
-            }
-          } else if (userRes.status !== 404) {
-            // Se a rota não existir (404), ignoramos e continuamos
-            // Outros erros também são ignorados para não bloquear o login
-            console.warn("Não foi possível buscar dados do usuário do backend:", userRes.status);
-          }
-        } catch (err) {
-          // Se não houver rota disponível, apenas logamos e continuamos
-          console.warn("Rota para buscar perfil selecionado não disponível, usando localStorage:", err);
-        }
-
-        // Navegar para seleção de perfis
-        navigate("/profile-selection");
-      }
-
-      toast({
-        title: isLogin ? "Login realizado" : "Conta criada",
-        description: "Bem-vindo!",
-      });
-
-    } catch (err: any) {
-      toast({
-        title: "Erro",
-        description: err.message,
-        variant: "destructive",
-      });
     }
 
-    setLoading(false);
+    // Simular autenticação
+    setTimeout(() => {
+      localStorage.setItem("isAuthenticated", "true");
+      
+      if (isLogin) {
+        const storedProfiles = localStorage.getItem("profiles");
+        toast({
+          title: "Login realizado",
+          description: "Bem-vindo de volta!",
+        });
+        
+        if (!storedProfiles || JSON.parse(storedProfiles).length === 0) {
+          setShowProfileDialog(true);
+        } else {
+          navigate("/profile-selection");
+        }
+      } else {
+        // Para signup, mostrar diálogo de criação de perfil obrigatório
+        setShowProfileDialog(true);
+      }
+      
+      setLoading(false);
+    }, 1000);
   };
 
-  // ⭐ LOGIN COM GOOGLE
   const handleGoogleLogin = () => {
-    window.location.href = `${AUTH_URL}/login/google`;
+    setLoading(true);
+    // Simular login com Google
+    setTimeout(() => {
+      localStorage.setItem("isAuthenticated", "true");
+      const storedProfiles = localStorage.getItem("profiles");
+      
+      toast({
+        title: "Login realizado",
+        description: "Bem-vindo via Google!",
+      });
+      
+      if (!storedProfiles || JSON.parse(storedProfiles).length === 0) {
+        setShowProfileDialog(true);
+      } else {
+        navigate("/profile-selection");
+      }
+      
+      setLoading(false);
+    }, 1000);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Theme Selector */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeSelector />
+      </div>
+
       {/* Background animated elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
@@ -324,7 +218,7 @@ const Auth = () => {
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2 neon-text" style={{ 
-            background: 'linear-gradient(135deg, hsl(180 100% 70%) 0%, hsl(150 100% 65%) 100%)',
+            background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--finops)) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
@@ -335,6 +229,7 @@ const Auth = () => {
         </div>
 
         <div className="glass-strong border-2 border-primary/30 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,255,255,0.2)]">
+          {/* Google Login Button */}
           <Button
             type="button"
             variant="outline"
@@ -375,7 +270,7 @@ const Auth = () => {
                 type="email"
                 placeholder="nome@empresa.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value.trim() })}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
             </div>
@@ -395,11 +290,12 @@ const Auth = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-
+              
               {!isLogin && formData.password && (
                 <div className="mt-2 space-y-2">
                   <div className="flex items-center gap-2">
@@ -408,7 +304,6 @@ const Auth = () => {
                       {passwordStrength(formData.password).level}
                     </span>
                   </div>
-
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {passwordChecklist.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-1">
@@ -443,6 +338,7 @@ const Auth = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -503,6 +399,7 @@ const Auth = () => {
         </div>
       </div>
 
+      {/* Create First Profile Dialog */}
       <Dialog open={showProfileDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader className="space-y-3">
@@ -550,10 +447,9 @@ const Auth = () => {
             <Button
               onClick={handleCreateProfile}
               className="w-full gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105 mt-6"
-              disabled={profileLoading}
             >
               <UserPlus className="h-4 w-4" />
-              {profileLoading ? "Criando perfil..." : "Criar Perfil e Começar"}
+              Criar Perfil e Começar
             </Button>
           </div>
         </DialogContent>

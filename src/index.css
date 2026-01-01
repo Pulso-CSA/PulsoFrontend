@@ -7,67 +7,62 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  :root {
-    /* Paleta Neon Glassmorphism - Light Mode */
-    --background: 230 40% 8%; /* Darker background for better neon contrast */
-    --foreground: 0 0% 100%; /* Pure white text */
+  /* ===== NEON THEME ===== */
+  .theme-neon {
+    /* Light Mode */
+    --background: 220 20% 96%;
+    --foreground: 230 40% 12%;
 
-    --card: 230 35% 12%; /* Darker cards with transparency */
-    --card-foreground: 0 0% 100%;
+    --card: 220 20% 92%;
+    --card-foreground: 230 40% 12%;
 
-    --popover: 230 35% 12%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 220 20% 92%;
+    --popover-foreground: 230 40% 12%;
 
-    /* Primárias - Cyan Neon Ultra Bright */
-    --primary: 180 100% 60%; /* Ultra bright cyan */
-    --primary-foreground: 230 40% 8%;
-    --primary-deep: 180 100% 40%; 
-    --primary-light: 180 100% 85%;
+    --primary: 180 100% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 180 100% 30%;
+    --primary-light: 180 100% 55%;
 
-    /* Neutros com glassmorphism */
-    --secondary: 180 50% 50%; /* Cyan-teal neutral */
+    --secondary: 180 50% 45%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 230 35% 18%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 220 15% 85%;
+    --muted-foreground: 220 10% 40%;
 
-    --accent: 180 60% 55%; /* Cyan accent */
+    --accent: 180 60% 45%;
     --accent-foreground: 0 0% 100%;
 
-    /* Semânticas Neon */
-    --success: 150 100% 60%; /* Brighter neon green */
-    --success-foreground: 230 40% 8%;
+    --success: 150 100% 35%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 45 100% 60%; /* Brighter neon yellow */
-    --warning-foreground: 230 40% 8%;
+    --warning: 45 100% 45%;
+    --warning-foreground: 230 40% 12%;
 
-    --destructive: 0 100% 65%; /* Brighter neon red */
+    --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 200 100% 60%; /* Brighter neon blue */
-    --info-foreground: 230 40% 8%;
+    --info: 200 100% 45%;
+    --info-foreground: 0 0% 100%;
 
-    /* Acentos por Seção - Neon Ultra Bright */
-    --finops: 150 100% 60%; /* Ultra bright neon green */
-    --finops-foreground: 230 40% 8%;
+    --finops: 150 100% 35%;
+    --finops-foreground: 0 0% 100%;
 
-    --data-ai: 270 100% 75%; /* Ultra bright neon purple */
+    --data-ai: 270 100% 60%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 180 100% 60% / 0.3; /* Brighter neon cyan with transparency */
-    --input: 230 35% 18%;
-    --ring: 180 100% 60%;
+    --border: 220 15% 80%;
+    --input: 220 15% 88%;
+    --ring: 180 100% 40%;
 
     --radius: 1rem;
 
-    /* Chat Neon */
-    --chat-user: 180 100% 60%;
-    --chat-system: 270 90% 70%;
+    --chat-user: 180 100% 40%;
+    --chat-system: 270 90% 60%;
   }
 
-  .dark {
-    /* Paleta Neon Glassmorphism - Dark Mode */
-    --background: 230 45% 6%; /* Ultra dark for maximum neon contrast */
+  .theme-neon.dark {
+    --background: 230 45% 6%;
     --foreground: 0 0% 100%;
 
     --card: 230 40% 10%;
@@ -76,57 +71,309 @@ All colors MUST be HSL.
     --popover: 230 40% 10%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primárias - Ultra Bright Cyan Neon */
-    --primary: 180 100% 65%; /* Maximum brightness cyan */
+    --primary: 180 100% 65%;
     --primary-foreground: 230 45% 6%;
     --primary-deep: 180 100% 45%;
     --primary-light: 180 100% 90%;
 
-    /* Neutros Dark Neon */
-    --secondary: 180 50% 55%; /* Cyan-teal neutral */
+    --secondary: 180 50% 55%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 230 40% 14%;
     --muted-foreground: 0 0% 70%;
 
-    --accent: 180 60% 60%; /* Cyan accent */
+    --accent: 180 60% 60%;
     --accent-foreground: 0 0% 100%;
 
-    /* Semânticas Neon Dark */
-    --success: 150 100% 65%; /* Maximum brightness neon green */
+    --success: 150 100% 65%;
     --success-foreground: 230 45% 6%;
 
-    --warning: 45 100% 65%; /* Maximum brightness neon yellow */
+    --warning: 45 100% 65%;
     --warning-foreground: 230 45% 6%;
 
-    --destructive: 0 100% 70%; /* Maximum brightness neon red */
+    --destructive: 0 100% 70%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 200 100% 65%; /* Maximum brightness neon blue */
+    --info: 200 100% 65%;
     --info-foreground: 230 45% 6%;
 
-    /* Acentos por Seção Dark Neon */
-    --finops: 150 100% 65%; /* Ultra bright neon green */
+    --finops: 150 100% 65%;
     --finops-foreground: 230 45% 6%;
 
-    --data-ai: 270 100% 80%; /* Ultra bright neon purple */
+    --data-ai: 270 100% 80%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 180 100% 65% / 0.3; /* Ultra bright neon cyan with transparency */
+    --border: 180 100% 65% / 0.3;
     --input: 230 40% 14%;
     --ring: 180 100% 65%;
 
-    /* Chat Neon Dark */
+    --chat-user: 180 100% 65%;
+    --chat-system: 270 95% 75%;
+  }
+
+  /* ===== OCEAN THEME ===== */
+  .theme-ocean {
+    /* Light Mode */
+    --background: 210 30% 96%;
+    --foreground: 210 50% 12%;
+
+    --card: 210 30% 92%;
+    --card-foreground: 210 50% 12%;
+
+    --popover: 210 30% 92%;
+    --popover-foreground: 210 50% 12%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 199 89% 38%;
+    --primary-light: 199 89% 65%;
+
+    --secondary: 187 85% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 85%;
+    --muted-foreground: 210 15% 40%;
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 160 84% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 50% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --finops: 160 84% 40%;
+    --finops-foreground: 0 0% 100%;
+
+    --data-ai: 262 83% 58%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 210 20% 80%;
+    --input: 210 20% 88%;
+    --ring: 199 89% 48%;
+
+    --radius: 1rem;
+
+    --chat-user: 199 89% 48%;
+    --chat-system: 262 83% 58%;
+  }
+
+  .theme-ocean.dark {
+    --background: 222 47% 8%;
+    --foreground: 0 0% 100%;
+
+    --card: 222 45% 12%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 222 45% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 199 89% 55%;
+    --primary-foreground: 222 47% 8%;
+    --primary-deep: 199 89% 42%;
+    --primary-light: 199 89% 75%;
+
+    --secondary: 187 85% 53%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 222 40% 16%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 262 83% 68%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 160 84% 50%;
+    --success-foreground: 222 47% 8%;
+
+    --warning: 38 92% 60%;
+    --warning-foreground: 222 47% 8%;
+
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 89% 55%;
+    --info-foreground: 222 47% 8%;
+
+    --finops: 160 84% 50%;
+    --finops-foreground: 222 47% 8%;
+
+    --data-ai: 262 83% 72%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 199 89% 55% / 0.3;
+    --input: 222 40% 16%;
+    --ring: 199 89% 55%;
+
+    --chat-user: 199 89% 55%;
+    --chat-system: 262 83% 68%;
+  }
+
+  /* ===== FOREST THEME ===== */
+  .theme-forest {
+    /* Light Mode */
+    --background: 120 15% 96%;
+    --foreground: 120 30% 12%;
+
+    --card: 120 15% 92%;
+    --card-foreground: 120 30% 12%;
+
+    --popover: 120 15% 92%;
+    --popover-foreground: 120 30% 12%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 142 76% 28%;
+    --primary-light: 142 76% 50%;
+
+    --secondary: 84 81% 44%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 120 12% 85%;
+    --muted-foreground: 120 10% 40%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 120 30% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --finops: 84 81% 44%;
+    --finops-foreground: 0 0% 100%;
+
+    --data-ai: 38 92% 50%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 120 12% 80%;
+    --input: 120 12% 88%;
+    --ring: 142 76% 36%;
+
+    --radius: 1rem;
+
+    --chat-user: 142 76% 36%;
+    --chat-system: 38 92% 50%;
+  }
+
+  .theme-forest.dark {
+    --background: 140 30% 6%;
+    --foreground: 0 0% 100%;
+
+    --card: 140 28% 10%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 140 28% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 142 76% 50%;
+    --primary-foreground: 140 30% 6%;
+    --primary-deep: 142 76% 36%;
+    --primary-light: 142 76% 70%;
+
+    --secondary: 84 81% 52%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 140 25% 14%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 38 92% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 50%;
+    --success-foreground: 140 30% 6%;
+
+    --warning: 38 92% 60%;
+    --warning-foreground: 140 30% 6%;
+
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 89% 55%;
+    --info-foreground: 140 30% 6%;
+
+    --finops: 84 81% 52%;
+    --finops-foreground: 140 30% 6%;
+
+    --data-ai: 38 92% 60%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 142 76% 50% / 0.3;
+    --input: 140 25% 14%;
+    --ring: 142 76% 50%;
+
+    --chat-user: 142 76% 50%;
+    --chat-system: 38 92% 60%;
+  }
+
+  /* Default fallback - Neon Dark */
+  :root {
+    --background: 230 45% 6%;
+    --foreground: 0 0% 100%;
+
+    --card: 230 40% 10%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 230 40% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 180 100% 65%;
+    --primary-foreground: 230 45% 6%;
+    --primary-deep: 180 100% 45%;
+    --primary-light: 180 100% 90%;
+
+    --secondary: 180 50% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 230 40% 14%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 180 60% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 150 100% 65%;
+    --success-foreground: 230 45% 6%;
+
+    --warning: 45 100% 65%;
+    --warning-foreground: 230 45% 6%;
+
+    --destructive: 0 100% 70%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 200 100% 65%;
+    --info-foreground: 230 45% 6%;
+
+    --finops: 150 100% 65%;
+    --finops-foreground: 230 45% 6%;
+
+    --data-ai: 270 100% 80%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 180 100% 65% / 0.3;
+    --input: 230 40% 14%;
+    --ring: 180 100% 65%;
+
+    --radius: 1rem;
+
     --chat-user: 180 100% 65%;
     --chat-system: 270 95% 75%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply bg-background text-foreground;
   }
@@ -134,15 +381,15 @@ All colors MUST be HSL.
 
 @layer utilities {
   .glass {
-    @apply bg-card/40 backdrop-blur-xl border border-primary/20;
+    @apply bg-card/40 backdrop-blur-xl;
   }
   
   .glass-strong {
-    @apply bg-card/60 backdrop-blur-2xl border border-primary/30;
+    @apply bg-card/60 backdrop-blur-2xl;
   }
   
   .glass-hover {
-    @apply hover:bg-card/50 hover:border-primary/40 transition-all duration-300;
+    @apply hover:bg-card/50 transition-all duration-300;
   }
 
   .neon-glow {
@@ -156,4 +403,148 @@ All colors MUST be HSL.
   .neon-text {
     @apply drop-shadow-[0_0_8px_rgba(0,255,255,0.8)];
   }
+}
+
+/* Animation Keyframes */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(0, 255, 255, 0.7);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Animation Classes */
+.animate-slide-up {
+  animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* Hover transitions */
+.hover-lift {
+  @apply transition-all duration-300 ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Interactive elements */
+.interactive-scale {
+  @apply transition-transform duration-200 ease-out;
+}
+
+.interactive-scale:hover {
+  transform: scale(1.02);
+}
+
+.interactive-scale:active {
+  transform: scale(0.98);
 }

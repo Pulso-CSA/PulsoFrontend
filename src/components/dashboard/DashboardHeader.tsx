@@ -1,5 +1,5 @@
 import { LogOut, User, UserCircle, RefreshCw, Users } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -12,69 +12,44 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import ProfileDialog from "./ProfileDialog";
+import LayerSelection from "./LayerSelection";
+import ThemeSelector from "@/components/ThemeSelector";
 
-const API_URL = "https://pulsoapi-production-d109.up.railway.app";
-const PROFILES_URL = `${API_URL}/profiles`;
+interface DashboardHeaderProps {
+  activeLayers?: {
+    preview: boolean;
+    pulso: boolean;
+    finops: boolean;
+    data: boolean;
+    cloud: boolean;
+  };
+  setActiveLayers?: Dispatch<SetStateAction<{
+    preview: boolean;
+    pulso: boolean;
+    finops: boolean;
+    data: boolean;
+    cloud: boolean;
+  }>>;
+  showLayerSelection?: boolean;
+}
 
-const DashboardHeader = () => {
+const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = true }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<{ name: string; description: string } | null>(null);
 
+
   useEffect(() => {
-    const loadCurrentProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const selectedProfileId = localStorage.getItem("selectedProfileId");
-        
-        if (!token) {
-          return;
-        }
-
-        // Se não há perfil selecionado, buscar lista de perfis mas não selecionar automaticamente
-        if (!selectedProfileId) {
-          // Limpar perfil atual e deixar usuário escolher na página de seleção
-          setCurrentProfile(null);
-          return;
-        }
-
-        // Buscar perfil específico do backend
-        const res = await fetch(`${PROFILES_URL}/${selectedProfileId}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (res.ok) {
-          const profile = await res.json();
-          setCurrentProfile({
-            name: profile.name,
-            description: profile.description || "",
-          });
-        } else if (res.status === 404 || res.status === 403) {
-          // Perfil não encontrado ou sem acesso, remover do localStorage
-          localStorage.removeItem("selectedProfileId");
-          setCurrentProfile(null);
-          
-          // Redirecionar para seleção de perfis se não estiver lá
-          if (!window.location.pathname.includes("profile-selection")) {
-            navigate("/profile-selection");
-          }
-        }
-      } catch (error) {
-        console.error("Erro ao carregar perfil atual:", error);
-      }
-    };
-
-    loadCurrentProfile();
-  }, [navigate]);
+    const profile = localStorage.getItem("currentProfile");
+    if (profile) {
+      setCurrentProfile(JSON.parse(profile));
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("token");
-    localStorage.removeItem("selectedProfileId");
+    localStorage.removeItem("currentProfile");
     toast({
       title: "Sessão encerrada",
       description: "Até logo!",
@@ -83,7 +58,7 @@ const DashboardHeader = () => {
   };
 
   const handleSwitchProfile = () => {
-    localStorage.removeItem("selectedProfileId");
+    localStorage.removeItem("currentProfile");
     toast({
       title: "Trocar de perfil",
       description: "Selecione outro perfil",
@@ -93,8 +68,8 @@ const DashboardHeader = () => {
 
   const handleSwitchAccount = () => {
     localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("token");
-    localStorage.removeItem("selectedProfileId");
+    localStorage.removeItem("userProfile");
+    localStorage.removeItem("currentProfile");
     toast({
       title: "Trocar de conta",
       description: "Faça login com outra conta",
@@ -102,12 +77,13 @@ const DashboardHeader = () => {
     navigate("/auth");
   };
 
+
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-primary/30 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-slide-down">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold neon-text" style={{ color: 'hsl(180 100% 65%)' }}>Pulso Tech</h1>
+            <h1 className="text-xl font-bold neon-text transition-all duration-300 hover:scale-105 text-primary">Pulso</h1>
             {currentProfile && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-lg glass border border-primary/30">
                 <Users className="h-3.5 w-3.5 text-primary" />
@@ -115,8 +91,10 @@ const DashboardHeader = () => {
               </div>
             )}
           </div>
+
           
           <div className="flex items-center gap-2">
+            <ThemeSelector />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="relative group">
@@ -166,6 +144,16 @@ const DashboardHeader = () => {
             </DropdownMenu>
           </div>
         </div>
+
+        {/* Layer Selection integrado no header */}
+        {showLayerSelection && activeLayers && setActiveLayers && (
+          <div className="container mx-auto px-4 pb-3">
+            <LayerSelection 
+              activeLayers={activeLayers}
+              setActiveLayers={setActiveLayers}
+            />
+          </div>
+        )}
       </header>
 
       <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />

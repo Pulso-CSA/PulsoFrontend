@@ -17,9 +17,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const API_URL = "https://pulsoapi-production-d109.up.railway.app";
-const PROFILES_URL = `${API_URL}/profiles`;
-
 const profileSchema = z.object({
   name: z.string()
     .trim()
@@ -75,154 +72,48 @@ const ProfileManagement = ({
     }
   };
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (!validateForm()) return;
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Token não encontrado. Faça login novamente.",
-          variant: "destructive",
-        });
-        return;
-      }
+    const newProfile: Profile = {
+      id: Date.now().toString(),
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      createdAt: new Date().toISOString(),
+    };
 
-      const res = await fetch(`${PROFILES_URL}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          description: formData.description.trim() || undefined,
-        }),
-      });
+    onProfilesChange([...profiles, newProfile]);
+    setFormData({ name: "", description: "" });
+    setIsCreating(false);
+    setErrors({});
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || data.message || "Erro ao criar perfil");
-      }
-
-      // Recarregar perfis do servidor para garantir sincronização
-      const profilesRes = await fetch(`${PROFILES_URL}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (profilesRes.ok) {
-        const profilesData = await profilesRes.json();
-        const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-        onProfilesChange(profilesList);
-      } else {
-        // Se não conseguir recarregar, adicionar o novo perfil ao estado local
-        const newProfile: Profile = {
-          id: data.id || data._id || Date.now().toString(),
-          name: data.name,
-          description: data.description || "",
-          createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-        };
-        onProfilesChange([...profiles, newProfile]);
-      }
-
-      setFormData({ name: "", description: "" });
-      setIsCreating(false);
-      setErrors({});
-
-      toast({
-        title: "Perfil criado",
-        description: `Perfil criado com sucesso`,
-      });
-    } catch (err: any) {
-      toast({
-        title: "Erro ao criar perfil",
-        description: err.message || "Não foi possível criar o perfil. Tente novamente.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Perfil criado",
+      description: `Perfil "${newProfile.name}" criado com sucesso`,
+    });
   };
 
-  const handleUpdate = async (id: string) => {
+  const handleUpdate = (id: string) => {
     if (!validateForm()) return;
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Token não encontrado. Faça login novamente.",
-          variant: "destructive",
-        });
-        return;
-      }
+    const updatedProfiles = profiles.map((profile) =>
+      profile.id === id
+        ? { ...profile, name: formData.name.trim(), description: formData.description.trim() }
+        : profile
+    );
 
-      const res = await fetch(`${PROFILES_URL}/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          description: formData.description.trim() || undefined,
-        }),
-      });
+    onProfilesChange(updatedProfiles);
+    setEditingId(null);
+    setFormData({ name: "", description: "" });
+    setErrors({});
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || data.message || "Erro ao atualizar perfil");
-      }
-
-      // Recarregar perfis do servidor para garantir sincronização
-      const profilesRes = await fetch(`${PROFILES_URL}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (profilesRes.ok) {
-        const profilesData = await profilesRes.json();
-        const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-        onProfilesChange(profilesList);
-      } else {
-        // Se não conseguir recarregar, atualizar o estado local
-        const updatedProfiles = profiles.map((profile) =>
-          profile.id === id
-            ? { 
-                ...profile, 
-                name: data.name || formData.name.trim(), 
-                description: data.description || formData.description.trim() 
-              }
-            : profile
-        );
-        onProfilesChange(updatedProfiles);
-      }
-
-      setEditingId(null);
-      setFormData({ name: "", description: "" });
-      setErrors({});
-
-      toast({
-        title: "Perfil atualizado",
-        description: "Alterações salvas com sucesso",
-      });
-    } catch (err: any) {
-      toast({
-        title: "Erro ao atualizar perfil",
-        description: err.message || "Não foi possível atualizar o perfil. Tente novamente.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Perfil atualizado",
+      description: "Alterações salvas com sucesso",
+    });
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (profiles.length <= 1) {
       toast({
         title: "Não é possível deletar",
@@ -232,77 +123,14 @@ const ProfileManagement = ({
       return;
     }
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Token não encontrado. Faça login novamente.",
-          variant: "destructive",
-        });
-        return;
-      }
+    const updatedProfiles = profiles.filter((profile) => profile.id !== id);
+    onProfilesChange(updatedProfiles);
+    setDeletingId(null);
 
-      const res = await fetch(`${PROFILES_URL}/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        // Tentar ler JSON de erro apenas se o status não for 204
-        let errorMessage = "Erro ao deletar perfil";
-        if (res.status !== 204) {
-          try {
-            const data = await res.json();
-            errorMessage = data.detail || data.message || errorMessage;
-          } catch {
-            // Se não conseguir ler JSON, usar mensagem padrão
-          }
-        }
-        throw new Error(errorMessage);
-      }
-
-      // Backend retorna 204 (No Content) quando deleta com sucesso
-      // Verificar se o perfil deletado é o selecionado
-      const selectedProfileId = localStorage.getItem("selectedProfileId");
-      if (selectedProfileId === id) {
-        // Se for o perfil selecionado, limpar e deixar usuário escolher outro
-        localStorage.removeItem("selectedProfileId");
-      }
-
-      // Recarregar perfis do servidor para garantir sincronização
-      const profilesRes = await fetch(`${PROFILES_URL}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-
-      if (profilesRes.ok) {
-        const profilesData = await profilesRes.json();
-        const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-        onProfilesChange(profilesList);
-      } else {
-        // Se não conseguir recarregar, remover do estado local
-        const updatedProfiles = profiles.filter((profile) => profile.id !== id);
-        onProfilesChange(updatedProfiles);
-      }
-
-      setDeletingId(null);
-
-      toast({
-        title: "Perfil deletado",
-        description: "Perfil removido com sucesso",
-      });
-    } catch (err: any) {
-      toast({
-        title: "Erro ao deletar perfil",
-        description: err.message || "Não foi possível deletar o perfil. Tente novamente.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Perfil deletado",
+      description: "Perfil removido com sucesso",
+    });
   };
 
   const startEdit = (profile: Profile) => {

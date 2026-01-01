@@ -8,6 +8,7 @@ import LogsPanel from "@/components/dashboard/LogsPanel";
 import LayerSelection from "@/components/dashboard/LayerSelection";
 import FinOpsChat from "@/components/dashboard/FinOpsChat";
 import DataChat from "@/components/dashboard/DataChat";
+import CloudChat from "@/components/dashboard/CloudChat";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -16,21 +17,20 @@ const Dashboard = () => {
     pulso: false,
     finops: false,
     data: false,
+    cloud: false,
   });
   const [showLogs, setShowLogs] = useState(false);
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
-    const token = localStorage.getItem("token");
-    const selectedProfileId = localStorage.getItem("selectedProfileId");
+    const currentProfile = localStorage.getItem("currentProfile");
     
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       navigate("/auth");
       return;
     }
     
-    // Verificar se há um perfil selecionado
-    if (!selectedProfileId) {
+    if (!currentProfile) {
       navigate("/profile-selection");
     }
   }, [navigate]);
@@ -65,57 +65,21 @@ const Dashboard = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-dataAi/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="glass-strong border-b relative z-10">
-        <DashboardHeader />
+      <div className="relative z-10">
+        <DashboardHeader 
+          activeLayers={activeLayers}
+          setActiveLayers={setActiveLayers}
+        />
       </div>
       
       <main className="flex-1 container mx-auto p-4 lg:p-6 relative z-10">
         <div className="flex flex-col gap-6">
-          {/* Seleção de Camadas */}
-          <div className="w-full">
-            <LayerSelection 
-              activeLayers={activeLayers}
-              setActiveLayers={setActiveLayers}
-            />
-          </div>
 
           {/* Área de Chats */}
           <div className="flex-1 space-y-6">
-          {!activeLayers.preview && !activeLayers.pulso && !activeLayers.finops && !activeLayers.data && (
-              <div className="glass-strong border-2 border-primary/30 rounded-2xl p-12 text-center shadow-[0_0_30px_rgba(0,255,255,0.2)] animate-fade-in">
-                <div className="max-w-2xl mx-auto space-y-6">
-                  <div className="flex justify-center gap-6 mb-6">
-                    <div className="relative group">
-                      <Monitor className="h-16 w-16 text-primary drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform" />
-                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
-                    </div>
-                    <div className="relative group">
-                      <Zap className="h-16 w-16 text-primary drop-shadow-[0_0_15px_rgba(0,255,255,0.8)] group-hover:scale-110 transition-transform" />
-                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
-                    </div>
-                    <div className="relative group">
-                      <Activity className="h-16 w-16 text-finops drop-shadow-[0_0_15px_rgba(0,255,153,0.8)] group-hover:scale-110 transition-transform" />
-                      <div className="absolute inset-0 bg-finops/20 rounded-full blur-xl group-hover:bg-finops/30 transition-colors" />
-                    </div>
-                    <div className="relative group">
-                      <Database className="h-16 w-16 text-dataAi drop-shadow-[0_0_15px_rgba(191,0,255,0.8)] group-hover:scale-110 transition-transform" />
-                      <div className="absolute inset-0 bg-dataAi/20 rounded-full blur-xl group-hover:bg-dataAi/30 transition-colors" />
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground">
-                    Selecione uma camada para começar
-                  </h3>
-                  <p className="text-foreground/70 leading-relaxed">
-                    Escolha entre <span className="text-primary font-semibold">Pulso CSA</span> para gerar blueprints, 
-                    <span className="text-finops font-semibold"> FinOps</span> para otimizar custos, ou 
-                    <span className="text-dataAi font-semibold"> Analytics</span> para análise de dados com IA
-                  </p>
-                </div>
-              </div>
-            )}
 
             {activeLayers.pulso && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-slide-up">
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
@@ -275,8 +239,9 @@ const Dashboard = () => {
                 <PromptPanel />
               </div>
             )}
-            {activeLayers.finops && <FinOpsChat />}
-            {activeLayers.data && <DataChat />}
+            {activeLayers.cloud && <div className="animate-slide-up"><CloudChat /></div>}
+            {activeLayers.finops && <div className="animate-slide-up"><FinOpsChat /></div>}
+            {activeLayers.data && <div className="animate-slide-up"><DataChat /></div>}
           </div>
         </div>
       </main>

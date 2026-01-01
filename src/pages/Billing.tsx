@@ -4,26 +4,40 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
   ArrowLeft, 
   Check, 
-  CreditCard, 
-  QrCode, 
-  FileText, 
-  Building2,
-  Smartphone,
   Zap,
   Crown,
   Star,
-  Sparkles
+  Sparkles,
+  ExternalLink
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+
+// Stripe Payment Links para planos mensais
+const stripePaymentLinks = {
+  basic: {
+    withoutKey: "https://buy.stripe.com/test_bJe00jdAl89e4fFcim8Zq08", // $29.99
+    withKey: "https://buy.stripe.com/test_fZu6oHao989e13tequ8Zq09"     // $24.99
+  },
+  plus: {
+    withoutKey: "https://buy.stripe.com/test_eVq14n67T6164fF96a8Zq0a", // $44.77
+    withKey: "https://buy.stripe.com/test_cNibJ153P1KQ3bBdmq8Zq0b"     // $34.77
+  },
+  pro: {
+    withoutKey: "https://buy.stripe.com/test_3cI28rgMx3SY27xgyC8Zq0c", // $59.77
+    withKey: "https://buy.stripe.com/test_fZu8wPeEp89ecMb3LQ8Zq0d"     // $49.77
+  },
+  elite: {
+    withoutKey: "https://buy.stripe.com/test_dRmcN5bsdcpu6nN4PU8Zq0e", // $69.77
+    withKey: "https://buy.stripe.com/test_bJe28r53PblqfYn0zE8Zq0f"     // $57.77
+  }
+};
 
 const plans = [
   {
+    id: "basic",
     name: "Basic",
     priceMonthly: 29.99,
     priceYearly: 305.05,
@@ -40,6 +54,7 @@ const plans = [
     color: "text-muted-foreground"
   },
   {
+    id: "plus",
     name: "Plus",
     priceMonthly: 44.77,
     priceYearly: 456.65,
@@ -57,6 +72,7 @@ const plans = [
     color: "text-primary"
   },
   {
+    id: "pro",
     name: "Pro",
     priceMonthly: 59.77,
     priceYearly: 609.65,
@@ -74,11 +90,12 @@ const plans = [
     color: "text-finops"
   },
   {
+    id: "elite",
     name: "Elite",
     priceMonthly: 69.77,
     priceYearly: 711.65,
-    priceMonthlyWithAPI: 54.77,
-    priceYearlyWithAPI: 558.65,
+    priceMonthlyWithAPI: 57.77,
+    priceYearlyWithAPI: 588.65,
     features: [
       "Tudo do Pro",
       "IA personalizada",
@@ -93,88 +110,23 @@ const plans = [
   }
 ];
 
-const paymentMethods = [
-  {
-    id: "credit-card",
-    name: "Cartão de Crédito",
-    icon: CreditCard,
-    description: "Visa, Mastercard, Amex, Elo",
-    color: "primary"
-  },
-  {
-    id: "pix",
-    name: "PIX",
-    icon: QrCode,
-    description: "Pagamento instantâneo",
-    color: "finops"
-  },
-  {
-    id: "boleto",
-    name: "Boleto Bancário",
-    icon: FileText,
-    description: "Vencimento em 3 dias úteis",
-    color: "dataAi"
-  },
-  {
-    id: "paypal",
-    name: "PayPal",
-    icon: Building2,
-    description: "Pagamento internacional",
-    color: "secondary"
-  }
-];
-
 const Billing = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [cardData, setCardData] = useState({
-    number: "",
-    name: "",
-    expiry: "",
-    cvv: ""
-  });
 
-  const handleSelectPlan = (planName: string) => {
-    setSelectedPlan(planName);
-    setShowPaymentForm(true);
-  };
-
-  const handlePaymentMethodSelect = (methodId: string) => {
-    setSelectedPayment(methodId);
-  };
-
-  const handleSubmitPayment = () => {
-    if (!selectedPayment) {
-      toast({
-        title: "Selecione um método de pagamento",
-        variant: "destructive"
-      });
+  const handleSelectPlan = (planId: string) => {
+    if (billingCycle === "yearly") {
+      // Planos anuais ainda não disponíveis no Stripe
+      alert("Planos anuais serão disponibilizados em breve. Por favor, selecione o plano mensal.");
       return;
     }
 
-    if (selectedPayment === "credit-card") {
-      if (!cardData.number || !cardData.name || !cardData.expiry || !cardData.cvv) {
-        toast({
-          title: "Preencha todos os dados do cartão",
-          variant: "destructive"
-        });
-        return;
-      }
+    const planLinks = stripePaymentLinks[planId as keyof typeof stripePaymentLinks];
+    if (planLinks) {
+      const link = hasOpenAIKey ? planLinks.withKey : planLinks.withoutKey;
+      window.open(link, "_blank");
     }
-
-    toast({
-      title: "Upgrade realizado com sucesso! 🎉",
-      description: `Plano ${selectedPlan} ativado via ${paymentMethods.find(m => m.id === selectedPayment)?.name}`
-    });
-
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 2000);
   };
 
   return (
@@ -250,6 +202,12 @@ const Billing = () => {
                 {hasOpenAIKey ? '✓ Desconto OpenAI Ativo (15%)' : 'Tenho Chave API OpenAI'}
               </span>
             </Button>
+
+            {billingCycle === "yearly" && (
+              <p className="text-sm text-muted-foreground text-center animate-fade-in">
+                ⚠️ Planos anuais serão disponibilizados em breve. Atualmente apenas planos mensais estão disponíveis.
+              </p>
+            )}
           </div>
 
           {/* Plans Grid */}
@@ -315,14 +273,20 @@ const Billing = () => {
                     </ul>
 
                     <Button
-                      onClick={() => handleSelectPlan(plan.name)}
-                      className={`w-full glass-hover border-2 transition-all duration-200 ${
+                      onClick={() => handleSelectPlan(plan.id)}
+                      className={`w-full glass-hover border-2 transition-all duration-200 gap-2 ${
                         plan.popular
                           ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]'
                           : 'border-primary/40 hover:border-primary/60'
                       }`}
+                      disabled={billingCycle === "yearly"}
                     >
-                      Selecionar Plano
+                      {billingCycle === "yearly" ? "Em Breve" : (
+                        <>
+                          Assinar Plano
+                          <ExternalLink className="h-4 w-4" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </Card>
@@ -330,153 +294,13 @@ const Billing = () => {
             })}
           </div>
 
-          {/* Payment Form */}
-          {showPaymentForm && selectedPlan && (
-            <div className="glass-strong border-2 border-primary/30 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,255,255,0.2)] animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6 text-primary">Finalizar Pagamento - {selectedPlan}</h2>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Payment Methods */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold mb-4">Método de Pagamento</h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {paymentMethods.map((method) => {
-                      const MethodIcon = method.icon;
-                      return (
-                        <button
-                          key={method.id}
-                          onClick={() => handlePaymentMethodSelect(method.id)}
-                          className={`glass glass-hover p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                            selectedPayment === method.id
-                              ? 'border-primary shadow-[0_0_20px_rgba(0,255,255,0.3)] scale-105'
-                              : 'border-primary/30 hover:border-primary/50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="relative">
-                              <MethodIcon className={`h-8 w-8 text-${method.color}`} />
-                              <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg" />
-                            </div>
-                            <div>
-                              <div className="font-semibold">{method.name}</div>
-                              <div className="text-xs text-muted-foreground">{method.description}</div>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Card Form (if credit card selected) */}
-                <div className="space-y-4">
-                  {selectedPayment === "credit-card" && (
-                    <>
-                      <h3 className="text-lg font-semibold mb-4">Dados do Cartão</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="card-number">Número do Cartão</Label>
-                          <Input
-                            id="card-number"
-                            placeholder="0000 0000 0000 0000"
-                            value={cardData.number}
-                            onChange={(e) => setCardData({ ...cardData, number: e.target.value })}
-                            className="glass border-2 border-primary/30"
-                            maxLength={19}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="card-name">Nome no Cartão</Label>
-                          <Input
-                            id="card-name"
-                            placeholder="NOME COMPLETO"
-                            value={cardData.name}
-                            onChange={(e) => setCardData({ ...cardData, name: e.target.value.toUpperCase() })}
-                            className="glass border-2 border-primary/30"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="card-expiry">Validade</Label>
-                            <Input
-                              id="card-expiry"
-                              placeholder="MM/AA"
-                              value={cardData.expiry}
-                              onChange={(e) => setCardData({ ...cardData, expiry: e.target.value })}
-                              className="glass border-2 border-primary/30"
-                              maxLength={5}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="card-cvv">CVV</Label>
-                            <Input
-                              id="card-cvv"
-                              placeholder="123"
-                              type="password"
-                              value={cardData.cvv}
-                              onChange={(e) => setCardData({ ...cardData, cvv: e.target.value })}
-                              className="glass border-2 border-primary/30"
-                              maxLength={4}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {selectedPayment === "pix" && (
-                    <div className="text-center py-8 space-y-4">
-                      <div className="flex justify-center">
-                        <div className="relative">
-                          <QrCode className="h-32 w-32 text-finops drop-shadow-[0_0_20px_rgba(0,255,153,0.8)]" />
-                          <div className="absolute inset-0 bg-finops/20 rounded-lg blur-xl" />
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        QR Code gerado ao confirmar pagamento
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedPayment === "boleto" && (
-                    <div className="text-center py-8 space-y-4">
-                      <div className="flex justify-center">
-                        <div className="relative">
-                          <FileText className="h-32 w-32 text-dataAi drop-shadow-[0_0_20px_rgba(191,0,255,0.8)]" />
-                          <div className="absolute inset-0 bg-dataAi/20 rounded-lg blur-xl" />
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Boleto gerado ao confirmar pagamento
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedPayment === "paypal" && (
-                    <div className="text-center py-8 space-y-4">
-                      <div className="flex justify-center">
-                        <div className="relative">
-                          <Building2 className="h-32 w-32 text-secondary drop-shadow-[0_0_20px_rgba(128,128,255,0.8)]" />
-                          <div className="absolute inset-0 bg-secondary/20 rounded-lg blur-xl" />
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Você será redirecionado ao PayPal
-                      </p>
-                    </div>
-                  )}
-
-                  <Button
-                    onClick={handleSubmitPayment}
-                    disabled={!selectedPayment}
-                    className="w-full glass-strong border-2 border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] hover:shadow-[0_0_30px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200"
-                  >
-                    Confirmar Pagamento
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Stripe Badge */}
+          <div className="text-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <p className="text-xs text-muted-foreground">
+              Pagamentos processados de forma segura via{" "}
+              <span className="font-semibold text-primary">Stripe</span>
+            </p>
+          </div>
         </div>
       </main>
     </div>

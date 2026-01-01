@@ -84,11 +84,11 @@ const FinOpsChat = () => {
 
       {/* Cost Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass border-y border-primary/20">
-        <div className="space-y-1">
+        <div className="space-y-1 opacity-0 animate-fade-in stagger-1">
           <p className="text-xs text-muted-foreground">Custo mensal</p>
           <p className="text-xl font-bold text-foreground">{costSummary.monthly}</p>
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 opacity-0 animate-fade-in stagger-2">
           <p className="text-xs text-muted-foreground">Principais serviços</p>
           <div className="text-sm text-foreground space-y-0.5">
             {costSummary.topServices.map((service, idx) => (
@@ -96,10 +96,10 @@ const FinOpsChat = () => {
             ))}
           </div>
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 opacity-0 animate-fade-in stagger-3">
           <p className="text-xs text-muted-foreground">Tendência</p>
           <p className="text-lg font-semibold text-finops flex items-center gap-1">
-            <TrendingDown className="h-4 w-4" />
+            <TrendingDown className="h-4 w-4 animate-bounce-subtle" />
             {costSummary.trend}
           </p>
         </div>
@@ -120,13 +120,14 @@ const FinOpsChat = () => {
             </div>
           </div>
         ) : (
-          messages.map((message) => (
+          messages.map((message, index) => (
             <div
               key={message.id}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-slide-up`}
+              style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div
-                className={`max-w-[80%] rounded-lg p-3 ${
+                className={`max-w-[80%] rounded-lg p-3 transition-all duration-300 hover:scale-[1.01] ${
                   message.role === "user"
                     ? "bg-chat-user text-primary-foreground"
                     : "bg-chat-system text-foreground"

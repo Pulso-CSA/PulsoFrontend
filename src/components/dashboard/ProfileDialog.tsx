@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Camera, Mail, Save, Lock, Eye, EyeOff, CreditCard, Crown } from "lucide-react";
+import { User, Camera, Mail, Save, Lock, Eye, EyeOff, CreditCard, Crown, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,9 +22,6 @@ interface ProfileDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const API_URL = "https://pulsoapi-production-d109.up.railway.app";
-const PROFILES_URL = `${API_URL}/profiles`;
-
 const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -33,64 +30,27 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [userData, setUserData] = useState({
-    name: "",
-    email: "",
-  });
   
-  // Buscar dados do usuário e perfis do backend quando o diálogo abrir
+  // Carregar dados do localStorage
+  const savedProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
+
   useEffect(() => {
-    if (open) {
-      const loadData = async () => {
-        try {
-          const token = localStorage.getItem("token");
-          if (!token) return;
-
-          // Buscar perfis do backend
-          const profilesRes = await fetch(`${PROFILES_URL}`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-            },
-          });
-
-          if (profilesRes.ok) {
-            const profilesData = await profilesRes.json();
-            const profilesList = Array.isArray(profilesData) ? profilesData : (profilesData.profiles || []);
-            setProfiles(profilesList);
-          }
-
-          // Nota: Se houver um endpoint para dados do usuário (ex: /auth/me), usar aqui
-          // Por enquanto, os dados do usuário não são salvos no backend, apenas no token JWT
-          // Pode ser necessário decodificar o token JWT ou criar um endpoint específico
-        } catch (error) {
-          console.error("Erro ao carregar dados:", error);
-        }
-      };
-
-      loadData();
+    const savedProfiles = localStorage.getItem("userProfiles");
+    if (savedProfiles) {
+      setProfiles(JSON.parse(savedProfiles));
     }
-  }, [open]);
+  }, []);
   
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    avatarUrl: "",
+    name: savedProfile.name || "",
+    email: savedProfile.email || "",
+    avatarUrl: savedProfile.avatarUrl || "",
+    openaiApiKey: savedProfile.openaiApiKey || "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
-  // Sincronizar formData com userData quando userData mudar
-  useEffect(() => {
-    if (userData.name || userData.email) {
-      setFormData(prev => ({
-        ...prev,
-        name: userData.name || prev.name,
-        email: userData.email || prev.email,
-      }));
-    }
-  }, [userData]);
+  const [showOpenaiKey, setShowOpenaiKey] = useState(false);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -151,33 +111,21 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       }
     }
 
-    // Nota: Esta funcionalidade requer endpoints no backend para:
-    // 1. Atualizar dados do usuário (PUT /auth/me ou similar)
-    // 2. Alterar senha (PUT /auth/change-password ou similar)
-    // Por enquanto, apenas exibimos mensagem informativa
-    
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Token não encontrado. Faça login novamente.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // TODO: Implementar chamadas ao backend quando os endpoints estiverem disponíveis
-      // Por enquanto, apenas atualizar o estado local
-      setUserData({
+    // Simular salvamento
+    setTimeout(() => {
+      const profileData = {
         name: formData.name,
         email: formData.email,
-      });
+        avatarUrl: formData.avatarUrl,
+        openaiApiKey: formData.openaiApiKey,
+      };
+      localStorage.setItem("userProfile", JSON.stringify(profileData));
       
       toast({
-        title: "Informação",
-        description: "A atualização de perfil será implementada quando os endpoints do backend estiverem disponíveis.",
+        title: "Conta atualizada",
+        description: formData.newPassword 
+          ? "Suas informações e senha foram atualizadas com sucesso" 
+          : "Suas informações foram salvas com sucesso",
       });
       
       // Limpar campos de senha
@@ -190,14 +138,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       
       setLoading(false);
       onOpenChange(false);
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Não foi possível atualizar as informações.",
-        variant: "destructive",
-      });
-      setLoading(false);
-    }
+    }, 500);
   };
 
   const getInitials = () => {
@@ -212,7 +153,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
   const handleProfilesChange = (updatedProfiles: Profile[]) => {
     setProfiles(updatedProfiles);
-    // Não salvar perfis no localStorage - a fonte de verdade é o backend
+    localStorage.setItem("userProfiles", JSON.stringify(updatedProfiles));
   };
 
   return (
@@ -319,6 +260,40 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   required
                   className="border-primary/20 focus:border-primary transition-colors"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* OpenAI API Key Section */}
+          <div className="glass rounded-lg p-5 space-y-4 border border-primary/10">
+            <div className="flex items-center gap-2 pb-2">
+              <Key className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-primary">Chave de API OpenAI</h3>
+            </div>
+            
+            <p className="text-xs text-muted-foreground pb-2">
+              Configure sua chave de API da OpenAI para recursos de IA
+            </p>
+
+            <div className="space-y-2">
+              <Label htmlFor="openaiApiKey" className="text-sm font-medium">API Key</Label>
+              <div className="relative">
+                <Input
+                  id="openaiApiKey"
+                  type={showOpenaiKey ? "text" : "password"}
+                  placeholder="sk-..."
+                  value={formData.openaiApiKey}
+                  onChange={(e) => setFormData({ ...formData, openaiApiKey: e.target.value })}
+                  className="border-primary/20 focus:border-primary transition-colors pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOpenaiKey(!showOpenaiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  aria-label={showOpenaiKey ? "Ocultar chave" : "Mostrar chave"}
+                >
+                  {showOpenaiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
           </div>

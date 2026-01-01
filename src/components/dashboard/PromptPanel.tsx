@@ -73,43 +73,25 @@ const PromptPanel = () => {
     setEnvVars(envVars.filter((_, i) => i !== index));
   };
 
-  // Envia prompt (Descrição do Projeto) e root_path (Caminho da Pasta) para /workflow/run
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!prompt.trim()) return;
 
     setLoading(true);
-    try {
-      const res = await fetch("http://localhost:8000/governance/run", {
-        method: "POST",
-        mode: "cors", // <— única adição para explicitar CORS no browser
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          usuario: "marcelo.go",
-          root_path: folderPath,
-        }),
-      });
-
-      // Mantém comportamento de histórico/ID como antes
+    
+    // Simular envio e geração de estrutura de arquivos
+    setTimeout(() => {
       const id = `REQ-${Date.now().toString(36).toUpperCase()}`;
       setRequestId(id);
-      const newEntry: PromptHistory = { id, text: prompt, timestamp: new Date() };
+      
+      const newEntry: PromptHistory = {
+        id,
+        text: prompt,
+        timestamp: new Date(),
+      };
+      
       setHistory([newEntry, ...history.slice(0, 4)]);
-
-      if (!res.ok) {
-        toast({
-          title: "Falha no envio",
-          description: `Status ${res.status}`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Prompt enviado",
-          description: `ID da requisição: ${id}`,
-        });
-      }
-
-      // (Opcional) Estrutura mock para não quebrar a UI original
+      
+      // Estrutura de arquivos de exemplo baseada no prompt
       const mockStructure: FileNode[] = [
         {
           name: "src",
@@ -134,7 +116,9 @@ const PromptPanel = () => {
             {
               name: "services",
               type: "folder",
-              children: [{ name: "api.ts", type: "file" }],
+              children: [
+                { name: "api.ts", type: "file" },
+              ],
             },
             { name: "App.tsx", type: "file" },
           ],
@@ -142,17 +126,15 @@ const PromptPanel = () => {
         { name: "package.json", type: "file" },
         { name: "README.md", type: "file" },
       ];
+      
       setFileStructure(mockStructure);
-    } catch (e: any) {
-      console.error("FETCH ERROR:", e);
-      toast({
-        title: "Erro de rede",
-        description: e?.message || "Não foi possível contatar o backend",
-        variant: "destructive",
-      });
-    } finally {
       setLoading(false);
-    }
+      
+      toast({
+        title: "Prompt enviado",
+        description: `ID da requisição: ${id}`,
+      });
+    }, 1000);
   };
 
   const handleClear = () => {
@@ -224,6 +206,7 @@ const PromptPanel = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
     const file = e.dataTransfer.files?.[0];
     if (file && (file.name.endsWith('.env') || file.type === 'text/plain')) {
       const fakeEvent = {
@@ -262,14 +245,14 @@ const PromptPanel = () => {
     },
     {
       name: "Create User",
-      curl: `curl -X POST http://localhost:8000/api/users \
- -H "Content-Type: application/json" \
- -d '{"name": "John Doe", "email": "john@example.com"}'`,
+      curl: `curl -X POST http://localhost:8000/api/users \\
+  -H "Content-Type: application/json" \\
+  -d '{"name": "John Doe", "email": "john@example.com"}'`,
     },
     {
       name: "Upload File",
-      curl: `curl -X POST http://localhost:8000/api/upload \
- -F "file=@/path/to/file.pdf"`,
+      curl: `curl -X POST http://localhost:8000/api/upload \\
+  -F "file=@/path/to/file.pdf"`,
     },
   ];
 
@@ -298,7 +281,7 @@ const PromptPanel = () => {
         {/* Variáveis de Ambiente */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-foreground flex itens-center gap-2">
+            <Label className="text-sm font-medium text-foreground flex items-center gap-2">
               <FileCode className="h-4 w-4 text-primary" />
               Variáveis de Ambiente
             </Label>
@@ -321,6 +304,7 @@ const PromptPanel = () => {
               </Button>
             </div>
           </div>
+          
           <div
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -330,6 +314,7 @@ const PromptPanel = () => {
               Arraste um arquivo .env aqui ou use o botão acima
             </p>
           </div>
+          
           {/* Tabela de variáveis */}
           {envVars.length > 0 && (
             <div className="border border-primary/30 rounded-lg overflow-hidden bg-background/50">
@@ -408,7 +393,7 @@ const PromptPanel = () => {
           </Label>
           <Textarea
             id="prompt-input"
-            placeholder="Ex.: 'criar uma API simples modularizada em Python utilizando Flask, com autenticação JWT'"
+            placeholder="Ex.: 'Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...'"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             className="min-h-[120px] resize-none border-0 focus-visible:ring-0 bg-transparent text-base"
@@ -416,8 +401,8 @@ const PromptPanel = () => {
         </div>
 
         <div className="flex gap-3">
-          <Button
-            onClick={handleSubmit}
+          <Button 
+            onClick={handleSubmit} 
             disabled={!prompt.trim() || loading}
             className="flex-1 h-12 text-base font-medium"
           >
@@ -437,8 +422,8 @@ const PromptPanel = () => {
             <TestTube className="h-5 w-5 mr-2" />
             Testar
           </Button>
-          <Button
-            variant="outline"
+          <Button 
+            variant="outline" 
             onClick={handleClear}
             disabled={!prompt && !requestId}
             className="h-12 px-6"
@@ -487,7 +472,7 @@ const PromptPanel = () => {
               <button
                 key={item.id}
                 onClick={() => handleReusePrompt(item.text)}
-                className="w-full text-left p-4 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 hover:border-primary/30 transition-all duração-200 hover:shadow-md group"
+                className="w-full text-left p-4 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 hover:border-primary/30 transition-all duration-200 hover:shadow-md group"
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm text-foreground line-clamp-2 flex-1">
