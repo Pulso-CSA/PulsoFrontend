@@ -1,44 +1,40 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, Plus, ArrowRight, LogOut } from "lucide-react";
+import { Check, ArrowRight, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import ProfileManagement from "@/components/dashboard/ProfileManagement";
-import { Profile } from "@/components/dashboard/ProfileManagement";
 import { useToast } from "@/hooks/use-toast";
 import ThemeSelector from "@/components/ThemeSelector";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProfileSelection = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const { 
+    isAuthenticated, 
+    isLoading, 
+    profiles, 
+    currentProfile,
+    setCurrentProfile,
+    logout 
+  } = useAuth();
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       navigate("/auth");
-      return;
     }
-
-    const storedProfiles = localStorage.getItem("profiles");
-    if (storedProfiles) {
-      const parsedProfiles = JSON.parse(storedProfiles);
-      setProfiles(parsedProfiles);
-    }
-  }, [navigate]);
-
-  const handleProfilesChange = (updatedProfiles: Profile[]) => {
-    setProfiles(updatedProfiles);
-    localStorage.setItem("profiles", JSON.stringify(updatedProfiles));
-  };
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleSelectProfile = (profileId: string) => {
-    setSelectedProfileId(profileId);
+    const profile = profiles.find(p => p.id === profileId);
+    if (profile) {
+      setCurrentProfile(profile);
+    }
   };
 
   const handleAccessPlatform = () => {
-    if (!selectedProfileId) {
+    if (!currentProfile) {
       toast({
         title: "Selecione um perfil",
         description: "Você precisa selecionar um perfil para continuar",
@@ -47,16 +43,21 @@ const ProfileSelection = () => {
       return;
     }
 
-    const selectedProfile = profiles.find(p => p.id === selectedProfileId);
-    localStorage.setItem("currentProfile", JSON.stringify(selectedProfile));
     navigate("/dashboard");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("currentProfile");
+  const handleLogout = async () => {
+    await logout();
     navigate("/auth");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
@@ -111,7 +112,7 @@ const ProfileSelection = () => {
                     key={profile.id}
                     onClick={() => handleSelectProfile(profile.id)}
                     className={`glass p-6 cursor-pointer transition-all hover:scale-105 ${
-                      selectedProfileId === profile.id
+                      currentProfile?.id === profile.id
                         ? "border-2 border-primary bg-primary/10 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
                         : "border border-primary/20 hover:border-primary/40"
                     }`}
@@ -120,7 +121,7 @@ const ProfileSelection = () => {
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-lg text-foreground truncate flex items-center gap-2">
                           {profile.name}
-                          {selectedProfileId === profile.id && (
+                          {currentProfile?.id === profile.id && (
                             <Check className="h-5 w-5 text-primary flex-shrink-0" />
                           )}
                         </h4>
@@ -142,7 +143,7 @@ const ProfileSelection = () => {
               <div className="flex justify-center pt-4">
                 <Button
                   onClick={handleAccessPlatform}
-                  disabled={!selectedProfileId}
+                  disabled={!currentProfile}
                   size="lg"
                   className="gap-2 bg-primary hover:bg-primary/90 px-8"
                 >
@@ -156,8 +157,6 @@ const ProfileSelection = () => {
           {/* Profile Management */}
           <div className="glass-strong rounded-2xl p-6 border-2 border-primary/20">
             <ProfileManagement
-              profiles={profiles}
-              onProfilesChange={handleProfilesChange}
               maxProfiles={5}
             />
           </div>

@@ -15,23 +15,47 @@ import {
 } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
-// Stripe Payment Links para planos mensais
+// Stripe Payment Links
 const stripePaymentLinks = {
   basic: {
-    withoutKey: "https://buy.stripe.com/test_bJe00jdAl89e4fFcim8Zq08", // $29.99
-    withKey: "https://buy.stripe.com/test_fZu6oHao989e13tequ8Zq09"     // $24.99
+    monthly: {
+      withoutKey: "https://buy.stripe.com/test_bJe00jdAl89e4fFcim8Zq08",
+      withKey: "https://buy.stripe.com/test_fZu6oHao989e13tequ8Zq09"
+    },
+    yearly: {
+      withoutKey: "https://buy.stripe.com/test_28E28rbsdgFK27x96a8Zq0h",
+      withKey: "https://buy.stripe.com/test_9B6eVddAl1KQaE3aae8Zq0i"
+    }
   },
   plus: {
-    withoutKey: "https://buy.stripe.com/test_eVq14n67T6164fF96a8Zq0a", // $44.77
-    withKey: "https://buy.stripe.com/test_cNibJ153P1KQ3bBdmq8Zq0b"     // $34.77
+    monthly: {
+      withoutKey: "https://buy.stripe.com/test_eVq14n67T6164fF96a8Zq0a",
+      withKey: "https://buy.stripe.com/test_cNibJ153P1KQ3bBdmq8Zq0b"
+    },
+    yearly: {
+      withoutKey: "https://buy.stripe.com/test_5kQ9ATfItgFK8vV56a8Zq0j",
+      withKey: "https://buy.stripe.com/test_fZu9ATfItahmfYnbei8Zq0k"
+    }
   },
   pro: {
-    withoutKey: "https://buy.stripe.com/test_3cI28rgMx3SY27xgyC8Zq0c", // $59.77
-    withKey: "https://buy.stripe.com/test_fZu8wPeEp89ecMb3LQ8Zq0d"     // $49.77
+    monthly: {
+      withoutKey: "https://buy.stripe.com/test_3cI28rgMx3SY27xgyC8Zq0c",
+      withKey: "https://buy.stripe.com/test_fZu8wPeEp89ecMb3LQ8Zq0d"
+    },
+    yearly: {
+      withoutKey: "https://buy.stripe.com/test_bJedR9gMx9di7rRgyC8Zq0q",
+      withKey: "https://buy.stripe.com/test_00w00jao9cpu27xbei8Zq0r"
+    }
   },
   elite: {
-    withoutKey: "https://buy.stripe.com/test_dRmcN5bsdcpu6nN4PU8Zq0e", // $69.77
-    withKey: "https://buy.stripe.com/test_bJe28r53PblqfYn0zE8Zq0f"     // $57.77
+    monthly: {
+      withoutKey: "https://buy.stripe.com/test_dRmcN5bsdcpu6nN4PU8Zq0e",
+      withKey: "https://buy.stripe.com/test_bJe28r53PblqfYn0zE8Zq0f"
+    },
+    yearly: {
+      withoutKey: "https://buy.stripe.com/test_bJefZhdAl9di13taae8Zq0s",
+      withKey: "https://buy.stripe.com/test_5kQ6oHbsdblq7rR5TY8Zq0t"
+    }
   }
 };
 
@@ -116,17 +140,18 @@ const Billing = () => {
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
 
   const handleSelectPlan = (planId: string) => {
-    if (billingCycle === "yearly") {
-      // Planos anuais ainda não disponíveis no Stripe
-      alert("Planos anuais serão disponibilizados em breve. Por favor, selecione o plano mensal.");
+    const planLinks = stripePaymentLinks[planId as keyof typeof stripePaymentLinks];
+    if (!planLinks) return;
+
+    const cycleLinks = billingCycle === "monthly" ? planLinks.monthly : planLinks.yearly;
+    
+    if (!cycleLinks) {
+      alert("Plano anual ainda não disponível para este plano. Por favor, selecione o plano mensal.");
       return;
     }
 
-    const planLinks = stripePaymentLinks[planId as keyof typeof stripePaymentLinks];
-    if (planLinks) {
-      const link = hasOpenAIKey ? planLinks.withKey : planLinks.withoutKey;
-      window.open(link, "_blank");
-    }
+    const link = hasOpenAIKey ? cycleLinks.withKey : cycleLinks.withoutKey;
+    window.open(link, "_blank");
   };
 
   return (
@@ -205,18 +230,21 @@ const Billing = () => {
 
             {billingCycle === "yearly" && (
               <p className="text-sm text-muted-foreground text-center animate-fade-in">
-                ⚠️ Planos anuais serão disponibilizados em breve. Atualmente apenas planos mensais estão disponíveis.
+                ⚠️ Planos anuais Pro e Elite serão disponibilizados em breve.
               </p>
             )}
           </div>
 
-          {/* Plans Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan, idx) => {
               const Icon = plan.icon;
               const price = billingCycle === "monthly" 
                 ? (hasOpenAIKey ? plan.priceMonthlyWithAPI : plan.priceMonthly)
                 : (hasOpenAIKey ? plan.priceYearlyWithAPI : plan.priceYearly);
+              
+              const planLinks = stripePaymentLinks[plan.id as keyof typeof stripePaymentLinks];
+              const hasYearlyLink = planLinks?.yearly !== null;
+              const isDisabled = billingCycle === "yearly" && !hasYearlyLink;
               
               return (
                 <Card
@@ -279,9 +307,9 @@ const Billing = () => {
                           ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]'
                           : 'border-primary/40 hover:border-primary/60'
                       }`}
-                      disabled={billingCycle === "yearly"}
+                      disabled={isDisabled}
                     >
-                      {billingCycle === "yearly" ? "Em Breve" : (
+                      {isDisabled ? "Em Breve" : (
                         <>
                           Assinar Plano
                           <ExternalLink className="h-4 w-4" />

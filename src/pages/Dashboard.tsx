@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Activity, Database, Zap, Monitor, Terminal } from "lucide-react";
+import { Monitor, Terminal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -9,9 +9,12 @@ import LayerSelection from "@/components/dashboard/LayerSelection";
 import FinOpsChat from "@/components/dashboard/FinOpsChat";
 import DataChat from "@/components/dashboard/DataChat";
 import CloudChat from "@/components/dashboard/CloudChat";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading, currentProfile } = useAuth();
   const [activeLayers, setActiveLayers] = useState({
     preview: false,
     pulso: false,
@@ -22,18 +25,17 @@ const Dashboard = () => {
   const [showLogs, setShowLogs] = useState(false);
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    const currentProfile = localStorage.getItem("currentProfile");
-    
-    if (!isAuthenticated) {
-      navigate("/auth");
-      return;
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        navigate("/auth");
+        return;
+      }
+      
+      if (!currentProfile) {
+        navigate("/profile-selection");
+      }
     }
-    
-    if (!currentProfile) {
-      navigate("/profile-selection");
-    }
-  }, [navigate]);
+  }, [isAuthenticated, isLoading, currentProfile, navigate]);
 
   useEffect(() => {
     // Atalhos de teclado
@@ -55,6 +57,14 @@ const Dashboard = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">

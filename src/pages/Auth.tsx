@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { z } from "zod";
 import ThemeSelector from "@/components/ThemeSelector";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfiles } from "@/hooks/useProfiles";
 
 const profileSchema = z.object({
   name: z.string()
@@ -31,11 +33,27 @@ const profileSchema = z.object({
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(() => searchParams.get("mode") !== "signup");
+  const { isAuthenticated, isLoading: authLoading, login, loginWithGoogle, signup, profiles } = useAuth();
+  const { createProfile } = useProfiles();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   useEffect(() => {
     const mode = searchParams.get("mode");
     setIsLogin(mode !== "signup");
   }, [searchParams]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      if (profiles.length === 0) {
+        setShowProfileDialog(true);
+      } else {
+        navigate("/profile-selection");
+      }
+    }
+  }, [isAuthenticated, authLoading, profiles, navigate]);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,8 +67,6 @@ const Auth = () => {
     confirmPassword: "",
     acceptTerms: false,
   });
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
   const passwordStrength = (password: string) => {
     let strength = 0;
@@ -94,28 +110,31 @@ const Auth = () => {
     }
   };
 
-  const handleCreateProfile = () => {
+  const handleCreateProfile = async () => {
     if (!validateProfile()) return;
 
-    const newProfile = {
-      id: Date.now().toString(),
-      name: profileData.name.trim(),
-      description: profileData.description.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    setLoading(true);
+    try {
+      await createProfile({
+        name: profileData.name.trim(),
+        description: profileData.description.trim(),
+      });
 
-    localStorage.setItem("profiles", JSON.stringify([newProfile]));
-    localStorage.setItem("userProfile", JSON.stringify({
-      name: formData.name,
-      email: formData.email,
-    }));
-
-    setShowProfileDialog(false);
-    toast({
-      title: "Conta criada com sucesso",
-      description: `Perfil "${newProfile.name}" criado. Bem-vindo!`,
-    });
-    navigate("/profile-selection");
+      setShowProfileDialog(false);
+      toast({
+        title: "Conta criada com sucesso",
+        description: `Perfil "${profileData.name}" criado. Bem-vindo!`,
+      });
+      navigate("/profile-selection");
+    } catch (error) {
+      toast({
+        title: "Erro ao criar perfil",
+        description: error instanceof Error ? error.message : "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -155,51 +174,43 @@ const Auth = () => {
       }
     }
 
-    // Simular autenticação
-    setTimeout(() => {
-      localStorage.setItem("isAuthenticated", "true");
-      
+    try {
       if (isLogin) {
-        const storedProfiles = localStorage.getItem("profiles");
+        await login({ email: formData.email, password: formData.password });
         toast({
           title: "Login realizado",
           description: "Bem-vindo de volta!",
         });
-        
-        if (!storedProfiles || JSON.parse(storedProfiles).length === 0) {
-          setShowProfileDialog(true);
-        } else {
-          navigate("/profile-selection");
-        }
+        // Navigation handled by useEffect
       } else {
-        // Para signup, mostrar diálogo de criação de perfil obrigatório
+        await signup({ 
+          email: formData.email, 
+          password: formData.password,
+          name: formData.name,
+        });
+        // Show profile dialog for new users
         setShowProfileDialog(true);
       }
-      
+    } catch (error) {
+      toast({
+        title: isLogin ? "Erro no login" : "Erro no cadastro",
+        description: error instanceof Error ? error.message : "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
-    // Simular login com Google
-    setTimeout(() => {
-      localStorage.setItem("isAuthenticated", "true");
-      const storedProfiles = localStorage.getItem("profiles");
-      
-      toast({
-        title: "Login realizado",
-        description: "Bem-vindo via Google!",
-      });
-      
-      if (!storedProfiles || JSON.parse(storedProfiles).length === 0) {
-        setShowProfileDialog(true);
-      } else {
-        navigate("/profile-selection");
-      }
-      
+    try {
+      await loginWithGoogle();
+    } catch (error) {
+      // Error handling is done in the auth context
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -446,10 +457,11 @@ const Auth = () => {
 
             <Button
               onClick={handleCreateProfile}
+              disabled={loading}
               className="w-full gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105 mt-6"
             >
               <UserPlus className="h-4 w-4" />
-              Criar Perfil e Começar
+              {loading ? "Criando..." : "Criar Perfil e Começar"}
             </Button>
           </div>
         </DialogContent>

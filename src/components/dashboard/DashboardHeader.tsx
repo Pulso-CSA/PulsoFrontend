@@ -1,5 +1,5 @@
 import { LogOut, User, UserCircle, RefreshCw, Users } from "lucide-react";
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import {
 import ProfileDialog from "./ProfileDialog";
 import LayerSelection from "./LayerSelection";
 import ThemeSelector from "@/components/ThemeSelector";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardHeaderProps {
   activeLayers?: {
@@ -37,19 +38,10 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [currentProfile, setCurrentProfile] = useState<{ name: string; description: string } | null>(null);
+  const { currentProfile, setCurrentProfile, logout } = useAuth();
 
-
-  useEffect(() => {
-    const profile = localStorage.getItem("currentProfile");
-    if (profile) {
-      setCurrentProfile(JSON.parse(profile));
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("currentProfile");
+  const handleLogout = async () => {
+    await logout();
     toast({
       title: "Sessão encerrada",
       description: "Até logo!",
@@ -58,7 +50,7 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
   };
 
   const handleSwitchProfile = () => {
-    localStorage.removeItem("currentProfile");
+    setCurrentProfile(null);
     toast({
       title: "Trocar de perfil",
       description: "Selecione outro perfil",
@@ -66,10 +58,8 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
     navigate("/profile-selection");
   };
 
-  const handleSwitchAccount = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("userProfile");
-    localStorage.removeItem("currentProfile");
+  const handleSwitchAccount = async () => {
+    await logout();
     toast({
       title: "Trocar de conta",
       description: "Faça login com outra conta",

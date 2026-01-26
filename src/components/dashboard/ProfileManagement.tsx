@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Edit2, Check, X, Users } from "lucide-react";
+import { Plus, Trash2, Edit2, Check, X, Users, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useProfiles } from "@/hooks/useProfiles";
+import { useAuth } from "@/contexts/AuthContext";
+import { Profile } from "@/types";
 
 const profileSchema = z.object({
   name: z.string()
@@ -28,30 +31,23 @@ const profileSchema = z.object({
     .optional(),
 });
 
-export interface Profile {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-}
-
 interface ProfileManagementProps {
-  profiles: Profile[];
-  onProfilesChange: (profiles: Profile[]) => void;
   maxProfiles?: number;
 }
 
 const ProfileManagement = ({ 
-  profiles, 
-  onProfilesChange,
   maxProfiles = 5 
 }: ProfileManagementProps) => {
   const { toast } = useToast();
+  const { profiles, isLoading, createProfile, updateProfile, deleteProfile } = useProfiles();
+  const { currentProfile, setCurrentProfile } = useAuth();
+  
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({ name: "", description: "" });
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const validateForm = () => {
     try {
@@ -72,48 +68,65 @@ const ProfileManagement = ({
     }
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!validateForm()) return;
 
-    const newProfile: Profile = {
-      id: Date.now().toString(),
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    setSubmitting(true);
+    try {
+      const newProfile = await createProfile({
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+      });
 
-    onProfilesChange([...profiles, newProfile]);
-    setFormData({ name: "", description: "" });
-    setIsCreating(false);
-    setErrors({});
+      setFormData({ name: "", description: "" });
+      setIsCreating(false);
+      setErrors({});
 
-    toast({
-      title: "Perfil criado",
-      description: `Perfil "${newProfile.name}" criado com sucesso`,
-    });
+      toast({
+        title: "Perfil criado",
+        description: `Perfil "${newProfile.name}" criado com sucesso`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao criar perfil",
+        description: error instanceof Error ? error.message : "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleUpdate = (id: string) => {
+  const handleUpdate = async (id: string) => {
     if (!validateForm()) return;
 
-    const updatedProfiles = profiles.map((profile) =>
-      profile.id === id
-        ? { ...profile, name: formData.name.trim(), description: formData.description.trim() }
-        : profile
-    );
+    setSubmitting(true);
+    try {
+      await updateProfile(id, {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+      });
 
-    onProfilesChange(updatedProfiles);
-    setEditingId(null);
-    setFormData({ name: "", description: "" });
-    setErrors({});
+      setEditingId(null);
+      setFormData({ name: "", description: "" });
+      setErrors({});
 
-    toast({
-      title: "Perfil atualizado",
-      description: "Alterações salvas com sucesso",
-    });
+      toast({
+        title: "Perfil atualizado",
+        description: "Alterações salvas com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: error instanceof Error ? error.message : "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (profiles.length <= 1) {
       toast({
         title: "Não é possível deletar",
@@ -123,14 +136,29 @@ const ProfileManagement = ({
       return;
     }
 
-    const updatedProfiles = profiles.filter((profile) => profile.id !== id);
-    onProfilesChange(updatedProfiles);
-    setDeletingId(null);
+    setSubmitting(true);
+    try {
+      await deleteProfile(id);
+      setDeletingId(null);
 
-    toast({
-      title: "Perfil deletado",
-      description: "Perfil removido com sucesso",
-    });
+      // If deleting current profile, clear selection
+      if (currentProfile?.id === id) {
+        setCurrentProfile(null);
+      }
+
+      toast({
+        title: "Perfil deletado",
+        description: "Perfil removido com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao deletar perfil",
+        description: error instanceof Error ? error.message : "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const startEdit = (profile: Profile) => {
@@ -181,6 +209,7 @@ const ProfileManagement = ({
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className={errors.name ? "border-destructive" : ""}
+                  disabled={submitting}
                 />
                 {errors.name && (
                   <p className="text-xs text-destructive">{errors.name}</p>
@@ -195,6 +224,7 @@ const ProfileManagement = ({
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className={errors.description ? "border-destructive" : ""}
+                  disabled={submitting}
                 />
                 {errors.description && (
                   <p className="text-xs text-destructive">{errors.description}</p>
@@ -206,8 +236,9 @@ const ProfileManagement = ({
                   onClick={handleCreate}
                   size="sm"
                   className="gap-2 bg-primary hover:bg-primary/90"
+                  disabled={submitting}
                 >
-                  <Check className="h-4 w-4" />
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                   Criar
                 </Button>
                 <Button
@@ -215,6 +246,7 @@ const ProfileManagement = ({
                   size="sm"
                   variant="outline"
                   className="gap-2"
+                  disabled={submitting}
                 >
                   <X className="h-4 w-4" />
                   Cancelar
@@ -239,6 +271,7 @@ const ProfileManagement = ({
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className={errors.name ? "border-destructive" : ""}
+                    disabled={submitting}
                   />
                   {errors.name && (
                     <p className="text-xs text-destructive">{errors.name}</p>
@@ -252,6 +285,7 @@ const ProfileManagement = ({
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className={errors.description ? "border-destructive" : ""}
+                    disabled={submitting}
                   />
                   {errors.description && (
                     <p className="text-xs text-destructive">{errors.description}</p>
@@ -263,8 +297,9 @@ const ProfileManagement = ({
                     onClick={() => handleUpdate(profile.id)}
                     size="sm"
                     className="gap-2 bg-primary hover:bg-primary/90"
+                    disabled={submitting}
                   >
-                    <Check className="h-4 w-4" />
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     Salvar
                   </Button>
                   <Button
@@ -272,6 +307,7 @@ const ProfileManagement = ({
                     size="sm"
                     variant="outline"
                     className="gap-2"
+                    disabled={submitting}
                   >
                     <X className="h-4 w-4" />
                     Cancelar
@@ -296,6 +332,7 @@ const ProfileManagement = ({
                     size="sm"
                     variant="outline"
                     className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
+                    disabled={isLoading}
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                   </Button>
@@ -304,7 +341,7 @@ const ProfileManagement = ({
                     size="sm"
                     variant="outline"
                     className="gap-2 border-destructive/30 hover:border-destructive hover:bg-destructive/10 text-destructive"
-                    disabled={profiles.length <= 1}
+                    disabled={profiles.length <= 1 || isLoading}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -325,11 +362,13 @@ const ProfileManagement = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={submitting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deletingId && handleDelete(deletingId)}
               className="bg-destructive hover:bg-destructive/90"
+              disabled={submitting}
             >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Deletar
             </AlertDialogAction>
           </AlertDialogFooter>
