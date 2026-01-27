@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
@@ -66,6 +66,7 @@ const Auth = () => {
     password: "",
     confirmPassword: "",
     acceptTerms: false,
+    rememberMe: false,
   });
 
   const passwordStrength = (password: string) => {
@@ -176,18 +177,14 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        await login({ email: formData.email, password: formData.password });
+        await login(formData.email, formData.password, formData.rememberMe);
         toast({
           title: "Login realizado",
           description: "Bem-vindo de volta!",
         });
         // Navigation handled by useEffect
       } else {
-        await signup({ 
-          email: formData.email, 
-          password: formData.password,
-          name: formData.name,
-        });
+        await signup(formData.email, formData.password, formData.name, formData.rememberMe);
         // Show profile dialog for new users
         setShowProfileDialog(true);
       }
@@ -206,7 +203,7 @@ const Auth = () => {
     setLoading(true);
     try {
       await loginWithGoogle();
-    } catch (error) {
+    } catch {
       // Error handling is done in the auth context
     } finally {
       setLoading(false);
@@ -357,6 +354,20 @@ const Auth = () => {
               </div>
             )}
 
+            {/* Remember me checkbox */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="rememberMe"
+                checked={formData.rememberMe}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, rememberMe: checked as boolean })
+                }
+              />
+              <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
+                Lembrar-me neste dispositivo
+              </Label>
+            </div>
+
             {!isLogin && (
               <div className="flex items-start gap-2">
                 <Checkbox
@@ -392,12 +403,12 @@ const Auth = () => {
             
             {isLogin && (
               <div>
-                <button
-                  type="button"
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-muted-foreground hover:text-foreground hover:underline"
                 >
                   Esqueci minha senha
-                </button>
+                </Link>
               </div>
             )}
           </div>

@@ -1,42 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Subscription, Invoice, PlanType, BillingCycle } from '@/types';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
-function getStoredToken(): string | null {
-  return sessionStorage.getItem('authToken');
-}
-
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = getStoredToken();
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(error.message || 'Erro na requisição');
-  }
-  
-  return response.json();
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { subscriptionApi } from '@/lib/api';
 
 export function useSubscription() {
+  const { isAuthenticated } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSubscription = async () => {
+    if (!isAuthenticated) return;
+
     try {
       setIsLoading(true);
       setError(null);
-      const data = await fetchWithAuth(`${API_BASE_URL}/subscription`);
+      const data = await subscriptionApi.get();
       setSubscription(data.subscription);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar assinatura');
@@ -47,48 +27,48 @@ export function useSubscription() {
   };
 
   const fetchInvoices = async () => {
+    if (!isAuthenticated) return;
+
     try {
-      const data = await fetchWithAuth(`${API_BASE_URL}/subscription/invoices`);
+      const data = await subscriptionApi.getInvoices();
       setInvoices(data.invoices || []);
-    } catch (err) {
-      console.error('Failed to fetch invoices:', err);
+    } catch {
       setInvoices([]);
     }
   };
 
+  // Only fetch when authenticated
   useEffect(() => {
-    fetchSubscription();
-    fetchInvoices();
-  }, []);
+    if (isAuthenticated) {
+      fetchSubscription();
+      fetchInvoices();
+    } else {
+      // Clear data when not authenticated
+      setSubscription(null);
+      setInvoices([]);
+    }
+  }, [isAuthenticated]);
 
   const cancelSubscription = async (immediately: boolean = false) => {
-    const data = await fetchWithAuth(`${API_BASE_URL}/subscription/cancel`, {
-      method: 'POST',
-      body: JSON.stringify({ immediately }),
-    });
+    const data = await subscriptionApi.cancel(immediately);
     setSubscription(data.subscription);
     return data.subscription;
   };
 
   const resumeSubscription = async () => {
-    const data = await fetchWithAuth(`${API_BASE_URL}/subscription/resume`, {
-      method: 'POST',
-    });
+    const data = await subscriptionApi.resume();
     setSubscription(data.subscription);
     return data.subscription;
   };
 
   const changePlan = async (planId: PlanType, billingCycle: BillingCycle) => {
-    const data = await fetchWithAuth(`${API_BASE_URL}/subscription/change-plan`, {
-      method: 'POST',
-      body: JSON.stringify({ planId, billingCycle }),
-    });
+    const data = await subscriptionApi.changePlan(planId, billingCycle);
     setSubscription(data.subscription);
     return data.subscription;
   };
 
   const getCustomerPortalUrl = async (): Promise<string> => {
-    const data = await fetchWithAuth(`${API_BASE_URL}/subscription/portal`);
+    const data = await subscriptionApi.getPortalUrl();
     return data.url;
   };
 

@@ -1,6 +1,5 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ArrowRight, LogOut, Loader2 } from "lucide-react";
+import { Check, ArrowRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import ProfileManagement from "@/components/dashboard/ProfileManagement";
@@ -12,19 +11,11 @@ const ProfileSelection = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { 
-    isAuthenticated, 
-    isLoading, 
     profiles, 
     currentProfile,
     setCurrentProfile,
     logout 
   } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate("/auth");
-    }
-  }, [isAuthenticated, isLoading, navigate]);
 
   const handleSelectProfile = (profileId: string) => {
     const profile = profiles.find(p => p.id === profileId);
@@ -50,14 +41,6 @@ const ProfileSelection = () => {
     await logout();
     navigate("/auth");
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">

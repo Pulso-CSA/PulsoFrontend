@@ -1,48 +1,36 @@
 import { useState } from 'react';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { profilesApi } from '@/lib/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
-function getStoredToken(): string | null {
-  return sessionStorage.getItem('authToken');
-}
-
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = getStoredToken();
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(error.message || 'Erro na requisição');
-  }
-  
-  return response.json();
+// Transform API response to our Profile type
+function transformProfile(apiProfile: any): Profile {
+  return {
+    id: apiProfile.id,
+    userId: apiProfile.user_id,
+    name: apiProfile.name,
+    description: apiProfile.description || '',
+    createdAt: apiProfile.created_at,
+    updatedAt: apiProfile.updated_at,
+  };
 }
 
 export function useProfiles() {
-  const { profiles, setProfiles } = useAuth();
+  const { profiles, setProfiles, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createProfile = async (data: { name: string; description: string }): Promise<Profile> => {
+  const createProfile = async (data: { name: string; description?: string }): Promise<Profile> => {
+    if (!isAuthenticated) {
+      throw new Error('Usuário não autenticado');
+    }
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetchWithAuth(`${API_BASE_URL}/profiles`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      
-      const newProfile = response.profile;
+      const response = await profilesApi.create(data);
+      const newProfile = transformProfile(response);
       setProfiles([...profiles, newProfile]);
       return newProfile;
     } catch (err) {
@@ -54,17 +42,17 @@ export function useProfiles() {
     }
   };
 
-  const updateProfile = async (id: string, data: { name: string; description: string }): Promise<Profile> => {
+  const updateProfile = async (id: string, data: { name: string; description?: string }): Promise<Profile> => {
+    if (!isAuthenticated) {
+      throw new Error('Usuário não autenticado');
+    }
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetchWithAuth(`${API_BASE_URL}/profiles/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-      
-      const updatedProfile = response.profile;
+      const response = await profilesApi.update(id, data);
+      const updatedProfile = transformProfile(response);
       setProfiles(profiles.map(p => p.id === id ? updatedProfile : p));
       return updatedProfile;
     } catch (err) {
@@ -77,14 +65,15 @@ export function useProfiles() {
   };
 
   const deleteProfile = async (id: string): Promise<void> => {
+    if (!isAuthenticated) {
+      throw new Error('Usuário não autenticado');
+    }
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      await fetchWithAuth(`${API_BASE_URL}/profiles/${id}`, {
-        method: 'DELETE',
-      });
-      
+      await profilesApi.delete(id);
       setProfiles(profiles.filter(p => p.id !== id));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao deletar perfil';

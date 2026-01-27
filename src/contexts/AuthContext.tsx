@@ -1,120 +1,38 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Profile, AuthState, LoginCredentials, SignupCredentials } from '@/types';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { User, Profile } from '@/types';
+import { authApi, profilesApi, onSessionExpired, getRememberMe } from '@/lib/api';
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
 
 interface AuthContextType extends AuthState {
   currentProfile: Profile | null;
   profiles: Profile[];
-  login: (credentials: LoginCredentials) => Promise<void>;
+  rememberMe: boolean;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  signup: (credentials: SignupCredentials) => Promise<void>;
+  signup: (email: string, password: string, name: string, rememberMe?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   setCurrentProfile: (profile: Profile | null) => void;
   setProfiles: (profiles: Profile[]) => void;
-  refreshUser: () => Promise<void>;
+  fetchProfiles: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// TODO: Replace these with actual API calls to your backend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
-async function apiLogin(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Falha no login');
-  }
-  
-  return response.json();
-}
-
-async function apiLoginWithGoogle(): Promise<{ user: User; token: string }> {
-  // TODO: Implement Google OAuth flow
-  // This should redirect to your backend OAuth endpoint
-  window.location.href = `${API_BASE_URL}/auth/google`;
-  throw new Error('Redirecting to Google...');
-}
-
-async function apiSignup(credentials: SignupCredentials): Promise<{ user: User; token: string }> {
-  const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Falha no cadastro');
-  }
-  
-  return response.json();
-}
-
-async function apiLogout(): Promise<void> {
-  await fetch(`${API_BASE_URL}/auth/logout`, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getStoredToken()}`,
-    },
-  });
-}
-
-async function apiGetCurrentUser(): Promise<User | null> {
-  const token = getStoredToken();
-  if (!token) return null;
-  
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  });
-  
-  if (!response.ok) return null;
-  
-  const data = await response.json();
-  return data.user;
-}
-
-async function apiGetProfiles(): Promise<Profile[]> {
-  const token = getStoredToken();
-  if (!token) return [];
-  
-  const response = await fetch(`${API_BASE_URL}/profiles`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  });
-  
-  if (!response.ok) return [];
-  
-  const data = await response.json();
-  return data.profiles || [];
-}
-
-function getStoredToken(): string | null {
-  return sessionStorage.getItem('authToken');
-}
-
-function setStoredToken(token: string): void {
-  sessionStorage.setItem('authToken', token);
-}
-
-function removeStoredToken(): void {
-  sessionStorage.removeItem('authToken');
-}
-
-function getStoredProfileId(): string | null {
-  return sessionStorage.getItem('currentProfileId');
-}
-
-function setStoredProfileId(profileId: string): void {
-  sessionStorage.setItem('currentProfileId', profileId);
-}
-
-function removeStoredProfileId(): void {
-  sessionStorage.removeItem('currentProfileId');
+// Transform API response to our Profile type
+function transformProfile(apiProfile: any): Profile {
+  return {
+    id: apiProfile.id,
+    userId: apiProfile.user_id,
+    name: apiProfile.name,
+    description: apiProfile.description || '',
+    createdAt: apiProfile.created_at,
+    updatedAt: apiProfile.updated_at,
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -123,80 +41,133 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [currentProfile, setCurrentProfileState] = useState<Profile | null>(null);
   const [profiles, setProfilesState] = useState<Profile[]>([]);
+  const [rememberMe, setRememberMeState] = useState(() => getRememberMe());
 
-  // Initialize auth state on mount
+  // Clear all auth state
+  const clearAuthState = useCallback(() => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setCurrentProfileState(null);
+    setProfilesState([]);
+  }, []);
+
+  // Bootstrap: Check if token exists, validate with backend
   useEffect(() => {
     async function initializeAuth() {
+      // If no token, immediately set as not authenticated
+      if (!authApi.hasToken()) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // Token exists, try to validate it
       try {
-        const currentUser = await apiGetCurrentUser();
-        if (currentUser) {
-          setUser(currentUser);
-          setIsAuthenticated(true);
-          
-          const userProfiles = await apiGetProfiles();
-          setProfilesState(userProfiles);
-          
-          // Restore current profile from session
-          const storedProfileId = getStoredProfileId();
+        const userData = await authApi.getMe();
+        setUser({
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          createdAt: '',
+          updatedAt: '',
+        });
+        setIsAuthenticated(true);
+
+        // Fetch profiles
+        try {
+          const profilesData = await profilesApi.getAll();
+          const transformedProfiles = profilesData.map(transformProfile);
+          setProfilesState(transformedProfiles);
+
+          // Restore current profile from storage
+          const storedProfileId = profilesApi.getCurrentId();
           if (storedProfileId) {
-            const profile = userProfiles.find(p => p.id === storedProfileId);
+            const profile = transformedProfiles.find(p => p.id === storedProfileId);
             if (profile) {
               setCurrentProfileState(profile);
             }
           }
+        } catch {
+          // Profiles fetch failed, but user is still authenticated
+          setProfilesState([]);
         }
-      } catch (error) {
-        console.error('Failed to initialize auth:', error);
+      } catch {
+        // Token invalid or backend unreachable - clear auth state
+        clearAuthState();
       } finally {
         setIsLoading(false);
       }
     }
-    
-    initializeAuth();
-  }, []);
 
-  const login = async (credentials: LoginCredentials) => {
-    const { user: loggedInUser, token } = await apiLogin(credentials);
-    setStoredToken(token);
-    setUser(loggedInUser);
-    setIsAuthenticated(true);
+    initializeAuth();
+  }, [clearAuthState]);
+
+  // Listen for session expiration events (401 responses)
+  useEffect(() => {
+    const unsubscribe = onSessionExpired(() => {
+      clearAuthState();
+    });
+    return unsubscribe;
+  }, [clearAuthState]);
+
+  const login = async (email: string, password: string, remember: boolean = false) => {
+    await authApi.login(email, password, remember);
+    setRememberMeState(remember);
     
-    const userProfiles = await apiGetProfiles();
-    setProfilesState(userProfiles);
+    // Fetch user data after successful login
+    const userData = await authApi.getMe();
+    setUser({
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      createdAt: '',
+      updatedAt: '',
+    });
+    setIsAuthenticated(true);
+
+    // Fetch profiles
+    try {
+      const profilesData = await profilesApi.getAll();
+      setProfilesState(profilesData.map(transformProfile));
+    } catch {
+      setProfilesState([]);
+    }
   };
 
   const loginWithGoogle = async () => {
-    await apiLoginWithGoogle();
+    // Redirect to backend OAuth endpoint
+    const apiUrl = import.meta.env.VITE_API_URL || '/api';
+    window.location.href = `${apiUrl}/auth/google`;
   };
 
-  const signup = async (credentials: SignupCredentials) => {
-    const { user: newUser, token } = await apiSignup(credentials);
-    setStoredToken(token);
-    setUser(newUser);
+  const signup = async (email: string, password: string, name: string, remember: boolean = false) => {
+    await authApi.signup(email, password, name, remember);
+    setRememberMeState(remember);
+    
+    // Fetch user data after successful signup
+    const userData = await authApi.getMe();
+    setUser({
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      createdAt: '',
+      updatedAt: '',
+    });
     setIsAuthenticated(true);
+    setProfilesState([]);
   };
 
   const logout = async () => {
-    try {
-      await apiLogout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      removeStoredToken();
-      removeStoredProfileId();
-      setUser(null);
-      setIsAuthenticated(false);
-      setCurrentProfileState(null);
-      setProfilesState([]);
-    }
+    await authApi.logout();
+    clearAuthState();
   };
 
   const setCurrentProfile = (profile: Profile | null) => {
     setCurrentProfileState(profile);
     if (profile) {
-      setStoredProfileId(profile.id);
+      profilesApi.setCurrentId(profile.id);
     } else {
-      removeStoredProfileId();
+      profilesApi.clearCurrentId();
     }
   };
 
@@ -204,12 +175,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfilesState(newProfiles);
   };
 
-  const refreshUser = async () => {
-    const currentUser = await apiGetCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-      const userProfiles = await apiGetProfiles();
-      setProfilesState(userProfiles);
+  const fetchProfiles = async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const profilesData = await profilesApi.getAll();
+      setProfilesState(profilesData.map(transformProfile));
+    } catch {
+      // Silently fail - profiles will remain empty
     }
   };
 
@@ -221,13 +194,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         currentProfile,
         profiles,
+        rememberMe,
         login,
         loginWithGoogle,
         signup,
         logout,
         setCurrentProfile,
         setProfiles,
-        refreshUser,
+        fetchProfiles,
       }}
     >
       {children}
