@@ -15,16 +15,21 @@ function getStorage(): Storage {
 }
 
 export function getStoredToken(): string | null {
-  // Check both storages (user might have switched)
-  return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+  // Lê do mesmo storage onde escrevemos (getStorage), evitando token antigo em outro storage
+  return getStorage().getItem(TOKEN_KEY);
 }
 
 export function getStoredRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY);
+  return getStorage().getItem(REFRESH_TOKEN_KEY);
 }
 
 export function setStoredTokens(accessToken: string, refreshToken?: string): void {
   const storage = getStorage();
+  // Limpa tokens antigos do outro storage (ex: token expirado em localStorage ao signup com rememberMe=false)
+  const other = storage === localStorage ? sessionStorage : localStorage;
+  other.removeItem(TOKEN_KEY);
+  other.removeItem(REFRESH_TOKEN_KEY);
+
   storage.setItem(TOKEN_KEY, accessToken);
   if (refreshToken) {
     storage.setItem(REFRESH_TOKEN_KEY, refreshToken);
@@ -220,9 +225,13 @@ export const authApi = {
   signup: async (email: string, password: string, name: string, rememberMe: boolean = false) => {
     setRememberMe(rememberMe);
     const response = await apiRequest<{ 
-      access_token: string; 
+      access_token: string;
+      accessToken?: string; // fallback camelCase
       refresh_token?: string;
-      token_type: string 
+      refreshToken?: string;
+      token_type?: string;
+      user?: { id: string; email: string; name: string };
+      id?: string;
     }>(
       '/auth/signup',
       {
@@ -231,8 +240,11 @@ export const authApi = {
         skipAuth: true,
       }
     );
-    setStoredTokens(response.access_token, response.refresh_token);
-    return response;
+    const accessToken = response.access_token ?? response.accessToken;
+    const refreshToken = response.refresh_token ?? response.refreshToken;
+    if (!accessToken) throw new Error('Token não retornado pelo servidor');
+    setStoredTokens(accessToken, refreshToken);
+    return { ...response, access_token: accessToken, refresh_token: refreshToken, user: response.user };
   },
 
   logout: async () => {
@@ -370,5 +382,59 @@ export const subscriptionApi = {
 
   getPortalUrl: async () => {
     return apiRequest<{ url: string }>('/subscription/portal');
+  },
+};
+
+// Inteligência de Dados API
+export const inteligenciaApi = {
+  query: async (payload: {
+    prompt: string;
+    db_config: {
+      host: string;
+      port: number;
+      user: string;
+      password: string;
+      database: string;
+    };
+  }) => {
+    return apiRequest<{ answer?: string; result?: unknown; data?: unknown }>('/inteligencia-dados/query', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+// Workflow API
+export const workflowApi = {
+  runCorrect: async (payload: {
+    usuario: string;
+    prompt: string;
+    root_path: string;
+    env_content?: string;
+  }) => {
+    return apiRequest<{ request_id?: string; message?: string }>('/workflow/correct/run', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+// Deploy / Logs API - Docker e Venv
+export const deployApi = {
+  // Docker
+  docker: {
+    getLogs: () => apiRequest<{ logs?: string; lines?: string[] }>('/deploy/docker/logs'),
+    clearLogs: () => apiRequest<void>('/deploy/docker/logs/clear', { method: 'DELETE' }),
+    start: () => apiRequest<{ message?: string }>('/deploy/docker/start', { method: 'POST' }),
+    rebuild: () => apiRequest<{ message?: string }>('/deploy/docker/rebuild', { method: 'POST' }),
+    stop: () => apiRequest<{ message?: string }>('/deploy/docker/stop', { method: 'POST' }),
+  },
+  // Venv
+  venv: {
+    getLogs: () => apiRequest<{ logs?: string; lines?: string[] }>('/venv/logs'),
+    clearLogs: () => apiRequest<void>('/venv/logs/clear', { method: 'DELETE' }),
+    create: () => apiRequest<{ message?: string }>('/venv/create', { method: 'POST' }),
+    recreate: () => apiRequest<{ message?: string }>('/venv/recreate', { method: 'POST' }),
+    deactivate: () => apiRequest<{ message?: string }>('/venv/deactivate', { method: 'POST' }),
   },
 };

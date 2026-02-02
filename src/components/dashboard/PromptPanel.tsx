@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { workflowApi } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +33,18 @@ interface PromptHistory {
   timestamp: Date;
 }
 
+/** Monta o conteúdo .env a partir das variáveis (arquivo carregado ou pares nome-valor) */
+function buildEnvContent(envVars: EnvVariable[]): string {
+  return envVars
+    .map(({ name, value }) => {
+      const needsQuotes = /[\s#"']/.test(value);
+      return `${name}=${needsQuotes ? `"${value.replace(/"/g, '\\"')}"` : value}`;
+    })
+    .join("\n");
+}
+
 const PromptPanel = () => {
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [envVars, setEnvVars] = useState<EnvVariable[]>([]);
   const [newVarName, setNewVarName] = useState("");
@@ -73,25 +86,60 @@ const PromptPanel = () => {
     setEnvVars(envVars.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!prompt.trim()) return;
+    if (!user?.id) {
+      toast({
+        title: "Usuário não autenticado",
+        description: "Faça login para enviar o prompt",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!folderPath.trim()) {
+      toast({
+        title: "Caminho obrigatório",
+        description: "Informe o caminho da pasta raiz do projeto",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
-    
-    // Simular envio e geração de estrutura de arquivos
-    setTimeout(() => {
-      const id = `REQ-${Date.now().toString(36).toUpperCase()}`;
+    try {
+      const payload: {
+        usuario: string;
+        prompt: string;
+        root_path: string;
+        env_content?: string;
+      } = {
+        usuario: user.id,
+        prompt: prompt.trim(),
+        root_path: folderPath.trim(),
+      };
+
+      // Se há variáveis (arquivo .env carregado ou pares nome-valor), inclui para o backend criar .env em root_path
+      if (envVars.length > 0) {
+        payload.env_content = buildEnvContent(envVars);
+      }
+
+      const res = await workflowApi.runCorrect(payload);
+      const id = res.request_id ?? `REQ-${Date.now().toString(36).toUpperCase()}`;
       setRequestId(id);
-      
+
       const newEntry: PromptHistory = {
         id,
         text: prompt,
         timestamp: new Date(),
       };
-      
-      setHistory([newEntry, ...history.slice(0, 4)]);
-      
-      // Estrutura de arquivos de exemplo baseada no prompt
+      setHistory((prev) => [newEntry, ...prev.slice(0, 4)]);
+
+      toast({
+        title: "Prompt enviado",
+        description: `ID da requisição: ${id}`,
+      });
+
+      // Estrutura mockada enquanto o backend não retornar a real
       const mockStructure: FileNode[] = [
         {
           name: "src",
@@ -116,9 +164,7 @@ const PromptPanel = () => {
             {
               name: "services",
               type: "folder",
-              children: [
-                { name: "api.ts", type: "file" },
-              ],
+              children: [{ name: "api.ts", type: "file" }],
             },
             { name: "App.tsx", type: "file" },
           ],
@@ -126,15 +172,16 @@ const PromptPanel = () => {
         { name: "package.json", type: "file" },
         { name: "README.md", type: "file" },
       ];
-      
       setFileStructure(mockStructure);
-      setLoading(false);
-      
+    } catch (err) {
       toast({
-        title: "Prompt enviado",
-        description: `ID da requisição: ${id}`,
+        title: "Erro ao enviar prompt",
+        description: err instanceof Error ? err.message : "Tente novamente",
+        variant: "destructive",
       });
-    }, 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClear = () => {
@@ -230,29 +277,48 @@ const PromptPanel = () => {
     });
   };
 
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const workflowPayload =
+    folderPath && prompt
+      ? JSON.stringify({
+          usuario: user?.id ?? "USER_ID",
+          prompt: prompt.trim(),
+          root_path: folderPath.trim(),
+        })
+      : null;
+  const workflowCurl =
+    workflowPayload
+      ? `curl -X POST "${apiBase}/workflow/correct/run" -H "Content-Type: application/json" -d '${workflowPayload.replace(/'/g, "'\\''")}'`
+      : null;
+
   const testCurls = [
+    ...(workflowCurl
+      ? [
+          {
+            name: "Workflow Correct Run (atual)",
+            curl: workflowCurl,
+          },
+        ]
+      : []),
     {
       name: "Health Check",
-      curl: `curl -X GET http://localhost:8000/health`,
+      curl: `curl -X GET ${apiBase}/health`,
     },
     {
       name: "API Status",
-      curl: `curl -X GET http://localhost:8000/api/status`,
+      curl: `curl -X GET ${apiBase}/api/status`,
     },
     {
       name: "List Users",
-      curl: `curl -X GET http://localhost:8000/api/users`,
+      curl: `curl -X GET ${apiBase}/api/users`,
     },
     {
       name: "Create User",
-      curl: `curl -X POST http://localhost:8000/api/users \\
-  -H "Content-Type: application/json" \\
-  -d '{"name": "John Doe", "email": "john@example.com"}'`,
+      curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'`,
     },
     {
       name: "Upload File",
-      curl: `curl -X POST http://localhost:8000/api/upload \\
-  -F "file=@/path/to/file.pdf"`,
+      curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"`,
     },
   ];
 
@@ -312,6 +378,9 @@ const PromptPanel = () => {
           >
             <p className="text-xs text-muted-foreground">
               Arraste um arquivo .env aqui ou use o botão acima
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              O .env será criado na pasta raiz do projeto ao enviar o prompt
             </p>
           </div>
           
@@ -403,7 +472,7 @@ const PromptPanel = () => {
         <div className="flex gap-3">
           <Button 
             onClick={handleSubmit} 
-            disabled={!prompt.trim() || loading}
+            disabled={!prompt.trim() || !folderPath.trim() || loading}
             className="flex-1 h-12 text-base font-medium"
           >
             {loading ? "Enviando..." : (

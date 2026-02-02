@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Terminal, Info, AlertTriangle, XCircle, Filter, Trash2, Play, RotateCw, Power, FileText } from "lucide-react";
+import { Terminal, Info, AlertTriangle, XCircle, Filter, Trash2, Play, RotateCw, Power, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { deployApi } from "@/lib/api";
 
 interface LogEntry {
   id: string;
@@ -52,6 +53,7 @@ const LogsPanel = () => {
   const [environmentType, setEnvironmentType] = useState<"docker" | "venv" | null>(null);
   const [showAppLogs, setShowAppLogs] = useState(false);
   const [testEnvironment, setTestEnvironment] = useState<"docker" | "venv">("docker");
+  const [isLoading, setIsLoading] = useState(false);
 
   const getLevelIcon = (level: string) => {
     switch (level) {
@@ -87,14 +89,6 @@ const LogsPanel = () => {
     return matchesText && matchesLevel;
   });
 
-  const clearLogs = () => {
-    setLogs([]);
-    toast({
-      title: "Logs limpos",
-      description: "Todos os logs foram removidos",
-    });
-  };
-
   const addLog = (level: LogEntry["level"], message: string, source?: string) => {
     const newLog: LogEntry = {
       id: Date.now().toString(),
@@ -106,22 +100,95 @@ const LogsPanel = () => {
     setLogs((prev) => [newLog, ...prev]);
   };
 
-  const handleStartEnvironment = () => {
-    setEnvironmentType(testEnvironment);
-    setEnvironmentStatus("running");
-    
-    addLog("info", `Iniciando ambiente ${testEnvironment === "docker" ? "Docker" : "Virtual Environment"}...`, "environment");
-    
-    setTimeout(() => {
-      addLog("info", `Ambiente ${testEnvironment === "docker" ? "Docker" : "Virtual Environment"} iniciado com sucesso`, "environment");
+  const clearLogs = async () => {
+    setIsLoading(true);
+    try {
+      if (testEnvironment === "docker") {
+        await deployApi.docker.clearLogs();
+      } else {
+        await deployApi.venv.clearLogs();
+      }
+      setLogs([]);
       toast({
-        title: "Ambiente iniciado",
-        description: `${testEnvironment === "docker" ? "Docker" : "Virtual Environment"} está rodando`,
+        title: "Logs limpos",
+        description: `Logs do ${testEnvironment === "docker" ? "Docker" : "venv"} foram removidos no backend`,
       });
-    }, 2000);
+    } catch (err) {
+      toast({
+        title: "Erro ao limpar logs",
+        description: err instanceof Error ? err.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRestartEnvironment = () => {
+  const fetchLogs = async () => {
+    setIsLoading(true);
+    try {
+      const res = testEnvironment === "docker"
+        ? await deployApi.docker.getLogs()
+        : await deployApi.venv.getLogs();
+      const lines: string[] = Array.isArray(res?.lines)
+        ? res.lines
+        : typeof res?.logs === "string"
+          ? res.logs.split("\n").filter(Boolean)
+          : [];
+      const newEntries: LogEntry[] = lines.map((line, i) => ({
+        id: `api-${Date.now()}-${i}`,
+        timestamp: new Date(),
+        level: "info" as const,
+        message: line,
+        source: testEnvironment === "docker" ? "docker" : "venv",
+      }));
+      setLogs((prev) => (lines.length > 0 ? [...newEntries, ...prev] : prev));
+      toast({
+        title: "Logs carregados",
+        description: lines.length > 0
+          ? `${lines.length} linhas do ${testEnvironment === "docker" ? "Docker" : "venv"}`
+          : "Nenhum log retornado",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro ao buscar logs",
+        description: err instanceof Error ? err.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartEnvironment = async () => {
+    setIsLoading(true);
+    addLog("info", `Iniciando ambiente ${testEnvironment === "docker" ? "Docker" : "venv"}...`, "environment");
+    try {
+      if (testEnvironment === "docker") {
+        await deployApi.docker.start();
+      } else {
+        await deployApi.venv.create();
+      }
+      setEnvironmentType(testEnvironment);
+      setEnvironmentStatus("running");
+      addLog("info", `Ambiente ${testEnvironment === "docker" ? "Docker" : "venv"} iniciado com sucesso`, "environment");
+      toast({
+        title: "Ambiente iniciado",
+        description: `${testEnvironment === "docker" ? "Docker" : "venv"} está rodando`,
+      });
+    } catch (err) {
+      addLog("error", err instanceof Error ? err.message : "Falha ao iniciar ambiente", "environment");
+      toast({
+        title: "Erro ao iniciar",
+        description: err instanceof Error ? err.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRestartEnvironment = async () => {
     if (environmentStatus === "stopped") {
       toast({
         title: "Ambiente parado",
@@ -130,19 +197,32 @@ const LogsPanel = () => {
       });
       return;
     }
-
-    addLog("warning", `Reiniciando ambiente ${environmentType}...`, "environment");
-    
-    setTimeout(() => {
-      addLog("info", `Ambiente ${environmentType} reiniciado com sucesso`, "environment");
+    setIsLoading(true);
+    addLog("warning", `Reiniciando ambiente ${testEnvironment === "docker" ? "Docker" : "venv"}...`, "environment");
+    try {
+      if (testEnvironment === "docker") {
+        await deployApi.docker.rebuild();
+      } else {
+        await deployApi.venv.recreate();
+      }
+      addLog("info", `Ambiente ${testEnvironment === "docker" ? "Docker" : "venv"} reiniciado com sucesso`, "environment");
       toast({
         title: "Ambiente reiniciado",
         description: "O ambiente foi reiniciado com sucesso",
       });
-    }, 2000);
+    } catch (err) {
+      addLog("error", err instanceof Error ? err.message : "Falha ao reiniciar ambiente", "environment");
+      toast({
+        title: "Erro ao reiniciar",
+        description: err instanceof Error ? err.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleStopEnvironment = () => {
+  const handleStopEnvironment = async () => {
     if (environmentStatus === "stopped") {
       toast({
         title: "Ambiente já parado",
@@ -151,10 +231,14 @@ const LogsPanel = () => {
       });
       return;
     }
-
-    addLog("warning", `Parando ambiente ${environmentType}...`, "environment");
-    
-    setTimeout(() => {
+    setIsLoading(true);
+    addLog("warning", `Parando ambiente ${testEnvironment === "docker" ? "Docker" : "venv"}...`, "environment");
+    try {
+      if (testEnvironment === "docker") {
+        await deployApi.docker.stop();
+      } else {
+        await deployApi.venv.deactivate();
+      }
       setEnvironmentStatus("stopped");
       setEnvironmentType(null);
       addLog("info", "Ambiente desligado com sucesso", "environment");
@@ -162,15 +246,24 @@ const LogsPanel = () => {
         title: "Ambiente desligado",
         description: "O ambiente foi desligado com sucesso",
       });
-    }, 1500);
+    } catch (err) {
+      addLog("error", err instanceof Error ? err.message : "Falha ao desligar ambiente", "environment");
+      toast({
+        title: "Erro ao desligar",
+        description: err instanceof Error ? err.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleAppLogs = () => {
     setShowAppLogs(!showAppLogs);
     toast({
       title: showAppLogs ? "Logs da aplicação ocultos" : "Logs da aplicação visíveis",
-      description: showAppLogs 
-        ? "Mostrando apenas logs do sistema" 
+      description: showAppLogs
+        ? "Mostrando apenas logs do sistema"
         : "Mostrando logs da aplicação",
     });
   };
@@ -195,10 +288,11 @@ const LogsPanel = () => {
             variant="outline"
             size="sm"
             onClick={clearLogs}
-            className="h-8 border-destructive/40 hover:border-destructive hover:bg-destructive/10 text-destructive"
+            disabled={isLoading}
+            className="h-8 border-destructive/40 hover:border-destructive hover:bg-destructive/10 text-destructive disabled:opacity-50"
           >
             <Trash2 className="h-3 w-3 mr-1" />
-            Limpar
+            Limpar Logs
           </Button>
         </div>
 
@@ -231,7 +325,17 @@ const LogsPanel = () => {
         </div>
 
         {/* Controles de Ambiente */}
-        <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchLogs}
+            disabled={isLoading}
+            className="border-primary/40 hover:border-primary hover:bg-primary/10 disabled:opacity-50"
+          >
+            <Download className="h-3.5 w-3.5 mr-2" />
+            Buscar Logs
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -243,24 +347,31 @@ const LogsPanel = () => {
             <FileText className="h-3.5 w-3.5 mr-2" />
             Logs da App
           </Button>
-          
           <Button
             variant="outline"
             size="sm"
             onClick={handleStartEnvironment}
-            disabled={environmentStatus === "running"}
-            className="border-primary/40 hover:border-primary hover:bg-primary/10 disabled:opacity-50"
+            disabled={environmentStatus === "running" || isLoading}
+            className={`${
+              testEnvironment === "docker"
+                ? "border-blue-500/40 hover:border-blue-500 hover:bg-blue-500/10"
+                : "border-emerald-500/40 hover:border-emerald-500 hover:bg-emerald-500/10"
+            } disabled:opacity-50`}
           >
             <Play className="h-3.5 w-3.5 mr-2" />
-            Subir Ambiente
+            Subir
           </Button>
 
           <Button
             variant="outline"
             size="sm"
             onClick={handleRestartEnvironment}
-            disabled={environmentStatus === "stopped"}
-            className="border-finops/40 hover:border-finops hover:bg-finops/10 disabled:opacity-50"
+            disabled={environmentStatus === "stopped" || isLoading}
+            className={`${
+              testEnvironment === "docker"
+                ? "border-blue-500/40 hover:border-blue-500 hover:bg-blue-500/10"
+                : "border-emerald-500/40 hover:border-emerald-500 hover:bg-emerald-500/10"
+            } disabled:opacity-50`}
           >
             <RotateCw className="h-3.5 w-3.5 mr-2" />
             Reiniciar
@@ -270,8 +381,12 @@ const LogsPanel = () => {
             variant="outline"
             size="sm"
             onClick={handleStopEnvironment}
-            disabled={environmentStatus === "stopped"}
-            className="border-destructive/40 hover:border-destructive hover:bg-destructive/10 disabled:opacity-50"
+            disabled={environmentStatus === "stopped" || isLoading}
+            className={`${
+              testEnvironment === "docker"
+                ? "border-blue-500/40 hover:border-blue-500 hover:bg-blue-500/10"
+                : "border-emerald-500/40 hover:border-emerald-500 hover:bg-emerald-500/10"
+            } disabled:opacity-50`}
           >
             <Power className="h-3.5 w-3.5 mr-2" />
             Desligar

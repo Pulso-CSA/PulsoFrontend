@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { inteligenciaApi } from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -18,10 +20,23 @@ interface Message {
   content: string;
   timestamp: Date;
   dataType?: "structure" | "stats" | "insights" | "model";
-  data?: any;
+  data?: unknown;
+}
+
+/** Parseia "host:port" em { host, port } */
+function parseHostPort(hostUri: string): { host: string; port: number } {
+  const trimmed = hostUri.trim();
+  const colonIdx = trimmed.lastIndexOf(":");
+  if (colonIdx > 0) {
+    const host = trimmed.slice(0, colonIdx);
+    const port = parseInt(trimmed.slice(colonIdx + 1), 10);
+    return { host, port: isNaN(port) ? 3306 : port };
+  }
+  return { host: trimmed || "127.0.0.1", port: 3306 };
 }
 
 const DataChat = () => {
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,104 +56,86 @@ const DataChat = () => {
     "Sugerir modelo para detecção de fraude",
   ];
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async (overridePrompt?: string) => {
+    const promptText = (overridePrompt ?? input).trim();
+    if (!promptText) return;
+
+    if (
+      !connectionData.host.trim() ||
+      !connectionData.database.trim() ||
+      !connectionData.user.trim()
+    ) {
+      toast({
+        title: "Configure a conexão",
+        description: "Preencha Host/URI, Base e Usuário na seção Conexão antes de enviar",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: promptText,
       timestamp: new Date(),
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
 
-    // Simular resposta baseada no input
-    setTimeout(() => {
-      let systemMessage: Message;
+    try {
+      const { host, port } = parseHostPort(connectionData.host);
+      const res = await inteligenciaApi.query({
+        prompt: promptText,
+        db_config: {
+          host,
+          port,
+          user: connectionData.user.trim(),
+          password: connectionData.password,
+          database: connectionData.database.trim(),
+        },
+      });
 
-      if (input.toLowerCase().includes("estrutura")) {
-        systemMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "system",
-          content: "Explorando estrutura da base de dados...",
-          timestamp: new Date(),
-          dataType: "structure",
-          data: {
-            tables: [
-              { name: "usuarios", records: 15420, indexes: 3, columns: ["id", "nome", "email", "created_at"] },
-              { name: "transacoes", records: 89234, indexes: 5, columns: ["id", "user_id", "valor", "data", "status"] },
-              { name: "produtos", records: 2341, indexes: 2, columns: ["id", "nome", "preco", "categoria"] },
-            ]
-          }
-        };
-      } else if (input.toLowerCase().includes("correlação") || input.toLowerCase().includes("estatística")) {
-        systemMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "system",
-          content: "Calculando estatísticas e correlações...",
-          timestamp: new Date(),
-          dataType: "stats",
-          data: {
-            metrics: [
-              { label: "Valor médio", value: "R$ 245,80" },
-              { label: "Desvio padrão", value: "R$ 127,50" },
-              { label: "Total transações", value: "89.234" },
-              { label: "Taxa aprovação", value: "94,2%" },
-            ],
-            correlations: [
-              { vars: "valor × horário", strength: "Forte", value: 0.87 },
-              { vars: "categoria × região", strength: "Moderada", value: 0.62 },
-              { vars: "idade × ticket_médio", strength: "Fraca", value: 0.31 },
-            ]
-          }
-        };
-      } else if (input.toLowerCase().includes("modelo") || input.toLowerCase().includes("ml") || input.toLowerCase().includes("fraude")) {
-        systemMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "system",
-          content: "Analisando dados e sugerindo modelo de Machine Learning...",
-          timestamp: new Date(),
-          dataType: "model",
-          data: {
-            model: "Random Forest Classifier",
-            metrics: [
-              { name: "AUC", value: "0.94" },
-              { name: "Precisão", value: "91%" },
-              { name: "Recall", value: "88%" },
-              { name: "F1-Score", value: "0.89" },
-            ],
-            insights: [
-              "90% das fraudes ocorrem à noite (22h-4h)",
-              "Transações acima de R$ 500 têm 3x mais risco",
-              "Região Sul apresenta 45% menos fraudes",
-            ],
-            nextSteps: [
-              "Aplicar feature engineering em horários",
-              "Balancear classes (fraude vs normal)",
-              "Testar ensemble com XGBoost",
-            ]
-          }
-        };
-      } else {
-        systemMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "system",
-          content: "Compreendi sua pergunta. Com base nos dados disponíveis, posso ajudar com análises de estrutura, estatísticas ou sugestões de modelos. Pode me fazer uma pergunta mais específica?",
-          timestamp: new Date(),
-        };
-      }
+      const content =
+        typeof res?.answer === "string"
+          ? res.answer
+          : typeof res?.result === "string"
+            ? res.result
+            : res?.data != null
+              ? JSON.stringify(res.data, null, 2)
+              : "Resposta recebida sem conteúdo textual.";
+
+      const systemMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "system",
+        content,
+        timestamp: new Date(),
+        data: res?.data ?? res?.result,
+      };
 
       setMessages((prev) => [...prev, systemMessage]);
+    } catch (err) {
+      toast({
+        title: "Erro na consulta",
+        description: err instanceof Error ? err.message : "Tente novamente",
+        variant: "destructive",
+      });
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "system",
+        content: `Erro: ${err instanceof Error ? err.message : "Falha ao conectar com a API de Inteligência de Dados."}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handleQuickAction = (action: string) => {
     setInput(action);
-    setTimeout(() => handleSend(), 100);
+    handleSend(action);
   };
 
   return (
@@ -239,7 +236,22 @@ const DataChat = () => {
             </div>
           </div>
 
-          <Button size="sm" className="w-full">
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={() => {
+              if (connectionData.host && connectionData.database && connectionData.user) {
+                toast({ title: "Conexão configurada", description: "Os parâmetros serão usados nas próximas consultas." });
+                setShowConnection(false);
+              } else {
+                toast({
+                  title: "Campos obrigatórios",
+                  description: "Preencha Host/URI, Base e Usuário",
+                  variant: "destructive",
+                });
+              }
+            }}
+          >
             Aplicar conexão
           </Button>
         </div>

@@ -141,18 +141,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (email: string, password: string, name: string, remember: boolean = false) => {
-    await authApi.signup(email, password, name, remember);
+    const response = await authApi.signup(email, password, name, remember);
     setRememberMeState(remember);
-    
-    // Fetch user data after successful signup
-    const userData = await authApi.getMe();
-    setUser({
-      id: userData.id,
-      email: userData.email,
-      name: userData.name,
-      createdAt: '',
-      updatedAt: '',
-    });
+
+    // Usar dados do signup quando disponíveis (evita GET /me com token recém-salvo)
+    if (response?.user?.id && response?.user?.email) {
+      setUser({
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name ?? name,
+        createdAt: '',
+        updatedAt: '',
+      });
+    } else {
+      // Fallback: buscar /me (token já está salvo em setStoredTokens dentro do signup)
+      const userData = await authApi.getMe();
+      setUser({
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        createdAt: '',
+        updatedAt: '',
+      });
+    }
     setIsAuthenticated(true);
     setProfilesState([]);
   };
