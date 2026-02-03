@@ -404,7 +404,7 @@ export const inteligenciaApi = {
   },
 };
 
-// Workflow API
+// Workflow API (legado; preferir comprehensionApi para o fluxo do chat)
 export const workflowApi = {
   runCorrect: async (payload: {
     usuario: string;
@@ -413,6 +413,31 @@ export const workflowApi = {
     env_content?: string;
   }) => {
     return apiRequest<{ request_id?: string; message?: string }>('/workflow/correct/run', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+// Comprehension API – entrada única do fluxo (análise/criação/correção)
+export const comprehensionApi = {
+  run: async (payload: {
+    usuario: string;
+    prompt: string;
+    root_path: string | null;
+  }) => {
+    return apiRequest<{
+      intent: string;
+      project_state: string;
+      should_execute: boolean;
+      target_endpoint: string | null;
+      explanation: string;
+      next_action: string;
+      message: string;
+      file_tree: string | null;
+      system_behavior: Record<string, unknown> | null;
+      frontend_suggestion: string | null;
+    }>('/comprehension/run', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
