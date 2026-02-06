@@ -174,15 +174,24 @@ const FinOpsChat = () => {
         )}
         
         {loading && (
-          <div className="flex justify-start">
+          <div className="flex justify-start animate-slide-up">
             <div className="bg-chat-system text-foreground rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-75" />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-150" />
+                <div className="flex gap-1.5 items-end h-4">
+                  <div
+                    className="w-2 h-2 rounded-full animate-typing-bounce"
+                    style={{ backgroundColor: "hsl(150 100% 65%)", animationDelay: "0ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 rounded-full animate-typing-bounce"
+                    style={{ backgroundColor: "hsl(150 100% 65%)", animationDelay: "200ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 rounded-full animate-typing-bounce"
+                    style={{ backgroundColor: "hsl(150 100% 65%)", animationDelay: "400ms" }}
+                  />
                 </div>
-                <span className="text-sm text-muted-foreground">Processando...</span>
+                <span className="text-sm text-muted-foreground">Digitando...</span>
               </div>
             </div>
           </div>

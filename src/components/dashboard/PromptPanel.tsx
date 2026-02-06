@@ -496,25 +496,50 @@ const PromptPanel = () => {
                 Ex.: &quot;Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...&quot;
               </p>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+              <>
+                {messages.map((msg) => (
                   <div
-                    className={`max-w-[90%] rounded-lg p-3 text-sm ${
-                      msg.role === "user"
-                        ? "bg-primary/20 text-foreground"
-                        : "bg-muted/50 text-foreground"
-                    }`}
+                    key={msg.id}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+                    <div
+                      className={`max-w-[90%] rounded-lg p-3 text-sm ${
+                        msg.role === "user"
+                          ? "bg-primary/20 text-foreground"
+                          : "bg-muted/50 text-foreground"
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+                {loading && (
+                  <div className="flex justify-start animate-slide-up">
+                    <div className="bg-muted/50 text-foreground rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1.5 items-end h-4">
+                          <div
+                            className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
+                            style={{ animationDelay: "0ms" }}
+                          />
+                          <div
+                            className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
+                            style={{ animationDelay: "200ms" }}
+                          />
+                          <div
+                            className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
+                            style={{ animationDelay: "400ms" }}
+                          />
+                        </div>
+                        <span className="text-sm text-muted-foreground">Digitando...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             <div ref={messagesEndRef} />
           </div>

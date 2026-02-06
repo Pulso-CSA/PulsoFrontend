@@ -420,15 +420,24 @@ resource "${activeProvider === 'aws' ? 'aws_vpc' : activeProvider === 'azure' ? 
               ))
             )}
             {loading && (
-              <div className="flex justify-start">
-                <div className="bg-background/50 border border-border/50 rounded-lg p-3">
+              <div className="flex justify-start animate-slide-up">
+                <div className="bg-background/50 border border-cyan-500/20 rounded-lg p-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse delay-75" />
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse delay-150" />
+                    <div className="flex gap-1.5 items-end h-4">
+                      <div
+                        className="w-2 h-2 rounded-full animate-typing-bounce bg-cyan-400"
+                        style={{ animationDelay: "0ms" }}
+                      />
+                      <div
+                        className="w-2 h-2 rounded-full animate-typing-bounce bg-cyan-400"
+                        style={{ animationDelay: "200ms" }}
+                      />
+                      <div
+                        className="w-2 h-2 rounded-full animate-typing-bounce bg-cyan-400"
+                        style={{ animationDelay: "400ms" }}
+                      />
                     </div>
-                    <span className="text-sm text-muted-foreground">Gerando infraestrutura...</span>
+                    <span className="text-sm text-muted-foreground">Digitando...</span>
                   </div>
                 </div>
               </div>
