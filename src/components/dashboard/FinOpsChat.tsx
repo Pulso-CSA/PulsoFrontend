@@ -3,6 +3,9 @@ import { Send, TrendingDown, Server, DollarSign, Lightbulb } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { finopsApi } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -14,6 +17,8 @@ interface Message {
 }
 
 const FinOpsChat = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,43 +35,60 @@ const FinOpsChat = () => {
     trend: "↓ 8% vs mês anterior",
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async (overridePrompt?: string) => {
+    const promptText = (overridePrompt ?? input).trim();
+    if (!promptText) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: promptText,
       timestamp: new Date(),
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
 
-    // Simular resposta
-    setTimeout(() => {
+    try {
+      const idRequisicao = `FINOP-${Date.now()}`;
+      const res = await finopsApi.chat({
+        mensagem: promptText,
+        id_requisicao: idRequisicao,
+        usuario: user?.id,
+      });
+
+      const content = res?.resposta_texto ?? "Resposta recebida sem conteúdo.";
       const systemMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "system",
-        content: "Analisando seus custos de nuvem... Identifiquei 3 oportunidades de otimização que podem reduzir seus gastos em até 25%.",
+        content,
         timestamp: new Date(),
-        recommendations: [
-          "Migrar instâncias EC2 t3.large para t4g.large (economia estimada: R$ 800/mês)",
-          "Implementar auto-scaling para desligar 40% das instâncias em horário não comercial",
-          "Converter snapshots EBS frequentes para S3 Glacier Deep Archive",
-        ],
-        tags: ["EC2", "RDS", "S3", "Autoscaling"],
+        tags: res?.etapas_executadas,
       };
 
       setMessages((prev) => [...prev, systemMessage]);
+    } catch (err) {
+      toast({
+        title: "Erro na análise FinOps",
+        description: err instanceof Error ? err.message : "Tente novamente",
+        variant: "destructive",
+      });
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "system",
+        content: `Erro: ${err instanceof Error ? err.message : "Falha ao conectar com a API FinOps."}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handleQuickAction = (action: string) => {
     setInput(action);
-    setTimeout(() => handleSend(), 100);
+    handleSend(action);
   };
 
   return (

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Monitor, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { useToast } from "@/hooks/use-toast";
 import PromptPanel from "@/components/dashboard/PromptPanel";
 import LogsPanel from "@/components/dashboard/LogsPanel";
 import FinOpsChat from "@/components/dashboard/FinOpsChat";
@@ -9,6 +11,8 @@ import DataChat from "@/components/dashboard/DataChat";
 import CloudChat from "@/components/dashboard/CloudChat";
 
 const Dashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { toast } = useToast();
   const [activeLayers, setActiveLayers] = useState({
     preview: false,
     pulso: false,
@@ -17,6 +21,33 @@ const Dashboard = () => {
     cloud: false,
   });
   const [showLogs, setShowLogs] = useState(false);
+  const [previewFrontendUrl, setPreviewFrontendUrlState] = useState<string | null>(
+    () => localStorage.getItem("pulso_preview_frontend_url")
+  );
+
+  const setPreviewFrontendUrl = (url: string | null) => {
+    setPreviewFrontendUrlState(url);
+    if (url) localStorage.setItem("pulso_preview_frontend_url", url);
+    else localStorage.removeItem("pulso_preview_frontend_url");
+  };
+
+  useEffect(() => {
+    const checkout = searchParams.get("checkout");
+    if (checkout === "success") {
+      toast({
+        title: "Checkout concluído",
+        description: "Sua assinatura foi ativada com sucesso!",
+      });
+      setSearchParams({}, { replace: true });
+    } else if (checkout === "cancel") {
+      toast({
+        title: "Checkout cancelado",
+        description: "Você pode tentar novamente quando quiser.",
+        variant: "destructive",
+      });
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, toast]);
 
   useEffect(() => {
     // Atalhos de teclado
@@ -80,12 +111,16 @@ const Dashboard = () => {
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={!previewFrontendUrl}
+                    title={previewFrontendUrl ? "Abrir preview da tela de teste" : "Execute um workflow para gerar o preview"}
                     className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-200 ${
                       activeLayers.preview 
                         ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] text-white [&>span]:text-white [&>svg]:text-white' 
-                        : 'border-primary/40 hover:border-primary/60'
+                        : previewFrontendUrl 
+                          ? 'border-primary/40 hover:border-primary/60'
+                          : 'border-primary/20 opacity-60 cursor-not-allowed'
                     }`}
-                    onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}
+                    onClick={() => previewFrontendUrl && setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}
                   >
                     <Monitor className="h-4 w-4" />
                     <span>Preview do Frontend</span>
@@ -99,12 +134,32 @@ const Dashboard = () => {
                         <Monitor className="h-4 w-4 text-primary" />
                         Preview do Frontend
                       </h3>
-                      <span className="text-xs text-muted-foreground font-mono px-2 py-1 rounded bg-primary/10">
-                        localhost:3000
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground font-mono px-2 py-1 rounded bg-primary/10">
+                          {previewFrontendUrl ?? "localhost:3000"}
+                        </span>
+                        {previewFrontendUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(previewFrontendUrl, "_blank")}
+                            className="h-7 text-xs"
+                          >
+                            Abrir em nova aba
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <div className="glass rounded-md overflow-hidden border border-primary/30" style={{ height: '600px' }}>
-                      <iframe
+                      {previewFrontendUrl ? (
+                        <iframe
+                          src={previewFrontendUrl}
+                          className="w-full h-full border-0"
+                          title="Preview do Frontend"
+                          sandbox="allow-scripts allow-same-origin"
+                        />
+                      ) : (
+                        <iframe
                         srcDoc={`
                           <!DOCTYPE html>
                           <html lang="pt-BR">
@@ -211,6 +266,7 @@ const Dashboard = () => {
                         title="Frontend Preview"
                         sandbox="allow-scripts"
                       />
+                      )}
                     </div>
                   </div>
                 )}
@@ -219,7 +275,10 @@ const Dashboard = () => {
                   <LogsPanel />
                 )}
                 
-                <PromptPanel />
+                <PromptPanel
+                  onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)}
+                  onClear={() => setPreviewFrontendUrl(null)}
+                />
               </div>
             )}
             {activeLayers.cloud && <div className="animate-slide-up"><CloudChat /></div>}

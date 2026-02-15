@@ -260,7 +260,14 @@ export const authApi = {
   },
 
   getMe: async () => {
-    return apiRequest<{ id: string; email: string; name: string }>('/auth/me');
+    return apiRequest<{ id: string; email: string; name: string; picture?: string }>('/auth/me');
+  },
+
+  updateMe: async (payload: { name?: string; email?: string; new_password?: string; picture?: string }) => {
+    return apiRequest<{ id: string; name: string; email: string; picture?: string }>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
   },
 
   hasToken: () => !!getStoredToken(),
@@ -383,6 +390,18 @@ export const subscriptionApi = {
   getPortalUrl: async () => {
     return apiRequest<{ url: string }>('/subscription/portal');
   },
+
+  checkout: async (payload: {
+    planId: string;
+    billingCycle?: string;
+    successUrl?: string;
+    cancelUrl?: string;
+  }) => {
+    return apiRequest<{ checkout_url: string }>('/subscription/checkout', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };
 
 // Inteligência de Dados API
@@ -390,6 +409,7 @@ export const inteligenciaApi = {
   query: async (payload: {
     prompt: string;
     db_config: {
+      db_type?: string;
       host: string;
       port: number;
       user: string;
@@ -398,6 +418,101 @@ export const inteligenciaApi = {
     };
   }) => {
     return apiRequest<{ answer?: string; result?: unknown; data?: unknown }>('/inteligencia-dados/query', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  capturaDados: async (payload: {
+    id_requisicao: string;
+    usuario?: string;
+    tipo_base: string;
+    db_config: {
+      db_type: string;
+      host: string;
+      port: number;
+      user: string;
+      password: string;
+      database: string;
+    };
+    incluir_amostra?: boolean;
+    max_rows_amostra?: number;
+  }) => {
+    return apiRequest<{ message?: string; tabelas?: unknown[]; estrutura?: unknown }>('/inteligencia-dados/captura-dados', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+// FinOps API
+export const finopsApi = {
+  chat: async (payload: {
+    mensagem: string;
+    id_requisicao?: string;
+    usuario?: string;
+    aws_credentials?: { access_key_id: string; secret_access_key: string; region: string };
+    azure_credentials?: { tenant_id: string; client_id: string; client_secret: string; subscription_id: string };
+    gcp_credentials?: { service_account_json: Record<string, unknown>; project_id: string };
+  }) => {
+    return apiRequest<{
+      resposta_texto: string;
+      id_requisicao?: string;
+      cloud?: string;
+      etapas_executadas?: string[];
+    }>('/finops/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  analyze: async (payload: {
+    mensagem?: string;
+    id_requisicao?: string;
+    usuario?: string;
+    aws_credentials?: { access_key_id: string; secret_access_key: string; region: string };
+    azure_credentials?: { tenant_id: string; client_id: string; client_secret: string; subscription_id: string };
+    gcp_credentials?: { service_account_json: Record<string, unknown>; project_id: string };
+  }) => {
+    return apiRequest<{ message: string }>('/finops/analyze', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+// Infra (Cloud) API
+export const infraApi = {
+  analyze: async (payload: {
+    root_path?: string;
+    tenant_id?: string;
+    id_requisicao?: string;
+    user_request?: string;
+    providers?: string[];
+    envs?: Record<string, string>;
+  }) => {
+    return apiRequest<{
+      repo_context?: string;
+      infra_spec_draft?: unknown;
+      cost_estimate?: unknown;
+    }>('/infra/analyze', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  generate: async (payload: {
+    infra_spec?: unknown;
+    user_request?: string;
+    root_path?: string;
+    tenant_id?: string;
+    id_requisicao?: string;
+  }) => {
+    return apiRequest<{
+      message?: string;
+      terraform_code?: string;
+      artifacts?: unknown;
+    }>('/infra/generate', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -437,6 +552,8 @@ export const comprehensionApi = {
       file_tree: string | null;
       system_behavior: Record<string, unknown> | null;
       frontend_suggestion: string | null;
+      curl_commands?: string[];
+      preview_frontend_url?: string | null;
     }>('/comprehension/run', {
       method: 'POST',
       body: JSON.stringify(payload),

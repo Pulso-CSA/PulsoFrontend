@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { inteligenciaApi } from "@/lib/api";
 import {
   Select,
@@ -35,7 +36,17 @@ function parseHostPort(hostUri: string): { host: string; port: number } {
   return { host: trimmed || "127.0.0.1", port: 3306 };
 }
 
+/** Mapeia tipo e porta para db_type do backend */
+function getDbType(type: string, port: number): string {
+  if (port === 5432) return "postgresql";
+  if (port === 3306) return "mysql";
+  if (port === 1433) return "sqlserver";
+  if (type === "nosql") return "sqlite";
+  return "postgresql";
+}
+
 const DataChat = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -56,6 +67,19 @@ const DataChat = () => {
     "Sugerir modelo para detecção de fraude",
   ];
 
+  const buildDbConfig = () => {
+    const { host, port } = parseHostPort(connectionData.host);
+    const db_type = getDbType(connectionData.type, port);
+    return {
+      db_type,
+      host,
+      port,
+      user: connectionData.user.trim(),
+      password: connectionData.password,
+      database: connectionData.database.trim(),
+    };
+  };
+
   const handleSend = async (overridePrompt?: string) => {
     const promptText = (overridePrompt ?? input).trim();
     if (!promptText) return;
@@ -67,7 +91,7 @@ const DataChat = () => {
     ) {
       toast({
         title: "Configure a conexão",
-        description: "Preencha Host/URI, Base e Usuário na seção Conexão antes de enviar",
+        description: "Preencha Host/URI, Base e Usuário na seção Conexão e clique em 'Aplicar conexão'",
         variant: "destructive",
       });
       return;
@@ -85,36 +109,57 @@ const DataChat = () => {
     setLoading(true);
 
     try {
-      const { host, port } = parseHostPort(connectionData.host);
-      const res = await inteligenciaApi.query({
-        prompt: promptText,
-        db_config: {
-          host,
-          port,
-          user: connectionData.user.trim(),
-          password: connectionData.password,
-          database: connectionData.database.trim(),
-        },
-      });
+      const db_config = buildDbConfig();
 
-      const content =
-        typeof res?.answer === "string"
-          ? res.answer
-          : typeof res?.result === "string"
-            ? res.result
-            : res?.data != null
-              ? JSON.stringify(res.data, null, 2)
-              : "Resposta recebida sem conteúdo textual.";
+      if (promptText.toLowerCase().includes("estrutura") || promptText.toLowerCase().includes("estrutura da base")) {
+        const idRequisicao = `ID-${Date.now()}`;
+        const res = await inteligenciaApi.capturaDados({
+          id_requisicao: idRequisicao,
+          usuario: user?.id,
+          tipo_base: "SQL",
+          db_config,
+          incluir_amostra: false,
+          max_rows_amostra: 100,
+        });
 
-      const systemMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "system",
-        content,
-        timestamp: new Date(),
-        data: res?.data ?? res?.result,
-      };
+        const content =
+          res?.estrutura != null
+            ? JSON.stringify(res.estrutura, null, 2)
+            : res?.message ?? "Estrutura capturada com sucesso.";
+        const systemMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "system",
+          content,
+          timestamp: new Date(),
+          dataType: "structure",
+          data: res?.estrutura ?? res?.tabelas,
+        };
+        setMessages((prev) => [...prev, systemMessage]);
+      } else {
+        const res = await inteligenciaApi.query({
+          prompt: promptText,
+          db_config,
+        });
 
-      setMessages((prev) => [...prev, systemMessage]);
+        const content =
+          typeof res?.answer === "string"
+            ? res.answer
+            : typeof res?.result === "string"
+              ? res.result
+              : res?.data != null
+                ? JSON.stringify(res.data, null, 2)
+                : "Resposta recebida sem conteúdo textual.";
+
+        const systemMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "system",
+          content,
+          timestamp: new Date(),
+          data: res?.data ?? res?.result,
+        };
+
+        setMessages((prev) => [...prev, systemMessage]);
+      }
     } catch (err) {
       toast({
         title: "Erro na consulta",
@@ -136,6 +181,19 @@ const DataChat = () => {
   const handleQuickAction = (action: string) => {
     setInput(action);
     handleSend(action);
+  };
+
+  const handleApplyConnection = () => {
+    if (connectionData.host && connectionData.database && connectionData.user) {
+      toast({ title: "Conexão configurada", description: "Os parâmetros serão usados nas próximas consultas." });
+      setShowConnection(false);
+    } else {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha Host/URI, Base e Usuário",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -239,18 +297,7 @@ const DataChat = () => {
           <Button
             size="sm"
             className="w-full"
-            onClick={() => {
-              if (connectionData.host && connectionData.database && connectionData.user) {
-                toast({ title: "Conexão configurada", description: "Os parâmetros serão usados nas próximas consultas." });
-                setShowConnection(false);
-              } else {
-                toast({
-                  title: "Campos obrigatórios",
-                  description: "Preencha Host/URI, Base e Usuário",
-                  variant: "destructive",
-                });
-              }
-            }}
+            onClick={handleApplyConnection}
           >
             Aplicar conexão
           </Button>

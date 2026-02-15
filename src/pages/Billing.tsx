@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { subscriptionApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,50 +16,6 @@ import {
   ExternalLink
 } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-
-// Stripe Payment Links
-const stripePaymentLinks = {
-  basic: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_bJe00jdAl89e4fFcim8Zq08",
-      withKey: "https://buy.stripe.com/test_fZu6oHao989e13tequ8Zq09"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_28E28rbsdgFK27x96a8Zq0h",
-      withKey: "https://buy.stripe.com/test_9B6eVddAl1KQaE3aae8Zq0i"
-    }
-  },
-  plus: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_eVq14n67T6164fF96a8Zq0a",
-      withKey: "https://buy.stripe.com/test_cNibJ153P1KQ3bBdmq8Zq0b"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_5kQ9ATfItgFK8vV56a8Zq0j",
-      withKey: "https://buy.stripe.com/test_fZu9ATfItahmfYnbei8Zq0k"
-    }
-  },
-  pro: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_3cI28rgMx3SY27xgyC8Zq0c",
-      withKey: "https://buy.stripe.com/test_fZu8wPeEp89ecMb3LQ8Zq0d"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_bJedR9gMx9di7rRgyC8Zq0q",
-      withKey: "https://buy.stripe.com/test_00w00jao9cpu27xbei8Zq0r"
-    }
-  },
-  elite: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_dRmcN5bsdcpu6nN4PU8Zq0e",
-      withKey: "https://buy.stripe.com/test_bJe28r53PblqfYn0zE8Zq0f"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_bJefZhdAl9di13taae8Zq0s",
-      withKey: "https://buy.stripe.com/test_5kQ6oHbsdblq7rR5TY8Zq0t"
-    }
-  }
-};
 
 const plans = [
   {
@@ -136,22 +94,31 @@ const plans = [
 
 const Billing = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
 
-  const handleSelectPlan = (planId: string) => {
-    const planLinks = stripePaymentLinks[planId as keyof typeof stripePaymentLinks];
-    if (!planLinks) return;
-
-    const cycleLinks = billingCycle === "monthly" ? planLinks.monthly : planLinks.yearly;
-    
-    if (!cycleLinks) {
-      alert("Plano anual ainda não disponível para este plano. Por favor, selecione o plano mensal.");
-      return;
+  const handleSelectPlan = async (planId: string) => {
+    setLoadingPlanId(planId);
+    try {
+      const baseUrl = window.location.origin;
+      const { checkout_url } = await subscriptionApi.checkout({
+        planId,
+        billingCycle,
+        successUrl: `${baseUrl}/dashboard?checkout=success`,
+        cancelUrl: `${baseUrl}/dashboard?checkout=cancel`,
+      });
+      window.location.href = checkout_url;
+    } catch (err) {
+      toast({
+        title: "Erro ao iniciar checkout",
+        description: err instanceof Error ? err.message : "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlanId(null);
     }
-
-    const link = hasOpenAIKey ? cycleLinks.withKey : cycleLinks.withoutKey;
-    window.open(link, "_blank");
   };
 
   return (
@@ -238,13 +205,13 @@ const Billing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan, idx) => {
               const Icon = plan.icon;
-              const price = billingCycle === "monthly" 
+              const price = billingCycle === "monthly"
                 ? (hasOpenAIKey ? plan.priceMonthlyWithAPI : plan.priceMonthly)
                 : (hasOpenAIKey ? plan.priceYearlyWithAPI : plan.priceYearly);
-              
-              const planLinks = stripePaymentLinks[plan.id as keyof typeof stripePaymentLinks];
-              const hasYearlyLink = planLinks?.yearly !== null;
-              const isDisabled = billingCycle === "yearly" && !hasYearlyLink;
+
+              const isYearlyUnavailable = billingCycle === "yearly" && ["pro", "elite"].includes(plan.id);
+              const isDisabled = isYearlyUnavailable;
+              const isLoading = loadingPlanId === plan.id;
               
               return (
                 <Card
@@ -307,9 +274,11 @@ const Billing = () => {
                           ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]'
                           : 'border-primary/40 hover:border-primary/60'
                       }`}
-                      disabled={isDisabled}
+                      disabled={isDisabled || isLoading}
                     >
-                      {isDisabled ? "Em Breve" : (
+                      {isDisabled ? "Em Breve" : isLoading ? (
+                        "Redirecionando..."
+                      ) : (
                         <>
                           Assinar Plano
                           <ExternalLink className="h-4 w-4" />

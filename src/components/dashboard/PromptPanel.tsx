@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, TestTube } from "lucide-react";
+import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, TestTube, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,6 +72,41 @@ interface PromptHistory {
   timestamp: Date;
 }
 
+export interface ComprehensionResult {
+  curl_commands?: string[];
+  preview_frontend_url?: string | null;
+}
+
+/** Parseia cURL e executa via fetch (GET e POST com JSON) */
+async function executeCurl(curlStr: string): Promise<{ ok: boolean; status: number; body: string }> {
+  const urlMatch = curlStr.match(/https?:\/\/[^\s'"]+/);
+  const url = urlMatch?.[0];
+  if (!url) throw new Error("URL não encontrada no cURL");
+
+  const methodMatch = curlStr.match(/-X\s+(GET|POST|PUT|DELETE|PATCH)/i);
+  const method = (methodMatch?.[1]?.toUpperCase() ?? "GET") as RequestInit["method"];
+
+  let body: string | undefined;
+  const dMatch = curlStr.match(/-d\s+'([^']*(?:\\'[^']*)*)'/);
+  if (dMatch) {
+    body = dMatch[1].replace(/\\'/g, "'");
+  } else {
+    const dMatch2 = curlStr.match(/-d\s+"([^"]*(?:\\"[^"]*)*)"/);
+    if (dMatch2) body = dMatch2[1].replace(/\\"/g, '"');
+  }
+
+  const headers: Record<string, string> = {};
+  const hMatches = curlStr.matchAll(/-H\s+["']([^:]+):\s*([^"']+)["']/g);
+  for (const m of hMatches) {
+    headers[m[1].trim()] = m[2].trim();
+  }
+  if (!headers["Content-Type"] && body) headers["Content-Type"] = "application/json";
+
+  const res = await fetch(url, { method, headers, body });
+  const text = await res.text();
+  return { ok: res.ok, status: res.status, body: text };
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "system";
@@ -89,7 +124,12 @@ function buildEnvContent(envVars: EnvVariable[]): string {
     .join("\n");
 }
 
-const PromptPanel = () => {
+interface PromptPanelProps {
+  onComprehensionResult?: (result: ComprehensionResult) => void;
+  onClear?: () => void;
+}
+
+const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -102,6 +142,14 @@ const PromptPanel = () => {
   const [history, setHistory] = useState<PromptHistory[]>([]);
   const [fileStructure, setFileStructure] = useState<FileNode[] | null>(null);
   const [showTestDialog, setShowTestDialog] = useState(false);
+  const [curlCommands, setCurlCommands] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem("pulso_curl_commands");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -180,6 +228,19 @@ const PromptPanel = () => {
       }
       setRequestId(null);
 
+      if (res.curl_commands?.length) {
+        setCurlCommands(res.curl_commands);
+        localStorage.setItem("pulso_curl_commands", JSON.stringify(res.curl_commands));
+        setShowTestDialog(true);
+      } else {
+        setCurlCommands([]);
+        localStorage.removeItem("pulso_curl_commands");
+      }
+      onComprehensionResult?.({
+        curl_commands: res.curl_commands ?? [],
+        preview_frontend_url: res.preview_frontend_url ?? null,
+      });
+
       const newEntry: PromptHistory = {
         id: `req-${Date.now()}`,
         text: promptText,
@@ -220,6 +281,9 @@ const PromptPanel = () => {
     setFolderPath("");
     setRequestId(null);
     setFileStructure(null);
+    setCurlCommands([]);
+    localStorage.removeItem("pulso_curl_commands");
+    onClear?.();
   };
 
   const handleCopyId = () => {
@@ -309,6 +373,34 @@ const PromptPanel = () => {
     });
   };
 
+  const [executingCurl, setExecutingCurl] = useState<number | null>(null);
+  const handleExecuteCurl = async (curl: string, index: number) => {
+    setExecutingCurl(index);
+    try {
+      const result = await executeCurl(curl);
+      if (result.ok) {
+        toast({
+          title: "cURL executado",
+          description: `Status ${result.status}. Resposta: ${result.body.slice(0, 100)}${result.body.length > 100 ? "..." : ""}`,
+        });
+      } else {
+        toast({
+          title: "cURL retornou erro",
+          description: `Status ${result.status}: ${result.body.slice(0, 150)}`,
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erro ao executar cURL",
+        description: err instanceof Error ? err.message : "Falha na execução",
+        variant: "destructive",
+      });
+    } finally {
+      setExecutingCurl(null);
+    }
+  };
+
   const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
   const comprehensionPayload = input.trim()
     ? JSON.stringify({
@@ -321,36 +413,20 @@ const PromptPanel = () => {
     ? `curl -X POST "${apiBase}/comprehension/run" -H "Content-Type: application/json" -d '${comprehensionPayload.replace(/'/g, "'\\''")}'`
     : null;
 
-  const testCurls = [
+  const fallbackCurls = [
     ...(comprehensionCurl
-      ? [
-          {
-            name: "Comprehension Run (atual)",
-            curl: comprehensionCurl,
-          },
-        ]
+      ? [{ name: "Comprehension Run (atual)", curl: comprehensionCurl }]
       : []),
-    {
-      name: "Health Check",
-      curl: `curl -X GET ${apiBase}/health`,
-    },
-    {
-      name: "API Status",
-      curl: `curl -X GET ${apiBase}/api/status`,
-    },
-    {
-      name: "List Users",
-      curl: `curl -X GET ${apiBase}/api/users`,
-    },
-    {
-      name: "Create User",
-      curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'`,
-    },
-    {
-      name: "Upload File",
-      curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"`,
-    },
+    { name: "Health Check", curl: `curl -X GET ${apiBase}/health` },
+    { name: "API Status", curl: `curl -X GET ${apiBase}/api/status` },
+    { name: "List Users", curl: `curl -X GET ${apiBase}/api/users` },
+    { name: "Create User", curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'` },
+    { name: "Upload File", curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"` },
   ];
+
+  const displayCurls = curlCommands.length > 0
+    ? curlCommands.map((curl, i) => ({ name: `Comando ${i + 1}`, curl }))
+    : fallbackCurls;
 
   return (
     <div className="space-y-6">
@@ -674,22 +750,40 @@ const PromptPanel = () => {
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
-            {testCurls.map((test, index) => (
-              <div key={index} className="glass p-4 rounded-lg border border-primary/20">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-foreground">{test.name}</h4>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCopyCurl(test.curl)}
-                    className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
-                  >
-                    <Copy className="h-3 w-3 mr-1" />
-                    Copiar
-                  </Button>
+            {displayCurls.map((test, index) => (
+              <div key={index} className="glass p-4 rounded-lg border-2 border-primary/30 bg-background/50">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h4 className="font-semibold text-foreground text-sm">{test.name}</h4>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExecuteCurl(test.curl, index)}
+                      disabled={executingCurl !== null}
+                      className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
+                    >
+                      {executingCurl === index ? (
+                        <span className="text-xs">...</span>
+                      ) : (
+                        <>
+                          <Play className="h-3 w-3 mr-1" />
+                          Executar
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopyCurl(test.curl)}
+                      className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
+                    >
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copiar
+                    </Button>
+                  </div>
                 </div>
-                <pre className="text-xs bg-background/50 p-3 rounded border border-primary/10 overflow-x-auto">
-                  <code className="text-muted-foreground font-mono">{test.curl}</code>
+                <pre className="text-xs bg-background/80 p-3 rounded border border-primary/20 overflow-x-auto font-mono text-muted-foreground">
+                  <code>{test.curl}</code>
                 </pre>
               </div>
             ))}

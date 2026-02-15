@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, History, Trash2, Copy, FolderOpen, FileCode, Key, MapPin, Eye, EyeOff, ChevronDown, ChevronUp, CloudCog } from "lucide-react";
+import { Send, History, Trash2, Copy, FolderOpen, FileCode, Key, MapPin, Eye, EyeOff, CloudCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { infraApi } from "@/lib/api";
 import { FaAws } from "react-icons/fa";
 import { VscAzure } from "react-icons/vsc";
 import { SiGooglecloud } from "react-icons/si";
@@ -46,8 +48,11 @@ interface ProviderCredentials {
 }
 
 const CloudChat = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [rootPath, setRootPath] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeProvider, setActiveProvider] = useState<"aws" | "azure" | "gcp">("aws");
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -58,7 +63,6 @@ const CloudChat = () => {
     azure: { region: "", tenantId: "", clientId: "", clientSecret: "", subscriptionId: "" },
     gcp: { region: "", projectId: "", clientEmail: "", privateKey: "" },
   });
-  const { toast } = useToast();
 
   const awsRegions = ["us-east-1", "us-east-2", "us-west-1", "us-west-2", "sa-east-1", "eu-west-1", "eu-central-1", "ap-southeast-1"];
   const azureRegions = ["eastus", "eastus2", "westus", "westus2", "brazilsouth", "westeurope", "northeurope", "southeastasia"];
@@ -85,63 +89,89 @@ const CloudChat = () => {
     });
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    const promptText = input.trim();
+    if (!promptText) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: promptText,
       timestamp: new Date(),
       provider: activeProvider,
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
 
+    const idRequisicao = `INFRA-${Date.now()}`;
     const historyItem: HistoryItem = {
-      id: Date.now().toString(),
-      prompt: input,
+      id: idRequisicao,
+      prompt: promptText,
       provider: activeProvider,
       timestamp: new Date(),
       status: "pending",
     };
     setHistory([historyItem, ...history.slice(0, 9)]);
 
-    setTimeout(() => {
-      const terraformCode = `# Terraform - ${activeProvider.toUpperCase()}
-resource "${activeProvider === 'aws' ? 'aws_vpc' : activeProvider === 'azure' ? 'azurerm_virtual_network' : 'google_compute_network'}" "main" {
-  name       = "main-network"
-  cidr_block = "10.0.0.0/16"
-  
-  tags = {
-    Name        = "main"
-    Environment = "production"
-  }
-}`;
+    try {
+      const tenantId = user?.id ?? "default";
+
+      let infraSpec: unknown = null;
+      const analyzeRes = await infraApi.analyze({
+        root_path: rootPath.trim() || undefined,
+        tenant_id: tenantId,
+        id_requisicao: idRequisicao,
+        user_request: promptText,
+        providers: [activeProvider],
+      });
+
+      if (analyzeRes?.infra_spec_draft) {
+        infraSpec = analyzeRes.infra_spec_draft;
+      }
+
+      const generateRes = await infraApi.generate({
+        infra_spec: infraSpec,
+        user_request: promptText,
+        root_path: rootPath.trim() || undefined,
+        tenant_id: tenantId,
+        id_requisicao: idRequisicao,
+      });
+
+      const terraformCode = generateRes?.terraform_code ?? "";
+      const content = generateRes?.message ?? `Infraestrutura gerada para ${activeProvider.toUpperCase()}.`;
 
       const systemMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "system",
-        content: `Infraestrutura gerada para ${activeProvider.toUpperCase()}. Baseado no seu prompt, criei os seguintes recursos:`,
+        content,
         timestamp: new Date(),
         provider: activeProvider,
-        resources: [
-          "VPC com CIDR 10.0.0.0/16",
-          "2 Subnets públicas (10.0.1.0/24, 10.0.2.0/24)",
-          "2 Subnets privadas (10.0.10.0/24, 10.0.20.0/24)",
-          "Internet Gateway",
-          "NAT Gateway",
-          "Route Tables configuradas",
-        ],
-        codeBlock: terraformCode,
+        resources: terraformCode ? ["Código Terraform gerado"] : undefined,
+        codeBlock: terraformCode || undefined,
       };
 
       setMessages((prev) => [...prev, systemMessage]);
-      setHistory((prev) => prev.map((item, idx) => idx === 0 ? { ...item, status: "success" as const } : item));
+      setHistory((prev) => prev.map((item) => item.id === idRequisicao ? { ...item, status: "success" as const } : item));
+    } catch (err) {
+      toast({
+        title: "Erro na geração de infraestrutura",
+        description: err instanceof Error ? err.message : "Tente novamente",
+        variant: "destructive",
+      });
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "system",
+        content: `Erro: ${err instanceof Error ? err.message : "Falha ao conectar com a API de Infraestrutura."}`,
+        timestamp: new Date(),
+        provider: activeProvider,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      setHistory((prev) => prev.map((item) => item.id === idRequisicao ? { ...item, status: "error" as const } : item));
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const handleQuickAction = (action: string) => setInput(action);
@@ -444,9 +474,21 @@ resource "${activeProvider === 'aws' ? 'aws_vpc' : activeProvider === 'azure' ? 
             )}
           </div>
 
-          <div className="p-4 border-t border-cyan-500/20">
+          <div className="p-4 border-t border-cyan-500/20 space-y-2">
             <div className="flex gap-2">
-              <Input placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas' ou 'C:\infra\main.tf'" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} className="border-cyan-500/30 focus-visible:ring-cyan-500" />
+              <Input
+                placeholder="Caminho do projeto (opcional)"
+                value={rootPath}
+                onChange={(e) => setRootPath(e.target.value)}
+                className="border-cyan-500/30 focus-visible:ring-cyan-500 max-w-[200px]"
+              />
+              <Input
+                placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas'"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                className="border-cyan-500/30 focus-visible:ring-cyan-500 flex-1"
+              />
               <Button onClick={handleSend} disabled={!input.trim() || loading} className="bg-cyan-500 hover:bg-cyan-600"><Send className="h-4 w-4" /></Button>
             </div>
           </div>

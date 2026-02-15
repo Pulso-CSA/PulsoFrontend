@@ -19,6 +19,7 @@ interface AuthContextType extends AuthState {
   setCurrentProfile: (profile: Profile | null) => void;
   setProfiles: (profiles: Profile[]) => void;
   fetchProfiles: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -135,9 +136,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
-    // Redirect to backend OAuth endpoint
+    // Redirect to backend OAuth endpoint (GET /auth/login/google)
     const apiUrl = import.meta.env.VITE_API_URL || '/api';
-    window.location.href = `${apiUrl}/auth/google`;
+    window.location.href = `${apiUrl}/auth/login/google`;
   };
 
   const signup = async (email: string, password: string, name: string, remember: boolean = false) => {
@@ -197,6 +198,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const userData = await authApi.getMe();
+      setUser({
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        createdAt: '',
+        updatedAt: '',
+      });
+    } catch {
+      // Silently fail - user will remain unchanged
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -213,6 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCurrentProfile,
         setProfiles,
         fetchProfiles,
+        refreshUser,
       }}
     >
       {children}

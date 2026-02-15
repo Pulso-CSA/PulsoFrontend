@@ -7,6 +7,44 @@ All colors MUST be HSL.
 */
 
 @layer base {
+  /* Default fallback - usado antes do tema carregar */
+  :root {
+    --background: 230 45% 6%;
+    --foreground: 0 0% 100%;
+    --card: 230 40% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 230 40% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 180 100% 65%;
+    --primary-foreground: 230 45% 6%;
+    --primary-deep: 180 100% 45%;
+    --primary-light: 180 100% 90%;
+    --secondary: 180 50% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 230 40% 14%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 180 60% 60%;
+    --accent-foreground: 0 0% 100%;
+    --success: 150 100% 65%;
+    --success-foreground: 230 45% 6%;
+    --warning: 45 100% 65%;
+    --warning-foreground: 230 45% 6%;
+    --destructive: 0 100% 70%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 200 100% 65%;
+    --info-foreground: 230 45% 6%;
+    --finops: 150 100% 65%;
+    --finops-foreground: 230 45% 6%;
+    --data-ai: 270 100% 80%;
+    --data-ai-foreground: 0 0% 100%;
+    --border: 180 100% 65% / 0.3;
+    --input: 230 40% 14%;
+    --ring: 180 100% 65%;
+    --radius: 1rem;
+    --chat-user: 180 100% 65%;
+    --chat-system: 270 95% 75%;
+  }
+
   /* ===== NEON THEME ===== */
   .theme-neon {
     /* Light Mode */
@@ -317,59 +355,6 @@ All colors MUST be HSL.
 
     --chat-user: 142 76% 50%;
     --chat-system: 38 92% 60%;
-  }
-
-  /* Default fallback - Neon Dark */
-  :root {
-    --background: 230 45% 6%;
-    --foreground: 0 0% 100%;
-
-    --card: 230 40% 10%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 230 40% 10%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 180 100% 65%;
-    --primary-foreground: 230 45% 6%;
-    --primary-deep: 180 100% 45%;
-    --primary-light: 180 100% 90%;
-
-    --secondary: 180 50% 55%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 230 40% 14%;
-    --muted-foreground: 0 0% 70%;
-
-    --accent: 180 60% 60%;
-    --accent-foreground: 0 0% 100%;
-
-    --success: 150 100% 65%;
-    --success-foreground: 230 45% 6%;
-
-    --warning: 45 100% 65%;
-    --warning-foreground: 230 45% 6%;
-
-    --destructive: 0 100% 70%;
-    --destructive-foreground: 0 0% 100%;
-
-    --info: 200 100% 65%;
-    --info-foreground: 230 45% 6%;
-
-    --finops: 150 100% 65%;
-    --finops-foreground: 230 45% 6%;
-
-    --data-ai: 270 100% 80%;
-    --data-ai-foreground: 0 0% 100%;
-
-    --border: 180 100% 65% / 0.3;
-    --input: 230 40% 14%;
-    --ring: 180 100% 65%;
-
-    --radius: 1rem;
-
-    --chat-user: 180 100% 65%;
-    --chat-system: 270 95% 75%;
   }
 }
 
