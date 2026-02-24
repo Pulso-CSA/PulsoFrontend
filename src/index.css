@@ -7,361 +7,644 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  /* Default fallback - usado antes do tema carregar */
+  /* Default fallback - tema escuro profissional */
   :root {
-    --background: 230 45% 6%;
-    --foreground: 0 0% 100%;
-    --card: 230 40% 10%;
-    --card-foreground: 0 0% 100%;
-    --popover: 230 40% 10%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 180 100% 65%;
-    --primary-foreground: 230 45% 6%;
-    --primary-deep: 180 100% 45%;
-    --primary-light: 180 100% 90%;
-    --secondary: 180 50% 55%;
+    --background: 232 45% 5%;
+    --foreground: 0 0% 98%;
+    --card: 232 35% 9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 232 35% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 178 95% 48%;
+    --primary-foreground: 232 45% 5%;
+    --primary-deep: 178 95% 38%;
+    --primary-light: 178 90% 78%;
+    --secondary: 178 40% 44%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 230 40% 14%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 180 60% 60%;
+    --muted: 232 26% 14%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 178 50% 48%;
     --accent-foreground: 0 0% 100%;
-    --success: 150 100% 65%;
-    --success-foreground: 230 45% 6%;
-    --warning: 45 100% 65%;
-    --warning-foreground: 230 45% 6%;
-    --destructive: 0 100% 70%;
+    --success: 150 65% 40%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 88% 50%;
+    --warning-foreground: 232 45% 5%;
+    --destructive: 0 65% 52%;
     --destructive-foreground: 0 0% 100%;
-    --info: 200 100% 65%;
-    --info-foreground: 230 45% 6%;
-    --finops: 150 100% 65%;
-    --finops-foreground: 230 45% 6%;
-    --data-ai: 270 100% 80%;
+    --info: 198 85% 48%;
+    --info-foreground: 232 45% 5%;
+    --finops: 150 65% 40%;
+    --finops-foreground: 0 0% 100%;
+    --data-ai: 268 75% 58%;
     --data-ai-foreground: 0 0% 100%;
-    --border: 180 100% 65% / 0.3;
-    --input: 230 40% 14%;
-    --ring: 180 100% 65%;
-    --radius: 1rem;
-    --chat-user: 180 100% 65%;
-    --chat-system: 270 95% 75%;
+    --border: 232 30% 22% / 0.6;
+    --input: 232 26% 14%;
+    --ring: 178 95% 48%;
+    --radius: 0.75rem;
+    --chat-user: 178 95% 44%;
+    --chat-system: 268 55% 35%;
+    --glow-primary: 178 95% 48%;
+    --glow-finops: 150 65% 40%;
   }
 
-  /* ===== NEON THEME ===== */
+  /* ===== NEON CYAN ===== */
   .theme-neon {
-    /* Light Mode */
-    --background: 220 20% 96%;
-    --foreground: 230 40% 12%;
+    /* Modo Claro - legível, sem cansaço visual */
+    --background: 200 18% 97%;
+    --foreground: 215 28% 12%;
 
-    --card: 220 20% 92%;
-    --card-foreground: 230 40% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 12%;
 
-    --popover: 220 20% 92%;
-    --popover-foreground: 230 40% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 12%;
 
-    --primary: 180 100% 40%;
+    --primary: 178 55% 38%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 180 100% 30%;
-    --primary-light: 180 100% 55%;
+    --primary-deep: 178 55% 30%;
+    --primary-light: 178 50% 55%;
 
-    --secondary: 180 50% 45%;
+    --secondary: 178 35% 42%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 15% 85%;
-    --muted-foreground: 220 10% 40%;
+    --muted: 200 14% 93%;
+    --muted-foreground: 215 16% 40%;
 
-    --accent: 180 60% 45%;
+    --accent: 178 50% 42%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 150 100% 35%;
+    --success: 150 45% 36%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 100% 45%;
-    --warning-foreground: 230 40% 12%;
+    --warning: 38 72% 46%;
+    --warning-foreground: 215 28% 12%;
 
-    --destructive: 0 100% 50%;
+    --destructive: 0 55% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 200 100% 45%;
+    --info: 198 65% 42%;
     --info-foreground: 0 0% 100%;
 
-    --finops: 150 100% 35%;
+    --finops: 150 45% 36%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 270 100% 60%;
+    --data-ai: 268 55% 48%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 220 15% 80%;
-    --input: 220 15% 88%;
-    --ring: 180 100% 40%;
+    --border: 200 14% 88%;
+    --input: 200 12% 94%;
+    --ring: 178 55% 38%;
 
-    --radius: 1rem;
+    --radius: 0.625rem;
 
-    --chat-user: 180 100% 40%;
-    --chat-system: 270 90% 60%;
+    --chat-user: 178 55% 42%;
+    --chat-system: 268 50% 52%;
+    --glow-primary: 178 95% 48%;
+    --glow-finops: 150 62% 42%;
   }
 
   .theme-neon.dark {
-    --background: 230 45% 6%;
-    --foreground: 0 0% 100%;
+    --background: 230 35% 7%;
+    --foreground: 220 12% 94%;
 
-    --card: 230 40% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 230 28% 11%;
+    --card-foreground: 220 12% 94%;
 
-    --popover: 230 40% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 230 28% 11%;
+    --popover-foreground: 220 12% 94%;
 
-    --primary: 180 100% 65%;
-    --primary-foreground: 230 45% 6%;
-    --primary-deep: 180 100% 45%;
-    --primary-light: 180 100% 90%;
+    --primary: 178 88% 52%;
+    --primary-foreground: 230 35% 7%;
+    --primary-deep: 178 88% 42%;
+    --primary-light: 178 85% 72%;
 
-    --secondary: 180 50% 55%;
+    --secondary: 178 40% 48%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 230 40% 14%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 230 25% 15%;
+    --muted-foreground: 220 10% 68%;
 
-    --accent: 180 60% 60%;
+    --accent: 178 55% 52%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 150 100% 65%;
-    --success-foreground: 230 45% 6%;
-
-    --warning: 45 100% 65%;
-    --warning-foreground: 230 45% 6%;
-
-    --destructive: 0 100% 70%;
-    --destructive-foreground: 0 0% 100%;
-
-    --info: 200 100% 65%;
-    --info-foreground: 230 45% 6%;
-
-    --finops: 150 100% 65%;
-    --finops-foreground: 230 45% 6%;
-
-    --data-ai: 270 100% 80%;
-    --data-ai-foreground: 0 0% 100%;
-
-    --border: 180 100% 65% / 0.3;
-    --input: 230 40% 14%;
-    --ring: 180 100% 65%;
-
-    --chat-user: 180 100% 65%;
-    --chat-system: 270 95% 75%;
-  }
-
-  /* ===== OCEAN THEME ===== */
-  .theme-ocean {
-    /* Light Mode */
-    --background: 210 30% 96%;
-    --foreground: 210 50% 12%;
-
-    --card: 210 30% 92%;
-    --card-foreground: 210 50% 12%;
-
-    --popover: 210 30% 92%;
-    --popover-foreground: 210 50% 12%;
-
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 100%;
-    --primary-deep: 199 89% 38%;
-    --primary-light: 199 89% 65%;
-
-    --secondary: 187 85% 45%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 20% 85%;
-    --muted-foreground: 210 15% 40%;
-
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
-
-    --success: 160 84% 40%;
+    --success: 150 55% 48%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 210 50% 12%;
+    --warning: 38 85% 54%;
+    --warning-foreground: 230 35% 7%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 60% 54%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
+    --info: 198 80% 54%;
+    --info-foreground: 230 35% 7%;
 
-    --finops: 160 84% 40%;
+    --finops: 150 55% 48%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 262 83% 58%;
+    --data-ai: 278 65% 62%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 210 20% 80%;
-    --input: 210 20% 88%;
-    --ring: 199 89% 48%;
+    --border: 230 22% 22% / 0.5;
+    --input: 230 25% 14%;
+    --ring: 178 88% 52%;
 
-    --radius: 1rem;
-
-    --chat-user: 199 89% 48%;
-    --chat-system: 262 83% 58%;
+    --chat-user: 178 88% 48%;
+    --chat-system: 278 55% 42%;
+    --glow-primary: 178 88% 52%;
+    --glow-finops: 150 55% 48%;
   }
 
-  .theme-ocean.dark {
-    --background: 222 47% 8%;
-    --foreground: 0 0% 100%;
+  /* ===== CLÁSSICO (elegante, cinzas refinados) ===== */
+  .theme-classic {
+    /* Modo Claro - neutros suaves, legibilidade alta */
+    --background: 220 10% 97%;
+    --foreground: 220 18% 10%;
 
-    --card: 222 45% 12%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 18% 10%;
 
-    --popover: 222 45% 12%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 18% 10%;
 
-    --primary: 199 89% 55%;
-    --primary-foreground: 222 47% 8%;
-    --primary-deep: 199 89% 42%;
-    --primary-light: 199 89% 75%;
+    --primary: 220 18% 22%;
+    --primary-foreground: 0 0% 98%;
+    --primary-deep: 220 18% 14%;
+    --primary-light: 220 14% 38%;
 
-    --secondary: 187 85% 53%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 220 12% 32%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 40% 16%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 220 8% 93%;
+    --muted-foreground: 220 12% 42%;
 
-    --accent: 262 83% 68%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 220 14% 26%;
+    --accent-foreground: 0 0% 98%;
 
-    --success: 160 84% 50%;
-    --success-foreground: 222 47% 8%;
-
-    --warning: 38 92% 60%;
-    --warning-foreground: 222 47% 8%;
-
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 0 0% 100%;
-
-    --info: 199 89% 55%;
-    --info-foreground: 222 47% 8%;
-
-    --finops: 160 84% 50%;
-    --finops-foreground: 222 47% 8%;
-
-    --data-ai: 262 83% 72%;
-    --data-ai-foreground: 0 0% 100%;
-
-    --border: 199 89% 55% / 0.3;
-    --input: 222 40% 16%;
-    --ring: 199 89% 55%;
-
-    --chat-user: 199 89% 55%;
-    --chat-system: 262 83% 68%;
-  }
-
-  /* ===== FOREST THEME ===== */
-  .theme-forest {
-    /* Light Mode */
-    --background: 120 15% 96%;
-    --foreground: 120 30% 12%;
-
-    --card: 120 15% 92%;
-    --card-foreground: 120 30% 12%;
-
-    --popover: 120 15% 92%;
-    --popover-foreground: 120 30% 12%;
-
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
-    --primary-deep: 142 76% 28%;
-    --primary-light: 142 76% 50%;
-
-    --secondary: 84 81% 44%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 120 12% 85%;
-    --muted-foreground: 120 10% 40%;
-
-    --accent: 38 92% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --success: 142 76% 36%;
+    --success: 152 48% 34%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 120 30% 12%;
+    --warning: 38 78% 44%;
+    --warning-foreground: 220 18% 12%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 56% 48%;
+    --destructive-foreground: 0 0% 98%;
 
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
+    --info: 210 58% 40%;
+    --info-foreground: 0 0% 98%;
 
-    --finops: 84 81% 44%;
-    --finops-foreground: 0 0% 100%;
+    --finops: 220 16% 26%;
+    --finops-foreground: 0 0% 98%;
 
-    --data-ai: 38 92% 50%;
-    --data-ai-foreground: 0 0% 100%;
+    --data-ai: 220 14% 30%;
+    --data-ai-foreground: 0 0% 98%;
 
-    --border: 120 12% 80%;
-    --input: 120 12% 88%;
-    --ring: 142 76% 36%;
+    --border: 220 10% 88%;
+    --input: 220 8% 94%;
+    --ring: 220 18% 22%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
 
-    --chat-user: 142 76% 36%;
-    --chat-system: 38 92% 50%;
+    --chat-user: 220 18% 26%;
+    --chat-system: 220 12% 40%;
+    --glow-primary: 220 18% 30%;
+    --glow-finops: 220 14% 32%;
   }
 
-  .theme-forest.dark {
-    --background: 140 30% 6%;
-    --foreground: 0 0% 100%;
+  .theme-classic.dark {
+    /* Modo Escuro - cinzas profundos, legível */
+    --background: 220 15% 8%;
+    --foreground: 220 8% 94%;
 
-    --card: 140 28% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 220 12% 12%;
+    --card-foreground: 220 8% 94%;
 
-    --popover: 140 28% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 220 12% 12%;
+    --popover-foreground: 220 8% 94%;
 
-    --primary: 142 76% 50%;
-    --primary-foreground: 140 30% 6%;
-    --primary-deep: 142 76% 36%;
-    --primary-light: 142 76% 70%;
+    --primary: 220 10% 90%;
+    --primary-foreground: 220 15% 8%;
+    --primary-deep: 0 0% 98%;
+    --primary-light: 220 8% 78%;
 
-    --secondary: 84 81% 52%;
+    --secondary: 220 8% 74%;
+    --secondary-foreground: 220 15% 8%;
+
+    --muted: 220 12% 16%;
+    --muted-foreground: 220 10% 68%;
+
+    --accent: 220 10% 85%;
+    --accent-foreground: 220 18% 8%;
+
+    --success: 152 50% 48%;
+    --success-foreground: 220 18% 8%;
+
+    --warning: 38 82% 52%;
+    --warning-foreground: 220 18% 8%;
+
+    --destructive: 0 58% 52%;
+    --destructive-foreground: 0 0% 98%;
+
+    --info: 210 65% 52%;
+    --info-foreground: 220 18% 8%;
+
+    --finops: 220 10% 80%;
+    --finops-foreground: 220 18% 8%;
+
+    --data-ai: 220 12% 75%;
+    --data-ai-foreground: 220 18% 8%;
+
+    --border: 220 14% 24% / 0.55;
+    --input: 220 14% 14%;
+    --ring: 220 12% 85%;
+
+    --chat-user: 220 12% 82%;
+    --chat-system: 220 8% 48%;
+    --glow-primary: 220 12% 65%;
+    --glow-finops: 220 10% 70%;
+  }
+
+  /* ===== TERRACOTTA (âmbar e caramelo refinados) ===== */
+  .theme-terracotta {
+    /* Modo Claro - tons quentes suaves, legível */
+    --background: 35 22% 97%;
+    --foreground: 28 24% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 28 24% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 28 24% 12%;
+
+    --primary: 30 50% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 30 58% 30%;
+    --primary-light: 30 52% 56%;
+
+    --secondary: 38 42% 46%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 140 25% 14%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 35 18% 93%;
+    --muted-foreground: 28 16% 42%;
 
-    --accent: 38 92% 60%;
+    --accent: 32 55% 48%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 142 76% 50%;
-    --success-foreground: 140 30% 6%;
+    --success: 152 48% 36%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 60%;
-    --warning-foreground: 140 30% 6%;
+    --warning: 38 78% 48%;
+    --warning-foreground: 28 22% 14%;
 
-    --destructive: 0 84% 65%;
+    --destructive: 0 56% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 199 89% 55%;
-    --info-foreground: 140 30% 6%;
+    --info: 198 65% 42%;
+    --info-foreground: 0 0% 100%;
 
-    --finops: 84 81% 52%;
-    --finops-foreground: 140 30% 6%;
+    --finops: 32 55% 42%;
+    --finops-foreground: 0 0% 100%;
 
-    --data-ai: 38 92% 60%;
+    --data-ai: 30 58% 44%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 142 76% 50% / 0.3;
-    --input: 140 25% 14%;
-    --ring: 142 76% 50%;
+    --border: 35 14% 88%;
+    --input: 35 12% 94%;
+    --ring: 30 58% 40%;
 
-    --chat-user: 142 76% 50%;
-    --chat-system: 38 92% 60%;
+    --radius: 0.625rem;
+
+    --chat-user: 30 58% 44%;
+    --chat-system: 38 50% 48%;
+    --glow-primary: 32 62% 48%;
+    --glow-finops: 38 55% 46%;
   }
+
+  .theme-terracotta.dark {
+    --background: 30 22% 8%;
+    --foreground: 40 12% 94%;
+
+    --card: 30 18% 12%;
+    --card-foreground: 40 12% 94%;
+
+    --popover: 30 18% 12%;
+    --popover-foreground: 40 12% 94%;
+
+    --primary: 35 65% 55%;
+    --primary-foreground: 30 25% 7%;
+    --primary-deep: 35 72% 44%;
+    --primary-light: 35 65% 72%;
+
+    --secondary: 40 60% 55%;
+    --secondary-foreground: 30 25% 7%;
+
+    --muted: 30 18% 16%;
+    --muted-foreground: 40 12% 70%;
+
+    --accent: 38 68% 58%;
+    --accent-foreground: 30 25% 7%;
+
+    --success: 152 55% 46%;
+    --success-foreground: 30 25% 7%;
+
+    --warning: 38 88% 56%;
+    --warning-foreground: 30 25% 7%;
+
+    --destructive: 0 62% 54%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 198 75% 52%;
+    --info-foreground: 30 25% 7%;
+
+    --finops: 38 68% 54%;
+    --finops-foreground: 30 25% 7%;
+
+    --data-ai: 35 70% 58%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 30 25% 24% / 0.55;
+    --input: 30 22% 15%;
+    --ring: 35 72% 55%;
+
+    --chat-user: 35 72% 52%;
+    --chat-system: 40 60% 48%;
+    --glow-primary: 35 72% 55%;
+    --glow-finops: 38 68% 54%;
+  }
+
+  /* ===== SLATE PRO (profissional, tons frios) ===== */
+  .theme-slate {
+    /* Modo Claro - azul-cinza suave, legível */
+    --background: 214 20% 97%;
+    --foreground: 215 28% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 12%;
+
+    --primary: 212 52% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 212 58% 30%;
+    --primary-light: 212 52% 58%;
+
+    --secondary: 210 38% 44%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 214 16% 93%;
+    --muted-foreground: 215 16% 42%;
+
+    --accent: 199 65% 44%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 158 52% 34%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 80% 46%;
+    --warning-foreground: 215 28% 14%;
+
+    --destructive: 0 58% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 72% 40%;
+    --info-foreground: 0 0% 100%;
+
+    --finops: 210 48% 40%;
+    --finops-foreground: 0 0% 100%;
+
+    --data-ai: 212 55% 44%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 214 14% 88%;
+    --input: 214 12% 94%;
+    --ring: 212 52% 40%;
+
+    --radius: 0.625rem;
+
+    --chat-user: 212 52% 44%;
+    --chat-system: 210 42% 46%;
+    --glow-primary: 199 78% 50%;
+    --glow-finops: 210 52% 48%;
+  }
+
+  .theme-slate.dark {
+    --background: 222 32% 7%;
+    --foreground: 220 10% 94%;
+
+    --card: 222 26% 11%;
+    --card-foreground: 220 10% 94%;
+
+    --popover: 222 26% 11%;
+    --popover-foreground: 220 10% 94%;
+
+    --primary: 199 75% 52%;
+    --primary-foreground: 222 40% 5%;
+    --primary-deep: 199 82% 38%;
+    --primary-light: 199 75% 70%;
+
+    --secondary: 210 55% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 222 22% 15%;
+    --muted-foreground: 220 10% 70%;
+
+    --accent: 199 72% 55%;
+    --accent-foreground: 222 40% 5%;
+
+    --success: 158 60% 46%;
+    --success-foreground: 222 40% 5%;
+
+    --warning: 38 85% 54%;
+    --warning-foreground: 222 40% 5%;
+
+    --destructive: 0 62% 54%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 82% 50%;
+    --info-foreground: 222 40% 5%;
+
+    --finops: 210 58% 50%;
+    --finops-foreground: 222 40% 5%;
+
+    --data-ai: 215 60% 55%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 222 28% 20% / 0.55;
+    --input: 222 26% 14%;
+    --ring: 199 82% 50%;
+
+    --chat-user: 199 82% 46%;
+    --chat-system: 210 50% 42%;
+    --glow-primary: 199 82% 50%;
+    --glow-finops: 210 58% 50%;
+  }
+
+  /* ===== FUCHSIA (gradiente azul→roxo→magenta, cards brancos) ===== */
+  .theme-fuchsia {
+    /* Modo Claro - suave, legível, sem cansaço visual */
+    --background: 280 20% 97%;
+    --foreground: 280 28% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 280 28% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 28% 12%;
+
+    --primary: 330 58% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 330 72% 42%;
+    --primary-light: 330 68% 68%;
+
+    --secondary: 199 72% 48%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 280 14% 93%;
+    --muted-foreground: 280 16% 42%;
+
+    --accent: 330 60% 56%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 152 55% 38%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 86% 50%;
+    --warning-foreground: 280 28% 12%;
+
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 90% 52%;
+    --info-foreground: 0 0% 100%;
+
+    --finops: 330 68% 50%;
+    --finops-foreground: 0 0% 100%;
+
+    --data-ai: 270 68% 58%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 280 12% 88%;
+    --input: 280 10% 94%;
+    --ring: 330 58% 50%;
+
+    --radius: 0.75rem;
+
+    --chat-user: 330 72% 55%;
+    --chat-system: 270 62% 52%;
+    --glow-primary: 330 78% 58%;
+    --glow-finops: 199 92% 55%;
+  }
+
+  .theme-fuchsia.dark {
+    /* Gradiente indigo→roxo→magenta, legível */
+    --background: 250 35% 9%;
+    --foreground: 250 10% 94%;
+
+    --card: 250 15% 14%;
+    --card-foreground: 250 10% 94%;
+
+    --popover: 250 15% 14%;
+    --popover-foreground: 250 10% 94%;
+
+    --primary: 330 68% 58%;
+    --primary-foreground: 250 35% 9%;
+    --primary-deep: 330 68% 46%;
+    --primary-light: 330 65% 75%;
+
+    --secondary: 199 75% 55%;
+    --secondary-foreground: 250 35% 9%;
+
+    --muted: 250 22% 18%;
+    --muted-foreground: 250 12% 70%;
+
+    --accent: 330 65% 64%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 152 60% 50%;
+    --success-foreground: 250 35% 9%;
+
+    --warning: 38 90% 56%;
+    --warning-foreground: 250 35% 9%;
+
+    --destructive: 0 64% 54%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 199 80% 58%;
+    --info-foreground: 250 35% 9%;
+
+    --finops: 330 68% 58%;
+    --finops-foreground: 250 35% 9%;
+
+    --data-ai: 270 70% 68%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 250 18% 24% / 0.5;
+    --input: 250 20% 16%;
+    --ring: 330 68% 58%;
+
+    --chat-user: 330 75% 56%;
+    --chat-system: 270 62% 52%;
+    --glow-primary: 330 80% 62%;
+    --glow-finops: 199 95% 58%;
+  }
+
 }
 
 @layer base {
+  :root {
+    --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+    --text-body: 0.9375rem;   /* 15px */
+    --text-sm: 0.8125rem;    /* 13px */
+    --text-xs: 0.75rem;      /* 12px */
+    --text-chart: 0.8125rem; /* 13px */
+    --leading-relaxed: 1.625;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+
+  /* Fuchsia: gradiente de fundo (estilo da imagem - azul→roxo→magenta) */
+  .theme-fuchsia.dark body {
+    background: linear-gradient(135deg,
+      hsl(250 55% 12%) 0%,
+      hsl(265 50% 18%) 35%,
+      hsl(295 55% 22%) 65%,
+      hsl(325 70% 26%) 100%) !important;
+    background-attachment: fixed;
+  }
+
+  .theme-fuchsia.dark .min-h-screen.bg-background {
+    background: transparent !important;
+  }
+
+  .theme-fuchsia.light body {
+    background: linear-gradient(135deg,
+      hsl(255 18% 97%) 0%,
+      hsl(280 15% 96%) 45%,
+      hsl(315 20% 95%) 100%) !important;
+    background-attachment: fixed;
+  }
+
+  .theme-fuchsia.light .min-h-screen.bg-background {
+    background: transparent !important;
+  }
+
+  /* Skip link para acessibilidade */
+  .skip-link {
+    @apply absolute -top-full left-4 z-[100] px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm transition-transform focus:top-4 focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+
+  p { line-height: var(--leading-relaxed); }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 }
 
 @layer utilities {
@@ -378,15 +661,19 @@ All colors MUST be HSL.
   }
 
   .neon-glow {
-    @apply shadow-[0_0_25px_rgba(0,255,255,0.5),0_0_50px_rgba(0,255,255,0.2)];
+    box-shadow: 0 0 25px hsl(var(--glow-primary) / 0.45), 0 0 50px hsl(var(--glow-primary) / 0.2);
   }
 
   .neon-glow-strong {
-    @apply shadow-[0_0_40px_rgba(0,255,255,0.6),0_0_80px_rgba(0,255,255,0.3)];
+    box-shadow: 0 0 40px hsl(var(--glow-primary) / 0.55), 0 0 80px hsl(var(--glow-primary) / 0.25);
   }
-  
+
   .neon-text {
-    @apply drop-shadow-[0_0_8px_rgba(0,255,255,0.8)];
+    filter: drop-shadow(0 0 8px hsl(var(--glow-primary) / 0.7));
+  }
+
+  .neon-glow-finops {
+    box-shadow: 0 0 25px hsl(var(--glow-finops) / 0.45), 0 0 50px hsl(var(--glow-finops) / 0.2);
   }
 }
 

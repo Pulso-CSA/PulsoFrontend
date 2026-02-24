@@ -190,7 +190,14 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(error.message || error.detail || 'Erro na requisição');
+    const msg = error?.detail ?? error?.message ?? error?.msg ?? 'Erro na requisição';
+    const errorMessage =
+      typeof msg === 'string'
+        ? msg
+        : msg && typeof msg === 'object'
+          ? String((msg as Record<string, unknown>).message ?? (msg as Record<string, unknown>).msg ?? JSON.stringify(msg))
+          : 'Erro na requisição';
+    throw new Error(errorMessage);
   }
 
   // Handle empty responses
@@ -404,18 +411,22 @@ export const subscriptionApi = {
   },
 };
 
-// Inteligência de Dados API
+// Inteligência de Dados API – db_config flexível (SQL: host/port/user/password; MongoDB: uri/database, user/password opcionais)
+export type DbConfig = {
+  db_type?: string;
+  host?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+  database: string;
+  uri?: string;
+  dataset_ref?: string;
+};
+
 export const inteligenciaApi = {
   query: async (payload: {
     prompt: string;
-    db_config: {
-      db_type?: string;
-      host: string;
-      port: number;
-      user: string;
-      password: string;
-      database: string;
-    };
+    db_config: DbConfig;
   }) => {
     return apiRequest<{ answer?: string; result?: unknown; data?: unknown }>('/inteligencia-dados/query', {
       method: 'POST',
@@ -427,18 +438,69 @@ export const inteligenciaApi = {
     id_requisicao: string;
     usuario?: string;
     tipo_base: string;
-    db_config: {
-      db_type: string;
-      host: string;
-      port: number;
-      user: string;
-      password: string;
-      database: string;
-    };
+    db_config: DbConfig;
     incluir_amostra?: boolean;
     max_rows_amostra?: number;
   }) => {
-    return apiRequest<{ message?: string; tabelas?: unknown[]; estrutura?: unknown }>('/inteligencia-dados/captura-dados', {
+    return apiRequest<{
+      message?: string;
+      dataset_ref?: string;
+      tabelas?: unknown[];
+      estrutura?: unknown;
+      captura_dados?: {
+        tipo_base?: string;
+        tabelas?: string[];
+        quantidade_tabelas?: number;
+        quantidade_registros?: Record<string, number>;
+        teor_dados?: string;
+        indices?: Record<string, unknown[]>;
+        consultas_exploracao?: string[];
+        amostra?: { colunas: string[]; linhas: Record<string, unknown>[] };
+      };
+    }>('/inteligencia-dados/captura-dados', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /** POST /inteligencia-dados/chat - db_config opcional; sem conexão, backend retorna instruções */
+  chat: async (payload: {
+    mensagem: string;
+    id_requisicao: string;
+    db_config?: DbConfig;
+    usuario?: string;
+    dataset_ref?: string;
+    model_ref?: string;
+  }) => {
+    return apiRequest<{
+      id_requisicao?: string;
+      resposta_texto: string;
+      sugestao_proximo_passo?: string;
+      etapas_executadas?: string[];
+      dataset_ref?: string;
+      model_ref?: string;
+      captura_dados?: {
+        tipo_base?: string;
+        tabelas?: string[];
+        quantidade_registros?: Record<string, number>;
+        teor_dados?: string;
+        amostra?: { colunas: string[]; linhas: Record<string, unknown>[] };
+      };
+      analise_estatistica?: {
+        graficos_metadados?: Array<{ tipo?: string; titulo?: string; eixo_x?: string; eixo_y?: string; explicacao?: string; vantagens?: string[]; desvantagens?: string[] }>;
+        graficos_dados?: Array<{ labels?: string[]; values?: number[]; x?: number[]; y?: number[] }>;
+      };
+      amostra?: { colunas: string[]; linhas: Record<string, unknown>[] };
+      modelo_ml?: {
+        modelo_escolhido?: string;
+        resultados?: Record<string, number>;
+        matriz_confusao?: number[][];
+        importancia_variaveis?: Array<{ variavel?: string; variable?: string; importancia?: number; importance?: number }>;
+        metricas_negocio?: { total_amostra?: number; distribuicao_classe?: Record<string, number> };
+        modelos_comparados?: Array<Record<string, string | number>>;
+        previsoes_amostra?: unknown[];
+      };
+    }>('/inteligencia-dados/chat', {
       method: 'POST',
       body: JSON.stringify(payload),
     });

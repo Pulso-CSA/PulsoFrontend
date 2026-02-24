@@ -34,6 +34,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { PlanType, SubscriptionStatus } from "@/types";
+import { formatarData } from "@/lib/utils";
 
 const planDetails: Record<PlanType, { name: string; icon: typeof Zap; color: string }> = {
   basic: { name: "Basic", icon: Zap, color: "text-muted-foreground" },
@@ -126,13 +127,7 @@ const SubscriptionManagement = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
+  const formatDate = (dateString: string) => formatarData(dateString, { long: true });
 
   const formatCurrency = (amount: number, currency: string = 'USD') => {
     return new Intl.NumberFormat('pt-BR', {

@@ -6,6 +6,7 @@ import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import { useToast } from "@/hooks/use-toast";
 import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatarData } from "@/lib/utils";
 
 const ProfileSelection = () => {
   const navigate = useNavigate();
@@ -114,7 +115,7 @@ const ProfileSelection = () => {
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-3">
-                          Criado em: {new Date(profile.createdAt).toLocaleDateString('pt-BR')}
+                          Criado em: {formatarData(profile.createdAt)}
                         </p>
                       </div>
                     </div>

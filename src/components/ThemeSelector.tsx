@@ -12,8 +12,10 @@ import { useThemeContext, ThemeVariant } from "@/contexts/ThemeContext";
 
 const themeVariants: { id: ThemeVariant; name: string; colors: string[] }[] = [
   { id: "neon", name: "Neon Cyan", colors: ["#00ffff", "#00ff99", "#bf00ff"] },
-  { id: "ocean", name: "Ocean Blue", colors: ["#0ea5e9", "#06b6d4", "#8b5cf6"] },
-  { id: "forest", name: "Forest Green", colors: ["#22c55e", "#84cc16", "#f59e0b"] },
+  { id: "classic", name: "Clássico", colors: ["#374151", "#6b7280", "#f3f4f6"] },
+  { id: "terracotta", name: "Terracotta", colors: ["#b45309", "#d97706", "#fcd34d"] },
+  { id: "slate", name: "Slate Pro", colors: ["#475569", "#64748b", "#0ea5e9"] },
+  { id: "fuchsia", name: "Fuchsia", colors: ["#ec4899", "#a855f7", "#22d3ee"] },
 ];
 
 const ThemeSelector = () => {

@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, TestTube, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ChatTextarea } from "@/components/ui/chat-textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -235,6 +236,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
       } else {
         setCurlCommands([]);
         localStorage.removeItem("pulso_curl_commands");
+        setShowTestDialog(false);
       }
       onComprehensionResult?.({
         curl_commands: res.curl_commands ?? [],
@@ -298,7 +300,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
 
   const handleReusePrompt = (text: string) => {
     setInput(text);
-    document.getElementById('chat-input')?.focus();
+    document.getElementById('prompt-input')?.focus();
   };
 
   const handleEnvFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -360,10 +362,6 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
       });
     }
   };
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   const handleCopyCurl = (curl: string) => {
     navigator.clipboard.writeText(curl);
@@ -562,11 +560,11 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
 
         {/* Chat - Descrição do Projeto */}
         <div className="space-y-2">
-          <Label htmlFor="chat-input" className="text-sm font-medium text-foreground flex items-center gap-2">
+          <Label htmlFor="prompt-input" className="text-sm font-medium text-foreground flex items-center gap-2">
             <Send className="h-4 w-4 text-primary" />
             Descrição do Projeto
           </Label>
-          <div className="min-h-[200px] max-h-[320px] overflow-y-auto rounded-lg border border-primary/30 bg-background/30 p-3 space-y-3">
+          <div className="min-h-[560px] max-h-[960px] overflow-y-auto rounded-lg border border-primary/30 bg-background/30 p-4 space-y-4">
             {messages.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
                 Ex.: &quot;Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...&quot;
@@ -619,31 +617,38 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
             )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="flex gap-2">
-            <Input
-              id="chat-input"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="flex gap-2 items-end"
+          >
+            <ChatTextarea
+              id="prompt-input"
               placeholder="Ex.: 'Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...'"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-              className="border-primary/30 bg-background/50 focus-visible:ring-primary"
+              onSend={handleSubmit}
+              className="border-primary/30 bg-background/50 focus-visible:ring-primary py-2"
             />
             <Button
-              onClick={handleSubmit}
+              type="submit"
               disabled={!input.trim() || loading}
               className="shrink-0 h-10"
             >
               {loading ? "..." : <Send className="h-4 w-4" />}
             </Button>
-          </div>
+          </form>
         </div>
 
         <div className="flex gap-3">
           <Button
             variant="outline"
             onClick={() => setShowTestDialog(true)}
-            className="h-12 px-6 border-finops/40 hover:border-finops hover:bg-finops/10 text-finops"
-            title="Testar aplicação"
+            disabled={curlCommands.length === 0}
+            className="h-12 px-6 border-finops/40 hover:border-finops hover:bg-finops/10 text-finops disabled:opacity-50 disabled:pointer-events-none"
+            title={curlCommands.length === 0 ? "Aguarde a resposta do backend com os comandos de teste" : "Testar aplicação"}
           >
             <TestTube className="h-5 w-5 mr-2" />
             Testar
@@ -674,7 +679,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
       {fileStructure && (
         <div className="glass-strong neon-glow rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-primary neon-glow">
+            <h3 className="text-base font-semibold text-primary">
               Árvore do projeto
             </h3>
             <span className="text-xs text-muted-foreground font-mono">
@@ -693,7 +698,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
       {/* Histórico */}
       {history.length > 0 && (
         <div className="glass-strong neon-glow rounded-2xl p-6">
-          <h3 className="text-base font-semibold text-primary neon-glow mb-4">
+          <h3 className="text-base font-semibold text-primary mb-4">
             Histórico recente
           </h3>
           <div className="space-y-3">
@@ -738,35 +743,38 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
 
       {/* Dialog de Testes com cURL */}
       <Dialog open={showTestDialog} onOpenChange={setShowTestDialog}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="w-[min(90vw,920px)] max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-2">
-              <TestTube className="h-6 w-6" />
+            <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+              <TestTube className="h-5 w-5 text-primary" />
               Exemplos de Testes cURL
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-muted-foreground">
               Comandos de teste para seu backend
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
+          <div className="space-y-3 mt-2 overflow-y-auto flex-1 min-h-0 pr-1">
             {displayCurls.map((test, index) => (
-              <div key={index} className="glass p-4 rounded-lg border-2 border-primary/30 bg-background/50">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <h4 className="font-semibold text-foreground text-sm">{test.name}</h4>
+              <div
+                key={index}
+                className="rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted/50"
+              >
+                <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                  <h4 className="font-medium text-foreground text-sm">{test.name}</h4>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleExecuteCurl(test.curl, index)}
                       disabled={executingCurl !== null}
-                      className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
+                      className="h-8 text-xs"
                     >
                       {executingCurl === index ? (
-                        <span className="text-xs">...</span>
+                        <span className="animate-pulse">Executando...</span>
                       ) : (
                         <>
-                          <Play className="h-3 w-3 mr-1" />
+                          <Play className="h-3.5 w-3.5 mr-1.5" />
                           Executar
                         </>
                       )}
@@ -775,16 +783,18 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleCopyCurl(test.curl)}
-                      className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
+                      className="h-8 text-xs"
                     >
-                      <Copy className="h-3 w-3 mr-1" />
+                      <Copy className="h-3.5 w-3.5 mr-1.5" />
                       Copiar
                     </Button>
                   </div>
                 </div>
-                <pre className="text-xs bg-background/80 p-3 rounded border border-primary/20 overflow-x-auto font-mono text-muted-foreground">
-                  <code>{test.curl}</code>
-                </pre>
+                <div className="overflow-x-auto rounded-lg bg-background/80 border border-border/60 p-3">
+                  <pre className="text-xs font-mono text-foreground whitespace-pre min-w-max">
+                    <code>{test.curl}</code>
+                  </pre>
+                </div>
               </div>
             ))}
           </div>

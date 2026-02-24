@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Profile } from '@/types';
 import { authApi, profilesApi, onSessionExpired, getRememberMe } from '@/lib/api';
+import { transformProfile } from '@/lib/profileUtils';
 
 interface AuthState {
   user: User | null;
@@ -23,18 +24,6 @@ interface AuthContextType extends AuthState {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Transform API response to our Profile type
-function transformProfile(apiProfile: any): Profile {
-  return {
-    id: apiProfile.id,
-    userId: apiProfile.user_id,
-    name: apiProfile.name,
-    description: apiProfile.description || '',
-    createdAt: apiProfile.created_at,
-    updatedAt: apiProfile.updated_at,
-  };
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

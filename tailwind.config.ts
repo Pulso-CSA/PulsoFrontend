@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
@@ -13,6 +13,13 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Inter", "Segoe UI", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "Consolas", "monospace"],
+      },
+      fontSize: {
+        "chart-label": ["0.8125rem", { lineHeight: "1.25" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

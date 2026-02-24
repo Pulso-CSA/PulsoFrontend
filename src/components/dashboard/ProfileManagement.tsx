@@ -19,6 +19,7 @@ import {
 import { useProfiles } from "@/hooks/useProfiles";
 import { useAuth } from "@/contexts/AuthContext";
 import { Profile } from "@/types";
+import { formatarData } from "@/lib/utils";
 
 const profileSchema = z.object({
   name: z.string()
@@ -322,7 +323,7 @@ const ProfileManagement = ({
                     <p className="text-sm text-muted-foreground mt-1">{profile.description}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-2">
-                    Criado em: {new Date(profile.createdAt).toLocaleDateString('pt-BR')}
+                    Criado em: {formatarData(profile.createdAt)}
                   </p>
                 </div>
 

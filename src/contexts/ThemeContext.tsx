@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-export type ThemeVariant = "neon" | "ocean" | "forest";
+export type ThemeVariant = "neon" | "classic" | "terracotta" | "slate" | "fuchsia";
 export type ThemeMode = "light" | "dark";
 
 interface ThemeContextType {
@@ -19,7 +19,13 @@ const THEME_MODE_KEY = "theme-mode";
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [themeVariant, setThemeVariantState] = useState<ThemeVariant>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem(THEME_VARIANT_KEY) as ThemeVariant) || "neon";
+      const stored = localStorage.getItem(THEME_VARIANT_KEY);
+      const valid: ThemeVariant[] = ["neon", "classic", "terracotta", "slate", "fuchsia"];
+      if (stored && valid.includes(stored as ThemeVariant)) return stored as ThemeVariant;
+      if (stored === "ocean") return "classic";
+      if (stored === "forest") return "terracotta";
+      if (stored === "rose") return "fuchsia";
+      return "neon";
     }
     return "neon";
   });
@@ -49,7 +55,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = window.document.documentElement;
     
     // Remove all theme classes
-    root.classList.remove("light", "dark", "theme-neon", "theme-ocean", "theme-forest");
+    root.classList.remove("light", "dark", "theme-neon", "theme-ocean", "theme-forest", "theme-classic", "theme-terracotta", "theme-slate", "theme-rose", "theme-fuchsia");
     
     // Add current theme classes
     root.classList.add(themeMode);

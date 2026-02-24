@@ -13,7 +13,7 @@ export function ProtectedRoute({ children, requireProfile = false }: ProtectedRo
   // Show loading while checking auth state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background" role="status" aria-live="polite" aria-label="Verificando autenticação">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

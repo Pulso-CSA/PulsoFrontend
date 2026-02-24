@@ -1,4 +1,4 @@
-import { LogOut, User, UserCircle, RefreshCw, Users } from "lucide-react";
+import { LogOut, User, UserCircle, RefreshCw, Users, Keyboard } from "lucide-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -32,9 +32,10 @@ interface DashboardHeaderProps {
     cloud: boolean;
   }>>;
   showLayerSelection?: boolean;
+  onShortcutsClick?: () => void;
 }
 
-const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = true }: DashboardHeaderProps) => {
+const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = true, onShortcutsClick }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -84,6 +85,18 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
 
           
           <div className="flex items-center gap-2">
+            {onShortcutsClick && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                onClick={onShortcutsClick}
+                title="Atalhos de teclado (Alt+?)"
+                aria-label="Abrir atalhos de teclado"
+              >
+                <Keyboard className="h-4 w-4" />
+              </Button>
+            )}
             <ThemeSelector />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

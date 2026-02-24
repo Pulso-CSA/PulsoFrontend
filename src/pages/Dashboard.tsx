@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Monitor, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";
 import { useToast } from "@/hooks/use-toast";
 import PromptPanel from "@/components/dashboard/PromptPanel";
 import LogsPanel from "@/components/dashboard/LogsPanel";
@@ -21,6 +22,7 @@ const Dashboard = () => {
     cloud: false,
   });
   const [showLogs, setShowLogs] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [previewFrontendUrl, setPreviewFrontendUrlState] = useState<string | null>(
     () => localStorage.getItem("pulso_preview_frontend_url")
   );
@@ -50,24 +52,28 @@ const Dashboard = () => {
   }, [searchParams, setSearchParams, toast]);
 
   useEffect(() => {
-    // Atalhos de teclado
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.altKey && e.key === 'p') {
+      if (e.altKey && e.key === "?") {
         e.preventDefault();
-        document.getElementById('prompt-input')?.focus();
+        setShowShortcuts((prev) => !prev);
+        return;
       }
-      if (e.altKey && e.key === 'f') {
+      if (e.altKey && e.key === "p") {
         e.preventDefault();
-        document.getElementById('finops-input')?.focus();
+        requestAnimationFrame(() => document.getElementById("prompt-input")?.focus());
       }
-      if (e.altKey && e.key === 'd') {
+      if (e.altKey && e.key === "f") {
         e.preventDefault();
-        document.getElementById('data-input')?.focus();
+        requestAnimationFrame(() => document.getElementById("finops-input")?.focus());
+      }
+      if (e.altKey && e.key === "d") {
+        e.preventDefault();
+        requestAnimationFrame(() => document.getElementById("data-input")?.focus());
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
@@ -75,18 +81,20 @@ const Dashboard = () => {
       {/* Background animated elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-dataAi/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-finops/20 rounded-full blur-3xl animate-pulse stagger-2" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-dataAi/20 rounded-full blur-3xl animate-pulse stagger-4" />
       </div>
 
       <div className="relative z-10">
-        <DashboardHeader 
+        <DashboardHeader
           activeLayers={activeLayers}
           setActiveLayers={setActiveLayers}
+          onShortcutsClick={() => setShowShortcuts(true)}
         />
       </div>
+      <ShortcutsModal open={showShortcuts} onOpenChange={setShowShortcuts} />
       
-      <main className="flex-1 container mx-auto p-4 lg:p-6 relative z-10">
+      <main id="main-content" className="flex-1 container mx-auto p-4 lg:p-6 relative z-10" tabIndex={-1}>
         <div className="flex flex-col gap-6">
 
           {/* Área de Chats */}
@@ -100,8 +108,8 @@ const Dashboard = () => {
                     size="sm"
                     className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-200 ${
                       showLogs
-                        ? 'border-finops bg-gradient-to-r from-finops/80 to-finops/60 shadow-[0_0_20px_rgba(0,255,153,0.4)] text-white [&>span]:text-white [&>svg]:text-white' 
-                        : 'border-finops/40 hover:border-finops/60'
+                        ? "border-finops bg-gradient-to-r from-finops/80 to-finops/60 neon-glow-finops text-white [&>span]:text-white [&>svg]:text-white"
+                        : "border-finops/40 hover:border-finops/60"
                     }`}
                     onClick={() => setShowLogs(!showLogs)}
                   >
@@ -114,11 +122,11 @@ const Dashboard = () => {
                     disabled={!previewFrontendUrl}
                     title={previewFrontendUrl ? "Abrir preview da tela de teste" : "Execute um workflow para gerar o preview"}
                     className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-200 ${
-                      activeLayers.preview 
-                        ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] text-white [&>span]:text-white [&>svg]:text-white' 
-                        : previewFrontendUrl 
-                          ? 'border-primary/40 hover:border-primary/60'
-                          : 'border-primary/20 opacity-60 cursor-not-allowed'
+                      activeLayers.preview
+                        ? "border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 neon-glow text-white [&>span]:text-white [&>svg]:text-white"
+                        : previewFrontendUrl
+                          ? "border-primary/40 hover:border-primary/60"
+                          : "border-primary/20 opacity-60 cursor-not-allowed"
                     }`}
                     onClick={() => previewFrontendUrl && setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}
                   >
