@@ -1,11 +1,16 @@
 /**
- * Layout alternativo: sidebar compacta para app desktop
- * Navegação lateral em vez de grid central
+ * Layout Sidebar — navegação lateral
+ * Barra de destaque vertical no item ativo
  */
-import { Workflow, TrendingDown, Brain, CloudCog } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LAYER_CONFIG, type LayerKey } from "./LayerCard";
 
-export type LayerKey = "pulso" | "cloud" | "finops" | "data";
+const SIDEBAR_SHORT: Record<LayerKey, string> = {
+  pulso: "Pulso",
+  cloud: "Cloud",
+  finops: "FinOps",
+  data: "Dados",
+};
 
 interface DashboardLayoutCompactProps {
   activeLayer: LayerKey | null;
@@ -13,13 +18,6 @@ interface DashboardLayoutCompactProps {
   children: React.ReactNode;
   className?: string;
 }
-
-const LAYERS: { key: LayerKey; label: string; icon: typeof Workflow; short: string }[] = [
-  { key: "pulso", label: "Pulso CSA", icon: Workflow, short: "Pulso" },
-  { key: "cloud", label: "Infra Cloud", icon: CloudCog, short: "Cloud" },
-  { key: "finops", label: "FinOps", icon: TrendingDown, short: "FinOps" },
-  { key: "data", label: "Dados & IA", icon: Brain, short: "Dados" },
-];
 
 export function DashboardLayoutCompact({
   activeLayer,
@@ -29,41 +27,43 @@ export function DashboardLayoutCompact({
 }: DashboardLayoutCompactProps) {
   return (
     <div className={cn("flex min-h-[calc(100vh-4rem)]", className)}>
-      {/* Sidebar compacta - transparência, elegância */}
       <aside
-        className="w-16 lg:w-20 flex flex-col border-r border-border/60 bg-card/40 backdrop-blur-xl shrink-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
-        aria-label="Seleção de camadas"
+        className="w-14 flex flex-col border-r border-border bg-card shrink-0"
+        aria-label="Módulos"
       >
-        <div className="p-2 flex flex-col gap-1">
-          {LAYERS.map(({ key, label, icon: Icon, short }) => (
-            <button
-              key={key}
-              onClick={() => onLayerChange(activeLayer === key ? null : key)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg transition-all duration-300 ease-out",
-                "hover:scale-105 active:scale-95",
-                activeLayer === key
-                  ? "bg-primary text-primary-foreground shadow-md scale-105"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-              title={label}
-              aria-pressed={activeLayer === key}
-              aria-label={`${label} ${activeLayer === key ? "ativo" : "inativo"}`}
-            >
-              <Icon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={1.5} />
-              <span className="text-[10px] lg:text-xs font-medium truncate w-full text-center">
-                {short}
-              </span>
-            </button>
-          ))}
+        <div className="p-1.5 flex flex-col gap-0.5">
+          {LAYER_CONFIG.map(({ key, label, icon: Icon }) => {
+            const isActive = activeLayer === key;
+            return (
+              <button
+                key={key}
+                onClick={() => onLayerChange(isActive ? null : key)}
+                className={cn(
+                  "relative flex flex-col items-center gap-1 py-2.5 px-2 rounded-md transition-colors",
+                  isActive
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+                title={label}
+                aria-pressed={isActive}
+                aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
+              >
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r" />
+                )}
+                <Icon className="h-5 w-5" strokeWidth={1.5} />
+                <span className="text-[10px] font-medium truncate w-full text-center">
+                  {SIDEBAR_SHORT[key]}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </aside>
 
-      {/* Área principal */}
-      <main className="flex-1 overflow-auto min-w-0">
+      <main className="flex-1 overflow-auto min-w-0 bg-background">
         {children}
       </main>
     </div>
   );
 }
-

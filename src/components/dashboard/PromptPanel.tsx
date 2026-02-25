@@ -429,7 +429,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
   return (
     <div className="space-y-6">
       {/* Área de input */}
-      <div className="glass-strong pulso-card rounded-2xl p-6 space-y-4 border-primary/20">
+      <div className="rounded-xl border border-border/50 bg-card/95 backdrop-blur-xl p-6 space-y-4 shadow-sm">
         {/* Caminho da Pasta */}
         <div className="space-y-2">
           <Label htmlFor="folder-path" className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -677,7 +677,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
 
       {/* Estrutura de arquivos */}
         {fileStructure && (
-        <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
+        <div className="rounded-xl border border-border/50 bg-card/90 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-primary">
               Árvore do projeto
@@ -695,11 +695,11 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
         </div>
       )}
 
-      {/* Histórico */}
+      {/* Histórico por conversa (prompts recentes) */}
       {history.length > 0 && (
-        <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
+        <div className="rounded-xl border border-border/50 bg-card/90 p-6 shadow-sm">
           <h3 className="text-base font-semibold text-primary mb-4">
-            Histórico recente
+            Conversas recentes
           </h3>
           <div className="space-y-3">
             {history.map((item) => (

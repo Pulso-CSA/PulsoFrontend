@@ -35,15 +35,17 @@ type GraficoDados = {
   y?: number[];
 };
 
-/** Paleta consistente e acessível (indigo, green, amber, pink, teal, violet) */
-const CHART_COLORS = [
-  "#6366f1", /* indigo */
-  "#22c55e", /* green */
-  "#f59e0b", /* amber */
-  "#ec4899", /* pink */
-  "#14b8a6", /* teal */
-  "#8b5cf6", /* violet */
+/** Gradientes vibrantes inspirados no dashboard (rosa→roxo, azul→ciano, verde→teal, laranja→rosa) */
+const CHART_GRADIENTS: { id: string; from: string; to: string }[] = [
+  { id: "g1", from: "#ec4899", to: "#8b5cf6" },
+  { id: "g2", from: "#3b82f6", to: "#22d3ee" },
+  { id: "g3", from: "#22c55e", to: "#14b8a6" },
+  { id: "g4", from: "#f97316", to: "#ec4899" },
+  { id: "g5", from: "#8b5cf6", to: "#06b6d4" },
+  { id: "g6", from: "#f59e0b", to: "#f43f5e" },
 ];
+
+const CHART_COLORS = CHART_GRADIENTS.map((g) => g.from);
 
 const MAX_LABEL_LENGTH = 12;
 
@@ -69,14 +71,14 @@ function ChartTooltipContent({
   const value = payload[0]?.value ?? payload[0]?.payload?.y;
   const displayLabel = label != null ? String(label) : "";
   return (
-    <div className="rounded-lg border border-border/50 bg-card px-3 py-2 text-xs shadow-lg">
+    <div className="rounded-xl border border-white/10 bg-black/90 backdrop-blur-xl px-3 py-2 text-xs shadow-[0_0_30px_-5px_rgba(168,85,247,0.3)]">
       {displayLabel && (
-        <p className="font-medium text-foreground mb-1">
+        <p className="font-medium text-white/90 mb-1">
           {meta.eixo_x ? `${meta.eixo_x}: ${displayLabel}` : displayLabel}
         </p>
       )}
-      <p className="text-muted-foreground">
-        <span className="font-medium text-foreground">{eixoY}:</span> {value != null ? Number(value).toLocaleString("pt-BR") : "—"}
+      <p className="text-white/70">
+        <span className="font-medium text-white/90">{eixoY}:</span> {value != null ? Number(value).toLocaleString("pt-BR") : "—"}
       </p>
     </div>
   );
@@ -121,11 +123,12 @@ export function DataChatCharts({ graficosMetadados = [], graficosDados = [] }: D
     }
   };
 
-  const cardClass = "rounded-xl border border-white/10 bg-card/50 shadow-md p-4 flex-shrink-0 snap-start flex flex-col min-w-[320px] max-w-[95vw] transition-all duration-200 hover:shadow-lg hover:border-white/15";
+  const cardClass =
+    "rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl p-5 flex-shrink-0 snap-start flex flex-col min-w-[320px] max-w-[95vw] transition-all duration-300 hover:shadow-[0_0_40px_-10px_rgba(168,85,247,0.4),0_0_25px_-8px_rgba(59,130,246,0.3)] hover:border-white/20 shadow-[0_0_25px_-8px_rgba(168,85,247,0.2),0_0_15px_-5px_rgba(59,130,246,0.15)]";
 
   return (
     <div className="mt-6 space-y-4">
-      <h3 className="text-lg font-semibold text-foreground mb-4">📊 Gráficos</h3>
+      <h3 className="text-lg font-semibold text-white mb-4">📊 Gráficos</h3>
       <div className="relative">
         <div
           ref={scrollRef}
@@ -151,24 +154,39 @@ export function DataChatCharts({ graficosMetadados = [], graficosDados = [] }: D
                   data-chart-card={i}
                   className={cardClass}
                 >
-                <h4 className="text-base font-semibold text-foreground mb-2 break-words whitespace-normal" title={meta.titulo}>
+                <h4 className="text-base font-semibold text-white mb-2 break-words whitespace-normal" title={meta.titulo}>
                   {meta.titulo ?? `Gráfico ${i + 1}`}
                 </h4>
                 <ResponsiveContainer width="100%" height={180}>
                   <BarChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id={`barGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={CHART_GRADIENTS[i % CHART_GRADIENTS.length].from} stopOpacity={1} />
+                        <stop offset="100%" stopColor={CHART_GRADIENTS[i % CHART_GRADIENTS.length].to} stopOpacity={0.9} />
+                      </linearGradient>
+                    </defs>
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 13 }}
+                      tick={{ fontSize: 12, fill: "rgba(255,255,255,0.7)" }}
                       tickFormatter={(v) => truncateLabel(String(v))}
+                      axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
                     />
-                    <YAxis tick={{ fontSize: 13 }} />
+                    <YAxis
+                      tick={{ fontSize: 12, fill: "rgba(255,255,255,0.7)" }}
+                      axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
+                    />
                     <Tooltip
                       content={({ active, payload, label }) => (
                         <ChartTooltipContent active={active} payload={payload} label={label} meta={meta} />
                       )}
-                      cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+                      cursor={{ fill: "rgba(168,85,247,0.1)" }}
                     />
-                    <Bar dataKey="value" fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="value"
+                      fill={`url(#barGrad-${i})`}
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={48}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="space-y-2 mt-3">
@@ -228,22 +246,30 @@ export function DataChatCharts({ graficosMetadados = [], graficosDados = [] }: D
                 data-chart-card={i}
                 className={cardClass}
               >
-                <h4 className="text-base font-semibold text-foreground mb-2 break-words whitespace-normal" title={meta.titulo}>
+                <h4 className="text-base font-semibold text-white mb-2 break-words whitespace-normal" title={meta.titulo}>
                   {meta.titulo ?? `Dispersão ${i + 1}`}
                 </h4>
                 <ResponsiveContainer width="100%" height={180}>
                   <ScatterChart margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id={`scatterGrad-${i}`} x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor={CHART_GRADIENTS[i % CHART_GRADIENTS.length].from} stopOpacity={1} />
+                        <stop offset="100%" stopColor={CHART_GRADIENTS[i % CHART_GRADIENTS.length].to} stopOpacity={0.8} />
+                      </linearGradient>
+                    </defs>
                     <XAxis
                       dataKey="x"
                       type="number"
                       name={meta.eixo_x}
-                      tick={{ fontSize: 13 }}
+                      tick={{ fontSize: 12, fill: "rgba(255,255,255,0.7)" }}
+                      axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
                     />
                     <YAxis
                       dataKey="y"
                       type="number"
                       name={meta.eixo_y}
-                      tick={{ fontSize: 13 }}
+                      tick={{ fontSize: 12, fill: "rgba(255,255,255,0.7)" }}
+                      axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
                     />
                     <Tooltip
                       content={({ active, payload }) =>
@@ -256,11 +282,11 @@ export function DataChatCharts({ graficosMetadados = [], graficosDados = [] }: D
                           />
                         ) : null
                       }
-                      cursor={{ strokeDasharray: "3 3" }}
+                      cursor={{ stroke: "rgba(168,85,247,0.4)", strokeDasharray: "3 3" }}
                     />
-                    <Scatter data={chartData} fill={CHART_COLORS[i % CHART_COLORS.length]}>
+                    <Scatter data={chartData} fill={`url(#scatterGrad-${i})`}>
                       {chartData.map((_, idx) => (
-                        <Cell key={idx} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                        <Cell key={idx} fill={`url(#scatterGrad-${i})`} />
                       ))}
                     </Scatter>
                   </ScatterChart>

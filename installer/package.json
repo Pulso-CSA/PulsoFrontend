@@ -63,7 +63,7 @@
     },
     "extraResources": [
       {
-        "from": "../dist-electron/win-unpacked",
+        "from": "../dist-electron-build/win-unpacked",
         "to": "pulso-app",
         "filter": [
           "**/*"

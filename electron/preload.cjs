@@ -26,4 +26,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   downloadUpdate: () => ipcRenderer.invoke("update-download"),
   quitAndInstall: () => ipcRenderer.invoke("update-quit-and-install"),
+  openUninstall: () => ipcRenderer.invoke("open-uninstall"),
 });

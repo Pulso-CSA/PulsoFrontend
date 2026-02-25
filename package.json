@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:icon": "node scripts/build-icon.cjs",
-    "build:electron": "npm run build:icon && vite build && electron-builder --win dir && node scripts/embed-exe-icon.cjs"
+    "build:electron": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win dir && node scripts/embed-exe-icon.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -94,7 +94,7 @@
     "appId": "com.pulso.app",
     "productName": "Pulso",
     "directories": {
-      "output": "dist-electron"
+      "output": "dist-electron-build"
     },
     "files": [
       "dist/**/*",

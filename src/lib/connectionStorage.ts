@@ -13,7 +13,9 @@ const DATA_CHAT_SESSIONS_KEY = 'pulso_data_chat_sessions';
 const FINOPS_CHAT_SESSIONS_KEY = 'pulso_finops_chat_sessions';
 const CLOUD_CHAT_SESSIONS_KEY = 'pulso_cloud_chat_sessions';
 
-/** Contexto da conversa Inteligência de Dados (id_requisicao, dataset_ref, model_ref) */
+/** Contexto da conversa Inteligência de Dados (id_requisicao, dataset_ref, model_ref).
+ * Usa localStorage para persistir entre refresh/abertura de aba - evita perda de dataset_ref
+ * ao recarregar a página e permite recuperar contexto para análises subsequentes. */
 export type DataChatContext = {
   idRequisicao: string;
   datasetRef?: string | null;
@@ -22,7 +24,7 @@ export type DataChatContext = {
 
 export function getDataChatContext(): DataChatContext | null {
   try {
-    const raw = sessionStorage.getItem(DATA_CHAT_CONTEXT_KEY);
+    const raw = localStorage.getItem(DATA_CHAT_CONTEXT_KEY);
     if (!raw) return null;
     const data = JSON.parse(raw) as DataChatContext;
     return data && typeof data === 'object' && typeof data.idRequisicao === 'string' ? data : null;
@@ -32,10 +34,11 @@ export function getDataChatContext(): DataChatContext | null {
 }
 
 export function setDataChatContext(ctx: DataChatContext): void {
-  sessionStorage.setItem(DATA_CHAT_CONTEXT_KEY, JSON.stringify(ctx));
+  localStorage.setItem(DATA_CHAT_CONTEXT_KEY, JSON.stringify(ctx));
 }
 
 export function clearDataChatContext(): void {
+  localStorage.removeItem(DATA_CHAT_CONTEXT_KEY);
   sessionStorage.removeItem(DATA_CHAT_CONTEXT_KEY);
 }
 

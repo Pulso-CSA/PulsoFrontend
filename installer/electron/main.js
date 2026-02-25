@@ -10,7 +10,7 @@ function getAppSourceDir() {
   if (app.isPackaged) {
     return path.join(process.resourcesPath, "pulso-app");
   }
-  return path.join(__dirname, "../../dist-electron/win-unpacked");
+  return path.join(__dirname, "../../dist-electron-build/win-unpacked");
 }
 
 function copyRecursiveSync(src, dest) {

@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs");
 
 const rootDir = path.join(__dirname, "..");
-const exePath = path.join(rootDir, "dist-electron", "win-unpacked", "Pulso.exe");
+const exePath = path.join(rootDir, "dist-electron-build", "win-unpacked", "Pulso.exe");
 const iconPath = path.join(rootDir, "build", "icon.ico");
 
 if (process.platform !== "win32") {

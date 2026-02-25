@@ -1,12 +1,10 @@
 /**
- * Layout C — Minimalista / Decisório
- * Um foco por vez, espaço negativo amplo, input mínimo, sem sidebar
- * Uso: decisões rápidas, fluxos simples
+ * Layout Minimal — lista vertical centralizada
+ * Um foco por vez
  */
-import { Workflow, TrendingDown, Brain, CloudCog } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type LayerKey = "pulso" | "cloud" | "finops" | "data";
+import { LAYER_CONFIG, LayerCard, type LayerKey } from "./LayerCard";
 
 interface DashboardLayoutMinimalProps {
   activeLayer: LayerKey | null;
@@ -15,13 +13,6 @@ interface DashboardLayoutMinimalProps {
   className?: string;
 }
 
-const LAYERS: { key: LayerKey; label: string; desc: string; icon: typeof Workflow }[] = [
-  { key: "pulso", label: "Pulso CSA", desc: "Blueprint & Estrutura", icon: Workflow },
-  { key: "cloud", label: "Infra Cloud", desc: "AWS, Azure, GCP", icon: CloudCog },
-  { key: "finops", label: "FinOps", desc: "Otimização de Custos", icon: TrendingDown },
-  { key: "data", label: "Dados & IA", desc: "Analytics e Modelos", icon: Brain },
-];
-
 export function DashboardLayoutMinimal({
   activeLayer,
   onLayerChange,
@@ -29,53 +20,36 @@ export function DashboardLayoutMinimal({
   className,
 }: DashboardLayoutMinimalProps) {
   return (
-    <div className={cn("min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-8 lg:p-16", className)}>
+    <div className={cn("min-h-[calc(100vh-4rem)] flex flex-col items-center p-6 lg:p-12", className)}>
       {activeLayer ? (
-        /* Modo foco: conteúdo centralizado com amplo espaço negativo */
-        <div className="w-full max-w-4xl mx-auto space-y-8 animate-fluid-fade">
-          <div className="flex justify-center">
-            <button
-              onClick={() => onLayerChange(null)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Voltar à seleção"
-            >
-              ← Trocar camada
-            </button>
-          </div>
-          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-2xl shadow-2xl overflow-hidden min-h-[480px]">
+        <div className="w-full max-w-3xl mx-auto space-y-6 animate-fluid-fade">
+          <button
+            onClick={() => onLayerChange(null)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            aria-label="Voltar"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Trocar módulo
+          </button>
+          <div className="rounded-lg border border-border bg-card overflow-hidden min-h-[480px]">
             {children}
           </div>
         </div>
       ) : (
-        /* Modo seleção: apenas os 4 cards, máximo espaço negativo */
-        <div className="w-full max-w-2xl space-y-12">
-          <p className="text-center text-sm font-medium text-muted-foreground tracking-wide uppercase">
-            O que deseja fazer?
-          </p>
-          <div className="grid grid-cols-2 gap-6">
-            {LAYERS.map(({ key, label, desc, icon: Icon }, i) => (
-              <button
-                key={key}
-                onClick={() => onLayerChange(key)}
-                className={cn(
-                  "group flex flex-col items-center justify-center gap-4 p-8 rounded-2xl",
-                  "border border-border/60 bg-card/60 backdrop-blur-xl",
-                  "transition-all duration-500 ease-out",
-                  "hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/40",
-                  "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background",
-                  "animate-fluid-fade"
-                )}
-                style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
-                aria-label={`Abrir ${label}`}
-              >
-                <div className="rounded-2xl p-4 bg-primary/10 group-hover:bg-primary/15 transition-colors">
-                  <Icon className="h-10 w-10 text-primary" strokeWidth={1.25} />
-                </div>
-                <div className="text-center space-y-1">
-                  <p className="font-semibold text-foreground">{label}</p>
-                  <p className="text-xs text-muted-foreground">{desc}</p>
-                </div>
-              </button>
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center">
+            <h2 className="text-sm font-medium text-foreground">O que deseja fazer?</h2>
+            <p className="text-xs text-muted-foreground mt-1">Escolha um módulo</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            {LAYER_CONFIG.map((layer) => (
+              <LayerCard
+                key={layer.key}
+                layer={layer}
+                isActive={false}
+                onClick={() => onLayerChange(layer.key)}
+                variant="minimal"
+              />
             ))}
           </div>
         </div>

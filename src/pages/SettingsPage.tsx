@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,6 +88,23 @@ export default function SettingsPage() {
       </Button>
 
       <h1 className="text-2xl font-bold mb-6">Configurações</h1>
+
+      {typeof window !== "undefined" && window.electronAPI?.openUninstall && (
+        <section className="space-y-4 mb-8 p-4 rounded-lg border border-destructive/30 bg-destructive/5">
+          <h2 className="text-lg font-semibold text-destructive">Desinstalar</h2>
+          <p className="text-sm text-muted-foreground">
+            Remover o Pulso do seu computador. O aplicativo será fechado e o assistente de desinstalação será aberto.
+          </p>
+          <Button
+            variant="destructive"
+            onClick={() => window.electronAPI?.openUninstall?.()}
+            className="gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            Desinstalar Pulso
+          </Button>
+        </section>
+      )}
 
       <section className="space-y-6">
         <h2 className="text-lg font-semibold">Configuração de versão (admin)</h2>

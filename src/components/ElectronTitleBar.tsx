@@ -8,6 +8,7 @@ declare global {
       maximize: () => void;
       close: () => void;
       isMaximized: () => Promise<boolean>;
+      openUninstall?: () => Promise<void>;
     };
   }
 }
@@ -35,14 +36,14 @@ export function ElectronTitleBar() {
       className="electron-drag flex h-10 shrink-0 items-center justify-between bg-[#0a0a0f] border-b border-white/5 px-2 select-none"
       style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
     >
-      <div className="flex items-center gap-3 pl-2">
+      <div className="flex items-center gap-2 pl-2">
         <img
           src={import.meta.env.BASE_URL + "App.png"}
           alt="Pulso"
-          className="h-7 w-7 object-contain shrink-0"
+          className="h-5 w-5 object-contain shrink-0"
         />
         <span className="text-sm font-semibold text-white/95 tracking-tight">
-          Pulso Tech - Dashboard Operacional Inteligente
+          Pulso Tech
         </span>
       </div>
 
