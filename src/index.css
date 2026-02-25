@@ -7,23 +7,23 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  /* Default fallback - tema escuro profissional */
+  /* Default fallback - tema escuro luxo/corporativo */
   :root {
-    --background: 232 45% 5%;
+    --background: 232 42% 4%;
     --foreground: 0 0% 98%;
-    --card: 232 35% 9%;
+    --card: 232 32% 8%;
     --card-foreground: 0 0% 98%;
-    --popover: 232 35% 9%;
+    --popover: 232 32% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 178 95% 48%;
-    --primary-foreground: 232 45% 5%;
-    --primary-deep: 178 95% 38%;
-    --primary-light: 178 90% 78%;
-    --secondary: 178 40% 44%;
+    --primary: 178 92% 52%;
+    --primary-foreground: 232 42% 4%;
+    --primary-deep: 178 92% 40%;
+    --primary-light: 178 88% 75%;
+    --secondary: 178 55% 48%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 232 26% 14%;
+    --muted: 232 28% 12%;
     --muted-foreground: 0 0% 72%;
-    --accent: 178 50% 48%;
+    --accent: 178 65% 52%;
     --accent-foreground: 0 0% 100%;
     --success: 150 65% 40%;
     --success-foreground: 0 0% 100%;
@@ -43,550 +43,678 @@ All colors MUST be HSL.
     --radius: 0.75rem;
     --chat-user: 178 95% 44%;
     --chat-system: 268 55% 35%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
     --glow-primary: 178 95% 48%;
     --glow-finops: 150 65% 40%;
   }
 
-  /* ===== NEON CYAN ===== */
+  /* ===== NEON CYAN - cyan perguntas, roxo respostas, legibilidade premium ===== */
   .theme-neon {
-    /* Modo Claro - legível, sem cansaço visual */
-    --background: 200 18% 97%;
-    --foreground: 215 28% 12%;
+    /* Modo Claro - leitura confortável, contraste WCAG AA */
+    --background: 220 20% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 28% 12%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 12%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 178 55% 38%;
+    --primary: 180 95% 40%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 178 55% 30%;
-    --primary-light: 178 50% 55%;
+    --primary-deep: 180 95% 30%;
+    --primary-light: 180 90% 56%;
 
-    --secondary: 178 35% 42%;
+    --secondary: 275 55% 50%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 200 14% 93%;
-    --muted-foreground: 215 16% 40%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 222 25% 38%;
 
-    --accent: 178 50% 42%;
+    --accent: 180 90% 44%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 150 45% 36%;
+    --success: 158 58% 36%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 72% 46%;
-    --warning-foreground: 215 28% 12%;
+    --warning: 38 82% 46%;
+    --warning-foreground: 222 47% 11%;
 
-    --destructive: 0 55% 48%;
+    --destructive: 0 62% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 198 65% 42%;
+    --info: 198 72% 42%;
     --info-foreground: 0 0% 100%;
 
-    --finops: 150 45% 36%;
+    --finops: 158 58% 36%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 268 55% 48%;
+    --data-ai: 275 55% 50%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 200 14% 88%;
-    --input: 200 12% 94%;
-    --ring: 178 55% 38%;
+    --border: 220 14% 90%;
+    --input: 220 12% 95%;
+    --ring: 180 95% 40%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
-    --chat-user: 178 55% 42%;
-    --chat-system: 268 50% 52%;
-    --glow-primary: 178 95% 48%;
-    --glow-finops: 150 62% 42%;
+    --chat-user: 180 95% 44%;
+    --chat-system: 275 59% 52%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 180 95% 48%;
+    --glow-finops: 158 62% 42%;
   }
 
   .theme-neon.dark {
-    --background: 230 35% 7%;
-    --foreground: 220 12% 94%;
+    /* Escuro sofisticado, legibilidade premium */
+    --background: 232 38% 6%;
+    --foreground: 220 12% 96%;
 
-    --card: 230 28% 11%;
-    --card-foreground: 220 12% 94%;
+    --card: 232 30% 10%;
+    --card-foreground: 220 12% 96%;
 
-    --popover: 230 28% 11%;
-    --popover-foreground: 220 12% 94%;
+    --popover: 232 30% 10%;
+    --popover-foreground: 220 12% 96%;
 
-    --primary: 178 88% 52%;
-    --primary-foreground: 230 35% 7%;
-    --primary-deep: 178 88% 42%;
-    --primary-light: 178 85% 72%;
+    --primary: 180 95% 54%;
+    --primary-foreground: 232 38% 6%;
+    --primary-deep: 180 95% 44%;
+    --primary-light: 180 90% 74%;
 
-    --secondary: 178 40% 48%;
+    --secondary: 275 65% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 230 25% 15%;
-    --muted-foreground: 220 10% 68%;
+    --muted: 232 24% 14%;
+    --muted-foreground: 220 12% 72%;
 
-    --accent: 178 55% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 180 90% 56%;
+    --accent-foreground: 232 38% 6%;
 
-    --success: 150 55% 48%;
+    --success: 158 55% 50%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 85% 54%;
-    --warning-foreground: 230 35% 7%;
+    --warning: 38 88% 56%;
+    --warning-foreground: 232 38% 6%;
 
-    --destructive: 0 60% 54%;
+    --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 198 80% 54%;
-    --info-foreground: 230 35% 7%;
+    --info: 198 80% 56%;
+    --info-foreground: 232 38% 6%;
 
-    --finops: 150 55% 48%;
+    --finops: 158 55% 50%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 278 65% 62%;
+    --data-ai: 278 65% 64%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 230 22% 22% / 0.5;
-    --input: 230 25% 14%;
-    --ring: 178 88% 52%;
+    --border: 232 26% 20% / 0.55;
+    --input: 232 24% 13%;
+    --ring: 180 95% 54%;
 
-    --chat-user: 178 88% 48%;
-    --chat-system: 278 55% 42%;
-    --glow-primary: 178 88% 52%;
-    --glow-finops: 150 55% 48%;
+    --chat-user: 180 95% 50%;
+    --chat-system: 275 59% 54%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 180 95% 54%;
+    --glow-finops: 158 55% 50%;
   }
 
-  /* ===== CLÁSSICO (elegante, cinzas refinados) ===== */
+  /* ===== CLÁSSICO - editorial premium, tipografia refinada ===== */
   .theme-classic {
-    /* Modo Claro - neutros suaves, legibilidade alta */
-    --background: 220 10% 97%;
-    --foreground: 220 18% 10%;
+    /* Modo Claro - contraste editorial, leitura prolongada */
+    --background: 0 0% 99%;
+    --foreground: 0 0% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 18% 10%;
+    --card-foreground: 0 0% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 18% 10%;
+    --popover-foreground: 0 0% 8%;
 
-    --primary: 220 18% 22%;
-    --primary-foreground: 0 0% 98%;
-    --primary-deep: 220 18% 14%;
-    --primary-light: 220 14% 38%;
+    --primary: 0 0% 11%;
+    --primary-foreground: 0 0% 99%;
+    --primary-deep: 0 0% 5%;
+    --primary-light: 0 0% 26%;
 
-    --secondary: 220 12% 32%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 8%;
 
-    --muted: 220 8% 93%;
-    --muted-foreground: 220 12% 42%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 35%;
 
-    --accent: 220 14% 26%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 0 0% 16%;
+    --accent-foreground: 0 0% 99%;
 
-    --success: 152 48% 34%;
-    --success-foreground: 0 0% 100%;
+    --success: 0 0% 26%;
+    --success-foreground: 0 0% 99%;
 
-    --warning: 38 78% 44%;
-    --warning-foreground: 220 18% 12%;
+    --warning: 0 0% 32%;
+    --warning-foreground: 0 0% 8%;
 
-    --destructive: 0 56% 48%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62% 48%;
+    --destructive-foreground: 0 0% 99%;
 
-    --info: 210 58% 40%;
-    --info-foreground: 0 0% 98%;
+    --info: 0 0% 24%;
+    --info-foreground: 0 0% 99%;
 
-    --finops: 220 16% 26%;
-    --finops-foreground: 0 0% 98%;
+    --finops: 0 0% 26%;
+    --finops-foreground: 0 0% 99%;
 
-    --data-ai: 220 14% 30%;
-    --data-ai-foreground: 0 0% 98%;
+    --data-ai: 0 0% 30%;
+    --data-ai-foreground: 0 0% 99%;
 
-    --border: 220 10% 88%;
-    --input: 220 8% 94%;
-    --ring: 220 18% 22%;
+    --border: 0 0% 90%;
+    --input: 0 0% 93%;
+    --ring: 0 0% 11%;
 
     --radius: 0.5rem;
 
-    --chat-user: 220 18% 26%;
-    --chat-system: 220 12% 40%;
-    --glow-primary: 220 18% 30%;
-    --glow-finops: 220 14% 32%;
+    --chat-user: 0 0% 16%;
+    --chat-system: 0 0% 26%;
+    --chat-user-foreground: 0 0% 99%;
+    --chat-system-foreground: 0 0% 99%;
+    --glow-primary: 0 0% 24%;
+    --glow-finops: 0 0% 26%;
   }
 
   .theme-classic.dark {
-    /* Modo Escuro - cinzas profundos, legível */
-    --background: 220 15% 8%;
-    --foreground: 220 8% 94%;
+    /* Modo Escuro - editorial puro, contraste suave */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 97%;
 
-    --card: 220 12% 12%;
-    --card-foreground: 220 8% 94%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 97%;
 
-    --popover: 220 12% 12%;
-    --popover-foreground: 220 8% 94%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 97%;
 
-    --primary: 220 10% 90%;
-    --primary-foreground: 220 15% 8%;
-    --primary-deep: 0 0% 98%;
-    --primary-light: 220 8% 78%;
+    --primary: 0 0% 95%;
+    --primary-foreground: 0 0% 4%;
+    --primary-deep: 0 0% 100%;
+    --primary-light: 0 0% 84%;
 
-    --secondary: 220 8% 74%;
-    --secondary-foreground: 220 15% 8%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 97%;
 
-    --muted: 220 12% 16%;
-    --muted-foreground: 220 10% 68%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 220 10% 85%;
-    --accent-foreground: 220 18% 8%;
+    --accent: 0 0% 93%;
+    --accent-foreground: 0 0% 4%;
 
-    --success: 152 50% 48%;
-    --success-foreground: 220 18% 8%;
+    --success: 0 0% 89%;
+    --success-foreground: 0 0% 4%;
 
-    --warning: 38 82% 52%;
-    --warning-foreground: 220 18% 8%;
+    --warning: 0 0% 80%;
+    --warning-foreground: 0 0% 4%;
 
-    --destructive: 0 58% 52%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 99%;
 
-    --info: 210 65% 52%;
-    --info-foreground: 220 18% 8%;
+    --info: 0 0% 89%;
+    --info-foreground: 0 0% 4%;
 
-    --finops: 220 10% 80%;
-    --finops-foreground: 220 18% 8%;
+    --finops: 0 0% 89%;
+    --finops-foreground: 0 0% 4%;
 
-    --data-ai: 220 12% 75%;
-    --data-ai-foreground: 220 18% 8%;
+    --data-ai: 0 0% 86%;
+    --data-ai-foreground: 0 0% 4%;
 
-    --border: 220 14% 24% / 0.55;
-    --input: 220 14% 14%;
-    --ring: 220 12% 85%;
+    --border: 0 0% 18% / 0.55;
+    --input: 0 0% 13%;
+    --ring: 0 0% 95%;
 
-    --chat-user: 220 12% 82%;
-    --chat-system: 220 8% 48%;
-    --glow-primary: 220 12% 65%;
-    --glow-finops: 220 10% 70%;
+    --chat-user: 0 0% 20%;
+    --chat-system: 0 0% 33%;
+    --chat-user-foreground: 0 0% 99%;
+    --chat-system-foreground: 0 0% 99%;
+    --glow-primary: 0 0% 93%;
+    --glow-finops: 0 0% 89%;
   }
 
-  /* ===== TERRACOTTA (âmbar e caramelo refinados) ===== */
-  .theme-terracotta {
-    /* Modo Claro - tons quentes suaves, legível */
-    --background: 35 22% 97%;
-    --foreground: 28 24% 12%;
+  /* ===== EMERALD - verde corporativo, elegância sustentável ===== */
+  .theme-emerald {
+    /* Modo Claro - esmeralda refinada, leitura confortável */
+    --background: 160 22% 98%;
+    --foreground: 165 45% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 28 24% 12%;
+    --card-foreground: 165 45% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 28 24% 12%;
+    --popover-foreground: 165 45% 11%;
 
-    --primary: 30 50% 40%;
+    --primary: 160 62% 36%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 30 58% 30%;
-    --primary-light: 30 52% 56%;
+    --primary-deep: 160 62% 26%;
+    --primary-light: 160 52% 50%;
 
-    --secondary: 38 42% 46%;
+    --secondary: 165 52% 40%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 35 18% 93%;
-    --muted-foreground: 28 16% 42%;
+    --muted: 160 14% 94%;
+    --muted-foreground: 165 22% 36%;
 
-    --accent: 32 55% 48%;
+    --accent: 160 58% 42%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 152 48% 36%;
+    --success: 152 56% 36%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 78% 48%;
-    --warning-foreground: 28 22% 14%;
+    --warning: 38 82% 46%;
+    --warning-foreground: 165 45% 11%;
 
-    --destructive: 0 56% 48%;
+    --destructive: 0 62% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 198 65% 42%;
+    --info: 198 72% 42%;
     --info-foreground: 0 0% 100%;
 
-    --finops: 32 55% 42%;
+    --finops: 160 58% 38%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 30 58% 44%;
+    --data-ai: 165 52% 42%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 35 14% 88%;
-    --input: 35 12% 94%;
-    --ring: 30 58% 40%;
+    --border: 160 16% 90%;
+    --input: 160 12% 95%;
+    --ring: 160 62% 36%;
 
     --radius: 0.625rem;
 
-    --chat-user: 30 58% 44%;
-    --chat-system: 38 50% 48%;
-    --glow-primary: 32 62% 48%;
-    --glow-finops: 38 55% 46%;
+    --chat-user: 160 62% 40%;
+    --chat-system: 165 48% 46%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 160 62% 46%;
+    --glow-finops: 160 58% 42%;
   }
 
-  .theme-terracotta.dark {
-    --background: 30 22% 8%;
-    --foreground: 40 12% 94%;
+  .theme-emerald.dark {
+    /* Escuro corporativo, sofisticado */
+    --background: 165 38% 6%;
+    --foreground: 160 10% 95%;
 
-    --card: 30 18% 12%;
-    --card-foreground: 40 12% 94%;
+    --card: 165 30% 10%;
+    --card-foreground: 160 10% 95%;
 
-    --popover: 30 18% 12%;
-    --popover-foreground: 40 12% 94%;
+    --popover: 165 30% 10%;
+    --popover-foreground: 160 10% 95%;
 
-    --primary: 35 65% 55%;
-    --primary-foreground: 30 25% 7%;
-    --primary-deep: 35 72% 44%;
-    --primary-light: 35 65% 72%;
+    --primary: 160 62% 54%;
+    --primary-foreground: 165 38% 6%;
+    --primary-deep: 160 62% 44%;
+    --primary-light: 160 52% 74%;
 
-    --secondary: 40 60% 55%;
-    --secondary-foreground: 30 25% 7%;
+    --secondary: 165 52% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 18% 16%;
-    --muted-foreground: 40 12% 70%;
+    --muted: 165 24% 15%;
+    --muted-foreground: 160 12% 72%;
 
-    --accent: 38 68% 58%;
-    --accent-foreground: 30 25% 7%;
+    --accent: 160 58% 56%;
+    --accent-foreground: 165 38% 6%;
 
-    --success: 152 55% 46%;
-    --success-foreground: 30 25% 7%;
+    --success: 160 55% 50%;
+    --success-foreground: 0 0% 100%;
 
     --warning: 38 88% 56%;
-    --warning-foreground: 30 25% 7%;
+    --warning-foreground: 165 38% 6%;
 
-    --destructive: 0 62% 54%;
+    --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 198 75% 52%;
-    --info-foreground: 30 25% 7%;
+    --info: 198 80% 56%;
+    --info-foreground: 165 38% 6%;
 
-    --finops: 38 68% 54%;
-    --finops-foreground: 30 25% 7%;
-
-    --data-ai: 35 70% 58%;
-    --data-ai-foreground: 0 0% 100%;
-
-    --border: 30 25% 24% / 0.55;
-    --input: 30 22% 15%;
-    --ring: 35 72% 55%;
-
-    --chat-user: 35 72% 52%;
-    --chat-system: 40 60% 48%;
-    --glow-primary: 35 72% 55%;
-    --glow-finops: 38 68% 54%;
-  }
-
-  /* ===== SLATE PRO (profissional, tons frios) ===== */
-  .theme-slate {
-    /* Modo Claro - azul-cinza suave, legível */
-    --background: 214 20% 97%;
-    --foreground: 215 28% 12%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 215 28% 12%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 12%;
-
-    --primary: 212 52% 40%;
-    --primary-foreground: 0 0% 100%;
-    --primary-deep: 212 58% 30%;
-    --primary-light: 212 52% 58%;
-
-    --secondary: 210 38% 44%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 214 16% 93%;
-    --muted-foreground: 215 16% 42%;
-
-    --accent: 199 65% 44%;
-    --accent-foreground: 0 0% 100%;
-
-    --success: 158 52% 34%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 80% 46%;
-    --warning-foreground: 215 28% 14%;
-
-    --destructive: 0 58% 48%;
-    --destructive-foreground: 0 0% 100%;
-
-    --info: 199 72% 40%;
-    --info-foreground: 0 0% 100%;
-
-    --finops: 210 48% 40%;
+    --finops: 160 58% 52%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 212 55% 44%;
+    --data-ai: 165 52% 56%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 214 14% 88%;
-    --input: 214 12% 94%;
-    --ring: 212 52% 40%;
+    --border: 165 26% 20% / 0.55;
+    --input: 165 24% 13%;
+    --ring: 160 62% 54%;
 
-    --radius: 0.625rem;
+    --chat-user: 160 62% 50%;
+    --chat-system: 165 48% 54%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 160 62% 54%;
+    --glow-finops: 160 58% 52%;
+  }
 
-    --chat-user: 212 52% 44%;
-    --chat-system: 210 42% 46%;
-    --glow-primary: 199 78% 50%;
-    --glow-finops: 210 52% 48%;
+  /* ===== SLATE PRO - sofisticado, corporativo premium ===== */
+  .theme-slate {
+    /* Modo Claro - slate editorial, contraste refinado */
+    --background: 220 16% 97%;
+    --foreground: 222 50% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 50% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 50% 12%;
+
+    --primary: 222 52% 30%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 222 52% 20%;
+    --primary-light: 218 42% 46%;
+
+    --secondary: 222 32% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 12% 93%;
+    --muted-foreground: 222 28% 38%;
+
+    --accent: 222 48% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 158 56% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 84% 48%;
+    --warning-foreground: 222 50% 12%;
+
+    --destructive: 0 62% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --info: 222 52% 40%;
+    --info-foreground: 0 0% 100%;
+
+    --finops: 222 48% 38%;
+    --finops-foreground: 0 0% 100%;
+
+    --data-ai: 275 52% 46%;
+    --data-ai-foreground: 0 0% 100%;
+
+    --border: 220 14% 88%;
+    --input: 220 12% 94%;
+    --ring: 222 52% 30%;
+
+    --radius: 0.5rem;
+
+    --chat-user: 180 95% 44%;
+    --chat-system: 275 58% 52%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 222 52% 40%;
+    --glow-finops: 222 48% 38%;
   }
 
   .theme-slate.dark {
-    --background: 222 32% 7%;
-    --foreground: 220 10% 94%;
+    /* Escuro sofisticado, legibilidade premium */
+    --background: 225 38% 5%;
+    --foreground: 220 12% 95%;
 
-    --card: 222 26% 11%;
-    --card-foreground: 220 10% 94%;
+    --card: 222 28% 10%;
+    --card-foreground: 220 12% 95%;
 
-    --popover: 222 26% 11%;
-    --popover-foreground: 220 10% 94%;
+    --popover: 222 28% 10%;
+    --popover-foreground: 220 12% 95%;
 
-    --primary: 199 75% 52%;
-    --primary-foreground: 222 40% 5%;
-    --primary-deep: 199 82% 38%;
-    --primary-light: 199 75% 70%;
+    --primary: 218 62% 60%;
+    --primary-foreground: 225 38% 5%;
+    --primary-deep: 218 62% 47%;
+    --primary-light: 218 52% 76%;
 
-    --secondary: 210 55% 50%;
+    --secondary: 222 32% 50%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 22% 15%;
-    --muted-foreground: 220 10% 70%;
+    --muted: 222 24% 14%;
+    --muted-foreground: 220 12% 72%;
 
-    --accent: 199 72% 55%;
-    --accent-foreground: 222 40% 5%;
+    --accent: 218 58% 62%;
+    --accent-foreground: 225 38% 5%;
 
-    --success: 158 60% 46%;
-    --success-foreground: 222 40% 5%;
+    --success: 158 54% 50%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 85% 54%;
-    --warning-foreground: 222 40% 5%;
+    --warning: 38 84% 56%;
+    --warning-foreground: 225 38% 5%;
 
-    --destructive: 0 62% 54%;
+    --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 199 82% 50%;
-    --info-foreground: 222 40% 5%;
+    --info: 218 62% 57%;
+    --info-foreground: 225 38% 5%;
 
-    --finops: 210 58% 50%;
-    --finops-foreground: 222 40% 5%;
+    --finops: 218 52% 54%;
+    --finops-foreground: 0 0% 100%;
 
-    --data-ai: 215 60% 55%;
+    --data-ai: 275 58% 62%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 222 28% 20% / 0.55;
-    --input: 222 26% 14%;
-    --ring: 199 82% 50%;
+    --border: 225 26% 20% / 0.55;
+    --input: 225 24% 13%;
+    --ring: 218 62% 60%;
 
-    --chat-user: 199 82% 46%;
-    --chat-system: 210 50% 42%;
-    --glow-primary: 199 82% 50%;
-    --glow-finops: 210 58% 50%;
+    --chat-user: 180 95% 50%;
+    --chat-system: 275 58% 54%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 218 62% 60%;
+    --glow-finops: 218 52% 54%;
   }
 
-  /* ===== FUCHSIA (gradiente azul→roxo→magenta, cards brancos) ===== */
+  /* ===== PULSO — Temas oficiais (base instalador + App.png: ciano #00BEC8 + roxo #522A6F) ===== */
+  .theme-pulso-light {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 6%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 6%;
+    --primary: 183 100% 39%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 183 100% 32%;
+    --primary-light: 183 90% 55%;
+    --secondary: 280 45% 28%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 183 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    --success: 158 56% 36%;
+    --warning: 38 82% 46%;
+    --destructive: 0 62% 48%;
+    --info: 183 100% 42%;
+    --finops: 158 56% 36%;
+    --data-ai: 268 75% 58%;
+    --border: 270 20% 90%;
+    --input: 0 0% 93%;
+    --ring: 183 100% 39%;
+    --chat-user: 183 100% 39%;
+    --chat-system: 280 45% 35%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 270 20% 95%;
+    --glow-primary: 183 100% 45%;
+    --glow-finops: 183 100% 45%;
+  }
+
+  .theme-pulso-medium {
+    --background: 232 42% 4%;
+    --foreground: 0 0% 98%;
+    --card: 232 32% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 232 32% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 178 92% 52%;
+    --primary-foreground: 232 42% 4%;
+    --primary-deep: 178 92% 40%;
+    --primary-light: 178 88% 65%;
+    --secondary: 268 75% 35%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 232 28% 12%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 183 100% 48%;
+    --accent-foreground: 0 0% 100%;
+    --success: 158 55% 50%;
+    --warning: 38 88% 56%;
+    --destructive: 0 62% 55%;
+    --info: 218 62% 57%;
+    --finops: 158 55% 50%;
+    --data-ai: 270 55% 62%;
+    --border: 270 20% 22% / 0.55;
+    --input: 270 15% 15%;
+    --ring: 270 55% 55%;
+    --chat-user: 178 92% 52%;
+    --chat-system: 268 75% 50%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 178 92% 52%;
+    --glow-finops: 183 100% 50%;
+  }
+
+  .theme-pulso-dark {
+    --background: 232 42% 4%;
+    --foreground: 0 0% 98%;
+    --card: 232 32% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 232 32% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 178 92% 52%;
+    --primary-foreground: 232 42% 4%;
+    --primary-deep: 178 92% 40%;
+    --primary-light: 178 88% 68%;
+    --secondary: 268 75% 30%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 232 28% 12%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 183 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --success: 158 55% 52%;
+    --warning: 38 88% 58%;
+    --destructive: 0 62% 55%;
+    --info: 218 62% 58%;
+    --finops: 158 55% 52%;
+    --data-ai: 270 55% 65%;
+    --border: 270 15% 18% / 0.5;
+    --input: 270 12% 10%;
+    --ring: 270 55% 58%;
+    --chat-user: 178 92% 52%;
+    --chat-system: 268 75% 48%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 178 92% 52%;
+    --glow-finops: 183 100% 50%;
+  }
+
+  /* ===== FUCHSIA - luxo jewel, elegância vibrante ===== */
   .theme-fuchsia {
-    /* Modo Claro - suave, legível, sem cansaço visual */
-    --background: 280 20% 97%;
-    --foreground: 280 28% 12%;
+    /* Modo Claro - magenta refinado, leitura confortável */
+    --background: 300 24% 97%;
+    --foreground: 300 42% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 280 28% 12%;
+    --card-foreground: 300 42% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 280 28% 12%;
+    --popover-foreground: 300 42% 11%;
 
-    --primary: 330 58% 50%;
+    --primary: 330 68% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 330 72% 42%;
-    --primary-light: 330 68% 68%;
+    --primary-deep: 330 68% 38%;
+    --primary-light: 330 62% 66%;
 
     --secondary: 199 72% 48%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 280 14% 93%;
-    --muted-foreground: 280 16% 42%;
+    --muted: 300 16% 93%;
+    --muted-foreground: 300 26% 38%;
 
-    --accent: 330 60% 56%;
+    --accent: 330 66% 56%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 152 55% 38%;
+    --success: 152 60% 38%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 86% 50%;
-    --warning-foreground: 280 28% 12%;
+    --warning: 38 88% 50%;
+    --warning-foreground: 300 42% 11%;
 
-    --destructive: 0 60% 50%;
+    --destructive: 0 63% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 199 90% 52%;
+    --info: 199 82% 52%;
     --info-foreground: 0 0% 100%;
 
-    --finops: 330 68% 50%;
+    --finops: 330 68% 52%;
     --finops-foreground: 0 0% 100%;
 
-    --data-ai: 270 68% 58%;
+    --data-ai: 290 68% 56%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 280 12% 88%;
-    --input: 280 10% 94%;
-    --ring: 330 58% 50%;
+    --border: 300 18% 88%;
+    --input: 300 14% 93%;
+    --ring: 330 68% 50%;
 
     --radius: 0.75rem;
 
-    --chat-user: 330 72% 55%;
-    --chat-system: 270 62% 52%;
-    --glow-primary: 330 78% 58%;
-    --glow-finops: 199 92% 55%;
+    --chat-user: 330 68% 54%;
+    --chat-system: 290 65% 52%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 330 82% 58%;
+    --glow-finops: 199 90% 54%;
   }
 
   .theme-fuchsia.dark {
-    /* Gradiente indigo→roxo→magenta, legível */
-    --background: 250 35% 9%;
-    --foreground: 250 10% 94%;
+    /* Luxo jewel, magenta profundo, legibilidade premium */
+    --background: 290 48% 6%;
+    --foreground: 250 14% 95%;
 
-    --card: 250 15% 14%;
-    --card-foreground: 250 10% 94%;
+    --card: 250 18% 12%;
+    --card-foreground: 250 14% 95%;
 
-    --popover: 250 15% 14%;
-    --popover-foreground: 250 10% 94%;
+    --popover: 250 18% 12%;
+    --popover-foreground: 250 14% 95%;
 
-    --primary: 330 68% 58%;
-    --primary-foreground: 250 35% 9%;
-    --primary-deep: 330 68% 46%;
-    --primary-light: 330 65% 75%;
+    --primary: 330 75% 64%;
+    --primary-foreground: 290 48% 6%;
+    --primary-deep: 330 75% 50%;
+    --primary-light: 330 68% 80%;
 
-    --secondary: 199 75% 55%;
-    --secondary-foreground: 250 35% 9%;
+    --secondary: 199 78% 60%;
+    --secondary-foreground: 250 40% 8%;
 
-    --muted: 250 22% 18%;
-    --muted-foreground: 250 12% 70%;
+    --muted: 250 24% 16%;
+    --muted-foreground: 250 14% 72%;
 
-    --accent: 330 65% 64%;
+    --accent: 330 62% 66%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 152 60% 50%;
-    --success-foreground: 250 35% 9%;
+    --success: 152 58% 52%;
+    --success-foreground: 250 40% 8%;
 
-    --warning: 38 90% 56%;
-    --warning-foreground: 250 35% 9%;
+    --warning: 38 88% 58%;
+    --warning-foreground: 250 40% 8%;
 
-    --destructive: 0 64% 54%;
+    --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 199 80% 58%;
-    --info-foreground: 250 35% 9%;
+    --info: 199 78% 60%;
+    --info-foreground: 250 40% 8%;
 
-    --finops: 330 68% 58%;
-    --finops-foreground: 250 35% 9%;
+    --finops: 330 65% 60%;
+    --finops-foreground: 250 40% 8%;
 
-    --data-ai: 270 70% 68%;
+    --data-ai: 270 68% 70%;
     --data-ai-foreground: 0 0% 100%;
 
-    --border: 250 18% 24% / 0.5;
-    --input: 250 20% 16%;
-    --ring: 330 68% 58%;
+    --border: 250 20% 22% / 0.55;
+    --input: 250 22% 15%;
+    --ring: 330 65% 60%;
 
-    --chat-user: 330 75% 56%;
-    --chat-system: 270 62% 52%;
-    --glow-primary: 330 80% 62%;
-    --glow-finops: 199 95% 58%;
+    --chat-user: 330 72% 58%;
+    --chat-system: 270 60% 54%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 330 78% 64%;
+    --glow-finops: 199 92% 60%;
   }
 
 }
@@ -606,19 +734,20 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.5;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
-  /* Fuchsia: gradiente de fundo (estilo da imagem - azul→roxo→magenta) */
+  /* Fuchsia: gradiente luxo jewel (azul→roxo→magenta) */
   .theme-fuchsia.dark body {
     background: linear-gradient(135deg,
-      hsl(250 55% 12%) 0%,
-      hsl(265 50% 18%) 35%,
-      hsl(295 55% 22%) 65%,
-      hsl(325 70% 26%) 100%) !important;
+      hsl(255 55% 10%) 0%,
+      hsl(275 50% 14%) 35%,
+      hsl(305 55% 18%) 65%,
+      hsl(330 65% 22%) 100%) !important;
     background-attachment: fixed;
   }
 
@@ -628,13 +757,42 @@ All colors MUST be HSL.
 
   .theme-fuchsia.light body {
     background: linear-gradient(135deg,
-      hsl(255 18% 97%) 0%,
-      hsl(280 15% 96%) 45%,
-      hsl(315 20% 95%) 100%) !important;
+      hsl(270 25% 97%) 0%,
+      hsl(300 20% 96%) 45%,
+      hsl(330 30% 95%) 100%) !important;
     background-attachment: fixed;
   }
 
   .theme-fuchsia.light .min-h-screen.bg-background {
+    background: transparent !important;
+  }
+
+  /* PULSO — Gradiente profundo conforme App.png: ciano → azul → roxo → grafite */
+  .theme-pulso-medium body,
+  .theme-pulso-dark body {
+    background: linear-gradient(
+      160deg,
+      hsl(240 10% 4%) 0%,
+      hsl(200 40% 8%) 20%,
+      hsl(270 30% 10%) 50%,
+      hsl(260 25% 8%) 80%,
+      hsl(240 10% 4%) 100%
+    ) !important;
+    background-attachment: fixed;
+  }
+
+  .theme-pulso-medium .min-h-screen.bg-background,
+  .theme-pulso-dark .min-h-screen.bg-background {
+    background: transparent !important;
+  }
+
+  /* PULSO Tema Claro — gradiente sutil #FAFAFA → #F5F5F5 */
+  .theme-pulso-light body {
+    background: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(0 0% 96%) 100%) !important;
+    background-attachment: fixed;
+  }
+
+  .theme-pulso-light .min-h-screen.bg-background {
     background: transparent !important;
   }
 
@@ -649,15 +807,15 @@ All colors MUST be HSL.
 
 @layer utilities {
   .glass {
-    @apply bg-card/40 backdrop-blur-xl;
+    @apply bg-card/40 backdrop-blur-xl transition-all duration-fluid ease-fluid;
   }
   
   .glass-strong {
-    @apply bg-card/60 backdrop-blur-2xl;
+    @apply bg-card/60 backdrop-blur-2xl transition-all duration-fluid ease-fluid;
   }
   
   .glass-hover {
-    @apply hover:bg-card/50 transition-all duration-300;
+    @apply hover:bg-card/50 transition-all duration-fluid ease-fluid;
   }
 
   .neon-glow {
@@ -674,6 +832,42 @@ All colors MUST be HSL.
 
   .neon-glow-finops {
     box-shadow: 0 0 25px hsl(var(--glow-finops) / 0.45), 0 0 50px hsl(var(--glow-finops) / 0.2);
+  }
+
+  /* PULSO — Cards flutuantes, micro-luz, núcleos */
+  .pulso-card {
+    @apply rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl shadow-lg shadow-black/10;
+  }
+
+  /* PULSO — Semiesferas com gradiente (App.png: roxo → ciano), bordas suaves */
+  .pulso-orb {
+    background: radial-gradient(
+      ellipse 80% 80% at 35% 35%,
+      hsl(var(--primary) / 0.22),
+      hsl(var(--accent) / 0.1),
+      transparent 70%
+    );
+    border-radius: 50%;
+    filter: blur(40px);
+  }
+
+  .pulso-orb-sm {
+    background: radial-gradient(
+      ellipse 75% 75% at 30% 30%,
+      hsl(var(--primary) / 0.18),
+      hsl(var(--accent) / 0.08),
+      transparent 65%
+    );
+    border-radius: 50%;
+    filter: blur(32px);
+  }
+
+  .pulso-glow {
+    box-shadow: 0 0 20px hsl(var(--glow-primary) / 0.25);
+  }
+
+  .pulso-glow-cta {
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.4);
   }
 }
 
@@ -819,4 +1013,38 @@ All colors MUST be HSL.
 
 .interactive-scale:active {
   transform: scale(0.98);
+}
+
+/* ===== Scrollbars estilizadas (rolagens) ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--muted) / 0.5);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: hsl(var(--primary));
+}
+
+*::-webkit-scrollbar-corner {
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 4px;
 }

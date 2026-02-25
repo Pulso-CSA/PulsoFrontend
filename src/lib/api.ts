@@ -1,6 +1,27 @@
 // Centralized API client with Bearer token handling and auto-refresh
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Em dev (Vite localhost): usa mesma origem para o proxy. Electron (file://) ou prod: usa VITE_API_URL.
+const _defaultBackend = "http://127.0.0.1:8000";
+
+export function getApiBaseUrl(): string {
+  if (import.meta.env.DEV && typeof window !== "undefined") {
+    const o = window.location.origin;
+    // Usa proxy (mesma origem) para localhost, 127.0.0.1 ou [::1] (IPv6)
+    if (o && (o.includes("localhost") || o.includes("127.0.0.1") || o.includes("[::1]"))) return o;
+  }
+  return (import.meta.env.VITE_API_URL || _defaultBackend).toString().trim();
+}
+
+const API_BASE_URL = getApiBaseUrl();
+
+const LOG = (tag: string, ...args: unknown[]) => {
+  console.log(`[Pulso:${tag}]`, new Date().toISOString(), ...args);
+};
+
+// Log config no carregamento
+if (typeof window !== "undefined") {
+  LOG("api", "API_BASE_URL=", API_BASE_URL, "VITE_API_URL=", import.meta.env.VITE_API_URL ?? "(não definida)");
+}
 
 // Storage keys
 const TOKEN_KEY = 'authToken';
@@ -149,9 +170,26 @@ export async function apiRequest<T>(
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...fetchOptions,
-    headers: requestHeaders,
+  const fullUrl = `${API_BASE_URL}${endpoint}`;
+  LOG("apiRequest", "→", fetchOptions.method || "GET", fullUrl, {
+    hasAuth: !!requestHeaders["Authorization"],
+    body: fetchOptions.body ? "(presente)" : "(vazio)",
+  });
+
+  let response: Response;
+  try {
+    response = await fetch(fullUrl, {
+      ...fetchOptions,
+      headers: requestHeaders,
+    });
+  } catch (fetchErr) {
+    LOG("apiRequest", "FETCH FALHOU (rede/CORS?)", endpoint, fetchErr);
+    throw fetchErr;
+  }
+
+  LOG("apiRequest", "←", response.status, endpoint, {
+    ok: response.ok,
+    statusText: response.statusText,
   });
 
   // Handle 401 - try refresh token first
@@ -190,6 +228,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+    LOG("apiRequest", "ERRO", response.status, endpoint, "body:", error);
     const msg = error?.detail ?? error?.message ?? error?.msg ?? 'Erro na requisição';
     const errorMessage =
       typeof msg === 'string'
@@ -212,11 +251,13 @@ export async function apiRequest<T>(
 // Auth-specific functions
 export const authApi = {
   login: async (email: string, password: string, rememberMe: boolean = false) => {
+    LOG("authApi.login", "iniciando", { email, rememberMe });
     setRememberMe(rememberMe);
-    const response = await apiRequest<{ 
-      access_token: string; 
+    try {
+      const response = await apiRequest<{
+      access_token: string;
       refresh_token?: string;
-      token_type: string 
+      token_type: string
     }>(
       '/auth/login',
       {
@@ -225,13 +266,20 @@ export const authApi = {
         skipAuth: true,
       }
     );
-    setStoredTokens(response.access_token, response.refresh_token);
-    return response;
+      LOG("authApi.login", "sucesso", { hasToken: !!response.access_token });
+      setStoredTokens(response.access_token, response.refresh_token);
+      return response;
+    } catch (err) {
+      LOG("authApi.login", "erro", err instanceof Error ? err.message : err);
+      throw err;
+    }
   },
 
   signup: async (email: string, password: string, name: string, rememberMe: boolean = false) => {
+    LOG("authApi.signup", "iniciando", { email, name, rememberMe });
     setRememberMe(rememberMe);
-    const response = await apiRequest<{ 
+    try {
+      const response = await apiRequest<{ 
       access_token: string;
       accessToken?: string; // fallback camelCase
       refresh_token?: string;
@@ -247,11 +295,16 @@ export const authApi = {
         skipAuth: true,
       }
     );
-    const accessToken = response.access_token ?? response.accessToken;
-    const refreshToken = response.refresh_token ?? response.refreshToken;
-    if (!accessToken) throw new Error('Token não retornado pelo servidor');
-    setStoredTokens(accessToken, refreshToken);
-    return { ...response, access_token: accessToken, refresh_token: refreshToken, user: response.user };
+      const accessToken = response.access_token ?? response.accessToken;
+      const refreshToken = response.refresh_token ?? response.refreshToken;
+      if (!accessToken) throw new Error('Token não retornado pelo servidor');
+      LOG("authApi.signup", "sucesso", { hasToken: !!accessToken });
+      setStoredTokens(accessToken, refreshToken);
+      return { ...response, access_token: accessToken, refresh_token: refreshToken, user: response.user };
+    } catch (err) {
+      LOG("authApi.signup", "erro", err instanceof Error ? err.message : err);
+      throw err;
+    }
   },
 
   logout: async () => {
@@ -312,51 +365,52 @@ export const authApi = {
   },
 };
 
+export { invalidateCache } from './apiCache';
+import { getCached, setCache, invalidateCache, CACHE_TTL } from './apiCache';
+
+type ProfileItem = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
 // Profile-specific functions
 export const profilesApi = {
   getAll: async () => {
-    return apiRequest<Array<{
-      id: string;
-      user_id: string;
-      name: string;
-      description: string;
-      created_at: string;
-      updated_at: string;
-    }>>('/auth/profiles');
+    const cached = getCached<ProfileItem[]>('/auth/profiles');
+    if (cached) return cached;
+    const data = await apiRequest<ProfileItem[]>('/auth/profiles');
+    setCache('/auth/profiles', data, CACHE_TTL.profiles);
+    return data;
   },
 
   create: async (data: { name: string; description?: string }) => {
-    return apiRequest<{
-      id: string;
-      user_id: string;
-      name: string;
-      description: string;
-      created_at: string;
-      updated_at: string;
-    }>('/auth/profiles', {
+    const result = await apiRequest<ProfileItem>('/auth/profiles', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    invalidateCache('/auth/profiles');
+    return result;
   },
 
   update: async (id: string, data: { name: string; description?: string }) => {
-    return apiRequest<{
-      id: string;
-      user_id: string;
-      name: string;
-      description: string;
-      created_at: string;
-      updated_at: string;
-    }>(`/auth/profiles/${id}`, {
+    const result = await apiRequest<ProfileItem>(`/auth/profiles/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+    invalidateCache('/auth/profiles');
+    return result;
   },
 
   delete: async (id: string) => {
-    return apiRequest<void>(`/auth/profiles/${id}`, {
+    const result = await apiRequest<void>(`/auth/profiles/${id}`, {
       method: 'DELETE',
     });
+    invalidateCache('/auth/profiles');
+    return result;
   },
 
   setCurrentId: setStoredProfileId,
@@ -367,7 +421,11 @@ export const profilesApi = {
 // Subscription-specific functions  
 export const subscriptionApi = {
   get: async () => {
-    return apiRequest<{ subscription: any }>('/subscription');
+    const cached = getCached<{ subscription: unknown }>('/subscription');
+    if (cached) return cached;
+    const data = await apiRequest<{ subscription: unknown }>('/subscription');
+    setCache('/subscription', data, CACHE_TTL.subscription);
+    return data;
   },
 
   getInvoices: async () => {
@@ -375,23 +433,29 @@ export const subscriptionApi = {
   },
 
   cancel: async (immediately: boolean = false) => {
-    return apiRequest<{ subscription: any }>('/subscription/cancel', {
+    const result = await apiRequest<{ subscription: unknown }>('/subscription/cancel', {
       method: 'POST',
       body: JSON.stringify({ immediately }),
     });
+    invalidateCache('/subscription');
+    return result;
   },
 
   resume: async () => {
-    return apiRequest<{ subscription: any }>('/subscription/resume', {
+    const result = await apiRequest<{ subscription: unknown }>('/subscription/resume', {
       method: 'POST',
     });
+    invalidateCache('/subscription');
+    return result;
   },
 
   changePlan: async (planId: string, billingCycle: string) => {
-    return apiRequest<{ subscription: any }>('/subscription/change-plan', {
+    const result = await apiRequest<{ subscription: unknown }>('/subscription/change-plan', {
       method: 'POST',
       body: JSON.stringify({ planId, billingCycle }),
     });
+    invalidateCache('/subscription');
+    return result;
   },
 
   getPortalUrl: async () => {

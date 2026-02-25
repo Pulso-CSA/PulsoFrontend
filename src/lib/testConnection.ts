@@ -1,6 +1,8 @@
 // Função utilitária para testar conexão com o backend
+// Usa a mesma URL que api.ts para garantir consistência (proxy em dev, direto em prod/Electron)
+import { getApiBaseUrl } from '@/lib/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = getApiBaseUrl();
 
 export interface ConnectionTestResult {
   success: boolean;
@@ -71,11 +73,9 @@ export async function testBackendConnection(): Promise<ConnectionTestResult> {
  */
 export async function testMultipleBackendUrls(): Promise<ConnectionTestResult[]> {
   const possibleUrls = [
-    import.meta.env.VITE_API_URL || '/api',
-    'http://localhost:8000/api',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000/api',
-    '/api',
+    getApiBaseUrl(),
+    'http://127.0.0.1:8000',
+    'https://pulsoapi-production-d109.up.railway.app',
   ];
   
   const results: ConnectionTestResult[] = [];
@@ -122,9 +122,9 @@ export async function testMultipleBackendUrls(): Promise<ConnectionTestResult[]>
  */
 export function getApiConfig() {
   return {
-    apiBaseUrl: API_BASE_URL,
-    viteApiUrl: import.meta.env.VITE_API_URL || 'não definida',
-    isRelative: !API_BASE_URL.startsWith('http'),
+    apiBaseUrl: getApiBaseUrl(),
+    viteApiUrl: (import.meta.env.VITE_API_URL || 'não definida').toString().trim(),
+    isRelative: !getApiBaseUrl().startsWith('http'),
     environment: import.meta.env.MODE,
   };
 }

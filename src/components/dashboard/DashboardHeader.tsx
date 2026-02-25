@@ -1,4 +1,4 @@
-import { LogOut, User, UserCircle, RefreshCw, Users, Keyboard } from "lucide-react";
+import { LogOut, User, UserCircle, RefreshCw, Users, Keyboard, Settings } from "lucide-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -33,9 +33,12 @@ interface DashboardHeaderProps {
   }>>;
   showLayerSelection?: boolean;
   onShortcutsClick?: () => void;
+  layoutToggle?: React.ReactNode;
+  /** Oculta LayerSelection quando true (ex: layout compacto com sidebar) */
+  hideLayerSelection?: boolean;
 }
 
-const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = true, onShortcutsClick }: DashboardHeaderProps) => {
+const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = true, onShortcutsClick, layoutToggle, hideLayerSelection }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -71,10 +74,15 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-slide-down">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
+      <header className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-slide-down transition-all duration-300 overflow-hidden">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4 min-w-0">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold neon-text transition-all duration-300 hover:scale-105 text-primary">Pulso</h1>
+            <img
+              src={import.meta.env.BASE_URL + "App.png"}
+              alt="Pulso"
+              className="h-8 w-8 object-contain shrink-0"
+            />
+            <h1 className="text-xl font-bold transition-all duration-300 hover:scale-105 text-primary">Pulso</h1>
             {currentProfile && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-lg glass border border-primary/30">
                 <Users className="h-3.5 w-3.5 text-primary" />
@@ -84,12 +92,13 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
           </div>
 
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 transition-all duration-300 ease-out shrink-0">
+            {layoutToggle}
             {onShortcutsClick && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground transition-all duration-300 ease-out hover:scale-105"
                 onClick={onShortcutsClick}
                 title="Atalhos de teclado (Alt+?)"
                 aria-label="Abrir atalhos de teclado"
@@ -101,14 +110,12 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="relative group">
-                  {/* Círculo neon que muda de cor */}
-                  <div className="absolute inset-0 rounded-full blur-md bg-primary/50 group-hover:bg-primary/70 group-active:bg-dataAi/70 transition-all duration-300 group-hover:blur-lg group-active:blur-xl"></div>
-                  
+                  <div className="absolute inset-0 rounded-full blur-md bg-primary/40 group-hover:bg-primary/60 transition-all duration-300"></div>
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     aria-label="Menu do usuário"
-                    className="relative z-10 border-2 border-primary group-hover:border-primary group-active:border-dataAi shadow-[0_0_20px_rgba(0,255,255,0.6)] group-hover:shadow-[0_0_35px_rgba(0,255,255,0.9)] group-active:shadow-[0_0_45px_rgba(191,0,255,1)] transition-all duration-300 group-hover:scale-105 group-active:scale-95"
+                    className="relative z-10 border-2 border-primary/60 group-hover:border-primary pulso-glow-cta transition-all duration-300 group-hover:scale-105 group-active:scale-95"
                   >
                     <User className="h-5 w-5" />
                   </Button>
@@ -138,6 +145,10 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Trocar de Conta
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { navigate("/settings"); }}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configurações
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -148,13 +159,25 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
           </div>
         </div>
 
-        {/* Layer Selection integrado no header */}
-        {showLayerSelection && activeLayers && setActiveLayers && (
-          <div className="container mx-auto px-4 pb-3">
-            <LayerSelection 
-              activeLayers={activeLayers}
-              setActiveLayers={setActiveLayers}
-            />
+        {/* Layer Selection integrado no header - anima ao realocar entre layouts */}
+        {activeLayers && setActiveLayers && (
+          <div
+            className={`
+              grid overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+              ${showLayerSelection && !hideLayerSelection
+                ? "grid-rows-[1fr] opacity-100"
+                : "grid-rows-[0fr] opacity-0"
+              }
+            `}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="container mx-auto px-4 pb-3 pt-1">
+                <LayerSelection
+                  activeLayers={activeLayers}
+                  setActiveLayers={setActiveLayers}
+                />
+              </div>
+            </div>
           </div>
         )}
       </header>

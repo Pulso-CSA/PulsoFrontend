@@ -163,11 +163,11 @@ const FinOpsChat = () => {
   };
 
   return (
-    <div className="glass-strong neon-glow rounded-lg overflow-hidden">
+    <div className="glass-strong pulso-card rounded-xl overflow-hidden border-primary/20">
       {/* Header */}
-      <div className="p-4 border-b border-primary/30">
-        <h2 className="text-lg font-semibold neon-text flex items-center gap-2" style={{ color: 'hsl(150 100% 65%)' }}>
-          <DollarSign className="h-5 w-5" style={{ color: 'hsl(150 100% 65%)' }} />
+      <div className="p-4 border-b border-primary/20">
+        <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
+          <DollarSign className="h-5 w-5 text-primary" />
           FinOps Inteligente
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -176,7 +176,7 @@ const FinOpsChat = () => {
       </div>
 
       {/* Cost Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass border-y border-primary/20">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass border-y border-primary/15">
         <div className="space-y-1 opacity-0 animate-fade-in stagger-1">
           <p className="text-xs text-muted-foreground">Custo mensal</p>
           <p className="text-xl font-bold text-foreground">{costSummary.monthly}</p>
@@ -191,7 +191,7 @@ const FinOpsChat = () => {
         </div>
         <div className="space-y-1 opacity-0 animate-fade-in stagger-3">
           <p className="text-xs text-muted-foreground">Tendência</p>
-          <p className="text-lg font-semibold text-finops flex items-center gap-1">
+          <p className="text-lg font-semibold text-primary flex items-center gap-1">
             <TrendingDown className="h-4 w-4 animate-bounce-subtle" />
             {costSummary.trend}
           </p>
@@ -200,11 +200,11 @@ const FinOpsChat = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
         {/* Chat Area */}
-        <div className="lg:col-span-2 border-r border-primary/30">
+        <div className="lg:col-span-2 border-r border-primary/20">
           <div className="min-h-[624px] overflow-y-auto p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                <Server className="h-12 w-12 text-finops/50" />
+                <Server className="h-12 w-12 text-primary/50" />
                 <div>
                   <p className="text-sm text-foreground font-medium">
                     Faça uma pergunta sobre custos e otimizações
@@ -222,7 +222,7 @@ const FinOpsChat = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuickAction(action)}
-                        className="text-xs border-finops/30 hover:border-finops hover:bg-finops/10"
+                        className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10"
                       >
                         {action}
                       </Button>
@@ -240,8 +240,8 @@ const FinOpsChat = () => {
               <div
                 className={`max-w-[80%] rounded-lg p-3 transition-all duration-300 hover:scale-[1.01] ${
                   message.role === "user"
-                    ? "bg-chat-user text-primary-foreground"
-                    : "bg-chat-system text-foreground"
+                    ? "bg-chat-user text-chat-user-foreground"
+                    : "bg-chat-system text-chat-system-foreground"
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -289,18 +289,9 @@ const FinOpsChat = () => {
             <div className="bg-chat-system text-foreground rounded-lg p-3">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1.5 items-end h-4">
-                  <div
-                    className="w-2 h-2 rounded-full animate-typing-bounce"
-                    style={{ backgroundColor: "hsl(150 100% 65%)", animationDelay: "0ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 rounded-full animate-typing-bounce"
-                    style={{ backgroundColor: "hsl(150 100% 65%)", animationDelay: "200ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 rounded-full animate-typing-bounce"
-                    style={{ backgroundColor: "hsl(150 100% 65%)", animationDelay: "400ms" }}
-                  />
+                  <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "200ms" }} />
+                  <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "400ms" }} />
                 </div>
                 <span className="text-sm text-muted-foreground">Digitando...</span>
               </div>
@@ -310,7 +301,7 @@ const FinOpsChat = () => {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-primary/30">
+          <div className="p-4 border-t border-primary/20">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -335,9 +326,9 @@ const FinOpsChat = () => {
 
         {/* Chats Sidebar */}
         <div className="bg-background/30">
-          <div className="p-3 border-b border-primary/30 flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-finops"><MessageSquare className="h-4 w-4" />Chats</h3>
-            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-finops hover:bg-finops/10">
+            <div className="p-3 border-b border-primary/20 flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><MessageSquare className="h-4 w-4" />Chats</h3>
+            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-primary hover:bg-primary/10">
               <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -355,8 +346,8 @@ const FinOpsChat = () => {
                     onClick={() => handleOpenChat(session)}
                     className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
                       currentSessionId === session.id
-                        ? "bg-finops/20 border border-finops/40"
-                        : "bg-background/50 hover:bg-finops/10 border border-transparent hover:border-finops/30"
+                        ? "bg-primary/20 border border-primary/40"
+                        : "bg-background/50 hover:bg-primary/10 border border-transparent hover:border-primary/30"
                     }`}
                   >
                     <p className="text-xs text-foreground line-clamp-2 pr-6">{session.title || "Novo chat"}</p>

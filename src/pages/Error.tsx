@@ -54,7 +54,7 @@ const Error = () => {
             variant="default"
             size="lg"
             asChild
-            className="neon-glow group hover-scale"
+            className="pulso-glow-cta group hover-scale"
           >
             <Link to="/">
               <Home className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />

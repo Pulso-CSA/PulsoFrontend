@@ -9,8 +9,24 @@ export default {
       center: true,
       padding: "2rem",
       screens: {
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
         "2xl": "1400px",
       },
+    },
+    screens: {
+      min: "320px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1400px",
+    },
+    minWidth: {
+      app: "320px",
+      desktop: "1024px",
     },
     extend: {
       fontFamily: {
@@ -78,7 +94,9 @@ export default {
         },
         chat: {
           user: "hsl(var(--chat-user))",
+          "user-foreground": "hsl(var(--chat-user-foreground))",
           system: "hsl(var(--chat-system))",
+          "system-foreground": "hsl(var(--chat-system-foreground))",
         },
       },
       borderRadius: {
@@ -123,6 +141,18 @@ export default {
           "0%, 60%, 100%": { transform: "translateY(0)" },
           "30%": { transform: "translateY(-6px)" },
         },
+        "fluid-fade": {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "soft-glow": {
+          "0%, 100%": { opacity: "0.6" },
+          "50%": { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -134,6 +164,15 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "typing-bounce": "typing-bounce 1.4s ease-in-out infinite",
+        "fluid-fade": "fluid-fade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "shimmer": "shimmer 2s ease-in-out infinite",
+        "soft-glow": "soft-glow 3s ease-in-out infinite",
+      },
+      transitionDuration: {
+        fluid: "400ms",
+      },
+      transitionTimingFunction: {
+        fluid: "cubic-bezier(0.4, 0, 0.2, 1)",
       },
     },
   },

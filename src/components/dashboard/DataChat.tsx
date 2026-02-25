@@ -506,13 +506,13 @@ const DataChat = () => {
   };
 
   return (
-    <div className="glass-strong neon-glow rounded-lg overflow-hidden">
+    <div className="glass-strong pulso-card rounded-xl overflow-hidden border-primary/20">
       {/* Header */}
-      <div className="p-4 border-b border-primary/30">
+      <div className="p-4 border-b border-primary/20">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold neon-text flex items-center gap-2" style={{ color: 'hsl(270 100% 80%)' }}>
-              <Database className="h-5 w-5" style={{ color: 'hsl(270 100% 80%)' }} />
+            <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
+              <Database className="h-5 w-5 text-primary" />
               Inteligência de Dados
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -532,7 +532,7 @@ const DataChat = () => {
 
       {/* Connection Drawer */}
       {showConnection && (
-        <div className="p-4 glass border-b border-primary/30 space-y-3">
+        <div className="p-4 glass border-b border-primary/20 space-y-3">
           <h3 className="text-sm font-medium text-foreground">Conexão de Dados (Opcional)</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -619,11 +619,11 @@ const DataChat = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
         {/* Chat Area */}
-        <div className="lg:col-span-2 border-r border-primary/30">
+        <div className="lg:col-span-2 border-r border-primary/20">
           <div className="min-h-[624px] overflow-y-auto p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                <Brain className="h-12 w-12 text-dataAi/50" />
+                <Brain className="h-12 w-12 text-primary/50" />
                 <div>
                   <p className="text-sm text-foreground font-medium">
                     Conecte-se à base ou faça uma pergunta
@@ -641,7 +641,7 @@ const DataChat = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuickAction(action)}
-                        className="text-xs border-dataAi/30 hover:border-dataAi hover:bg-dataAi/10"
+                        className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10"
                       >
                         {action}
                       </Button>
@@ -656,12 +656,12 @@ const DataChat = () => {
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-4 animate-slide-up`}
             >
               <div
-                className={`max-w-[90%] rounded-2xl px-5 py-4 shadow-sm transition-all duration-200 hover:shadow-md ${
+                className={`max-w-[90%] rounded-2xl px-5 py-4 shadow-sm transition-all duration-fluid ease-fluid hover:shadow-md ${
                   message.role === "user"
-                    ? "bg-chat-user text-primary-foreground shadow-md ml-auto"
+                    ? "bg-chat-user text-chat-user-foreground shadow-md ml-auto"
                     : message.retryPrompt
                       ? "rounded-xl border border-amber-500/30 bg-amber-500/5"
-                      : "bg-chat-system/90 border border-white/5 shadow-md hover:border-white/10"
+                      : "bg-chat-system text-chat-system-foreground border border-white/5 shadow-md hover:border-white/10"
                 }`}
               >
                 {message.retryPrompt ? (
@@ -694,7 +694,7 @@ const DataChat = () => {
                         </Button>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground mt-2 block">
+                    <span className="text-xs text-amber-200/80 mt-2 block">
                       {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </>
@@ -908,7 +908,7 @@ const DataChat = () => {
                   </p>
                 )}
 
-                    <span className="text-xs text-muted-foreground mt-2 block">
+                    <span className="text-xs text-white/80 mt-2 block">
                       {message.timestamp.toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit'
@@ -930,7 +930,7 @@ const DataChat = () => {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-primary/30">
+          <div className="p-4 border-t border-primary/20">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -955,9 +955,9 @@ const DataChat = () => {
 
         {/* Chats Sidebar */}
         <div className="bg-background/30">
-          <div className="p-3 border-b border-primary/30 flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-dataAi"><MessageSquare className="h-4 w-4" />Chats</h3>
-            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-dataAi hover:bg-dataAi/10">
+          <div className="p-3 border-b border-primary/20 flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><MessageSquare className="h-4 w-4" />Chats</h3>
+            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-primary hover:bg-primary/10">
               <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -976,8 +976,8 @@ const DataChat = () => {
                     className={cn(
                       "w-full text-left p-3 rounded-lg transition-all duration-200",
                       currentSessionId === session.id
-                        ? "bg-dataAi/20 border border-dataAi/40"
-                        : "bg-background/50 hover:bg-dataAi/10 border border-transparent hover:border-dataAi/30"
+                        ? "bg-primary/20 border border-primary/40"
+                        : "bg-background/50 hover:bg-primary/10 border border-transparent hover:border-primary/30"
                     )}
                   >
                     <p className="text-xs text-foreground line-clamp-2 pr-6">{session.title || "Novo chat"}</p>

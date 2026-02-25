@@ -21,9 +21,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { infraApi } from "@/lib/api";
 import { getAllCloudCredentials, setCloudCredentials, getRootPath, setRootPath, getCloudChatSessions, setCloudChatSessions, type ChatSession } from "@/lib/connectionStorage";
-import { FaAws } from "react-icons/fa";
-import { VscAzure } from "react-icons/vsc";
-import { SiGooglecloud } from "react-icons/si";
+import { SiAmazonwebservices, SiGooglecloud } from "react-icons/si";
+import { TbBrandAzure } from "react-icons/tb";
 
 interface Message {
   id: string;
@@ -149,29 +148,42 @@ const CloudChat = () => {
     try {
       const tenantId = user?.id ?? "default";
 
+      const effectiveRootPath = rootPath.trim() || ".";
       let infraSpec: unknown = null;
       const analyzeRes = await infraApi.analyze({
-        root_path: rootPath.trim() || undefined,
+        root_path: effectiveRootPath,
         tenant_id: tenantId,
         id_requisicao: idRequisicao,
         user_request: promptText,
         providers: [activeProvider],
       });
 
-      if (analyzeRes?.infra_spec_draft) {
-        infraSpec = analyzeRes.infra_spec_draft;
+      const reports = (analyzeRes as { reports?: { infra_spec_draft?: unknown } })?.reports;
+      if (reports?.infra_spec_draft) {
+        infraSpec = reports.infra_spec_draft;
       }
 
       const generateRes = await infraApi.generate({
         infra_spec: infraSpec,
         user_request: promptText,
-        root_path: rootPath.trim() || undefined,
+        root_path: effectiveRootPath,
         tenant_id: tenantId,
         id_requisicao: idRequisicao,
       });
 
-      const terraformCode = generateRes?.terraform_code ?? "";
-      const content = generateRes?.message ?? `Infraestrutura gerada para ${activeProvider.toUpperCase()}.`;
+      const terraformCode =
+        (generateRes as { terraform_code?: string })?.terraform_code ??
+        (generateRes as { reports?: { terraform_code?: string } })?.reports?.terraform_code ??
+        "";
+      const artifacts =
+        (generateRes as { artifacts?: string[] })?.artifacts ??
+        (generateRes as { reports?: { artifacts?: string[] } })?.reports?.artifacts ??
+        [];
+      const content = terraformCode
+        ? `Infraestrutura Terraform gerada para ${activeProvider.toUpperCase()}.`
+        : artifacts.length > 0
+          ? `Arquivos Terraform criados: ${artifacts.join(", ")}`
+          : `Infraestrutura gerada para ${activeProvider.toUpperCase()}.`;
 
       const systemMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -418,11 +430,11 @@ const CloudChat = () => {
   };
 
   return (
-    <div className="glass-strong rounded-2xl overflow-hidden border-2 border-cyan-500/30" style={{ boxShadow: '0 0 30px rgba(0, 200, 255, 0.2)' }}>
+    <div className="glass-strong pulso-card rounded-2xl overflow-hidden border-2 border-primary/20">
       {/* Header */}
-      <div className="p-4 border-b border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-600/10">
-        <h2 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'hsl(190 100% 65%)' }}>
-          <CloudCog className="h-5 w-5" style={{ color: 'hsl(190 100% 65%)' }} />
+      <div className="p-4 border-b border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+        <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
+          <CloudCog className="h-5 w-5 text-primary" />
           Cloud Infrastructure
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -431,10 +443,10 @@ const CloudChat = () => {
       </div>
 
       {/* Provider Selection */}
-      <div className="p-3 border-b border-cyan-500/20">
+      <div className="p-3 border-b border-primary/20">
         <div className="flex items-center gap-2 flex-wrap">
-          {renderProviderButton("aws", <FaAws className="h-6 w-6" />, "AWS")}
-          {renderProviderButton("azure", <VscAzure className="h-6 w-6" />, "Azure")}
+          {renderProviderButton("aws", <SiAmazonwebservices className="h-6 w-6" />, "AWS")}
+          {renderProviderButton("azure", <TbBrandAzure className="h-6 w-6" />, "Azure")}
           {renderProviderButton("gcp", <SiGooglecloud className="h-6 w-6" />, "GCP")}
         </div>
         {renderCredentialsPanel("aws")}
@@ -444,11 +456,11 @@ const CloudChat = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
         {/* Chat Area */}
-        <div className="lg:col-span-2 border-r border-cyan-500/20">
+        <div className="lg:col-span-2 border-r border-primary/20">
           <div className="min-h-[624px] overflow-y-auto p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                <CloudCog className="h-12 w-12 text-cyan-400/50" />
+                <CloudCog className="h-12 w-12 text-primary/50" />
                 <div>
                   <p className="text-sm text-foreground font-medium">Descreva a infraestrutura que deseja criar</p>
                   <p className="text-xs text-muted-foreground mt-1">Use linguagem natural ou informe o caminho de um arquivo</p>
@@ -457,7 +469,7 @@ const CloudChat = () => {
                   <p className="text-xs text-muted-foreground mb-2">Sugestões:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {quickActions.map((action, idx) => (
-                      <Button key={idx} variant="outline" size="sm" onClick={() => handleQuickAction(action)} className="text-xs border-cyan-500/30 hover:border-cyan-500 hover:bg-cyan-500/10">
+                      <Button key={idx} variant="outline" size="sm" onClick={() => handleQuickAction(action)} className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10">
                         {action}
                       </Button>
                     ))}
@@ -467,7 +479,7 @@ const CloudChat = () => {
             ) : (
               messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] rounded-lg p-3 ${message.role === "user" ? "bg-cyan-500/20 border border-cyan-500/30" : "bg-background/50 border border-border/50"}`}>
+                  <div className={`max-w-[85%] rounded-lg p-3 ${message.role === "user" ? "bg-chat-user text-chat-user-foreground border border-primary/20" : "bg-chat-system text-chat-system-foreground border border-border/50"}`}>
                     {message.provider && (
                       <Badge variant="outline" className="mb-2 text-xs" style={{ borderColor: providerColors[message.provider].hsl, color: providerColors[message.provider].hsl }}>
                         {message.provider.toUpperCase()}
@@ -475,11 +487,11 @@ const CloudChat = () => {
                     )}
                     <p className="text-sm text-foreground whitespace-pre-wrap">{message.content}</p>
                     {message.resources && (
-                      <div className="mt-3 space-y-2 p-3 bg-background/30 rounded border border-cyan-500/20">
-                        <p className="text-xs font-semibold flex items-center gap-1 text-cyan-400"><FolderOpen className="h-3 w-3" />Recursos criados:</p>
+                      <div className="mt-3 space-y-2 p-3 bg-background/30 rounded border border-primary/20">
+                        <p className="text-xs font-semibold flex items-center gap-1 text-primary"><FolderOpen className="h-3 w-3" />Recursos criados:</p>
                         <ul className="space-y-1 text-xs">
                           {message.resources.map((resource, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-muted-foreground"><span className="text-cyan-400 mt-0.5">•</span><span>{resource}</span></li>
+                            <li key={idx} className="flex items-start gap-2 text-muted-foreground"><span className="text-primary mt-0.5">•</span><span>{resource}</span></li>
                           ))}
                         </ul>
                       </div>
@@ -490,7 +502,7 @@ const CloudChat = () => {
                           <span className="text-xs text-muted-foreground flex items-center gap-1"><FileCode className="h-3 w-3" />Terraform</span>
                           <Button variant="ghost" size="sm" onClick={() => handleCopyCode(message.codeBlock!)} className="h-6 px-2 text-xs"><Copy className="h-3 w-3 mr-1" />Copiar</Button>
                         </div>
-                        <pre className="bg-background/50 rounded p-3 text-xs font-mono overflow-x-auto border border-cyan-500/20">{message.codeBlock}</pre>
+                        <pre className="bg-background/50 rounded p-3 text-xs font-mono overflow-x-auto border border-primary/20">{message.codeBlock}</pre>
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground mt-2">{message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
@@ -500,19 +512,19 @@ const CloudChat = () => {
             )}
             {loading && (
               <div className="flex justify-start animate-slide-up">
-                <div className="bg-background/50 border border-cyan-500/20 rounded-lg p-3">
+                <div className="bg-background/50 border border-primary/20 rounded-lg p-3">
                   <div className="flex items-center gap-2">
                     <div className="flex gap-1.5 items-end h-4">
                       <div
-                        className="w-2 h-2 rounded-full animate-typing-bounce bg-cyan-400"
+                        className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
                         style={{ animationDelay: "0ms" }}
                       />
                       <div
-                        className="w-2 h-2 rounded-full animate-typing-bounce bg-cyan-400"
+                        className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
                         style={{ animationDelay: "200ms" }}
                       />
                       <div
-                        className="w-2 h-2 rounded-full animate-typing-bounce bg-cyan-400"
+                        className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
                         style={{ animationDelay: "400ms" }}
                       />
                     </div>
@@ -523,7 +535,7 @@ const CloudChat = () => {
             )}
           </div>
 
-          <div className="p-4 border-t border-cyan-500/20 space-y-2">
+          <div className="p-4 border-t border-primary/20 space-y-2">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -535,16 +547,16 @@ const CloudChat = () => {
                 placeholder="Caminho do projeto (opcional)"
                 value={rootPath}
                 onChange={(e) => handleRootPathChange(e.target.value)}
-                className="border-cyan-500/30 focus-visible:ring-cyan-500 max-w-[200px]"
+                className="border-primary/30 focus-visible:ring-primary max-w-[200px]"
               />
               <ChatTextarea
                 placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas'"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onSend={handleSend}
-                className="border-cyan-500/30 focus-visible:ring-cyan-500 flex-1 py-2"
+                className="border-primary/30 focus-visible:ring-primary flex-1 py-2"
               />
-              <Button type="submit" disabled={!input.trim() || loading} className="shrink-0 bg-cyan-500 hover:bg-cyan-600">
+              <Button type="submit" disabled={!input.trim() || loading} className="shrink-0 bg-primary hover:bg-primary-deep">
                 <Send className="h-4 w-4" />
               </Button>
             </form>
@@ -553,9 +565,9 @@ const CloudChat = () => {
 
         {/* Chats Sidebar */}
         <div className="bg-background/30">
-          <div className="p-3 border-b border-cyan-500/20 flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-cyan-400"><MessageSquare className="h-4 w-4" />Chats</h3>
-            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-cyan-400 hover:bg-cyan-500/10">
+          <div className="p-3 border-b border-primary/20 flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><MessageSquare className="h-4 w-4" />Chats</h3>
+            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-primary hover:bg-primary/10">
               <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -573,8 +585,8 @@ const CloudChat = () => {
                     onClick={() => handleOpenChat(session)}
                     className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
                       currentSessionId === session.id
-                        ? "bg-cyan-500/20 border border-cyan-500/40"
-                        : "bg-background/50 hover:bg-cyan-500/10 border border-transparent hover:border-cyan-500/30"
+                        ? "bg-primary/20 border border-primary/40"
+                        : "bg-background/50 hover:bg-primary/10 border border-transparent hover:border-primary/30"
                     }`}
                   >
                     <p className="text-xs text-foreground line-clamp-2 pr-6">{session.title || "Novo chat"}</p>

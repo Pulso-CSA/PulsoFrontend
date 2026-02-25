@@ -3,11 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ElectronTitleBar } from "@/components/ElectronTitleBar";
+import { VersionGate } from "@/components/VersionGate";
+import { UpdateAvailableScreen } from "@/components/UpdateAvailableScreen";
 import { Loader2 } from "lucide-react";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -19,6 +22,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Billing = lazy(() => import("./pages/Billing"));
 const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
 const ProfileSelection = lazy(() => import("./pages/ProfileSelection"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const Error = lazy(() => import("./pages/Error"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -41,16 +45,19 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <ErrorBoundary>
-        <BrowserRouter>
+        <HashRouter>
           <AuthProvider>
-            <TooltipProvider>
-              <a href="#main-content" className="skip-link">
-                Pular para o conteúdo principal
-              </a>
-              <Toaster />
-              <Sonner />
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
+            <VersionGate>
+              <TooltipProvider>
+                <ElectronTitleBar />
+                <UpdateAvailableScreen />
+                <a href="#main-content" className="skip-link">
+                  Pular para o conteúdo principal
+                </a>
+                <Toaster />
+                <Sonner />
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
@@ -84,6 +91,14 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
                   {/* Protected routes - require authentication AND active profile */}
                   <Route
@@ -97,11 +112,12 @@ const App = () => (
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </TooltipProvider>
+                  </Routes>
+                </Suspense>
+              </TooltipProvider>
+            </VersionGate>
           </AuthProvider>
-        </BrowserRouter>
+        </HashRouter>
       </ErrorBoundary>
     </ThemeProvider>
   </QueryClientProvider>

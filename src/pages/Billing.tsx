@@ -69,7 +69,7 @@ const plans = [
     ],
     popular: false,
     icon: Crown,
-    color: "text-finops"
+    color: "text-primary"
   },
   {
     id: "elite",
@@ -88,7 +88,7 @@ const plans = [
     ],
     popular: false,
     icon: Sparkles,
-    color: "text-dataAi"
+    color: "text-primary"
   }
 ];
 
@@ -140,8 +140,8 @@ const Billing = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold neon-text" style={{ 
-                background: 'linear-gradient(135deg, hsl(180 100% 70%) 0%, hsl(150 100% 65%) 100%)',
+              <h1 className="text-3xl font-bold" style={{ 
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
@@ -160,7 +160,7 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("monthly")}
                 className={billingCycle === "monthly" 
-                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-200" 
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200" 
                   : "rounded-full transition-all duration-200"}
               >
                 Mensal
@@ -170,7 +170,7 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("yearly")}
                 className={billingCycle === "yearly" 
-                  ? "rounded-full bg-gradient-to-r from-finops/80 to-success/60 shadow-[0_0_20px_rgba(0,255,153,0.4)] transition-all duration-200" 
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-accent/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200" 
                   : "rounded-full transition-all duration-200"}
               >
                 Anual
@@ -185,11 +185,11 @@ const Billing = () => {
               onClick={() => setHasOpenAIKey(!hasOpenAIKey)}
               className={`glass glass-hover border-2 gap-2 transition-all duration-300 ${
                 hasOpenAIKey 
-                  ? 'border-dataAi bg-gradient-to-r from-dataAi/30 to-secondary/30 shadow-[0_0_20px_rgba(191,0,255,0.5)] scale-105' 
-                  : 'border-primary/30 hover:border-dataAi/50 hover:scale-105'
+                  ? 'border-primary bg-gradient-to-r from-primary/30 to-accent/20 shadow-[0_0_20px_hsl(var(--primary)/0.4)] scale-105' 
+                  : 'border-primary/30 hover:border-primary/50 hover:scale-105'
               }`}
             >
-              <Sparkles className={`h-5 w-5 transition-all duration-300 ${hasOpenAIKey ? 'text-dataAi animate-pulse' : 'text-muted-foreground'}`} />
+              <Sparkles className={`h-5 w-5 transition-all duration-300 ${hasOpenAIKey ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
               <span className="font-semibold">
                 {hasOpenAIKey ? '✓ Desconto OpenAI Ativo (15%)' : 'Tenho Chave API OpenAI'}
               </span>
@@ -218,14 +218,14 @@ const Billing = () => {
                   key={plan.name}
                   className={`relative glass-strong p-6 border-2 hover:scale-105 transition-all duration-200 animate-fade-in ${
                     plan.popular 
-                      ? 'border-primary shadow-[0_0_30px_rgba(0,255,255,0.3)]' 
+                      ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)]' 
                       : 'border-primary/30 hover:border-primary/50'
                   }`}
                   style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-primary/80 to-primary-deep/60 border-0 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
+                      <Badge className="bg-gradient-to-r from-primary/80 to-primary-deep/60 border-0 shadow-[0_0_15px_hsl(var(--primary)/0.5)]">
                         Mais Popular
                       </Badge>
                     </div>
@@ -234,7 +234,7 @@ const Billing = () => {
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <Icon className={`h-8 w-8 ${plan.color} drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]`} />
+                        <Icon className={`h-8 w-8 ${plan.color} drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)]`} />
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg" />
                       </div>
                       <h3 className="text-xl font-bold">{plan.name}</h3>
@@ -250,7 +250,7 @@ const Billing = () => {
                         {billingCycle === "monthly" ? "por mês" : "por ano"}
                       </p>
                       {(billingCycle === "yearly" || hasOpenAIKey) && (
-                        <p className="text-xs text-finops font-semibold animate-fade-in">
+                        <p className="text-xs text-primary font-semibold animate-fade-in">
                           15% de desconto {hasOpenAIKey && '(OpenAI API)'}
                         </p>
                       )}
@@ -261,7 +261,7 @@ const Billing = () => {
                     <ul className="space-y-2">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <Check className="h-4 w-4 text-finops mt-0.5 flex-shrink-0" />
+                          <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -271,7 +271,7 @@ const Billing = () => {
                       onClick={() => handleSelectPlan(plan.id)}
                       className={`w-full glass-hover border-2 transition-all duration-200 gap-2 ${
                         plan.popular
-                          ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]'
+                          ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)]'
                           : 'border-primary/40 hover:border-primary/60'
                       }`}
                       disabled={isDisabled || isLoading}

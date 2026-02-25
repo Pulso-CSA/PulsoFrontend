@@ -101,9 +101,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearAuthState]);
 
   const login = async (email: string, password: string, remember: boolean = false) => {
-    await authApi.login(email, password, remember);
+    console.log("[AuthContext] login chamado", { email, remember });
+    try {
+      await authApi.login(email, password, remember);
+    } catch (e) {
+      console.error("[AuthContext] login falhou", e);
+      throw e;
+    }
     setRememberMeState(remember);
-    
+
     // Fetch user data after successful login
     const userData = await authApi.getMe();
     setUser({
@@ -113,20 +119,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       createdAt: '',
       updatedAt: '',
     });
+    console.log("[AuthContext] login sucesso, buscando perfis");
     setIsAuthenticated(true);
 
     // Fetch profiles
     try {
       const profilesData = await profilesApi.getAll();
       setProfilesState(profilesData.map(transformProfile));
-    } catch {
+    } catch (e) {
+      console.warn("[AuthContext] erro ao buscar perfis", e);
       setProfilesState([]);
     }
   };
 
   const loginWithGoogle = async () => {
     // Redirect to backend OAuth endpoint (GET /auth/login/google)
-    const apiUrl = import.meta.env.VITE_API_URL || '/api';
+    const apiUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').toString().trim();
     window.location.href = `${apiUrl}/auth/login/google`;
   };
 

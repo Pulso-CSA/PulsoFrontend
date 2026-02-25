@@ -39,8 +39,8 @@ import { formatarData } from "@/lib/utils";
 const planDetails: Record<PlanType, { name: string; icon: typeof Zap; color: string }> = {
   basic: { name: "Basic", icon: Zap, color: "text-muted-foreground" },
   plus: { name: "Plus", icon: Star, color: "text-primary" },
-  pro: { name: "Pro", icon: Crown, color: "text-finops" },
-  elite: { name: "Elite", icon: Sparkles, color: "text-dataAi" },
+  pro: { name: "Pro", icon: Crown, color: "text-primary" },
+  elite: { name: "Elite", icon: Sparkles, color: "text-primary" },
 };
 
 const statusLabels: Record<SubscriptionStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -172,8 +172,8 @@ const SubscriptionManagement = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold neon-text" style={{ 
-                background: 'linear-gradient(135deg, hsl(180 100% 70%) 0%, hsl(150 100% 65%) 100%)',
+              <h1 className="text-3xl font-bold" style={{ 
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
@@ -223,7 +223,7 @@ const SubscriptionManagement = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     <div className="relative">
-                      <PlanIcon className={`h-12 w-12 ${plan?.color} drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]`} />
+                      <PlanIcon className={`h-12 w-12 ${plan?.color} drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)]`} />
                       <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg" />
                     </div>
                     <div>
@@ -296,7 +296,7 @@ const SubscriptionManagement = () => {
                     <Button
                       onClick={handleResumeSubscription}
                       disabled={isResuming}
-                      className="gap-2 bg-finops hover:bg-finops/90"
+                      className="gap-2 bg-primary hover:bg-primary/90"
                     >
                       {isResuming ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

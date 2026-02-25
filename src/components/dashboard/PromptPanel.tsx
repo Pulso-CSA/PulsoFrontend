@@ -399,7 +399,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
     }
   };
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const apiBase = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").toString().trim();
   const comprehensionPayload = input.trim()
     ? JSON.stringify({
         usuario: user?.id ?? "USER_ID",
@@ -429,7 +429,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
   return (
     <div className="space-y-6">
       {/* Área de input */}
-      <div className="glass-strong neon-glow rounded-2xl p-6 space-y-4">
+      <div className="glass-strong pulso-card rounded-2xl p-6 space-y-4 border-primary/20">
         {/* Caminho da Pasta */}
         <div className="space-y-2">
           <Label htmlFor="folder-path" className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -647,7 +647,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
             variant="outline"
             onClick={() => setShowTestDialog(true)}
             disabled={curlCommands.length === 0}
-            className="h-12 px-6 border-finops/40 hover:border-finops hover:bg-finops/10 text-finops disabled:opacity-50 disabled:pointer-events-none"
+            className="h-12 px-6 border-primary/40 hover:border-primary hover:bg-primary/10 text-primary disabled:opacity-50 disabled:pointer-events-none"
             title={curlCommands.length === 0 ? "Aguarde a resposta do backend com os comandos de teste" : "Testar aplicação"}
           >
             <TestTube className="h-5 w-5 mr-2" />
@@ -664,7 +664,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
         </div>
 
         {requestId && (
-          <div className="flex items-center gap-2 p-4 glass border border-primary/30 rounded-xl neon-glow">
+          <div className="flex items-center gap-2 p-4 glass border border-primary/20 rounded-xl pulso-glow">
             <span className="text-sm font-mono text-primary flex-1">
               ID: {requestId}
             </span>
@@ -676,8 +676,8 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
       </div>
 
       {/* Estrutura de arquivos */}
-      {fileStructure && (
-        <div className="glass-strong neon-glow rounded-2xl p-6">
+        {fileStructure && (
+        <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-primary">
               Árvore do projeto
@@ -697,7 +697,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
 
       {/* Histórico */}
       {history.length > 0 && (
-        <div className="glass-strong neon-glow rounded-2xl p-6">
+        <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
           <h3 className="text-base font-semibold text-primary mb-4">
             Histórico recente
           </h3>

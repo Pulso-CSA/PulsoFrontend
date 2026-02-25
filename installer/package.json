@@ -1,0 +1,74 @@
+{
+  "name": "pulso-installer",
+  "version": "1.0.0",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron": "electron .",
+    "installer:dev": "npm run build:main-app && vite build && electron .",
+    "installer:build": "npm run build:main-app && vite build && electron-builder",
+    "installer:exe": "npm run build:main-app && vite build && electron-builder --win portable",
+    "build:main-app": "cd .. && npm run build:electron && cd installer"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.462.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19"
+  },
+  "build": {
+    "appId": "com.pulso.installer",
+    "productName": "Pulso Installer",
+    "directories": {
+      "output": "dist-installer"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false,
+      "icon": "public/App.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "extraResources": [
+      {
+        "from": "../dist-electron/win-unpacked",
+        "to": "pulso-app",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
+}

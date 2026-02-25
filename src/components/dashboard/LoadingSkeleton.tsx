@@ -25,9 +25,9 @@ export function LoadingSkeleton({
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="flex gap-1.5 items-end h-4">
-          <div className="w-2 h-2 rounded-full animate-typing-bounce bg-dataAi" style={{ animationDelay: "0ms" }} />
-          <div className="w-2 h-2 rounded-full animate-typing-bounce bg-dataAi" style={{ animationDelay: "200ms" }} />
-          <div className="w-2 h-2 rounded-full animate-typing-bounce bg-dataAi" style={{ animationDelay: "400ms" }} />
+          <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "0ms" }} />
+          <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "200ms" }} />
+          <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "400ms" }} />
         </div>
         <span className="text-sm text-muted-foreground">{message}</span>
       </div>

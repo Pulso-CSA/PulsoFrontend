@@ -56,7 +56,7 @@ const FileTree = ({ structure, level = 0 }: FileTreeProps) => {
               )}
               {!isFolder && <div className="w-4 flex-shrink-0" />}
               {isFolder ? (
-                <Folder className={`h-4 w-4 flex-shrink-0 ${node.isNew ? "text-emerald-500" : "text-finops"}`} />
+                <Folder className={`h-4 w-4 flex-shrink-0 ${node.isNew ? "text-emerald-500" : "text-primary"}`} />
               ) : (
                 <File className={`h-4 w-4 flex-shrink-0 ${node.isNew ? "text-emerald-500" : "text-muted-foreground"}`} />
               )}

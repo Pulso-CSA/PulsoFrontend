@@ -1,0 +1,29 @@
+const { contextBridge, ipcRenderer } = require("electron");
+
+contextBridge.exposeInMainWorld("electronAPI", {
+  minimize: () => ipcRenderer.send("window-minimize"),
+  maximize: () => ipcRenderer.send("window-maximize"),
+  close: () => ipcRenderer.send("window-close"),
+  isMaximized: () => ipcRenderer.invoke("window-is-maximized"),
+  onUpdateAvailable: (cb) => {
+    const fn = (_, info) => cb(info || {});
+    ipcRenderer.on("update-available", fn);
+    return () => ipcRenderer.removeListener("update-available", fn);
+  },
+  onUpdateDownloaded: (cb) => {
+    ipcRenderer.on("update-downloaded", cb);
+    return () => ipcRenderer.removeListener("update-downloaded", cb);
+  },
+  onUpdateProgress: (cb) => {
+    const fn = (_, percent) => cb(percent ?? 0);
+    ipcRenderer.on("update-progress", fn);
+    return () => ipcRenderer.removeListener("update-progress", fn);
+  },
+  onUpdateError: (cb) => {
+    const fn = (_, msg) => cb(msg || "Erro desconhecido");
+    ipcRenderer.on("update-error", fn);
+    return () => ipcRenderer.removeListener("update-error", fn);
+  },
+  downloadUpdate: () => ipcRenderer.invoke("update-download"),
+  quitAndInstall: () => ipcRenderer.invoke("update-quit-and-install"),
+});

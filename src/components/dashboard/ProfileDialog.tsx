@@ -171,7 +171,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3 pb-4">
-          <DialogTitle className="text-2xl font-bold neon-text flex items-center gap-2" style={{ color: 'hsl(180 100% 65%)' }}>
+          <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-primary">
             <User className="h-6 w-6" />
             Configurações
           </DialogTitle>
@@ -440,7 +440,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105"
+                  className="flex-1 gap-2 bg-primary hover:bg-primary/90 pulso-glow-cta transition-all duration-300 hover:scale-105"
                   disabled={loading}
                 >
                   <Save className="h-4 w-4" />
