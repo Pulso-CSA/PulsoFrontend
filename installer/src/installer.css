@@ -1,0 +1,128 @@
+:root {
+  --bg: 232 42% 4%;
+  --fg: 0 0% 98%;
+  --card: 232 32% 8%;
+  --primary: 178 92% 52%;
+  --primary-deep: 178 92% 40%;
+  --muted: 232 28% 12%;
+  --muted-fg: 0 0% 72%;
+  --border: 232 30% 22%;
+  --data-ai: 268 75% 58%;
+}
+
+.installer-light {
+  --bg: 220 20% 98%;
+  --fg: 222 47% 11%;
+  --card: 0 0% 100%;
+  --primary: 180 95% 40%;
+  --primary-deep: 180 95% 30%;
+  --muted: 220 14% 94%;
+  --muted-fg: 222 25% 38%;
+  --border: 220 14% 90%;
+  --data-ai: 275 55% 50%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: hsl(var(--bg));
+  color: hsl(var(--fg));
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.installer-pulso-bg {
+  background: linear-gradient(
+    135deg,
+    hsl(232 42% 4%) 0%,
+    hsl(235 45% 6%) 25%,
+    hsl(240 40% 8%) 50%,
+    hsl(260 35% 10%) 75%,
+    hsl(280 30% 8%) 100%
+  );
+}
+
+.installer-light .installer-pulso-bg {
+  background: linear-gradient(
+    135deg,
+    hsl(220 25% 98%) 0%,
+    hsl(230 20% 96%) 50%,
+    hsl(260 15% 95%) 100%
+  );
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
+  50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.5); }
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.btn-pulso {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-deep)));
+  color: hsl(232 42% 4%);
+  box-shadow: 0 4px 20px hsl(var(--primary) / 0.3);
+}
+
+.btn-pulso:hover {
+  box-shadow: 0 6px 28px hsl(var(--primary) / 0.5);
+}
+
+.card-pulso {
+  border: 1px solid hsl(var(--border) / 0.5);
+  background: hsl(var(--card));
+  transition: all 0.3s ease;
+}
+
+.card-pulso:hover {
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow: 0 4px 24px hsl(var(--primary) / 0.1);
+}

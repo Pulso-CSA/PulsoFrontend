@@ -6,6 +6,7 @@ import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import { useToast } from "@/hooks/use-toast";
 import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatarData } from "@/lib/utils";
 
 const ProfileSelection = () => {
   const navigate = useNavigate();
@@ -44,17 +45,20 @@ const ProfileSelection = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Background animated elements */}
+      {/* Background — semiesferas PULSO (gradiente roxo→ciano conforme App.png) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-dataAi/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 pulso-orb-sm animate-pulse" style={{ animationDelay: "2s" }} />
       </div>
 
       {/* Header */}
       <div className="glass-strong relative z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-primary">Pulso</h1>
+          <div className="flex items-center gap-2">
+            <img src={import.meta.env.BASE_URL + "App.png"} alt="Pulso" className="h-8 w-8 object-contain" />
+            <h1 className="text-2xl font-bold text-primary">Pulso</h1>
+          </div>
           <div className="flex items-center gap-2">
             <ThemeSelector />
             <Button
@@ -96,7 +100,7 @@ const ProfileSelection = () => {
                     onClick={() => handleSelectProfile(profile.id)}
                     className={`glass p-6 cursor-pointer transition-all hover:scale-105 ${
                       currentProfile?.id === profile.id
-                        ? "border-2 border-primary bg-primary/10 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+                        ? "border-2 border-primary bg-primary/10 pulso-glow"
                         : "border border-primary/20 hover:border-primary/40"
                     }`}
                   >
@@ -114,7 +118,7 @@ const ProfileSelection = () => {
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-3">
-                          Criado em: {new Date(profile.createdAt).toLocaleDateString('pt-BR')}
+                          Criado em: {formatarData(profile.createdAt)}
                         </p>
                       </div>
                     </div>

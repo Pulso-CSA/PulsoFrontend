@@ -63,13 +63,18 @@ const ForgotPassword = () => {
       {/* Background animated elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-20 right-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         <div className="text-center mb-8">
+          <img
+            src={import.meta.env.BASE_URL + "App.png"}
+            alt="Pulso"
+            className="h-14 w-14 mx-auto mb-4 object-contain"
+          />
           <h1 className="text-4xl font-bold mb-2 neon-text" style={{ 
-            background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--finops)) 100%)',
+            background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'

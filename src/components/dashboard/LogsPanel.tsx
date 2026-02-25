@@ -270,7 +270,7 @@ const LogsPanel = () => {
 
   return (
     <div className="space-y-4">
-      <div className="glass-strong neon-glow rounded-2xl p-6">
+      <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">

@@ -1,12 +1,12 @@
 import { useState, useRef } from "react";
-import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, TestTube } from "lucide-react";
+import { Send, Trash2, Copy, Clock, FolderOpen, FileCode, Plus, X, Upload, TestTube, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { ChatTextarea } from "@/components/ui/chat-textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { workflowApi } from "@/lib/api";
+import { comprehensionApi } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -14,22 +14,104 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import FileTree from "./FileTree";
+import FileTree, { type FileNode } from "./FileTree";
 
 interface EnvVariable {
   name: string;
   value: string;
 }
 
-interface FileNode {
-  name: string;
-  type: "file" | "folder";
-  children?: FileNode[];
+/** Converte a string file_tree da API (com * nos itens novos) em árvore para o FileTree. */
+function parseFileTreeString(fileTree: string): FileNode[] {
+  const lines = fileTree.trim().split("\n").filter(Boolean);
+  if (lines.length === 0) return [];
+
+  const items: { level: number; name: string; type: "file" | "folder"; isNew: boolean }[] = [];
+  for (const line of lines) {
+    const indent = line.match(/^\s*/)?.[0].length ?? 0;
+    const level = Math.floor(indent / 2);
+    let rest = line.trim();
+    const isNew = rest.endsWith("*");
+    if (isNew) rest = rest.slice(0, -1).trim();
+    const isFolder = rest.endsWith("/");
+    const name = isFolder ? rest.slice(0, -1) : rest;
+    if (!name) continue;
+    items.push({
+      level,
+      name,
+      type: isFolder ? "folder" : "file",
+      isNew,
+    });
+  }
+
+  const stack: { node: FileNode; level: number }[] = [];
+  const root: FileNode[] = [];
+
+  for (const item of items) {
+    const node: FileNode = {
+      name: item.name,
+      type: item.type,
+      isNew: item.isNew,
+      ...(item.type === "folder" ? { children: [] } : {}),
+    };
+    while (stack.length > 0 && stack[stack.length - 1].level >= item.level) stack.pop();
+    if (stack.length === 0) {
+      root.push(node);
+    } else {
+      const parent = stack[stack.length - 1].node;
+      if (parent.children) parent.children.push(node);
+    }
+    if (item.type === "folder") stack.push({ node, level: item.level });
+  }
+
+  return root;
 }
 
 interface PromptHistory {
   id: string;
   text: string;
+  timestamp: Date;
+}
+
+export interface ComprehensionResult {
+  curl_commands?: string[];
+  preview_frontend_url?: string | null;
+}
+
+/** Parseia cURL e executa via fetch (GET e POST com JSON) */
+async function executeCurl(curlStr: string): Promise<{ ok: boolean; status: number; body: string }> {
+  const urlMatch = curlStr.match(/https?:\/\/[^\s'"]+/);
+  const url = urlMatch?.[0];
+  if (!url) throw new Error("URL não encontrada no cURL");
+
+  const methodMatch = curlStr.match(/-X\s+(GET|POST|PUT|DELETE|PATCH)/i);
+  const method = (methodMatch?.[1]?.toUpperCase() ?? "GET") as RequestInit["method"];
+
+  let body: string | undefined;
+  const dMatch = curlStr.match(/-d\s+'([^']*(?:\\'[^']*)*)'/);
+  if (dMatch) {
+    body = dMatch[1].replace(/\\'/g, "'");
+  } else {
+    const dMatch2 = curlStr.match(/-d\s+"([^"]*(?:\\"[^"]*)*)"/);
+    if (dMatch2) body = dMatch2[1].replace(/\\"/g, '"');
+  }
+
+  const headers: Record<string, string> = {};
+  const hMatches = curlStr.matchAll(/-H\s+["']([^:]+):\s*([^"']+)["']/g);
+  for (const m of hMatches) {
+    headers[m[1].trim()] = m[2].trim();
+  }
+  if (!headers["Content-Type"] && body) headers["Content-Type"] = "application/json";
+
+  const res = await fetch(url, { method, headers, body });
+  const text = await res.text();
+  return { ok: res.ok, status: res.status, body: text };
+}
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "system";
+  content: string;
   timestamp: Date;
 }
 
@@ -43,9 +125,15 @@ function buildEnvContent(envVars: EnvVariable[]): string {
     .join("\n");
 }
 
-const PromptPanel = () => {
+interface PromptPanelProps {
+  onComprehensionResult?: (result: ComprehensionResult) => void;
+  onClear?: () => void;
+}
+
+const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
   const { user } = useAuth();
-  const [prompt, setPrompt] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
   const [envVars, setEnvVars] = useState<EnvVariable[]>([]);
   const [newVarName, setNewVarName] = useState("");
   const [newVarValue, setNewVarValue] = useState("");
@@ -55,7 +143,16 @@ const PromptPanel = () => {
   const [history, setHistory] = useState<PromptHistory[]>([]);
   const [fileStructure, setFileStructure] = useState<FileNode[] | null>(null);
   const [showTestDialog, setShowTestDialog] = useState(false);
+  const [curlCommands, setCurlCommands] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem("pulso_curl_commands");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const addEnvVariable = () => {
@@ -87,7 +184,8 @@ const PromptPanel = () => {
   };
 
   const handleSubmit = async () => {
-    if (!prompt.trim()) return;
+    const promptText = input.trim();
+    if (!promptText) return;
     if (!user?.id) {
       toast({
         title: "Usuário não autenticado",
@@ -96,87 +194,79 @@ const PromptPanel = () => {
       });
       return;
     }
-    if (!folderPath.trim()) {
-      toast({
-        title: "Caminho obrigatório",
-        description: "Informe o caminho da pasta raiz do projeto",
-        variant: "destructive",
-      });
-      return;
-    }
 
+    const userMsg: ChatMessage = {
+      id: `u-${Date.now()}`,
+      role: "user",
+      content: promptText,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
     setLoading(true);
+
     try {
-      const payload: {
-        usuario: string;
-        prompt: string;
-        root_path: string;
-        env_content?: string;
-      } = {
+      const payload = {
         usuario: user.id,
-        prompt: prompt.trim(),
-        root_path: folderPath.trim(),
+        prompt: promptText,
+        root_path: folderPath.trim() || null,
       };
 
-      // Se há variáveis (arquivo .env carregado ou pares nome-valor), inclui para o backend criar .env em root_path
-      if (envVars.length > 0) {
-        payload.env_content = buildEnvContent(envVars);
-      }
+      const res = await comprehensionApi.run(payload);
 
-      const res = await workflowApi.runCorrect(payload);
-      const id = res.request_id ?? `REQ-${Date.now().toString(36).toUpperCase()}`;
-      setRequestId(id);
+      const systemMsg: ChatMessage = {
+        id: `s-${Date.now()}`,
+        role: "system",
+        content: res.message,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, systemMsg]);
+
+      if (res.file_tree?.trim()) {
+        setFileStructure(parseFileTreeString(res.file_tree));
+      } else {
+        setFileStructure(null);
+      }
+      setRequestId(null);
+
+      if (res.curl_commands?.length) {
+        setCurlCommands(res.curl_commands);
+        localStorage.setItem("pulso_curl_commands", JSON.stringify(res.curl_commands));
+        setShowTestDialog(true);
+      } else {
+        setCurlCommands([]);
+        localStorage.removeItem("pulso_curl_commands");
+        setShowTestDialog(false);
+      }
+      onComprehensionResult?.({
+        curl_commands: res.curl_commands ?? [],
+        preview_frontend_url: res.preview_frontend_url ?? null,
+      });
 
       const newEntry: PromptHistory = {
-        id,
-        text: prompt,
+        id: `req-${Date.now()}`,
+        text: promptText,
         timestamp: new Date(),
       };
       setHistory((prev) => [newEntry, ...prev.slice(0, 4)]);
 
       toast({
-        title: "Prompt enviado",
-        description: `ID da requisição: ${id}`,
+        title: res.intent === "EXECUTAR" && res.should_execute ? "Executado" : "Resposta recebida",
+        description: res.next_action || undefined,
       });
-
-      // Estrutura mockada enquanto o backend não retornar a real
-      const mockStructure: FileNode[] = [
-        {
-          name: "src",
-          type: "folder",
-          children: [
-            {
-              name: "components",
-              type: "folder",
-              children: [
-                { name: "Header.tsx", type: "file" },
-                { name: "Footer.tsx", type: "file" },
-              ],
-            },
-            {
-              name: "pages",
-              type: "folder",
-              children: [
-                { name: "Home.tsx", type: "file" },
-                { name: "Dashboard.tsx", type: "file" },
-              ],
-            },
-            {
-              name: "services",
-              type: "folder",
-              children: [{ name: "api.ts", type: "file" }],
-            },
-            { name: "App.tsx", type: "file" },
-          ],
-        },
-        { name: "package.json", type: "file" },
-        { name: "README.md", type: "file" },
-      ];
-      setFileStructure(mockStructure);
     } catch (err) {
+      const msg = err instanceof Error ? err.message : "Tente novamente";
+      const is400 = msg.includes("400") || msg.toLowerCase().includes("vazio") || msg.toLowerCase().includes("obrigatório");
+      const errMsg: ChatMessage = {
+        id: `s-${Date.now()}`,
+        role: "system",
+        content: is400 ? `Validação: ${msg}` : `Erro: ${msg}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errMsg]);
       toast({
-        title: "Erro ao enviar prompt",
-        description: err instanceof Error ? err.message : "Tente novamente",
+        title: is400 ? "Dados inválidos" : "Erro ao enviar prompt",
+        description: msg,
         variant: "destructive",
       });
     } finally {
@@ -185,13 +275,17 @@ const PromptPanel = () => {
   };
 
   const handleClear = () => {
-    setPrompt("");
+    setMessages([]);
+    setInput("");
     setEnvVars([]);
     setNewVarName("");
     setNewVarValue("");
     setFolderPath("");
     setRequestId(null);
     setFileStructure(null);
+    setCurlCommands([]);
+    localStorage.removeItem("pulso_curl_commands");
+    onClear?.();
   };
 
   const handleCopyId = () => {
@@ -205,7 +299,7 @@ const PromptPanel = () => {
   };
 
   const handleReusePrompt = (text: string) => {
-    setPrompt(text);
+    setInput(text);
     document.getElementById('prompt-input')?.focus();
   };
 
@@ -277,55 +371,65 @@ const PromptPanel = () => {
     });
   };
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000";
-  const workflowPayload =
-    folderPath && prompt
-      ? JSON.stringify({
-          usuario: user?.id ?? "USER_ID",
-          prompt: prompt.trim(),
-          root_path: folderPath.trim(),
-        })
-      : null;
-  const workflowCurl =
-    workflowPayload
-      ? `curl -X POST "${apiBase}/workflow/correct/run" -H "Content-Type: application/json" -d '${workflowPayload.replace(/'/g, "'\\''")}'`
-      : null;
+  const [executingCurl, setExecutingCurl] = useState<number | null>(null);
+  const handleExecuteCurl = async (curl: string, index: number) => {
+    setExecutingCurl(index);
+    try {
+      const result = await executeCurl(curl);
+      if (result.ok) {
+        toast({
+          title: "cURL executado",
+          description: `Status ${result.status}. Resposta: ${result.body.slice(0, 100)}${result.body.length > 100 ? "..." : ""}`,
+        });
+      } else {
+        toast({
+          title: "cURL retornou erro",
+          description: `Status ${result.status}: ${result.body.slice(0, 150)}`,
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erro ao executar cURL",
+        description: err instanceof Error ? err.message : "Falha na execução",
+        variant: "destructive",
+      });
+    } finally {
+      setExecutingCurl(null);
+    }
+  };
 
-  const testCurls = [
-    ...(workflowCurl
-      ? [
-          {
-            name: "Workflow Correct Run (atual)",
-            curl: workflowCurl,
-          },
-        ]
+  const apiBase = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").toString().trim();
+  const comprehensionPayload = input.trim()
+    ? JSON.stringify({
+        usuario: user?.id ?? "USER_ID",
+        prompt: input.trim(),
+        root_path: folderPath.trim() || null,
+      })
+    : null;
+  const comprehensionCurl = comprehensionPayload
+    ? `curl -X POST "${apiBase}/comprehension/run" -H "Content-Type: application/json" -d '${comprehensionPayload.replace(/'/g, "'\\''")}'`
+    : null;
+
+  const fallbackCurls = [
+    ...(comprehensionCurl
+      ? [{ name: "Comprehension Run (atual)", curl: comprehensionCurl }]
       : []),
-    {
-      name: "Health Check",
-      curl: `curl -X GET ${apiBase}/health`,
-    },
-    {
-      name: "API Status",
-      curl: `curl -X GET ${apiBase}/api/status`,
-    },
-    {
-      name: "List Users",
-      curl: `curl -X GET ${apiBase}/api/users`,
-    },
-    {
-      name: "Create User",
-      curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'`,
-    },
-    {
-      name: "Upload File",
-      curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"`,
-    },
+    { name: "Health Check", curl: `curl -X GET ${apiBase}/health` },
+    { name: "API Status", curl: `curl -X GET ${apiBase}/api/status` },
+    { name: "List Users", curl: `curl -X GET ${apiBase}/api/users` },
+    { name: "Create User", curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'` },
+    { name: "Upload File", curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"` },
   ];
+
+  const displayCurls = curlCommands.length > 0
+    ? curlCommands.map((curl, i) => ({ name: `Comando ${i + 1}`, curl }))
+    : fallbackCurls;
 
   return (
     <div className="space-y-6">
       {/* Área de input */}
-      <div className="glass-strong neon-glow rounded-2xl p-6 space-y-4">
+      <div className="glass-strong pulso-card rounded-2xl p-6 space-y-4 border-primary/20">
         {/* Caminho da Pasta */}
         <div className="space-y-2">
           <Label htmlFor="folder-path" className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -454,39 +558,97 @@ const PromptPanel = () => {
           </div>
         </div>
 
-        {/* Prompt Principal */}
+        {/* Chat - Descrição do Projeto */}
         <div className="space-y-2">
           <Label htmlFor="prompt-input" className="text-sm font-medium text-foreground flex items-center gap-2">
             <Send className="h-4 w-4 text-primary" />
             Descrição do Projeto
           </Label>
-          <Textarea
-            id="prompt-input"
-            placeholder="Ex.: 'Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...'"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="min-h-[120px] resize-none border-0 focus-visible:ring-0 bg-transparent text-base"
-          />
+          <div className="min-h-[560px] max-h-[960px] overflow-y-auto rounded-lg border border-primary/30 bg-background/30 p-4 space-y-4">
+            {messages.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Ex.: &quot;Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...&quot;
+              </p>
+            ) : (
+              <>
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[90%] rounded-lg p-3 text-sm ${
+                        msg.role === "user"
+                          ? "bg-primary/20 text-foreground"
+                          : "bg-muted/50 text-foreground"
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {loading && (
+                  <div className="flex justify-start animate-slide-up">
+                    <div className="bg-muted/50 text-foreground rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1.5 items-end h-4">
+                          <div
+                            className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
+                            style={{ animationDelay: "0ms" }}
+                          />
+                          <div
+                            className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
+                            style={{ animationDelay: "200ms" }}
+                          />
+                          <div
+                            className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
+                            style={{ animationDelay: "400ms" }}
+                          />
+                        </div>
+                        <span className="text-sm text-muted-foreground">Digitando...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="flex gap-2 items-end"
+          >
+            <ChatTextarea
+              id="prompt-input"
+              placeholder="Ex.: 'Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos...'"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onSend={handleSubmit}
+              className="border-primary/30 bg-background/50 focus-visible:ring-primary py-2"
+            />
+            <Button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className="shrink-0 h-10"
+            >
+              {loading ? "..." : <Send className="h-4 w-4" />}
+            </Button>
+          </form>
         </div>
 
         <div className="flex gap-3">
-          <Button 
-            onClick={handleSubmit} 
-            disabled={!prompt.trim() || !folderPath.trim() || loading}
-            className="flex-1 h-12 text-base font-medium"
-          >
-            {loading ? "Enviando..." : (
-              <>
-                <Send className="mr-2 h-5 w-5" />
-                Enviar Prompt
-              </>
-            )}
-          </Button>
           <Button
             variant="outline"
             onClick={() => setShowTestDialog(true)}
-            className="h-12 px-6 border-finops/40 hover:border-finops hover:bg-finops/10 text-finops"
-            title="Testar aplicação"
+            disabled={curlCommands.length === 0}
+            className="h-12 px-6 border-primary/40 hover:border-primary hover:bg-primary/10 text-primary disabled:opacity-50 disabled:pointer-events-none"
+            title={curlCommands.length === 0 ? "Aguarde a resposta do backend com os comandos de teste" : "Testar aplicação"}
           >
             <TestTube className="h-5 w-5 mr-2" />
             Testar
@@ -494,7 +656,7 @@ const PromptPanel = () => {
           <Button 
             variant="outline" 
             onClick={handleClear}
-            disabled={!prompt && !requestId}
+            disabled={messages.length === 0 && !requestId}
             className="h-12 px-6"
           >
             <Trash2 className="h-5 w-5" />
@@ -502,7 +664,7 @@ const PromptPanel = () => {
         </div>
 
         {requestId && (
-          <div className="flex items-center gap-2 p-4 glass border border-primary/30 rounded-xl neon-glow">
+          <div className="flex items-center gap-2 p-4 glass border border-primary/20 rounded-xl pulso-glow">
             <span className="text-sm font-mono text-primary flex-1">
               ID: {requestId}
             </span>
@@ -514,16 +676,19 @@ const PromptPanel = () => {
       </div>
 
       {/* Estrutura de arquivos */}
-      {fileStructure && (
-        <div className="glass-strong neon-glow rounded-2xl p-6">
+        {fileStructure && (
+        <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-primary neon-glow">
-              Estrutura de Arquivos Gerada
+            <h3 className="text-base font-semibold text-primary">
+              Árvore do projeto
             </h3>
             <span className="text-xs text-muted-foreground font-mono">
               {requestId}
             </span>
           </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">*</span> = criado neste run
+          </p>
           <div className="bg-background/30 rounded-xl p-4 max-h-96 overflow-y-auto border border-primary/20">
             <FileTree structure={fileStructure} />
           </div>
@@ -532,8 +697,8 @@ const PromptPanel = () => {
 
       {/* Histórico */}
       {history.length > 0 && (
-        <div className="glass-strong neon-glow rounded-2xl p-6">
-          <h3 className="text-base font-semibold text-primary neon-glow mb-4">
+        <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
+          <h3 className="text-base font-semibold text-primary mb-4">
             Histórico recente
           </h3>
           <div className="space-y-3">
@@ -568,7 +733,7 @@ const PromptPanel = () => {
         </div>
       )}
 
-      {!prompt && !requestId && history.length === 0 && (
+      {messages.length === 0 && !requestId && history.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
             Descreva sua solicitação para começarmos
@@ -578,35 +743,58 @@ const PromptPanel = () => {
 
       {/* Dialog de Testes com cURL */}
       <Dialog open={showTestDialog} onOpenChange={setShowTestDialog}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="w-[min(90vw,920px)] max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-2">
-              <TestTube className="h-6 w-6" />
+            <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+              <TestTube className="h-5 w-5 text-primary" />
               Exemplos de Testes cURL
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-muted-foreground">
               Comandos de teste para seu backend
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
-            {testCurls.map((test, index) => (
-              <div key={index} className="glass p-4 rounded-lg border border-primary/20">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-foreground">{test.name}</h4>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCopyCurl(test.curl)}
-                    className="h-7 border-primary/40 hover:border-primary hover:bg-primary/10"
-                  >
-                    <Copy className="h-3 w-3 mr-1" />
-                    Copiar
-                  </Button>
+          <div className="space-y-3 mt-2 overflow-y-auto flex-1 min-h-0 pr-1">
+            {displayCurls.map((test, index) => (
+              <div
+                key={index}
+                className="rounded-xl border border-border bg-muted/30 p-4 transition-colors hover:bg-muted/50"
+              >
+                <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                  <h4 className="font-medium text-foreground text-sm">{test.name}</h4>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExecuteCurl(test.curl, index)}
+                      disabled={executingCurl !== null}
+                      className="h-8 text-xs"
+                    >
+                      {executingCurl === index ? (
+                        <span className="animate-pulse">Executando...</span>
+                      ) : (
+                        <>
+                          <Play className="h-3.5 w-3.5 mr-1.5" />
+                          Executar
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopyCurl(test.curl)}
+                      className="h-8 text-xs"
+                    >
+                      <Copy className="h-3.5 w-3.5 mr-1.5" />
+                      Copiar
+                    </Button>
+                  </div>
                 </div>
-                <pre className="text-xs bg-background/50 p-3 rounded border border-primary/10 overflow-x-auto">
-                  <code className="text-muted-foreground font-mono">{test.curl}</code>
-                </pre>
+                <div className="overflow-x-auto rounded-lg bg-background/80 border border-border/60 p-3">
+                  <pre className="text-xs font-mono text-foreground whitespace-pre min-w-max">
+                    <code>{test.curl}</code>
+                  </pre>
+                </div>
               </div>
             ))}
           </div>

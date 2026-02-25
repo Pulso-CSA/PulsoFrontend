@@ -1,4 +1,4 @@
-import { Moon, Sun, Palette, Check } from "lucide-react";
+import { Palette, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,71 +8,51 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useThemeContext, ThemeVariant } from "@/contexts/ThemeContext";
+import { useThemeContext, type ThemePulso } from "@/contexts/ThemeContext";
 
-const themeVariants: { id: ThemeVariant; name: string; colors: string[] }[] = [
-  { id: "neon", name: "Neon Cyan", colors: ["#00ffff", "#00ff99", "#bf00ff"] },
-  { id: "ocean", name: "Ocean Blue", colors: ["#0ea5e9", "#06b6d4", "#8b5cf6"] },
-  { id: "forest", name: "Forest Green", colors: ["#22c55e", "#84cc16", "#f59e0b"] },
+const themePulsoOptions: { id: ThemePulso; name: string; colors: string[] }[] = [
+  { id: "light", name: "Claro", colors: ["#FAFAFA", "#00BEC8", "#522A6F"] },
+  { id: "medium", name: "Médio", colors: ["#0D0E12", "#00BEC8", "#8B5CF6"] },
+  { id: "dark", name: "Escuro", colors: ["#0D0E12", "#00BEC8", "#8B5CF6"] },
 ];
 
 const ThemeSelector = () => {
-  const { themeVariant, themeMode, setThemeVariant, toggleMode } = useThemeContext();
+  const { themePulso, setThemePulso } = useThemeContext();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
-          className="relative"
+          className="relative h-9 w-9 transition-all duration-300 ease-out hover:scale-105"
           aria-label="Selecionar tema"
         >
           <Palette className="h-5 w-5 text-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 glass-strong border-2 border-primary/30">
-        <DropdownMenuLabel className="text-foreground/80">Tema</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-foreground/80">Tema PULSO</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
-        {/* Mode Toggle */}
-        <DropdownMenuItem 
-          onClick={toggleMode}
-          className="cursor-pointer flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2">
-            {themeMode === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-            <span>{themeMode === "dark" ? "Modo Claro" : "Modo Escuro"}</span>
-          </div>
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-foreground/80 text-xs">Paleta de Cores</DropdownMenuLabel>
-        
-        {/* Theme Variants */}
-        {themeVariants.map((variant) => (
+        {themePulsoOptions.map((opt) => (
           <DropdownMenuItem
-            key={variant.id}
-            onClick={() => setThemeVariant(variant.id)}
+            key={opt.id}
+            onClick={() => setThemePulso(opt.id)}
             className="cursor-pointer flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
               <div className="flex gap-0.5">
-                {variant.colors.map((color, i) => (
+                {opt.colors.map((color, i) => (
                   <div
                     key={i}
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full ring-1 ring-border/50"
                     style={{ backgroundColor: color }}
                   />
                 ))}
               </div>
-              <span>{variant.name}</span>
+              <span>{opt.name}</span>
             </div>
-            {themeVariant === variant.id && (
+            {themePulso === opt.id && (
               <Check className="h-4 w-4 text-primary" />
             )}
           </DropdownMenuItem>

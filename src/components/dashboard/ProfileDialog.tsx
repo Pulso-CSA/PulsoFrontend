@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Camera, Mail, Save, Lock, Eye, EyeOff, CreditCard, Crown, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileManagement from "./ProfileManagement";
 import { useAuth } from "@/contexts/AuthContext";
+import { authApi } from "@/lib/api";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -26,7 +27,7 @@ interface ProfileDialogProps {
 const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -42,6 +43,19 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     confirmPassword: "",
   });
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
+
+  useEffect(() => {
+    if (open && user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+    }
+  }, [open, user?.name, user?.email]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,25 +116,35 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       }
     }
 
-    // TODO: Implement API call to update user profile
     try {
-      // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-      // await fetch(`${API_BASE_URL}/user/profile`, { ... });
-      
+      const payload: { name?: string; email?: string; new_password?: string; picture?: string } = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+      };
+      if (formData.newPassword) {
+        payload.new_password = formData.newPassword;
+      }
+      if (formData.avatarUrl) {
+        payload.picture = formData.avatarUrl;
+      }
+
+      await authApi.updateMe(payload);
+      await refreshUser();
+
       toast({
         title: "Conta atualizada",
-        description: formData.newPassword 
-          ? "Suas informações e senha foram atualizadas com sucesso" 
+        description: formData.newPassword
+          ? "Suas informações e senha foram atualizadas com sucesso"
           : "Suas informações foram salvas com sucesso",
       });
-      
+
       setFormData({
         ...formData,
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
-      
+
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -147,7 +171,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3 pb-4">
-          <DialogTitle className="text-2xl font-bold neon-text flex items-center gap-2" style={{ color: 'hsl(180 100% 65%)' }}>
+          <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-primary">
             <User className="h-6 w-6" />
             Configurações
           </DialogTitle>
@@ -416,7 +440,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105"
+                  className="flex-1 gap-2 bg-primary hover:bg-primary/90 pulso-glow-cta transition-all duration-300 hover:scale-105"
                   disabled={loading}
                 >
                   <Save className="h-4 w-4" />

@@ -23,13 +23,13 @@ const Index = () => {
       icon: TrendingDown,
       title: "FinOps",
       description: "Otimize custos na nuvem",
-      color: "finops",
+      color: "primary",
     },
     {
       icon: Brain,
       title: "Data AI",
       description: "Explore dados com IA",
-      color: "dataAi",
+      color: "primary",
     }
   ];
 
@@ -38,8 +38,8 @@ const Index = () => {
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-finops/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1.5s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-dataAi/8 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] animate-pulse stagger-3" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-primary/8 rounded-full blur-[80px] animate-pulse stagger-5" />
         
         {/* Grid pattern */}
         <div 
@@ -53,7 +53,11 @@ const Index = () => {
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 lg:px-12 py-5">
-        <div /> {/* Spacer */}
+        <img
+          src={import.meta.env.BASE_URL + "App.png"}
+          alt="Pulso"
+          className="h-10 w-10 object-contain"
+        />
         
         <div className="flex items-center gap-2">
           <ThemeSelector />
@@ -74,7 +78,7 @@ const Index = () => {
           <h1 
             className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 animate-fade-in tracking-tight"
             style={{ 
-              background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 50%, hsl(var(--finops)) 100%)',
+              background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 50%, hsl(var(--accent)) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',

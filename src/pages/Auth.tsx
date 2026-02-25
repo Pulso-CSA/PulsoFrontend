@@ -189,6 +189,7 @@ const Auth = () => {
         setShowProfileDialog(true);
       }
     } catch (error) {
+      console.error("[Auth] erro no submit", isLogin ? "login" : "signup", error);
       toast({
         title: isLogin ? "Erro no login" : "Erro no cadastro",
         description: error instanceof Error ? error.message : "Tente novamente",
@@ -217,26 +218,26 @@ const Auth = () => {
         <ThemeSelector />
       </div>
 
-      {/* Background animated elements */}
+      {/* Background — semiesferas PULSO (gradiente roxo→ciano conforme App.png) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-finops/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-72 h-72 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 neon-text" style={{ 
-            background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--finops)) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>Pulso</h1>
+          <img
+            src={import.meta.env.BASE_URL + "App.png"}
+            alt="Pulso"
+            className="h-14 w-14 mx-auto mb-4 object-contain"
+          />
+          <h1 className="text-4xl font-bold mb-2 text-primary">Pulso</h1>
           <p className="text-foreground/80">
             {isLogin ? "Acesse sua conta" : "Crie sua conta"}
           </p>
         </div>
 
-        <div className="glass-strong border-2 border-primary/30 rounded-2xl p-8 shadow-[0_0_30px_rgba(0,255,255,0.2)]">
+        <div className="glass-strong pulso-card border-2 border-primary/20 rounded-2xl p-8">
           {/* Google Login Button */}
           <Button
             type="button"
@@ -385,7 +386,7 @@ const Auth = () => {
 
             <Button 
               type="submit" 
-              className="w-full glass-strong border-2 border-primary hover:border-primary-light shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)] bg-gradient-to-r from-primary/80 to-primary-deep/60 transition-all duration-200" 
+              className="w-full glass-strong border-2 border-primary hover:border-primary-light pulso-glow-cta focus-visible:ring-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 transition-all duration-200" 
               disabled={loading}
             >
               {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}
@@ -425,7 +426,7 @@ const Auth = () => {
       <Dialog open={showProfileDialog} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader className="space-y-3">
-            <DialogTitle className="text-2xl font-bold neon-text flex items-center gap-2" style={{ color: 'hsl(180 100% 65%)' }}>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-primary">
               <UserPlus className="h-6 w-6" />
               Crie seu Primeiro Perfil
             </DialogTitle>
@@ -469,7 +470,7 @@ const Auth = () => {
             <Button
               onClick={handleCreateProfile}
               disabled={loading}
-              className="w-full gap-2 bg-primary hover:bg-primary/90 neon-glow transition-all duration-300 hover:scale-105 mt-6"
+              className="w-full gap-2 bg-primary hover:bg-primary/90 pulso-glow-cta transition-all duration-300 hover:scale-105 mt-6"
             >
               <UserPlus className="h-4 w-4" />
               {loading ? "Criando..." : "Criar Perfil e Começar"}

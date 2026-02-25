@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { subscriptionApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,50 +16,6 @@ import {
   ExternalLink
 } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-
-// Stripe Payment Links
-const stripePaymentLinks = {
-  basic: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_bJe00jdAl89e4fFcim8Zq08",
-      withKey: "https://buy.stripe.com/test_fZu6oHao989e13tequ8Zq09"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_28E28rbsdgFK27x96a8Zq0h",
-      withKey: "https://buy.stripe.com/test_9B6eVddAl1KQaE3aae8Zq0i"
-    }
-  },
-  plus: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_eVq14n67T6164fF96a8Zq0a",
-      withKey: "https://buy.stripe.com/test_cNibJ153P1KQ3bBdmq8Zq0b"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_5kQ9ATfItgFK8vV56a8Zq0j",
-      withKey: "https://buy.stripe.com/test_fZu9ATfItahmfYnbei8Zq0k"
-    }
-  },
-  pro: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_3cI28rgMx3SY27xgyC8Zq0c",
-      withKey: "https://buy.stripe.com/test_fZu8wPeEp89ecMb3LQ8Zq0d"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_bJedR9gMx9di7rRgyC8Zq0q",
-      withKey: "https://buy.stripe.com/test_00w00jao9cpu27xbei8Zq0r"
-    }
-  },
-  elite: {
-    monthly: {
-      withoutKey: "https://buy.stripe.com/test_dRmcN5bsdcpu6nN4PU8Zq0e",
-      withKey: "https://buy.stripe.com/test_bJe28r53PblqfYn0zE8Zq0f"
-    },
-    yearly: {
-      withoutKey: "https://buy.stripe.com/test_bJefZhdAl9di13taae8Zq0s",
-      withKey: "https://buy.stripe.com/test_5kQ6oHbsdblq7rR5TY8Zq0t"
-    }
-  }
-};
 
 const plans = [
   {
@@ -111,7 +69,7 @@ const plans = [
     ],
     popular: false,
     icon: Crown,
-    color: "text-finops"
+    color: "text-primary"
   },
   {
     id: "elite",
@@ -130,28 +88,37 @@ const plans = [
     ],
     popular: false,
     icon: Sparkles,
-    color: "text-dataAi"
+    color: "text-primary"
   }
 ];
 
 const Billing = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
 
-  const handleSelectPlan = (planId: string) => {
-    const planLinks = stripePaymentLinks[planId as keyof typeof stripePaymentLinks];
-    if (!planLinks) return;
-
-    const cycleLinks = billingCycle === "monthly" ? planLinks.monthly : planLinks.yearly;
-    
-    if (!cycleLinks) {
-      alert("Plano anual ainda não disponível para este plano. Por favor, selecione o plano mensal.");
-      return;
+  const handleSelectPlan = async (planId: string) => {
+    setLoadingPlanId(planId);
+    try {
+      const baseUrl = window.location.origin;
+      const { checkout_url } = await subscriptionApi.checkout({
+        planId,
+        billingCycle,
+        successUrl: `${baseUrl}/dashboard?checkout=success`,
+        cancelUrl: `${baseUrl}/dashboard?checkout=cancel`,
+      });
+      window.location.href = checkout_url;
+    } catch (err) {
+      toast({
+        title: "Erro ao iniciar checkout",
+        description: err instanceof Error ? err.message : "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlanId(null);
     }
-
-    const link = hasOpenAIKey ? cycleLinks.withKey : cycleLinks.withoutKey;
-    window.open(link, "_blank");
   };
 
   return (
@@ -173,8 +140,8 @@ const Billing = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold neon-text" style={{ 
-                background: 'linear-gradient(135deg, hsl(180 100% 70%) 0%, hsl(150 100% 65%) 100%)',
+              <h1 className="text-3xl font-bold" style={{ 
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
@@ -193,7 +160,7 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("monthly")}
                 className={billingCycle === "monthly" 
-                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-200" 
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200" 
                   : "rounded-full transition-all duration-200"}
               >
                 Mensal
@@ -203,7 +170,7 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("yearly")}
                 className={billingCycle === "yearly" 
-                  ? "rounded-full bg-gradient-to-r from-finops/80 to-success/60 shadow-[0_0_20px_rgba(0,255,153,0.4)] transition-all duration-200" 
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-accent/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200" 
                   : "rounded-full transition-all duration-200"}
               >
                 Anual
@@ -218,11 +185,11 @@ const Billing = () => {
               onClick={() => setHasOpenAIKey(!hasOpenAIKey)}
               className={`glass glass-hover border-2 gap-2 transition-all duration-300 ${
                 hasOpenAIKey 
-                  ? 'border-dataAi bg-gradient-to-r from-dataAi/30 to-secondary/30 shadow-[0_0_20px_rgba(191,0,255,0.5)] scale-105' 
-                  : 'border-primary/30 hover:border-dataAi/50 hover:scale-105'
+                  ? 'border-primary bg-gradient-to-r from-primary/30 to-accent/20 shadow-[0_0_20px_hsl(var(--primary)/0.4)] scale-105' 
+                  : 'border-primary/30 hover:border-primary/50 hover:scale-105'
               }`}
             >
-              <Sparkles className={`h-5 w-5 transition-all duration-300 ${hasOpenAIKey ? 'text-dataAi animate-pulse' : 'text-muted-foreground'}`} />
+              <Sparkles className={`h-5 w-5 transition-all duration-300 ${hasOpenAIKey ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
               <span className="font-semibold">
                 {hasOpenAIKey ? '✓ Desconto OpenAI Ativo (15%)' : 'Tenho Chave API OpenAI'}
               </span>
@@ -238,27 +205,27 @@ const Billing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan, idx) => {
               const Icon = plan.icon;
-              const price = billingCycle === "monthly" 
+              const price = billingCycle === "monthly"
                 ? (hasOpenAIKey ? plan.priceMonthlyWithAPI : plan.priceMonthly)
                 : (hasOpenAIKey ? plan.priceYearlyWithAPI : plan.priceYearly);
-              
-              const planLinks = stripePaymentLinks[plan.id as keyof typeof stripePaymentLinks];
-              const hasYearlyLink = planLinks?.yearly !== null;
-              const isDisabled = billingCycle === "yearly" && !hasYearlyLink;
+
+              const isYearlyUnavailable = billingCycle === "yearly" && ["pro", "elite"].includes(plan.id);
+              const isDisabled = isYearlyUnavailable;
+              const isLoading = loadingPlanId === plan.id;
               
               return (
                 <Card
                   key={plan.name}
                   className={`relative glass-strong p-6 border-2 hover:scale-105 transition-all duration-200 animate-fade-in ${
                     plan.popular 
-                      ? 'border-primary shadow-[0_0_30px_rgba(0,255,255,0.3)]' 
+                      ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)]' 
                       : 'border-primary/30 hover:border-primary/50'
                   }`}
                   style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-primary/80 to-primary-deep/60 border-0 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
+                      <Badge className="bg-gradient-to-r from-primary/80 to-primary-deep/60 border-0 shadow-[0_0_15px_hsl(var(--primary)/0.5)]">
                         Mais Popular
                       </Badge>
                     </div>
@@ -267,7 +234,7 @@ const Billing = () => {
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <Icon className={`h-8 w-8 ${plan.color} drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]`} />
+                        <Icon className={`h-8 w-8 ${plan.color} drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)]`} />
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg" />
                       </div>
                       <h3 className="text-xl font-bold">{plan.name}</h3>
@@ -283,7 +250,7 @@ const Billing = () => {
                         {billingCycle === "monthly" ? "por mês" : "por ano"}
                       </p>
                       {(billingCycle === "yearly" || hasOpenAIKey) && (
-                        <p className="text-xs text-finops font-semibold animate-fade-in">
+                        <p className="text-xs text-primary font-semibold animate-fade-in">
                           15% de desconto {hasOpenAIKey && '(OpenAI API)'}
                         </p>
                       )}
@@ -294,7 +261,7 @@ const Billing = () => {
                     <ul className="space-y-2">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <Check className="h-4 w-4 text-finops mt-0.5 flex-shrink-0" />
+                          <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -304,12 +271,14 @@ const Billing = () => {
                       onClick={() => handleSelectPlan(plan.id)}
                       className={`w-full glass-hover border-2 transition-all duration-200 gap-2 ${
                         plan.popular
-                          ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]'
+                          ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)]'
                           : 'border-primary/40 hover:border-primary/60'
                       }`}
-                      disabled={isDisabled}
+                      disabled={isDisabled || isLoading}
                     >
-                      {isDisabled ? "Em Breve" : (
+                      {isDisabled ? "Em Breve" : isLoading ? (
+                        "Redirecionando..."
+                      ) : (
                         <>
                           Assinar Plano
                           <ExternalLink className="h-4 w-4" />

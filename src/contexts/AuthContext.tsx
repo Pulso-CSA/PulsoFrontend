@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Profile } from '@/types';
 import { authApi, profilesApi, onSessionExpired, getRememberMe } from '@/lib/api';
+import { transformProfile } from '@/lib/profileUtils';
 
 interface AuthState {
   user: User | null;
@@ -19,21 +20,10 @@ interface AuthContextType extends AuthState {
   setCurrentProfile: (profile: Profile | null) => void;
   setProfiles: (profiles: Profile[]) => void;
   fetchProfiles: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Transform API response to our Profile type
-function transformProfile(apiProfile: any): Profile {
-  return {
-    id: apiProfile.id,
-    userId: apiProfile.user_id,
-    name: apiProfile.name,
-    description: apiProfile.description || '',
-    createdAt: apiProfile.created_at,
-    updatedAt: apiProfile.updated_at,
-  };
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -111,9 +101,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearAuthState]);
 
   const login = async (email: string, password: string, remember: boolean = false) => {
-    await authApi.login(email, password, remember);
+    console.log("[AuthContext] login chamado", { email, remember });
+    try {
+      await authApi.login(email, password, remember);
+    } catch (e) {
+      console.error("[AuthContext] login falhou", e);
+      throw e;
+    }
     setRememberMeState(remember);
-    
+
     // Fetch user data after successful login
     const userData = await authApi.getMe();
     setUser({
@@ -123,21 +119,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       createdAt: '',
       updatedAt: '',
     });
+    console.log("[AuthContext] login sucesso, buscando perfis");
     setIsAuthenticated(true);
 
     // Fetch profiles
     try {
       const profilesData = await profilesApi.getAll();
       setProfilesState(profilesData.map(transformProfile));
-    } catch {
+    } catch (e) {
+      console.warn("[AuthContext] erro ao buscar perfis", e);
       setProfilesState([]);
     }
   };
 
   const loginWithGoogle = async () => {
-    // Redirect to backend OAuth endpoint
-    const apiUrl = import.meta.env.VITE_API_URL || '/api';
-    window.location.href = `${apiUrl}/auth/google`;
+    // Redirect to backend OAuth endpoint (GET /auth/login/google)
+    const apiUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').toString().trim();
+    window.location.href = `${apiUrl}/auth/login/google`;
   };
 
   const signup = async (email: string, password: string, name: string, remember: boolean = false) => {
@@ -197,6 +195,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const userData = await authApi.getMe();
+      setUser({
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        createdAt: '',
+        updatedAt: '',
+      });
+    } catch {
+      // Silently fail - user will remain unchanged
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -213,6 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCurrentProfile,
         setProfiles,
         fetchProfiles,
+        refreshUser,
       }}
     >
       {children}

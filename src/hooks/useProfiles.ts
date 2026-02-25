@@ -2,18 +2,7 @@ import { useState } from 'react';
 import { Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { profilesApi } from '@/lib/api';
-
-// Transform API response to our Profile type
-function transformProfile(apiProfile: any): Profile {
-  return {
-    id: apiProfile.id,
-    userId: apiProfile.user_id,
-    name: apiProfile.name,
-    description: apiProfile.description || '',
-    createdAt: apiProfile.created_at,
-    updatedAt: apiProfile.updated_at,
-  };
-}
+import { transformProfile } from '@/lib/profileUtils';
 
 export function useProfiles() {
   const { profiles, setProfiles, isAuthenticated } = useAuth();
