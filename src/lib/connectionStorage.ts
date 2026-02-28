@@ -12,6 +12,7 @@ const FINOPS_CREDENTIALS_KEY = 'pulso_finops_credentials';
 const DATA_CHAT_SESSIONS_KEY = 'pulso_data_chat_sessions';
 const FINOPS_CHAT_SESSIONS_KEY = 'pulso_finops_chat_sessions';
 const CLOUD_CHAT_SESSIONS_KEY = 'pulso_cloud_chat_sessions';
+const PULSO_CSA_SESSIONS_KEY = 'pulso_csa_sessions';
 
 /** Contexto da conversa Inteligência de Dados (id_requisicao, dataset_ref, model_ref).
  * Usa localStorage para persistir entre refresh/abertura de aba - evita perda de dataset_ref
@@ -192,4 +193,19 @@ export function getCloudChatSessions(): ChatSession[] {
 
 export function setCloudChatSessions(sessions: ChatSession[]): void {
   localStorage.setItem(CLOUD_CHAT_SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+export function getPulsoCsaSessions(): ChatSession[] {
+  try {
+    const raw = localStorage.getItem(PULSO_CSA_SESSIONS_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw) as ChatSession[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+export function setPulsoCsaSessions(sessions: ChatSession[]): void {
+  localStorage.setItem(PULSO_CSA_SESSIONS_KEY, JSON.stringify(sessions));
 }

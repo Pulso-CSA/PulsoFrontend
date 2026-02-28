@@ -1,3 +1,11 @@
+/* Header sticky offset quando Electron title bar está fixa */
+.sticky-below-electron {
+  top: 0;
+}
+html[data-electron="true"] .sticky-below-electron {
+  top: 2.5rem;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -47,6 +55,10 @@ All colors MUST be HSL.
     --chat-system-foreground: 0 0% 100%;
     --glow-primary: 178 95% 48%;
     --glow-finops: 150 65% 40%;
+    /* Glass padrão (inset shadow — cores Pulso) */
+    --glass-bg: hsl(232 32% 12% / 0.55);
+    --glass-shadow-dark: rgba(8, 5, 29, 0.65);
+    --glass-shadow-light: rgba(79, 159, 243, 0.1);
   }
 
   /* ===== NEON CYAN - cyan perguntas, roxo respostas, legibilidade premium ===== */
@@ -501,40 +513,82 @@ All colors MUST be HSL.
     --glow-finops: 218 52% 54%;
   }
 
-  /* ===== PULSO — Reformulação completa (ciano #00BEC8 + roxo #522A6F) ===== */
+  /* ===== PULSO — Paleta base (degradê) ===== */
+  /* Design Tokens: #222023, #420d95, #a54bce, #60bcd5, #1897a0, #4d4d4d */
+  :root {
+    --pulso-bg-dark: #222023;
+    --pulso-purple-deep: #420d95;
+    --pulso-purple: #a54bce;
+    --pulso-cyan: #60bcd5;
+    --pulso-teal: #1897a0;
+    --pulso-gray: #4d4d4d;
+  }
+
+  /* ===== SPACE-NEON / AURORA — Tokens extraídos do logo App.png ===== */
+  /* Near-black, indigo, purple neon, cyan neon, magenta */
+  :root {
+    --pulso-near-black: #08051D;
+    --pulso-near-black-2: #090521;
+    --pulso-near-black-3: #0B0526;
+    --pulso-indigo-deep: #160E5B;
+    --pulso-indigo-deep-2: #1C1259;
+    --pulso-indigo-deep-3: #281651;
+    --pulso-purple-neon: #905DED;
+    --pulso-purple-neon-2: #925DF1;
+    --pulso-cyan-neon: #4F9FF3;
+    --pulso-cyan-neon-2: #60AACE;
+    --pulso-cyan-neon-3: #2599A5;
+    --pulso-magenta-aurora: #A74FD8;
+    --pulso-gray-frost: #4C4C4C;
+    --pulso-gray-frost-2: #5D5D5E;
+    --pulso-gray-frost-3: #545468;
+    --pulso-radius-sm: 16px;
+    --pulso-radius-md: 20px;
+    --pulso-radius-lg: 24px;
+    --pulso-blur-sm: 12px;
+    --pulso-blur-md: 16px;
+    --pulso-blur-lg: 24px;
+    --pulso-stroke-glass: rgba(255, 255, 255, 0.12);
+  }
+
+  /* ===== PULSO LIGHT — refinado, contraste suave, paleta harmoniosa ===== */
   .theme-pulso-light {
-    --background: 210 20% 97%;
-    --foreground: 215 25% 12%;
+    --background: 220 18% 96%;
+    --foreground: 225 30% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 12%;
+    --card-foreground: 225 30% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 12%;
-    --primary: 178 68% 36%;
+    --popover-foreground: 225 30% 14%;
+    --primary: 189 72% 38%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 178 68% 26%;
-    --primary-light: 178 60% 58%;
-    --secondary: 268 42% 36%;
+    --primary-deep: 189 72% 28%;
+    --primary-light: 189 55% 55%;
+    --secondary: 268 45% 42%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 210 14% 93%;
-    --muted-foreground: 215 16% 42%;
-    --accent: 178 65% 42%;
+    --muted: 220 14% 92%;
+    --muted-foreground: 225 18% 38%;
+    --accent: 189 65% 42%;
     --accent-foreground: 0 0% 100%;
-    --success: 152 55% 34%;
-    --warning: 36 92% 48%;
-    --destructive: 0 62% 46%;
-    --info: 199 72% 42%;
-    --finops: 152 55% 34%;
-    --data-ai: 268 52% 48%;
-    --border: 214 18% 88%;
-    --input: 214 14% 92%;
-    --ring: 178 68% 36%;
-    --chat-user: 178 68% 38%;
-    --chat-system: 268 42% 42%;
+    --success: 158 52% 36%;
+    --warning: 38 88% 50%;
+    --destructive: 0 65% 48%;
+    --info: 199 70% 44%;
+    --finops: 158 52% 36%;
+    --data-ai: 268 50% 50%;
+    --border: 220 16% 90%;
+    --input: 220 14% 94%;
+    --ring: 189 72% 38%;
+    --chat-user: 189 68% 40%;
+    --chat-system: 268 45% 45%;
     --chat-user-foreground: 0 0% 100%;
     --chat-system-foreground: 0 0% 100%;
-    --glow-primary: 178 68% 42%;
-    --glow-finops: 152 55% 38%;
-    --radius: 0.5rem;
+    --glow-primary: 189 68% 44%;
+    --glow-finops: 158 52% 40%;
+    --radius: 0.625rem;
+    /* Glass light — sombras mais suaves */
+    --glass-bg: hsl(0 0% 100% / 0.7);
+    --glass-shadow-dark: rgba(0, 0, 0, 0.06);
+    --glass-shadow-light: rgba(79, 159, 243, 0.08);
   }
 
   .theme-pulso-medium {
@@ -570,6 +624,10 @@ All colors MUST be HSL.
     --glow-primary: 178 65% 52%;
     --glow-finops: 152 52% 50%;
     --radius: 0.5rem;
+    /* Glass medium — herda ou sobrescreve */
+    --glass-bg: hsl(228 20% 12% / 0.55);
+    --glass-shadow-dark: rgba(8, 5, 29, 0.6);
+    --glass-shadow-light: rgba(79, 159, 243, 0.1);
   }
 
   .theme-pulso-dark {
@@ -605,6 +663,10 @@ All colors MUST be HSL.
     --glow-primary: 178 62% 54%;
     --glow-finops: 152 50% 52%;
     --radius: 0.5rem;
+    /* Glass dark — sombras mais profundas */
+    --glass-bg: hsl(230 22% 10% / 0.6);
+    --glass-shadow-dark: rgba(0, 0, 0, 0.5);
+    --glass-shadow-light: rgba(79, 159, 243, 0.08);
   }
 
   /* ===== FUCHSIA - luxo jewel, elegância vibrante ===== */
@@ -778,7 +840,7 @@ All colors MUST be HSL.
   }
 
   .theme-pulso-light body {
-    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(210 18% 95%) 100%) !important;
+    background: linear-gradient(180deg, hsl(220 18% 97%) 0%, hsl(220 14% 94%) 100%) !important;
     background-attachment: fixed;
   }
 
@@ -798,12 +860,23 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Glass padrão — inset shadow (Elemento 23, cores Pulso) */
   .glass {
-    @apply bg-card/40 backdrop-blur-xl transition-all duration-fluid ease-fluid;
+    background: var(--glass-bg, hsl(var(--card) / 0.4));
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: inset 20px -20px 40px var(--glass-shadow-dark, rgba(8, 5, 29, 0.5)),
+                inset -20px 20px 40px var(--glass-shadow-light, rgba(79, 159, 243, 0.08));
+    @apply transition-all duration-fluid ease-fluid;
   }
-  
+
   .glass-strong {
-    @apply bg-card/60 backdrop-blur-2xl transition-all duration-fluid ease-fluid;
+    background: var(--glass-bg, hsl(var(--card) / 0.6));
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    box-shadow: inset 28px -28px 56px var(--glass-shadow-dark, rgba(8, 5, 29, 0.6)),
+                inset -28px 28px 56px var(--glass-shadow-light, rgba(79, 159, 243, 0.1));
+    @apply transition-all duration-fluid ease-fluid;
   }
   
   .glass-hover {
@@ -860,6 +933,68 @@ All colors MUST be HSL.
 
   .pulso-glow-cta {
     box-shadow: 0 0 16px hsl(var(--primary) / 0.4);
+  }
+
+  /* ===== SPACE-NEON — Fundo "space" (radial + vinheta) ===== */
+  .bg-space {
+    background:
+      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.45) 0%, rgba(40, 22, 81, 0) 60%),
+      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.25) 0%, rgba(8, 5, 29, 0) 65%),
+      radial-gradient(120% 120% at 50% 50%, #0b0526 0%, #08051d 55%, #000 100%);
+  }
+
+  /* Aplica bg-space apenas quando tema escuro (space-neon) */
+  .theme-pulso-dark .bg-space-if-dark,
+  .theme-pulso-medium .bg-space-if-dark {
+    background:
+      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.35) 0%, rgba(40, 22, 81, 0) 60%),
+      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.2) 0%, rgba(8, 5, 29, 0) 65%),
+      radial-gradient(120% 120% at 50% 50%, #0b0526 0%, #08051d 55%, #000 100%);
+  }
+
+  /* Tema claro: fundo suave para manter consistência */
+  .theme-pulso-light .bg-space-if-dark {
+    background:
+      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.08) 0%, transparent 60%),
+      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.06) 0%, transparent 65%),
+      radial-gradient(120% 120% at 50% 50%, hsl(var(--background)) 0%, hsl(var(--background)) 100%);
+  }
+
+  /* ===== SPACE-NEON — Card de vidro (glassmorphism premium) ===== */
+  .glass-card {
+    background: rgba(20, 14, 91, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.55),
+      0 0 40px rgba(146, 93, 241, 0.18);
+  }
+
+  /* ===== SPACE-NEON — CTA gradiente aurora ===== */
+  .btn-aurora {
+    background: linear-gradient(90deg, rgba(167, 79, 216, 1), rgba(146, 93, 241, 1), rgba(96, 170, 206, 1));
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 10px 30px rgba(146, 93, 241, 0.25);
+    border-radius: 999px;
+  }
+
+  /* ===== SPACE-NEON — Faixa luminosa inferior (cards Elemento A/C) ===== */
+  .card-bottom-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  .card-bottom-glow::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -18px;
+    height: 44px;
+    background: linear-gradient(90deg, rgba(146, 93, 241, 0), rgba(146, 93, 241, 0.8), rgba(96, 170, 206, 0.8), rgba(96, 170, 206, 0));
+    filter: blur(14px);
+    opacity: 0.9;
   }
 }
 

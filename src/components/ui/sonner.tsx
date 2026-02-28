@@ -1,11 +1,11 @@
 import { Toaster as Sonner, toast } from "sonner";
-import { useThemeContext } from "@/contexts/ThemeContext";
+import { useLayoutContext } from "@/contexts/LayoutContext";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { themePulso } = useThemeContext();
-  const toasterTheme: ToasterProps["theme"] = themePulso === "light" ? "light" : "dark";
+  const { themeMode } = useLayoutContext();
+  const toasterTheme: ToasterProps["theme"] = themeMode === "light" ? "light" : "dark";
 
   return (
     <Sonner

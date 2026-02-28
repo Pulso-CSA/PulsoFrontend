@@ -93,8 +93,9 @@ export function BackendConnectionTest() {
 
         {/* Botões de teste */}
         <div className="flex gap-2">
-          <Button 
-            onClick={handleTest} 
+          <Button
+            variant="pulso"
+            onClick={handleTest}
             disabled={isTesting}
             className="flex-1"
           >
@@ -110,10 +111,10 @@ export function BackendConnectionTest() {
               </>
             )}
           </Button>
-          <Button 
-            onClick={handleTestMultiple} 
+          <Button
+            variant="pulso"
+            onClick={handleTestMultiple}
             disabled={isTesting}
-            variant="outline"
             className="flex-1"
           >
             Testar Múltiplas URLs

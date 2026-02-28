@@ -82,6 +82,18 @@ function createWindow() {
     autoUpdater.quitAndInstall(false, true);
   });
 
+  ipcMain.handle("save-report", async (_, filePath, content) => {
+    try {
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(filePath, content, "utf-8");
+      return true;
+    } catch (e) {
+      console.error("save-report error:", e);
+      return false;
+    }
+  });
+
   ipcMain.handle("open-uninstall", async () => {
     if (process.platform !== "win32") {
       shell.openExternal("https://support.microsoft.com/windows/uninstall-or-remove-apps-in-windows-10-4b55f974-2e13-4e4b-8b0a-15c0e1c1e5a5");

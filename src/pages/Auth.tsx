@@ -212,7 +212,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+    <div className="pulso-page-container min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Theme Selector */}
       <div className="absolute top-4 right-4 z-20">
         <ThemeSelector />
@@ -237,18 +237,19 @@ const Auth = () => {
           </p>
         </div>
 
-        <div className="glass-strong pulso-card border-2 border-primary/20 rounded-2xl p-8">
+        <div className="pulso-page-card glass-card glass-strong border-2 border-primary/20 rounded-2xl p-8">
           {/* Google Login Button */}
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="w-full glass glass-hover border-2 hover:border-primary/50 mb-4 transition-all duration-200"
+            className="showcase-sparkle-btn w-full justify-center gap-2 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
-            <Chrome className="mr-2 h-5 w-5" />
-            Continuar com Google
-          </Button>
+            <span className="showcase-spark" aria-hidden />
+            <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+            <Chrome className="w-5 h-5 relative z-10" />
+            <span className="relative z-10">Continuar com Google</span>
+          </button>
 
           <div className="relative my-6">
             <Separator />
@@ -384,13 +385,15 @@ const Auth = () => {
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full glass-strong border-2 border-primary hover:border-primary-light pulso-glow-cta focus-visible:ring-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 transition-all duration-200" 
+            <button
+              type="submit"
               disabled={loading}
+              className="showcase-sparkle-btn w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}
-            </Button>
+              <span className="showcase-spark" aria-hidden />
+              <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+              <span className="relative z-10">{loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}</span>
+            </button>
           </form>
 
           <div className="mt-4 text-center space-y-2">

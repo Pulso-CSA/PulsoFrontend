@@ -344,9 +344,9 @@ export function DataChatCharts({ graficosMetadados = [], graficosDados = [] }: D
         {graficosMetadados.length > 1 && (
           <div className="flex items-center justify-center gap-4 mt-4">
             <Button
-              variant="outline"
+              variant="pulso"
               size="icon"
-              className="h-9 w-9 shrink-0 hover:bg-muted"
+              className="h-9 w-9 shrink-0"
               onClick={() => scrollTo(Math.max(0, activeIndex - 1))}
               disabled={activeIndex === 0}
               aria-label="Gráfico anterior"
@@ -369,9 +369,9 @@ export function DataChatCharts({ graficosMetadados = [], graficosDados = [] }: D
               Gráfico {activeIndex + 1} de {graficosMetadados.length}
             </span>
             <Button
-              variant="outline"
+              variant="pulso"
               size="icon"
-              className="h-9 w-9 shrink-0 hover:bg-muted"
+              className="h-9 w-9 shrink-0"
               onClick={() => scrollTo(Math.min(graficosMetadados.length - 1, activeIndex + 1))}
               disabled={activeIndex === graficosMetadados.length - 1}
               aria-label="Próximo gráfico"

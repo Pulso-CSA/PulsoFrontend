@@ -21,12 +21,13 @@ const plans = [
   {
     id: "basic",
     name: "Basic",
+    chats: 1,
     priceMonthly: 29.99,
     priceYearly: 305.05,
     priceMonthlyWithAPI: 24.99,
     priceYearlyWithAPI: 254.90,
     features: [
-      "Até 10 projetos",
+      "1 chat/serviço ativo",
       "Blueprint básico",
       "5 GB de armazenamento",
       "Suporte por email"
@@ -38,12 +39,13 @@ const plans = [
   {
     id: "plus",
     name: "Plus",
+    chats: 2,
     priceMonthly: 44.77,
     priceYearly: 456.65,
     priceMonthlyWithAPI: 34.77,
     priceYearlyWithAPI: 354.65,
     features: [
-      "Até 50 projetos",
+      "2 chats/serviços ativos",
       "Blueprint avançado",
       "FinOps básico",
       "20 GB de armazenamento",
@@ -56,12 +58,13 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
+    chats: 3,
     priceMonthly: 59.77,
     priceYearly: 609.65,
     priceMonthlyWithAPI: 49.77,
     priceYearlyWithAPI: 507.65,
     features: [
-      "Projetos ilimitados",
+      "3 chats/serviços ativos",
       "Blueprint + FinOps + Analytics",
       "100 GB de armazenamento",
       "Suporte 24/7",
@@ -74,17 +77,18 @@ const plans = [
   {
     id: "elite",
     name: "Elite",
+    chats: 4,
     priceMonthly: 69.77,
     priceYearly: 711.65,
     priceMonthlyWithAPI: 57.77,
     priceYearlyWithAPI: 588.65,
     features: [
+      "4 chats/serviços ativos",
       "Tudo do Pro",
       "IA personalizada",
       "500 GB de armazenamento",
       "Gerente de conta dedicado",
-      "SLA garantido",
-      "Treinamento customizado"
+      "SLA garantido"
     ],
     popular: false,
     icon: Sparkles,
@@ -122,7 +126,7 @@ const Billing = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="pulso-page-container min-h-screen flex flex-col">
       <div className="glass-strong border-b">
         <DashboardHeader />
       </div>
@@ -132,10 +136,11 @@ const Billing = () => {
           {/* Header */}
           <div className="flex items-center gap-4 animate-fade-in">
             <Button
-              variant="outline"
+              variant="pulso"
               size="icon"
               onClick={() => navigate("/dashboard")}
-              className="glass glass-hover border-2 border-primary/40"
+              className="h-11 w-11 shrink-0"
+              aria-label="Voltar"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -216,9 +221,9 @@ const Billing = () => {
               return (
                 <Card
                   key={plan.name}
-                  className={`relative glass-strong p-6 border-2 hover:scale-105 transition-all duration-200 animate-fade-in ${
+                  className={`pulso-page-card glass-card relative p-6 border-2 hover:scale-[1.02] pulso-transition-premium animate-fade-in rounded-2xl ${
                     plan.popular 
-                      ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)]' 
+                      ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)] card-bottom-glow' 
                       : 'border-primary/30 hover:border-primary/50'
                   }`}
                   style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
@@ -267,24 +272,23 @@ const Billing = () => {
                       ))}
                     </ul>
 
-                    <Button
-                      onClick={() => handleSelectPlan(plan.id)}
-                      className={`w-full glass-hover border-2 transition-all duration-200 gap-2 ${
-                        plan.popular
-                          ? 'border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)]'
-                          : 'border-primary/40 hover:border-primary/60'
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => !isDisabled && !isLoading && handleSelectPlan(plan.id)}
                       disabled={isDisabled || isLoading}
+                      className="showcase-sparkle-btn w-full justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
+                      <span className="showcase-spark" aria-hidden />
+                      <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
                       {isDisabled ? "Em Breve" : isLoading ? (
                         "Redirecionando..."
                       ) : (
                         <>
-                          Assinar Plano
-                          <ExternalLink className="h-4 w-4" />
+                          <ExternalLink className="w-5 h-5 relative z-10" />
+                          <span className="relative z-10">Assinar Plano</span>
                         </>
                       )}
-                    </Button>
+                    </button>
                   </div>
                 </Card>
               );

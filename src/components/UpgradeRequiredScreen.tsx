@@ -38,7 +38,7 @@ export function UpgradeRequiredScreen({
           o aplicativo e reinstale a versão mais recente.
         </p>
         {downloadUrl && (
-          <Button asChild className="w-full sm:w-auto">
+          <Button asChild variant="pulso" className="w-full sm:w-auto">
             <a
               href={downloadUrl}
               target="_blank"
@@ -51,7 +51,7 @@ export function UpgradeRequiredScreen({
           </Button>
         )}
         {onClose && (
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="pulso" onClick={onClose}>
             Fechar aplicativo
           </Button>
         )}

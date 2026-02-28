@@ -245,7 +245,7 @@ const ProfileManagement = ({
                 <Button
                   onClick={cancelEdit}
                   size="sm"
-                  variant="outline"
+                  variant="pulso"
                   className="gap-2"
                   disabled={submitting}
                 >
@@ -306,7 +306,7 @@ const ProfileManagement = ({
                   <Button
                     onClick={cancelEdit}
                     size="sm"
-                    variant="outline"
+                    variant="pulso"
                     className="gap-2"
                     disabled={submitting}
                   >
@@ -331,7 +331,7 @@ const ProfileManagement = ({
                   <Button
                     onClick={() => startEdit(profile)}
                     size="sm"
-                    variant="outline"
+                    variant="pulso"
                     className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
                     disabled={isLoading}
                   >

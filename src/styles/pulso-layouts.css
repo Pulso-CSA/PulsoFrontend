@@ -1,0 +1,697 @@
+/**
+ * Pulso Layouts — Space-neon / Aurora / Glassmorphism premium
+ * Paleta: #222023, #420d95, #a54bce, #60bcd5, #1897a0, #4d4d4d
+ * Space-neon: #08051D, #905DED, #4F9FF3, #A74FD8 (logo App.png)
+ */
+
+/* ========== Variáveis de layout ========== */
+.pulso-layout {
+  --pulso-dark: #222023;
+  --pulso-purple: #420d95;
+  --pulso-magenta: #a54bce;
+  --pulso-cyan: #60bcd5;
+  --pulso-teal: #1897a0;
+  --pulso-gray: #4d4d4d;
+  --pulso-glow: 0 0 40px rgba(165, 75, 206, 0.25), 0 0 80px rgba(96, 188, 213, 0.15);
+  --pulso-transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Space-neon tokens (logo App.png) */
+  --pulso-near-black: #08051D;
+  --pulso-purple-neon: #905DED;
+  --pulso-cyan-neon: #4F9FF3;
+  --pulso-magenta-aurora: #A74FD8;
+}
+
+/* ========== Background ambient ========== */
+.pulso-layout-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pulso-layout-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.6;
+  animation: pulso-orb-float 18s ease-in-out infinite;
+}
+
+.pulso-layout-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(165, 75, 206, 0.5) 0%, rgba(96, 188, 213, 0.15) 40%, transparent 70%);
+  top: -15%;
+  left: -10%;
+  animation-delay: 0s;
+  box-shadow: 0 0 120px rgba(165, 75, 206, 0.4);
+}
+
+.pulso-layout-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(96, 188, 213, 0.45) 0%, rgba(24, 151, 160, 0.2) 40%, transparent 70%);
+  bottom: -10%;
+  right: -8%;
+  animation-delay: -7s;
+  box-shadow: 0 0 100px rgba(96, 188, 213, 0.35);
+}
+
+.pulso-layout-orb-3 {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(66, 13, 149, 0.4) 0%, rgba(165, 75, 206, 0.2) 50%, transparent 70%);
+  top: 45%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  animation-delay: -14s;
+  box-shadow: 0 0 80px rgba(66, 13, 149, 0.3);
+}
+
+@keyframes pulso-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-15px, 20px) scale(0.95); }
+  75% { transform: translate(30px, 10px) scale(1.02); }
+}
+
+/* Transição premium (200-320ms) */
+.pulso-transition-premium {
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== Layout A — Futurista: fundo herdado do AppShell, elementos com glass ========== */
+.pulso-layout-a {
+  position: relative;
+  min-height: calc(100vh - 3.5rem);
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+/* Barra de 4 serviços fixa no topo (Layout A) — não scrolla */
+.pulso-layout-a-services-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-shrink: 0;
+  padding: 1rem 2rem;
+  background: transparent;
+  backdrop-filter: blur(8px);
+}
+html[data-electron="true"] .pulso-layout-a-services-bar {
+  top: 2.5rem;
+}
+
+.pulso-layout-a-services-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pulso-layout-a-services-inner::-webkit-scrollbar {
+  height: 4px;
+}
+
+.pulso-layout-a-services-inner::-webkit-scrollbar-thumb {
+  background: rgba(165, 75, 206, 0.3);
+  border-radius: 4px;
+}
+
+.pulso-layout-a-btn-horizontal {
+  flex-direction: row !important;
+  flex-shrink: 0 !important;
+  width: auto !important;
+  min-width: 120px;
+  max-width: none;
+  height: 48px !important;
+  padding: 0 1.25rem !important;
+  gap: 0.5rem;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+}
+
+/* ========== Layout padrão de chat (PulsoCSA base) ========== */
+.pulso-chat-layout {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  gap: 1rem;
+}
+
+/* Gradiente suave App.png (ciano → azul → roxo) para áreas de chat */
+.pulso-chat-sidebar {
+  width: 18rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(79, 159, 243, 0.25);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 80px rgba(79, 159, 243, 0.04);
+}
+
+.pulso-chat-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    165deg,
+    rgba(79, 159, 243, 0.08) 0%,
+    rgba(96, 188, 213, 0.05) 35%,
+    rgba(144, 93, 237, 0.07) 70%,
+    rgba(167, 79, 216, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pulso-chat-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 100px rgba(144, 93, 237, 0.03);
+}
+
+.pulso-chat-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    165deg,
+    rgba(79, 159, 243, 0.05) 0%,
+    rgba(96, 188, 213, 0.03) 45%,
+    rgba(144, 93, 237, 0.06) 85%,
+    rgba(167, 79, 216, 0.04) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Item de chat — gradiente suave App.png (ciano → roxo) */
+.pulso-chat-item-active {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(79, 159, 243, 0.18) 0%,
+    rgba(96, 188, 213, 0.14) 40%,
+    rgba(144, 93, 237, 0.16) 70%,
+    rgba(167, 79, 216, 0.12) 100%
+  ) !important;
+  border: 1px solid rgba(79, 159, 243, 0.35);
+  box-shadow: 0 0 20px rgba(79, 159, 243, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.pulso-chat-item-inactive {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+}
+
+.pulso-chat-item-inactive:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 159, 243, 0.06) 0%,
+    rgba(144, 93, 237, 0.05) 100%
+  );
+  border-color: rgba(79, 159, 243, 0.2);
+}
+
+.pulso-chat-sidebar-inner {
+  background: transparent;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bolhas de mensagem do usuário — gradiente suave App.png */
+.pulso-chat-user-bubble {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 159, 243, 0.22) 0%,
+    rgba(96, 188, 213, 0.16) 50%,
+    rgba(144, 93, 237, 0.2) 100%
+  ) !important;
+  border-color: rgba(79, 159, 243, 0.25) !important;
+}
+
+/* Mensagens de chat padronizadas (legado) */
+.pulso-chat-msg-user {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 159, 243, 0.2) 0%,
+    rgba(96, 188, 213, 0.15) 50%,
+    rgba(144, 93, 237, 0.18) 100%
+  );
+  color: hsl(var(--foreground));
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(79, 159, 243, 0.2);
+}
+
+.pulso-chat-msg-system {
+  background: hsl(var(--muted) / 0.5);
+  color: hsl(var(--foreground));
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Painel usuário — diagonal direita, esticando para a direita */
+.pulso-user-panel-diagonal {
+  transform-origin: left center;
+  transition: opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.6s ease;
+}
+
+.pulso-user-panel-diagonal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.pulso-user-panel-diagonal-hidden {
+  opacity: 0;
+  transform: scaleX(0.3) translateX(-8px);
+  filter: blur(4px);
+}
+
+.pulso-user-panel-diagonal-visible {
+  opacity: 1;
+  transform: scaleX(1) translateX(0);
+  filter: blur(0);
+}
+
+/* Sidebar global (conta, tema, layout) — canto inferior esquerdo */
+.pulso-user-sidebar-global {
+  background: rgba(20, 15, 30, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(165, 75, 206, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Corpo: main (sidebar conta/tema/layout fica no AppShell) */
+.pulso-layout-a-body {
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+}
+
+.pulso-layout-a-btn {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: var(--pulso-transition);
+  overflow: hidden;
+}
+
+.pulso-layout-a-btn::before {
+  display: none; /* evita linhas sobrepostas aos serviços */
+}
+
+.pulso-layout-a-btn:hover {
+  color: hsl(var(--foreground));
+  background: rgba(165, 75, 206, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(165, 75, 206, 0.15);
+}
+
+.pulso-layout-a-btn.pulso-active {
+  color: hsl(var(--primary));
+  background: linear-gradient(135deg, rgba(165, 75, 206, 0.2), rgba(96, 188, 213, 0.1));
+  border-color: rgba(165, 75, 206, 0.4);
+  box-shadow: 0 0 30px rgba(165, 75, 206, 0.2), inset 0 0 20px rgba(165, 75, 206, 0.05);
+}
+
+.pulso-layout-a-main {
+  flex: 1;
+  overflow: auto;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+.pulso-layout-a-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  animation: pulso-fade-in 0.5s ease-out;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes pulso-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== Layout B — Clássico: fundo herdado, elementos com glass ========== */
+.pulso-layout-b {
+  position: relative;
+  min-height: calc(100vh - 3.5rem);
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+/* Layout B: sem orbs (usa do AppShell) */
+.pulso-layout-b .pulso-layout-ambient {
+  display: none;
+}
+
+/* Barra de serviços — fixa no topo, não scrolla */
+.pulso-layout-b-carousel {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-shrink: 0;
+  padding: 1.25rem 2rem;
+  background: transparent;
+  backdrop-filter: blur(8px);
+}
+html[data-electron="true"] .pulso-layout-b-carousel {
+  top: 2.5rem;
+}
+
+.pulso-layout-b-carousel-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+}
+
+.pulso-layout-b-carousel-inner::-webkit-scrollbar {
+  height: 4px;
+}
+
+.pulso-layout-b-carousel-inner::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 4px;
+}
+
+.pulso-layout-b-card {
+  position: relative;
+  flex: 1 0 auto;
+  min-width: 180px;
+  max-width: 260px;
+  flex-shrink: 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card) / 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pulso-layout-b-card::before,
+.pulso-layout-b-card::after {
+  display: none;
+}
+
+.pulso-layout-b-card:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--border));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  background: hsl(var(--card));
+}
+
+.pulso-layout-b-card.pulso-active {
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.04);
+  box-shadow: 0 2px 12px hsl(var(--primary) / 0.08);
+}
+
+.pulso-layout-b-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  background: hsl(var(--muted) / 0.6);
+  transition: all 0.2s ease;
+}
+
+.pulso-layout-b-card.pulso-active .pulso-layout-b-card-icon {
+  background: hsl(var(--primary) / 0.12);
+  box-shadow: none;
+}
+
+/* Corpo: main (sidebar conta/tema/layout fica no AppShell) */
+.pulso-layout-b-body {
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+}
+
+.pulso-layout-b-main {
+  flex: 1;
+  overflow: auto;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+}
+
+.pulso-layout-b-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  animation: pulso-fade-in 0.4s ease-out;
+}
+
+/* ========== Tela de Insights (nenhum botão selecionado) ========== */
+.pulso-insights-screen {
+  padding: 1rem 1.5rem;
+}
+
+.pulso-insights-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: 1rem;
+}
+
+.pulso-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+  gap: 1rem;
+  min-height: 0;
+}
+
+.pulso-insights-grid > * {
+  min-height: 0;
+}
+
+@media (max-width: 1024px) {
+  .pulso-insights-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pulso-insights-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+/* Tooltip glass com insight no hover do gráfico */
+.pulso-insight-tooltip {
+  background: rgba(0, 0, 0, 0.2);
+  transition: opacity 0.2s ease;
+}
+
+.pulso-insight-glass {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(30, 25, 45, 0.75);
+  border: 1px solid rgba(165, 75, 206, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.pulso-insight-glass p + p {
+  margin-top: 0.35rem;
+}
+
+/* ========== Estado vazio centralizado ========== */
+.pulso-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 3rem;
+}
+
+.pulso-empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.5rem;
+}
+
+.pulso-empty-state-desc {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ========== Grid de métricas (estilo Post Views suavizado) ========== */
+.pulso-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pulso-metric-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: rgba(34, 32, 35, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(165, 75, 206, 0.2);
+  transition: var(--pulso-transition);
+  overflow: hidden;
+}
+
+.pulso-metric-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(165, 75, 206, 0.4), rgba(96, 188, 213, 0.3), transparent);
+  opacity: 0;
+  transition: opacity var(--pulso-transition);
+}
+
+.pulso-metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(165, 75, 206, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.pulso-metric-card:hover::before {
+  opacity: 1;
+}
+
+/* ========== Páginas (Auth, Billing, Settings, Perfil) — layout-aware ========== */
+[data-pulso-layout="A"] .pulso-page-container {
+  background: transparent;
+}
+
+[data-pulso-layout="B"] .pulso-page-container {
+  background: hsl(var(--background));
+}
+
+/* Base: cards (dialog/standalone) */
+.pulso-page-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Layout A: cards com glassmorphism */
+[data-pulso-layout="A"] .pulso-page-card {
+  background: rgba(30, 25, 45, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(165, 75, 206, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Layout B: cards limpos */
+[data-pulso-layout="B"] .pulso-page-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ========== Scrollbar suave ========== */
+.pulso-layout-a-main::-webkit-scrollbar,
+.pulso-layout-b-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pulso-layout-a-main::-webkit-scrollbar-track,
+.pulso-layout-b-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pulso-layout-a-main::-webkit-scrollbar-thumb,
+.pulso-layout-b-main::-webkit-scrollbar-thumb {
+  background: rgba(165, 75, 206, 0.3);
+  border-radius: 4px;
+}
+
+.pulso-layout-a-main::-webkit-scrollbar-thumb:hover,
+.pulso-layout-b-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(165, 75, 206, 0.5);
+}

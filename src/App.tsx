@@ -1,11 +1,13 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, Outlet } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LayoutProvider } from "@/contexts/LayoutContext";
+import { AppShell } from "@/layouts/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ElectronTitleBar } from "@/components/ElectronTitleBar";
@@ -41,86 +43,98 @@ function PageLoader() {
   );
 }
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.documentElement.dataset.electron = window.electronAPI ? "true" : "";
+    }
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <ErrorBoundary>
         <HashRouter>
           <AuthProvider>
-            <VersionGate>
-              <TooltipProvider>
-                <ElectronTitleBar />
-                <UpdateAvailableScreen />
-                <a href="#main-content" className="skip-link">
-                  Pular para o conteúdo principal
-                </a>
-                <Toaster />
-                <Sonner />
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/auth/callback" element={<AuthCallback />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/error" element={<Error />} />
+            <LayoutProvider>
+              <VersionGate>
+                <TooltipProvider>
+                  <ElectronTitleBar />
+                  <UpdateAvailableScreen />
+                  <a href="#main-content" className="skip-link">
+                    Pular para o conteúdo principal
+                  </a>
+                  <Toaster />
+                  <Sonner />
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route element={<AppShell />}>
+                        {/* Public routes */}
+                        <Route path="/" element={<Index />} />
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/auth/callback" element={<AuthCallback />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/error" element={<Error />} />
 
-                  {/* Protected routes - require authentication */}
-                  <Route
-                    path="/profile-selection"
-                    element={
-                      <ProtectedRoute>
-                        <ProfileSelection />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/billing"
-                    element={
-                      <ProtectedRoute>
-                        <Billing />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/subscription"
-                    element={
-                      <ProtectedRoute>
-                        <SubscriptionManagement />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <ProtectedRoute>
-                        <SettingsPage />
-                      </ProtectedRoute>
-                    }
-                  />
+                        {/* Protected routes - require authentication */}
+                        <Route
+                          path="/profile-selection"
+                          element={
+                            <ProtectedRoute>
+                              <ProfileSelection />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/billing"
+                          element={
+                            <ProtectedRoute>
+                              <Billing />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/subscription"
+                          element={
+                            <ProtectedRoute>
+                              <SubscriptionManagement />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/settings"
+                          element={
+                            <ProtectedRoute>
+                              <SettingsPage />
+                            </ProtectedRoute>
+                          }
+                        />
 
-                  {/* Protected routes - require authentication AND active profile */}
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute requireProfile>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
+                        {/* Protected routes - require authentication AND active profile */}
+                        <Route
+                          path="/dashboard"
+                          element={
+                            <ProtectedRoute requireProfile>
+                              <Dashboard />
+                            </ProtectedRoute>
+                          }
+                        />
 
-                  {/* Catch-all */}
-                  <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </TooltipProvider>
-            </VersionGate>
+                        {/* Catch-all */}
+                        <Route path="*" element={<NotFound />} />
+                      </Route>
+                    </Routes>
+                  </Suspense>
+                </TooltipProvider>
+              </VersionGate>
+            </LayoutProvider>
           </AuthProvider>
         </HashRouter>
       </ErrorBoundary>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

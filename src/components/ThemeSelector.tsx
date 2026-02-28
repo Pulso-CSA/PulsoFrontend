@@ -8,17 +8,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useThemeContext, type ThemePulso } from "@/contexts/ThemeContext";
+import { useLayoutContext } from "@/contexts/LayoutContext";
 import { cn } from "@/lib/utils";
 
-const themeOptions: { id: ThemePulso; name: string; colors: [string, string, string] }[] = [
+const themeOptions: { id: "light" | "dark"; name: string; colors: [string, string, string] }[] = [
   { id: "light", name: "Claro", colors: ["#e8eef4", "#0d9488", "#5b21b6"] },
-  { id: "medium", name: "Médio", colors: ["#1a1f2e", "#2dd4bf", "#7c3aed"] },
   { id: "dark", name: "Escuro", colors: ["#0c0e14", "#2dd4bf", "#6d28d9"] },
 ];
 
 const ThemeSelector = () => {
-  const { themePulso, setThemePulso } = useThemeContext();
+  const { themeMode, setThemeMode } = useLayoutContext();
 
   return (
     <DropdownMenu>
@@ -38,10 +37,10 @@ const ThemeSelector = () => {
         {themeOptions.map((opt) => (
           <DropdownMenuItem
             key={opt.id}
-            onClick={() => setThemePulso(opt.id)}
+            onClick={() => setThemeMode(opt.id)}
             className={cn(
               "cursor-pointer flex items-center justify-between gap-2 rounded-md py-2 px-2.5 transition-colors",
-              themePulso === opt.id && "bg-primary/10"
+              themeMode === opt.id && "bg-primary/10"
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -52,7 +51,7 @@ const ThemeSelector = () => {
               </div>
               <span className="text-sm font-medium">{opt.name}</span>
             </div>
-            {themePulso === opt.id && <Check className="h-4 w-4 text-primary" />}
+            {themeMode === opt.id && <Check className="h-4 w-4 text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
