@@ -36,6 +36,7 @@ function setupAutoUpdater() {
 
 app.commandLine.appendSwitch("disable-gpu-sandbox");
 app.commandLine.appendSwitch("no-sandbox");
+app.commandLine.appendSwitch("disable-logging");
 
 function createWindow() {
   Menu.setApplicationMenu(null);
@@ -67,6 +68,28 @@ function createWindow() {
   });
   ipcMain.on("window-close", () => mainWindow?.close());
   ipcMain.handle("window-is-maximized", () => mainWindow?.isMaximized() ?? false);
+
+  ipcMain.handle("check-for-updates", async () => {
+    try {
+      const { autoUpdater } = require("electron-updater");
+      const result = await autoUpdater.checkForUpdates();
+      const info = result?.updateInfo;
+      const hasUpdate = !!info && !!info.version && info.version !== app.getVersion();
+
+      return {
+        ok: true,
+        hasUpdate,
+        version: info?.version ?? null,
+      };
+    } catch (e) {
+      const message = e?.message || "Erro ao verificar atualizações";
+      mainWindow?.webContents?.send("update-error", message);
+      return {
+        ok: false,
+        error: message,
+      };
+    }
+  });
 
   ipcMain.handle("update-download", async () => {
     try {

@@ -8,10 +8,10 @@ Especificação **extremamente detalhada** da landing page pública em HTTPS cuj
 
 | Item | Especificação |
 |------|----------------|
-| **Objetivo** | Página pública, servida via **HTTPS**, para o usuário baixar o instalador do Pulso (Windows). |
+| **Objetivo** | Página pública, servida via **HTTPS**, para o usuário baixar o instalador do Pulso para **Windows, Linux e macOS**. |
 | **URL sugerida** | `https://pulso.tech/download` ou `https://app.pulso.tech/download` (ou equivalente no deploy). No app React com HashRouter: `/#/download`. |
 | **Público** | Visitante que chegou por link (email, anúncio, site) e quer apenas baixar o app. |
-| **Ação principal** | Um único CTA dominante: **Baixar Pulso para Windows** → inicia download do `.exe` (ou redireciona para URL do instalador). |
+| **Ação principal** | Grupo de CTAs de download para **Windows, Linux e macOS**, com destaque principal para Windows. Cada botão inicia o download do instalador específico do sistema operacional. |
 | **Segurança** | Toda a página e o link de download devem ser servidos exclusivamente por HTTPS. |
 
 ---
@@ -187,9 +187,9 @@ Identidade visual: `docs/identidade-visual.md` e `src/index.css` (temas, glass, 
 
 ## 17. Arquivos criados/alterados
 
-- **Implementado:** `src/pages/DownloadPage.tsx` — página conforme esta especificação (Elementos 23, 24, 22, 12, 14, 01; hero, 3 cards, recursos, CTA, footer).
+- **Implementado:** `src/pages/DownloadPage.tsx` — página conforme esta especificação (Elementos 23, 24, 22, 12, 14, 01; hero, 3 cards, recursos, CTA, footer, grupo de botões de download para Windows, Linux e macOS).
 - **Rota:** `src/App.tsx` — rota `path="/download"` com `<DownloadPage />` (lazy). URL no app: `/#/download`.
-- **Variável:** `VITE_DOWNLOAD_URL` em `.env.example` — URL do instalador; fallback no código se não definida.
+- **Variáveis:** `VITE_DOWNLOAD_URL_WINDOWS`, `VITE_DOWNLOAD_URL_LINUX`, `VITE_DOWNLOAD_URL_MAC` em `.env.example` — URLs dos instaladores para cada sistema; fallbacks no código se não definidos.
 - **Acesso:** Botão "Baixar" no header da `Index.tsx` navega para `/#/download`.
 
-Com isso, a tela HTTPS de download fica **extremamente específica e detalhada**, alinhada à identidade visual e aos elementos predominantes da pasta `docs`.
+Com isso, a tela HTTPS de download fica **extremamente específica e detalhada**, com suporte explícito a instaladores para Windows, Linux e macOS, alinhada à identidade visual e aos elementos predominantes da pasta `docs`.

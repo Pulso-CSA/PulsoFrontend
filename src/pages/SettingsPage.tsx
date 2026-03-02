@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [form, setForm] = useState<Partial<VersionInfo>>({
     platform: "win",
     minClientVersion: "",
@@ -80,6 +81,52 @@ export default function SettingsPage() {
     }
   };
 
+  const handleCheckForUpdates = async () => {
+    if (typeof window === "undefined") return;
+    const api = (window as any).electronAPI;
+    if (!api?.checkForUpdates) {
+      toast({
+        title: "Verificação indisponível",
+        description: "Esse recurso está disponível apenas no aplicativo desktop instalado.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCheckingUpdate(true);
+    try {
+      const result = await api.checkForUpdates();
+
+      if (result?.ok && result.hasUpdate) {
+        toast({
+          title: "Atualização encontrada",
+          description: result.version
+            ? `Versão ${result.version} disponível. A tela de instalação será exibida em instantes.`
+            : "Nova versão disponível. A tela de instalação será exibida em instantes.",
+        });
+      } else if (result?.ok) {
+        toast({
+          title: "Nenhuma atualização disponível",
+          description: "Você já está utilizando a versão mais recente do Pulso.",
+        });
+      } else {
+        toast({
+          title: "Erro ao verificar atualizações",
+          description: result?.error || "Não foi possível buscar atualizações.",
+          variant: "destructive",
+        });
+      }
+    } catch (e) {
+      toast({
+        title: "Erro ao verificar atualizações",
+        description: e instanceof Error ? e.message : "Não foi possível buscar atualizações.",
+        variant: "destructive",
+      });
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
   return (
     <div className="pulso-page-container container max-w-2xl py-8">
       <Button variant="pulso" onClick={() => navigate(-1)} className="mb-6">
@@ -88,6 +135,32 @@ export default function SettingsPage() {
       </Button>
 
       <h1 className="text-2xl font-bold mb-6">Configurações</h1>
+
+      {typeof window !== "undefined" && (window as any).electronAPI && (
+        <section className="space-y-4 mb-8 p-4 rounded-lg border border-primary/30 bg-primary/5">
+          <h2 className="text-lg font-semibold">Atualizações do aplicativo</h2>
+          <p className="text-sm text-muted-foreground">
+            Verifique manualmente se há uma nova versão disponível. Seus dados locais (incluindo localStorage) são preservados durante a atualização.
+          </p>
+          <Button
+            variant="pulso"
+            onClick={handleCheckForUpdates}
+            disabled={checkingUpdate}
+            className="gap-2"
+          >
+            {checkingUpdate ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Verificando...
+              </>
+            ) : (
+              <>
+                Verificar atualizações
+              </>
+            )}
+          </Button>
+        </section>
+      )}
 
       {typeof window !== "undefined" && window.electronAPI?.openUninstall && (
         <section className="space-y-4 mb-8 p-4 rounded-lg border border-destructive/30 bg-destructive/5">
