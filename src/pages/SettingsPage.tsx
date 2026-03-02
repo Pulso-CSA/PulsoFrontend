@@ -110,9 +110,10 @@ export default function SettingsPage() {
           description: "Você já está utilizando a versão mais recente do Pulso.",
         });
       } else {
+        const errMsg = result?.error || "Não foi possível buscar atualizações.";
         toast({
           title: "Erro ao verificar atualizações",
-          description: result?.error || "Não foi possível buscar atualizações.",
+          description: errMsg,
           variant: "destructive",
         });
       }
@@ -141,6 +142,7 @@ export default function SettingsPage() {
           <h2 className="text-lg font-semibold">Atualizações do aplicativo</h2>
           <p className="text-sm text-muted-foreground">
             Verifique manualmente se há uma nova versão disponível. Seus dados locais (incluindo localStorage) são preservados durante a atualização.
+            Como o repositório é privado, o computador precisa ter a variável de ambiente <strong>GH_TOKEN</strong> configurada com um token do GitHub (escopo <code>repo</code>) para conseguir buscar e baixar atualizações.
           </p>
           <Button
             variant="pulso"

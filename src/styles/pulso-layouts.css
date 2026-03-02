@@ -634,16 +634,14 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   font-size: 0.8125rem;
 }
 
-.pulso-insights-navbar .pulso-insights-navbar-btn-icon {
-  width: 36px;
-  padding: 0;
+/* Botões com ícone + texto visível */
+.pulso-insights-navbar .pulso-insights-navbar-btn-with-label {
+  min-width: auto;
+  height: 36px;
+  padding: 0 0.75rem;
 }
 
-.pulso-insights-navbar .pulso-insights-navbar-btn-icon span {
-  display: none;
-}
-
-.pulso-insights-navbar .pulso-insights-navbar-btn-icon svg {
+.pulso-insights-navbar .pulso-insights-navbar-btn-with-label svg {
   width: 1rem;
   height: 1rem;
 }
