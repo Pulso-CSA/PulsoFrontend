@@ -475,7 +475,7 @@ const Dashboard = () => {
                 type="button"
                 onClick={() => setInsightsFilter(key)}
                 className={cn(
-                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal pulso-insights-navbar-btn-icon text-white",
+                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal pulso-insights-navbar-btn-with-label text-white gap-1.5 px-3",
                   insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
                 )}
                 title={label}
@@ -483,18 +483,18 @@ const Dashboard = () => {
                 aria-pressed={insightsFilter === key}
               >
                 <Icon className="shrink-0" strokeWidth={1.5} />
-                <span className="sr-only">{label}</span>
+                <span className="font-medium whitespace-nowrap text-xs">{label}</span>
               </button>
             ))}
             <button
               type="button"
               onClick={handleExportInsights}
-              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1 px-3 min-w-[36px] h-9 w-auto text-xs"
+              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
               title="Baixar relatório"
               aria-label="Baixar relatório do dashboard"
             >
               <Download className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-              <span className="hidden sm:inline font-medium whitespace-nowrap">Exportar</span>
+              <span className="font-medium whitespace-nowrap">Exportar</span>
             </button>
           </div>
         </nav>

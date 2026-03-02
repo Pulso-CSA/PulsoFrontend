@@ -10,6 +10,15 @@ function setupAutoUpdater() {
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
 
+    // Repositório privado no GitHub: precisa de token para listar/baixar releases
+    const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+    if (token) {
+      autoUpdater.requestHeaders = {
+        ...autoUpdater.requestHeaders,
+        Authorization: `token ${token}`,
+      };
+    }
+
     autoUpdater.on("update-available", (info) => {
       mainWindow?.webContents?.send("update-available", { version: info?.version });
     });
@@ -82,7 +91,12 @@ function createWindow() {
         version: info?.version ?? null,
       };
     } catch (e) {
-      const message = e?.message || "Erro ao verificar atualizações";
+      let message = e?.message || "Erro ao verificar atualizações";
+      if (String(message).includes("404") || String(message).toLowerCase().includes("not found")) {
+        message =
+          "Não foi possível acessar as atualizações (404). " +
+          "Se o repositório for privado, configure a variável de ambiente GH_TOKEN com um Personal Access Token do GitHub (escopo repo) e reinicie o aplicativo.";
+      }
       mainWindow?.webContents?.send("update-error", message);
       return {
         ok: false,
