@@ -326,57 +326,84 @@ const LogsPanel = () => {
 
         {/* Controles de Ambiente */}
         <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Button
-            variant="pulso"
-            size="default"
-            onClick={fetchLogs}
-            disabled={isLoading}
-            className="min-h-[42px] gap-2"
-          >
-            <Download className="h-4 w-4 shrink-0" />
-            <span>Buscar Logs</span>
-          </Button>
-          <Button
-            variant="pulso"
-            size="default"
-            onClick={toggleAppLogs}
-            className={`min-h-[42px] gap-2 ${showAppLogs ? "bg-primary/20 border-primary" : ""}`}
-          >
-            <FileText className="h-4 w-4 shrink-0" />
-            <span>Logs da App</span>
-          </Button>
-          <Button
-            variant="pulso"
-            size="default"
-            onClick={handleStartEnvironment}
-            disabled={environmentStatus === "running" || isLoading}
-            className="min-h-[42px] gap-2"
-          >
-            <Play className="h-4 w-4 shrink-0" />
-            <span>Subir</span>
-          </Button>
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="pulso"
+              size="default"
+              onClick={fetchLogs}
+              disabled={isLoading}
+              className="min-h-[42px] gap-2"
+            >
+              <Download className="h-4 w-4 shrink-0" />
+              <span className="sr-only">Buscar Logs</span>
+            </Button>
+            <span className="text-[11px] leading-tight text-muted-foreground">
+              Buscar Logs
+            </span>
+          </div>
 
-          <Button
-            variant="pulso"
-            size="default"
-            onClick={handleRestartEnvironment}
-            disabled={environmentStatus === "stopped" || isLoading}
-            className="min-h-[42px] gap-2"
-          >
-            <RotateCw className="h-4 w-4 shrink-0" />
-            <span>Reiniciar</span>
-          </Button>
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="pulso"
+              size="default"
+              onClick={toggleAppLogs}
+              className={`min-h-[42px] gap-2 ${showAppLogs ? "bg-primary/20 border-primary" : ""}`}
+            >
+              <FileText className="h-4 w-4 shrink-0" />
+              <span className="sr-only">Logs da App</span>
+            </Button>
+            <span className="text-[11px] leading-tight text-muted-foreground">
+              Logs da App
+            </span>
+          </div>
 
-          <Button
-            variant="pulso"
-            size="default"
-            onClick={handleStopEnvironment}
-            disabled={environmentStatus === "stopped" || isLoading}
-            className="min-h-[42px] gap-2"
-          >
-            <Power className="h-4 w-4 shrink-0" />
-            <span>Desligar</span>
-          </Button>
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="pulso"
+              size="default"
+              onClick={handleStartEnvironment}
+              disabled={environmentStatus === "running" || isLoading}
+              className="min-h-[42px] gap-2"
+            >
+              <Play className="h-4 w-4 shrink-0" />
+              <span className="sr-only">Subir ambiente</span>
+            </Button>
+            <span className="text-[11px] leading-tight text-muted-foreground">
+              Subir
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="pulso"
+              size="default"
+              onClick={handleRestartEnvironment}
+              disabled={environmentStatus === "stopped" || isLoading}
+              className="min-h-[42px] gap-2"
+            >
+              <RotateCw className="h-4 w-4 shrink-0" />
+              <span className="sr-only">Reiniciar ambiente</span>
+            </Button>
+            <span className="text-[11px] leading-tight text-muted-foreground">
+              Reiniciar
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="pulso"
+              size="default"
+              onClick={handleStopEnvironment}
+              disabled={environmentStatus === "stopped" || isLoading}
+              className="min-h-[42px] gap-2"
+            >
+              <Power className="h-4 w-4 shrink-0" />
+              <span className="sr-only">Desligar ambiente</span>
+            </Button>
+            <span className="text-[11px] leading-tight text-muted-foreground">
+              Desligar
+            </span>
+          </div>
         </div>
 
         {/* Filtros */}
@@ -390,18 +417,27 @@ const LogsPanel = () => {
               className="pl-12 h-11 text-base border-primary/30 bg-background/50 focus-visible:ring-primary"
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {["all", "info", "warning", "error"].map((level) => (
-              <Button
-                key={level}
-                variant="pulso"
-                size="default"
-                onClick={() => setLevelFilter(level)}
-                className={`capitalize shrink-0 min-h-[40px] ${levelFilter === level ? "bg-primary/20 border-primary" : ""}`}
-              >
-                <span>{level === "all" ? "Todos" : level}</span>
-              </Button>
-            ))}
+          <div className="flex gap-3 flex-wrap">
+            {["all", "info", "warning", "error"].map((level) => {
+              const label = level === "all" ? "Todos" : level;
+              const isActive = levelFilter === level;
+              return (
+                <div key={level} className="flex flex-col items-center gap-1">
+                  <Button
+                    variant="pulso"
+                    size="default"
+                    onClick={() => setLevelFilter(level)}
+                    className={`shrink-0 min-h-[36px] px-3 ${isActive ? "bg-primary/20 border-primary" : ""}`}
+                    aria-pressed={isActive}
+                  >
+                    <span className="sr-only">{label}</span>
+                  </Button>
+                  <span className="text-[11px] leading-tight text-muted-foreground capitalize">
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
