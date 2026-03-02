@@ -60,10 +60,10 @@ const ForgotPassword = () => {
         <ThemeSelector />
       </div>
 
-      {/* Background animated elements */}
+      {/* Background pulso-orb (identidade visual) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-fade-in">
@@ -99,7 +99,7 @@ const ForgotPassword = () => {
               </p>
               <div className="pt-4 space-y-2">
                 <Button
-                  variant="outline"
+                  variant="pulso"
                   className="w-full"
                   onClick={() => setEmailSent(false)}
                 >
@@ -138,11 +138,13 @@ const ForgotPassword = () => {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full glass-strong border-2 border-primary hover:border-primary-light shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)] bg-gradient-to-r from-primary/80 to-primary-deep/60 transition-all duration-200" 
+                <Button
+                  type="submit"
+                  className="showcase-sparkle-btn w-full justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
+                  <span className="showcase-spark" aria-hidden />
+                  <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
                   {loading ? "Enviando..." : "Enviar link de recuperação"}
                 </Button>
               </form>

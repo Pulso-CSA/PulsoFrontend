@@ -44,38 +44,23 @@ const ProfileSelection = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Background — semiesferas PULSO (gradiente roxo→ciano conforme App.png) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 pulso-orb-sm animate-pulse" style={{ animationDelay: "2s" }} />
-      </div>
-
-      {/* Header */}
-      <div className="glass-strong relative z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={import.meta.env.BASE_URL + "App.png"} alt="Pulso" className="h-8 w-8 object-contain" />
-            <h1 className="text-2xl font-bold text-primary">Pulso</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeSelector />
-            <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className="gap-2 border-destructive/30 hover:border-destructive hover:bg-destructive/10 text-destructive"
-          >
-              <LogOut className="h-4 w-4" />
-              Sair
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col relative">
+      {/* Botões flutuantes: tema e sair */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <ThemeSelector />
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          size="sm"
+          className="gap-2 border-destructive/30 hover:border-destructive hover:bg-destructive/10 text-destructive"
+        >
+          <LogOut className="h-4 w-4" />
+          Sair
+        </Button>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto p-4 lg:p-6 relative z-10">
+      <main className="flex-1 container mx-auto p-4 lg:p-6 relative z-10 flex flex-col items-center justify-center">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Title Section */}
           <div className="text-center space-y-2">
@@ -98,7 +83,7 @@ const ProfileSelection = () => {
                   <Card
                     key={profile.id}
                     onClick={() => handleSelectProfile(profile.id)}
-                    className={`glass p-6 cursor-pointer transition-all hover:scale-105 ${
+                    className={`pulso-page-card glass p-6 cursor-pointer transition-all hover:scale-[1.02] ${
                       currentProfile?.id === profile.id
                         ? "border-2 border-primary bg-primary/10 pulso-glow"
                         : "border border-primary/20 hover:border-primary/40"
@@ -128,21 +113,23 @@ const ProfileSelection = () => {
 
               {/* Access Button */}
               <div className="flex justify-center pt-4">
-                <Button
+                <button
+                  type="button"
                   onClick={handleAccessPlatform}
                   disabled={!currentProfile}
-                  size="lg"
-                  className="gap-2 bg-primary hover:bg-primary/90 px-8"
+                  className="showcase-sparkle-btn gap-2 px-8 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Acessar Plataforma
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
+                  <span className="showcase-spark" aria-hidden />
+                  <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+                  <span className="relative z-10">Acessar Plataforma</span>
+                  <ArrowRight className="w-5 h-5 relative z-10" />
+                </button>
               </div>
             </div>
           )}
 
           {/* Profile Management */}
-          <div className="glass-strong rounded-2xl p-6 border-2 border-primary/20">
+          <div className="pulso-page-card glass-strong rounded-2xl p-6 border-2 border-primary/20">
             <ProfileManagement
               maxProfiles={5}
             />

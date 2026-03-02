@@ -43,6 +43,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     confirmPassword: "",
   });
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
+  const [accountCategory, setAccountCategory] = useState<"perfil" | "api" | "plano" | "seguranca">("perfil");
 
   useEffect(() => {
     if (open && user) {
@@ -169,33 +170,94 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-3 pb-4">
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-primary">
-            <User className="h-6 w-6" />
-            Configurações
+      <DialogContent
+        overlayClassName="pulso-dialog-overlay-blur"
+        className="w-[min(92vw,960px)] max-w-[92vw] max-h-[78vh] overflow-y-auto overflow-x-hidden glass-strong border border-primary/20 rounded-2xl shadow-[0_0_40px_hsl(var(--primary)/0.12)] p-6 gap-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-300"
+      >
+        <DialogHeader className="space-y-2 pb-6">
+          <DialogTitle className="text-2xl font-bold flex items-center gap-3" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <div className="p-2 rounded-xl bg-primary/10">
+              <User className="h-6 w-6 text-primary" />
+            </div>
+            Minha Conta
           </DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className="text-muted-foreground text-sm">
             Gerencie sua conta, perfis e configurações de segurança
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="account" className="mt-2">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="account">Conta</TabsTrigger>
-            <TabsTrigger value="profiles">Perfis</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 h-11 border border-primary/20 bg-muted/20">
+            <TabsTrigger value="account" className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:border-primary/30">Conta</TabsTrigger>
+            <TabsTrigger value="profiles" className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:border-primary/30">Perfis</TabsTrigger>
           </TabsList>
 
           <TabsContent value="account" className="mt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-0">
+            {/* Navegação por categorias */}
+            <div className="flex flex-wrap gap-2 mb-6 pb-4 border-b border-primary/20">
+              <button
+                type="button"
+                onClick={() => setAccountCategory("perfil")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  accountCategory === "perfil"
+                    ? "bg-primary/20 text-primary border border-primary/40"
+                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                }`}
+              >
+                <User className="h-4 w-4" />
+                Perfil
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountCategory("api")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  accountCategory === "api"
+                    ? "bg-primary/20 text-primary border border-primary/40"
+                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                }`}
+              >
+                <Key className="h-4 w-4" />
+                Chave de API
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountCategory("plano")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  accountCategory === "plano"
+                    ? "bg-primary/20 text-primary border border-primary/40"
+                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                }`}
+              >
+                <Crown className="h-4 w-4" />
+                Plano & Pagamento
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountCategory("seguranca")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  accountCategory === "seguranca"
+                    ? "bg-primary/20 text-primary border border-primary/40"
+                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                }`}
+              >
+                <Lock className="h-4 w-4" />
+                Segurança
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Categoria: Perfil */}
+              {(accountCategory === "perfil") && (
+              <>
               {/* Avatar Section */}
-              <div className="glass-strong rounded-lg p-6 space-y-4 border border-primary/20">
+              <div className="glass rounded-xl p-6 space-y-4 border border-primary/20">
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative group">
                     <div className="absolute inset-0 rounded-full blur-md bg-primary/50 animate-pulse"></div>
-                    <Avatar className="h-28 w-28 border-4 border-primary shadow-[0_0_30px_rgba(0,255,255,0.8)] transition-all duration-300 group-hover:shadow-[0_0_50px_rgba(0,255,255,1)] group-hover:scale-105 relative z-10">
+                    <Avatar className="h-20 w-20 border-2 border-primary/50 shadow-lg transition-all duration-300 group-hover:scale-105 relative z-10">
                       <AvatarImage src={formData.avatarUrl} alt={formData.name} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-3xl font-bold">
+                      <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
                         {getInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -211,10 +273,10 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                     />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="pulso"
                       size="sm"
                       onClick={() => document.getElementById("avatar-upload")?.click()}
-                      className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10 transition-all duration-300"
+                      className="gap-2"
                     >
                       <Camera className="h-4 w-4" />
                       Alterar Foto
@@ -235,7 +297,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               </div>
 
               {/* Personal Info Section */}
-              <div className="glass rounded-lg p-5 space-y-4 border border-primary/10">
+              <div className="glass rounded-xl p-5 space-y-4 border border-primary/15">
                 <h3 className="text-sm font-semibold text-primary flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Informações da Conta
@@ -274,9 +336,14 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   </div>
                 </div>
               </div>
+              </>
+              )}
 
+              {/* Categoria: Chave de API */}
+              {(accountCategory === "api") && (
+              <>
               {/* OpenAI API Key Section */}
-              <div className="glass rounded-lg p-5 space-y-4 border border-primary/10">
+              <div className="glass rounded-xl p-5 space-y-4 border border-primary/15">
                 <div className="flex items-center gap-2 pb-2">
                   <Key className="h-4 w-4 text-primary" />
                   <h3 className="text-sm font-semibold text-primary">Chave de API OpenAI</h3>
@@ -308,9 +375,14 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   </div>
                 </div>
               </div>
+              </>
+              )}
 
+              {/* Categoria: Plano & Pagamento */}
+              {(accountCategory === "plano") && (
+              <>
               {/* Billing & Payments Section */}
-              <div className="glass-strong rounded-lg p-5 space-y-4 border-2 border-primary/30">
+              <div className="glass rounded-xl p-5 space-y-4 border border-primary/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-primary drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
@@ -320,28 +392,25 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        onOpenChange(false);
-                        navigate("/subscription");
-                      }}
-                      className="border-primary/30 hover:border-primary hover:bg-primary/5 gap-2 transition-all duration-200"
-                    >
-                      Gerenciar
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onOpenChange(false);
-                        navigate("/billing");
-                      }}
-                      className="bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 text-primary hover:border-primary gap-2 hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-200"
-                    >
-                      <CreditCard className="h-4 w-4" />
-                      Upgrade
-                    </Button>
+                    {/* Elemento 12 - Botão Get Started (Upgrade) */}
+                    <div className="relative inline-flex items-center justify-center group">
+                      <div className="absolute inset-0 duration-1000 opacity-60 transition-all bg-[linear-gradient(90deg,#2E1A47,#4B2F7F,#6A4BCF,#8E78E6,#B89AF6)] rounded-xl blur-lg filter group-hover:opacity-100 group-hover:duration-200" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onOpenChange(false);
+                          navigate("/billing");
+                        }}
+                        className="relative inline-flex items-center justify-center gap-2 text-base rounded-xl bg-gray-900 px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-gray-600/30"
+                      >
+                        <CreditCard className="w-5 h-5" />
+                        Upgrade
+                        <svg aria-hidden viewBox="0 0 10 10" height="10" width="10" fill="none" className="mt-0.5 -mr-1 stroke-white stroke-2">
+                          <path d="M0 5h7" className="transition opacity-0 group-hover:opacity-100" />
+                          <path d="M1 1l4 4-4 4" className="transition group-hover:translate-x-[3px]" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <Separator className="bg-primary/20" />
@@ -350,7 +419,12 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   <span className="font-semibold text-foreground">Gratuito</span>
                 </div>
               </div>
+              </>
+              )}
 
+              {/* Categoria: Segurança */}
+              {(accountCategory === "seguranca") && (
+              <>
               {/* Password Section */}
               <div className="glass rounded-lg p-5 space-y-4 border border-primary/10">
                 <div className="flex items-center gap-2 pb-2">
@@ -427,26 +501,33 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   </div>
                 </div>
               </div>
+              </>
+              )}
 
-              {/* Submit Button */}
+              {/* Submit Button - visível em Perfil, API e Segurança */}
+              {(accountCategory === "perfil" || accountCategory === "api" || accountCategory === "seguranca") && (
               <div className="flex gap-3 pt-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  className="flex-1 border-primary/30 hover:border-primary hover:bg-primary/5 transition-all"
+                  variant="pulso"
+                  className="flex-1"
                   onClick={() => onOpenChange(false)}
                 >
                   Cancelar
                 </Button>
-                <Button
+                <button
                   type="submit"
-                  className="flex-1 gap-2 bg-primary hover:bg-primary/90 pulso-glow-cta transition-all duration-300 hover:scale-105"
                   disabled={loading}
+                  className="showcase-sparkle-btn flex-1 justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save className="h-4 w-4" />
-                  {loading ? "Salvando..." : "Salvar Alterações"}
-                </Button>
+                  <span className="showcase-spark" aria-hidden />
+                  <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+                  <Save className="w-5 h-5 relative z-10" />
+                  <span className="relative z-10">{loading ? "Salvando..." : "Salvar Alterações"}</span>
+                </button>
               </div>
+              )}
+            </div>
             </form>
           </TabsContent>
 

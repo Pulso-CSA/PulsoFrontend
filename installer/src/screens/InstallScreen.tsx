@@ -196,8 +196,9 @@ export default function InstallScreen({ onBack, installPath }: { onBack: () => v
             {exePath && (
               <button
                 onClick={() => {
-                  const api = (window as unknown as { pulsoInstaller?: { openPath?: (p: string) => void } }).pulsoInstaller;
+                  const api = (window as unknown as { pulsoInstaller?: { openPath?: (p: string) => void; close?: () => void } }).pulsoInstaller;
                   api?.openPath?.(exePath);
+                  api?.close?.();
                 }}
                 style={{
                   ...btnBase,

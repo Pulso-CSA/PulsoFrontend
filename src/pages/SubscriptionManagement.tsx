@@ -138,7 +138,7 @@ const SubscriptionManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col relative z-10">
         <div className="glass-strong border-b">
           <DashboardHeader />
         </div>
@@ -154,7 +154,7 @@ const SubscriptionManagement = () => {
   const statusInfo = subscription ? statusLabels[subscription.status] : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="pulso-page-container min-h-screen flex flex-col">
       <div className="glass-strong border-b">
         <DashboardHeader />
       </div>
@@ -164,12 +164,13 @@ const SubscriptionManagement = () => {
           {/* Header */}
           <div className="flex items-center gap-4 animate-fade-in">
             <Button
-              variant="outline"
-              size="icon"
+              variant="pulso"
+              size="sm"
               onClick={() => navigate("/dashboard")}
-              className="glass glass-hover border-2 border-primary/40"
+              className="gap-2"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 shrink-0" />
+              <span>Voltar</span>
             </Button>
             <div className="flex-1">
               <h1 className="text-3xl font-bold" style={{ 
@@ -183,10 +184,10 @@ const SubscriptionManagement = () => {
               <p className="text-muted-foreground">Gerencie seu plano e pagamentos</p>
             </div>
             <Button
-              variant="outline"
+              variant="pulso"
               size="sm"
               onClick={refresh}
-              className="gap-2 glass glass-hover border-primary/40"
+              className="gap-2"
             >
               <RefreshCw className="h-4 w-4" />
               Atualizar
@@ -210,8 +211,9 @@ const SubscriptionManagement = () => {
               </p>
               <Button
                 onClick={() => navigate("/billing")}
-                className="gap-2 bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+                className="showcase-sparkle-btn gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                <span className="showcase-spark" aria-hidden />
                 <CreditCard className="h-4 w-4" />
                 Ver Planos
               </Button>
@@ -242,8 +244,9 @@ const SubscriptionManagement = () => {
                   <Button
                     variant="outline"
                     onClick={() => navigate("/billing")}
-                    className="gap-2 glass glass-hover border-primary/40"
+                    className="showcase-sparkle-btn gap-2 border-primary/40"
                   >
+                    <span className="showcase-spark" aria-hidden />
                     Alterar Plano
                   </Button>
                 </div>
@@ -281,8 +284,9 @@ const SubscriptionManagement = () => {
                     variant="outline"
                     onClick={handleOpenCustomerPortal}
                     disabled={isOpeningPortal}
-                    className="gap-2 glass glass-hover border-primary/40"
+                    className="showcase-sparkle-btn gap-2 border-primary/40 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+                    <span className="showcase-spark" aria-hidden />
                     {isOpeningPortal ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -296,8 +300,9 @@ const SubscriptionManagement = () => {
                     <Button
                       onClick={handleResumeSubscription}
                       disabled={isResuming}
-                      className="gap-2 bg-primary hover:bg-primary/90"
+                      className="showcase-sparkle-btn gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
+                      <span className="showcase-spark" aria-hidden />
                       {isResuming ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (

@@ -17,6 +17,8 @@ import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardHeaderProps {
+  /** Oculta logo quando true (ex: Electron já exibe no title bar) */
+  hideLogo?: boolean;
   activeLayers?: {
     preview: boolean;
     pulso: boolean;
@@ -38,7 +40,9 @@ interface DashboardHeaderProps {
   hideLayerSelection?: boolean;
 }
 
-const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = true, onShortcutsClick, layoutToggle, hideLayerSelection }: DashboardHeaderProps) => {
+const DashboardHeader = ({ hideLogo, activeLayers, setActiveLayers, showLayerSelection = true, onShortcutsClick, layoutToggle, hideLayerSelection }: DashboardHeaderProps) => {
+  const isElectron = typeof window !== "undefined" && !!window.electronAPI;
+  const showLogo = !hideLogo && !isElectron;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -74,31 +78,32 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-slide-down transition-all duration-300 overflow-hidden">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4 min-w-0">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur-xl overflow-hidden">
+        <div className="max-w-[1600px] mx-auto flex h-14 items-center justify-between px-4 lg:px-6 min-w-0">
           <div className="flex items-center gap-4">
-            <img
-              src={import.meta.env.BASE_URL + "App.png"}
-              alt="Pulso"
-              className="h-8 w-8 object-contain shrink-0"
-            />
-            <h1 className="text-xl font-bold transition-all duration-300 hover:scale-105 text-primary">Pulso</h1>
+            {showLogo && (
+              <img
+                src={import.meta.env.BASE_URL + "App.png"}
+                alt="Pulso"
+                className="h-6 w-6 object-contain shrink-0"
+              />
+            )}
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">Pulso Tech</h1>
             {currentProfile && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-lg glass border border-primary/30">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                <span className="text-sm font-medium text-foreground">{currentProfile.name}</span>
+              <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-md bg-muted/50 border border-border">
+                <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">{currentProfile.name}</span>
               </div>
             )}
           </div>
 
-          
-          <div className="flex items-center gap-2 transition-all duration-300 ease-out shrink-0">
+          <div className="flex items-center gap-1.5 transition-all duration-300 ease-out shrink-0">
             {layoutToggle}
             {onShortcutsClick && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground transition-all duration-300 ease-out hover:scale-105"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-lg"
                 onClick={onShortcutsClick}
                 title="Atalhos de teclado (Alt+?)"
                 aria-label="Abrir atalhos de teclado"
@@ -109,19 +114,16 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
             <ThemeSelector />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div className="relative group">
-                  <div className="absolute inset-0 rounded-full blur-md bg-primary/40 group-hover:bg-primary/60 transition-all duration-300"></div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    aria-label="Menu do usuário"
-                    className="relative z-10 border-2 border-primary/60 group-hover:border-primary pulso-glow-cta transition-all duration-300 group-hover:scale-105 group-active:scale-95"
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Menu do usuário"
+                  className="h-8 w-8 rounded-lg hover:bg-muted/80"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="pulso-dropdown-menu-glass">
                 {currentProfile && (
                   <>
                     <DropdownMenuLabel>
@@ -163,7 +165,7 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
         {activeLayers && setActiveLayers && (
           <div
             className={`
-              grid overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+              grid overflow-hidden transition-all duration-500 ease-fluid
               ${showLayerSelection && !hideLayerSelection
                 ? "grid-rows-[1fr] opacity-100"
                 : "grid-rows-[0fr] opacity-0"
@@ -171,7 +173,7 @@ const DashboardHeader = ({ activeLayers, setActiveLayers, showLayerSelection = t
             `}
           >
             <div className="min-h-0 overflow-hidden">
-              <div className="container mx-auto px-4 pb-3 pt-1">
+              <div className="max-w-[1600px] mx-auto px-4 lg:px-6 pb-4 pt-3">
                 <LayerSelection
                   activeLayers={activeLayers}
                   setActiveLayers={setActiveLayers}

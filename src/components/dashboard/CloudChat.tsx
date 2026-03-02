@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Send, Trash2, Copy, FolderOpen, FileCode, Key, MapPin, Eye, EyeOff, CloudCog, MessageSquare, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChatTextarea } from "@/components/ui/chat-textarea";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,6 +21,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { infraApi } from "@/lib/api";
 import { getAllCloudCredentials, setCloudCredentials, getRootPath, setRootPath, getCloudChatSessions, setCloudChatSessions, type ChatSession } from "@/lib/connectionStorage";
+import { exportReport } from "@/lib/exportReport";
+import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
+import { FolderFileUpload } from "@/components/ui/FolderFileUpload";
+import { LoaderGenerating } from "@/components/loaders";
+import { ChatSidebar } from "./ChatSidebar";
 import { SiAmazonwebservices, SiGooglecloud } from "react-icons/si";
 import { TbBrandAzure } from "react-icons/tb";
 
@@ -63,6 +68,12 @@ const CloudChat = () => {
   useEffect(() => {
     setCredentials(getAllCloudCredentials());
     setRootPathState(getRootPath());
+  }, []);
+
+  useEffect(() => {
+    const openCredentials = () => setExpandedProvider("aws");
+    window.addEventListener("pulso-open-cloud-credentials", openCredentials);
+    return () => window.removeEventListener("pulso-open-cloud-credentials", openCredentials);
   }, []);
 
   useEffect(() => {
@@ -429,35 +440,129 @@ const CloudChat = () => {
     );
   };
 
+  const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
+
   return (
-    <div className="glass-strong pulso-card rounded-2xl overflow-hidden border-2 border-primary/20">
-      {/* Header */}
-      <div className="p-4 border-b border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
-        <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
-          <CloudCog className="h-5 w-5 text-primary" />
+    <div className="pulso-chat-layout h-full min-h-0">
+      {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
+      <div className="pulso-chat-sidebar glass-strong">
+        <ChatSidebar
+          sessions={sessionItems}
+          currentSessionId={currentSessionId}
+          onSelect={handleOpenChat}
+          onDelete={handleDeleteChat}
+          onNewChat={handleNewChat}
+          emptyMessage="Nenhum chat ainda"
+        />
+      </div>
+
+      {/* Área principal */}
+      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="p-3 flex flex-row items-center gap-3 shrink-0 min-w-0">
+        {/* Caminho do projeto + Escolher arquivo + Baixar relatório à esquerda (mesmo estilo da barra de envio) */}
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="relative w-full max-w-[320px] min-w-[200px] overflow-hidden showcase-search-poda--prompt showcase-search-poda--toolbar">
+            <div className="showcase-search-poda w-full">
+              <div className="showcase-search-glow" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-white" aria-hidden />
+              <div className="showcase-search-border" aria-hidden />
+              <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
+                <input
+                  type="text"
+                  placeholder="Caminho do projeto (opcional)"
+                  value={rootPath}
+                  onChange={(e) => handleRootPathChange(e.target.value)}
+                  className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
+                  aria-label="Caminho do projeto"
+                />
+                <div className="showcase-trailing-actions absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <FolderFileUpload
+                    compact
+                    onFileChange={(files) => {
+                      const f = files?.item(0);
+                      if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
+                    }}
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                  </FolderFileUpload>
+                </div>
+              </div>
+            </div>
+            <div className="showcase-prompt-gradient-bar rounded-full w-full" aria-hidden />
+          </div>
+          <DownloadReportButton
+            onClick={async () => {
+              const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
+              const result = await exportReport({ serviceId: "cloud", messages: msgs, format: "md" });
+              toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+            }}
+            disabled={messages.length === 0}
+            className="showcase-download-report-btn--compact text-white shrink-0"
+          />
+        </div>
+        <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate shrink-0">
+          <CloudCog className="h-4 w-4 shrink-0 text-primary" />
           Cloud Infrastructure
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Crie infraestruturas usando linguagem natural ou caminhos de arquivo
-        </p>
       </div>
 
-      {/* Provider Selection */}
-      <div className="p-3 border-b border-primary/20">
-        <div className="flex items-center gap-2 flex-wrap">
-          {renderProviderButton("aws", <SiAmazonwebservices className="h-6 w-6" />, "AWS")}
-          {renderProviderButton("azure", <TbBrandAzure className="h-6 w-6" />, "Azure")}
-          {renderProviderButton("gcp", <SiGooglecloud className="h-6 w-6" />, "GCP")}
+      {/* Provedores + Credenciais — painel vertical (estilo do dropdown da navbar) */}
+      <div className="p-3 shrink-0 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm max-w-[280px]">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-2">Provedores</p>
+        <div className="flex flex-col gap-0.5">
+          {(["aws", "azure", "gcp"] as const).map((provider) => {
+            const info = providerInfo[provider];
+            const isActive = activeProvider === provider;
+            const icon = provider === "aws" ? <SiAmazonwebservices className="h-5 w-5 shrink-0" /> : provider === "azure" ? <TbBrandAzure className="h-5 w-5 shrink-0" /> : <SiGooglecloud className="h-5 w-5 shrink-0" />;
+            const label = provider === "aws" ? "AWS" : provider === "azure" ? "Azure" : "GCP";
+            const configured = hasCredentials(provider);
+            return (
+              <div key={provider} className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveProvider(provider)}
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive ? `bg-gradient-to-r ${info.gradient} text-white shadow-md` : "text-foreground hover:bg-primary/15 hover:text-primary"
+                  }`}
+                  style={isActive ? { boxShadow: `0 0 10px ${info.glow}` } : undefined}
+                >
+                  <span className={isActive ? "text-white" : providerColors[provider].text}>{icon}</span>
+                  <span className="flex-1 text-left">{label}</span>
+                  {configured && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-green-500"}`} />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExpandedProvider(expandedProvider === provider ? null : provider)}
+                  className={`p-1.5 rounded-lg transition-colors ${expandedProvider === provider ? info.bg + " text-white" : "hover:bg-accent text-muted-foreground"}`}
+                  title="Credenciais"
+                >
+                  <Key className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
         </div>
-        {renderCredentialsPanel("aws")}
-        {renderCredentialsPanel("azure")}
-        {renderCredentialsPanel("gcp")}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("pulso-open-cloud-credentials"))}
+          className="w-full flex items-center gap-2 px-3 py-2 mt-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors border-t border-border/50"
+        >
+          <Key className="h-4 w-4 shrink-0" />
+          Credenciais
+        </button>
+        <div className="mt-2">
+          {renderCredentialsPanel("aws")}
+          {renderCredentialsPanel("azure")}
+          {renderCredentialsPanel("gcp")}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Chat Area */}
-        <div className="lg:col-span-2 border-r border-primary/20">
-          <div className="min-h-[624px] overflow-y-auto p-5 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <CloudCog className="h-12 w-12 text-primary/50" />
@@ -469,7 +574,7 @@ const CloudChat = () => {
                   <p className="text-xs text-muted-foreground mb-2">Sugestões:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {quickActions.map((action, idx) => (
-                      <Button key={idx} variant="outline" size="sm" onClick={() => handleQuickAction(action)} className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10">
+                      <Button key={idx} variant="outline" size="sm" onClick={() => handleQuickAction(action)} className="text-xs pulso-suggestion-btn">
                         {action}
                       </Button>
                     ))}
@@ -479,7 +584,7 @@ const CloudChat = () => {
             ) : (
               messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] rounded-lg p-3 ${message.role === "user" ? "bg-chat-user text-chat-user-foreground border border-primary/20" : "bg-chat-system text-chat-system-foreground border border-border/50"}`}>
+                  <div className={`max-w-[85%] rounded-lg p-3 ${message.role === "user" ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground border" : "bg-chat-system text-chat-system-foreground border border-border/50"}`}>
                     {message.provider && (
                       <Badge variant="outline" className="mb-2 text-xs" style={{ borderColor: providerColors[message.provider].hsl, color: providerColors[message.provider].hsl }}>
                         {message.provider.toUpperCase()}
@@ -511,31 +616,13 @@ const CloudChat = () => {
               ))
             )}
             {loading && (
-              <div className="flex justify-start animate-slide-up">
-                <div className="bg-background/50 border border-primary/20 rounded-lg p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-1.5 items-end h-4">
-                      <div
-                        className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
-                        style={{ animationDelay: "0ms" }}
-                      />
-                      <div
-                        className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
-                        style={{ animationDelay: "200ms" }}
-                      />
-                      <div
-                        className="w-2 h-2 rounded-full animate-typing-bounce bg-primary"
-                        style={{ animationDelay: "400ms" }}
-                      />
-                    </div>
-                    <span className="text-sm text-muted-foreground">Digitando...</span>
-                  </div>
-                </div>
+              <div className="relative min-h-[120px]">
+                <LoaderGenerating />
               </div>
             )}
-          </div>
+        </div>
 
-          <div className="p-4 border-t border-primary/20 space-y-2">
+        <div className="p-4 shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -543,68 +630,18 @@ const CloudChat = () => {
               }}
               className="flex gap-2 items-end"
             >
-              <Input
-                placeholder="Caminho do projeto (opcional)"
-                value={rootPath}
-                onChange={(e) => handleRootPathChange(e.target.value)}
-                className="border-primary/30 focus-visible:ring-primary max-w-[200px]"
-              />
-              <ChatTextarea
-                placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas'"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onSend={handleSend}
-                className="border-primary/30 focus-visible:ring-primary flex-1 py-2"
-              />
-              <Button type="submit" disabled={!input.trim() || loading} className="shrink-0 bg-primary hover:bg-primary-deep">
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </div>
-        </div>
-
-        {/* Chats Sidebar */}
-        <div className="bg-background/30">
-          <div className="p-3 border-b border-primary/20 flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><MessageSquare className="h-4 w-4" />Chats</h3>
-            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-primary hover:bg-primary/10">
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-          <div className="min-h-[500px] overflow-y-auto p-2 space-y-2">
-            {sessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                <MessageSquare className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                <p className="text-xs text-muted-foreground">Nenhum chat ainda</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Envie uma mensagem para começar</p>
+              <div className="flex-1 min-w-0">
+                <PromptSearchTextarea
+                  placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas'"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onSend={handleSend}
+                  disabled={loading}
+                />
               </div>
-            ) : (
-              [...sessions].reverse().map((session) => (
-                <div key={session.id} className="group relative">
-                  <button
-                    onClick={() => handleOpenChat(session)}
-                    className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
-                      currentSessionId === session.id
-                        ? "bg-primary/20 border border-primary/40"
-                        : "bg-background/50 hover:bg-primary/10 border border-transparent hover:border-primary/30"
-                    }`}
-                  >
-                    <p className="text-xs text-foreground line-clamp-2 pr-6">{session.title || "Novo chat"}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">{new Date(session.updatedAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteChat(session.id); }}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
+            </form>
         </div>
+      </div>
       </div>
     </div>
   );

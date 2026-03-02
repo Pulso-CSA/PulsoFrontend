@@ -8,6 +8,7 @@ declare global {
       maximize: () => void;
       close: () => void;
       isMaximized: () => Promise<boolean>;
+      openUninstall?: () => Promise<void>;
     };
   }
 }
@@ -31,26 +32,27 @@ export function ElectronTitleBar() {
     "w-11 h-9 flex items-center justify-center transition-all duration-200 group";
 
   return (
-    <div
-      className="electron-drag flex h-10 shrink-0 items-center justify-between bg-[#0a0a0f] border-b border-white/5 px-2 select-none"
-      style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
-    >
-      <div className="flex items-center gap-3 pl-2">
-        <img
-          src={import.meta.env.BASE_URL + "App.png"}
-          alt="Pulso"
-          className="h-7 w-7 object-contain shrink-0"
-        />
-        <span className="text-sm font-semibold text-white/95 tracking-tight">
-          Pulso Tech - Dashboard Operacional Inteligente
-        </span>
-      </div>
-
+    <>
       <div
-        className="flex items-stretch"
-        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        className="electron-drag fixed top-0 left-0 right-0 z-[100] flex h-10 shrink-0 items-center justify-between bg-[#0a0a0f] border-b border-white/5 px-2 select-none"
+        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
       >
-        <button
+        <div className="flex items-center gap-2 pl-2">
+          <img
+            src={import.meta.env.BASE_URL + "App.png"}
+            alt="Pulso"
+            className="h-5 w-5 object-contain shrink-0"
+          />
+          <span className="text-sm font-semibold text-white/95 tracking-tight">
+            Pulso Tech
+          </span>
+        </div>
+
+        <div
+          className="flex items-stretch"
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        >
+          <button
           type="button"
           onClick={() => api.minimize()}
           className={`${btnBase} text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]`}
@@ -75,8 +77,10 @@ export function ElectronTitleBar() {
           aria-label="Fechar"
         >
           <X className="h-3.5 w-3.5 stroke-[2.5]" />
-        </button>
+          </button>
+        </div>
       </div>
-    </div>
+    <div className="h-10 shrink-0" aria-hidden />
+    </>
   );
 }

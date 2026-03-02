@@ -145,6 +145,10 @@ export default {
           "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "service-transition": {
+          "0%": { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
         "shimmer": {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
@@ -165,6 +169,7 @@ export default {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "typing-bounce": "typing-bounce 1.4s ease-in-out infinite",
         "fluid-fade": "fluid-fade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "service-transition": "service-transition 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "shimmer": "shimmer 2s ease-in-out infinite",
         "soft-glow": "soft-glow 3s ease-in-out infinite",
       },

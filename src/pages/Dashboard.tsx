@@ -1,53 +1,129 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Monitor, Terminal, LayoutGrid, PanelLeft, LayoutDashboard, LayoutList, Minus } from "lucide-react";
+import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";
-import { DashboardLayoutCompact, type LayerKey } from "@/components/dashboard/DashboardLayoutCompact";
-import { DashboardLayoutBento } from "@/components/dashboard/DashboardLayoutBento";
-import { DashboardLayoutDense } from "@/components/dashboard/DashboardLayoutDense";
-import { DashboardLayoutMinimal } from "@/components/dashboard/DashboardLayoutMinimal";
 import { useToast } from "@/hooks/use-toast";
+import { LayoutA } from "@/layouts/LayoutA";
+import type { ServiceKey } from "@/layouts/LayoutA";
+import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";
 import PromptPanel from "@/components/dashboard/PromptPanel";
 import LogsPanel from "@/components/dashboard/LogsPanel";
 import FinOpsChat from "@/components/dashboard/FinOpsChat";
 import DataChat from "@/components/dashboard/DataChat";
 import CloudChat from "@/components/dashboard/CloudChat";
+import { AnalyticsCard } from "@/components/dashboard/AnalyticsCard";
+import { InsightsFab } from "@/components/dashboard/InsightsFab";
+import { InsightsChatBar } from "@/components/dashboard/InsightsChatBar";
+import { Slider } from "@/components/ui/slider";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import type { AnalyticsChartType } from "@/components/dashboard/AnalyticsCard";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const LAYOUT_KEY = "pulso_layout_mode";
-type LayoutMode = "grid" | "compact" | "bento" | "dense" | "minimal";
+export type InsightsFilterKey = "all" | ServiceKey | "custom";
 
-const LAYOUT_CYCLE: LayoutMode[] = ["grid", "compact", "bento", "dense", "minimal"];
-const LAYOUT_LABELS: Record<LayoutMode, string> = {
-  grid: "Grid",
-  compact: "Sidebar",
-  bento: "Bento",
-  dense: "Denso",
-  minimal: "Minimal",
+type InsightsWidget = {
+  id: string;
+  title: string;
+  value: string;
+  trend: string;
+  period: string;
+  chartType: AnalyticsChartType;
+  progressPercent?: number;
+  insights: string[];
+  /** Filtro de serviço ao qual o gráfico pertence (para navbar) */
+  serviceFilter?: ServiceKey | "custom";
+  /** Prompt em linguagem natural usado na customização */
+  customPrompt?: string;
+  /** Resumo breve: o que o gráfico analisa (hover) */
+  analysisSummary?: string;
+  /** Conclusão técnica (hover) */
+  technicalConclusion?: string;
+  /** Dados customizados para o gráfico (opcional) */
+  data?: Array<{ label: string; value: number }>;
 };
+
+const INSIGHTS_WIDGETS_INITIAL: InsightsWidget[] = [
+  { id: "post-views", title: "Post Views", value: "2,012", trend: "+12.3%", period: "Últimas 24h", chartType: "area", insights: ["O pico de visualizações ocorre entre 12h e 14h.", "Considere agendar posts nesse horário para maximizar alcance."], serviceFilter: "pulso", analysisSummary: "Visualizações de posts ao longo do dia.", technicalConclusion: "Pico entre 12h–14h; recomendado agendar publicações nesse intervalo." },
+  { id: "conversoes", title: "Conversões", value: "1,245", trend: "+8.1%", period: "Últimos 7 dias", chartType: "bar", insights: ["Taxa de conversão está acima da média do setor.", "O funil sugere que o checkout pode ser simplificado."], serviceFilter: "data", analysisSummary: "Conversões por período.", technicalConclusion: "Taxa acima da média; oportunidade de simplificar checkout." },
+  { id: "sales", title: "Sales", value: "39,500", trend: "+20%", period: "Este mês", chartType: "progress", progressPercent: 76, insights: ["Volume de conversas está estável nesta semana.", "Tempo médio de resposta pode ser reduzido com automação."], serviceFilter: "finops", analysisSummary: "Progresso de vendas no mês.", technicalConclusion: "Volume estável; automação pode reduzir tempo de resposta." },
+];
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>(() => {
-    const stored = localStorage.getItem(LAYOUT_KEY);
-    if (["grid", "compact", "bento", "dense", "minimal"].includes(stored ?? "")) return stored as LayoutMode;
-    return "grid";
-  });
-  const [compactActiveLayer, setCompactActiveLayer] = useState<LayerKey | null>(null);
-  const [activeLayers, setActiveLayers] = useState({
-    preview: false,
-    pulso: false,
-    finops: false,
-    data: false,
-    cloud: false,
-  });
+  const [activeService, setActiveService] = useState<ServiceKey | null>(null);
   const [showLogs, setShowLogs] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [previewFrontendUrl, setPreviewFrontendUrlState] = useState<string | null>(
     () => localStorage.getItem("pulso_preview_frontend_url")
   );
+
+  const [insightsWidgets, setInsightsWidgets] = useState<InsightsWidget[]>(() => INSIGHTS_WIDGETS_INITIAL);
+  const [insightsZoom, setInsightsZoom] = useState(1);
+  const [insightsLayoutMode, setInsightsLayoutMode] = useState<"grid" | "free">("grid");
+  const [insightsPositions, setInsightsPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [insightsDragging, setInsightsDragging] = useState<{ id: string; startX: number; startY: number; posX: number; posY: number } | null>(null);
+  const [insightsMenuOpen, setInsightsMenuOpen] = useState(false);
+  const [insightsFilter, setInsightsFilter] = useState<InsightsFilterKey>("all");
+  const [insightsPan, setInsightsPan] = useState({ x: 0, y: 0 });
+  const [insightsPanning, setInsightsPanning] = useState<{ startX: number; startY: number; startPanX: number; startPanY: number } | null>(null);
+  const [insightsConnections, setInsightsConnections] = useState<{ id: string; from: string; to: string; summary?: string }[]>([]);
+  const [connectionHoverId, setConnectionHoverId] = useState<string | null>(null);
+  const [customizeWidgetId, setCustomizeWidgetId] = useState<string | null>(null);
+  const [customizeForm, setCustomizeForm] = useState<{ service: ServiceKey | "custom"; prompt: string }>({ service: "data", prompt: "" });
+  const INSIGHTS_ZOOM_MIN = 0.5;
+  const INSIGHTS_ZOOM_MAX = 2;
+  const insightsZoomContainerRef = useRef<HTMLDivElement>(null);
+  const handleInsightsWheel = useCallback((e: WheelEvent) => {
+    const el = insightsZoomContainerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const step = 0.08;
+    setInsightsZoom((z) => {
+      const next = e.deltaY < 0 ? Math.min(INSIGHTS_ZOOM_MAX, z + step) : Math.max(INSIGHTS_ZOOM_MIN, z - step);
+      setInsightsPan((p) => ({
+        x: p.x + mouseX * (1 - next / z),
+        y: p.y + mouseY * (1 - next / z),
+      }));
+      return next;
+    });
+    e.preventDefault();
+  }, []);
+  useEffect(() => {
+    const el = insightsZoomContainerRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", handleInsightsWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleInsightsWheel);
+  }, [handleInsightsWheel, activeService]);
 
   const setPreviewFrontendUrl = (url: string | null) => {
     setPreviewFrontendUrlState(url);
@@ -98,483 +174,661 @@ const Dashboard = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  return (
-    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Background — semiesferas PULSO (gradiente roxo→ciano conforme App.png) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 pulso-orb-sm animate-pulse" style={{ animationDelay: "2s" }} />
-      </div>
+  const ZOOM_MIN = 0.5;
+  const ZOOM_MAX = 2;
+  const ZOOM_STEP = 0.1;
 
-      <div className="relative z-10">
-        <DashboardHeader
-          activeLayers={activeLayers}
-          setActiveLayers={setActiveLayers}
-          onShortcutsClick={() => setShowShortcuts(true)}
-          hideLayerSelection={!["grid"].includes(layoutMode)}
-          layoutToggle={
-            <div className="flex items-center rounded-lg border border-border/60 bg-muted/30 p-0.5 shrink-0" role="group" aria-label="Seleção de layout">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 transition-all duration-200 ${
-                  layoutMode === "grid" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => {
-                  setLayoutMode("grid");
-                  localStorage.setItem(LAYOUT_KEY, "grid");
-                  toast({ title: "Layout: Grid", description: "Grid central" });
-                }}
-                title="Grid"
-                aria-label="Layout Grid"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 transition-all duration-200 ${
-                  layoutMode === "compact" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => {
-                  setLayoutMode("compact");
-                  localStorage.setItem(LAYOUT_KEY, "compact");
-                  toast({ title: "Layout: Sidebar", description: "Sidebar lateral" });
-                }}
-                title="Sidebar"
-                aria-label="Layout Sidebar"
-              >
-                <PanelLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 transition-all duration-200 ${
-                  layoutMode === "bento" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => {
-                  setLayoutMode("bento");
-                  localStorage.setItem(LAYOUT_KEY, "bento");
-                  toast({ title: "Layout: Bento", description: "Grade Bento" });
-                }}
-                title="Bento"
-                aria-label="Layout Bento"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 transition-all duration-200 ${
-                  layoutMode === "dense" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => {
-                  setLayoutMode("dense");
-                  localStorage.setItem(LAYOUT_KEY, "dense");
-                  toast({ title: "Layout: Denso", description: "Analítico, sidebar colapsável" });
-                }}
-                title="Denso (Layout A)"
-                aria-label="Layout Denso"
-              >
-                <LayoutList className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 transition-all duration-200 ${
-                  layoutMode === "minimal" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => {
-                  setLayoutMode("minimal");
-                  localStorage.setItem(LAYOUT_KEY, "minimal");
-                  toast({ title: "Layout: Minimal", description: "Um foco por vez" });
-                }}
-                title="Minimal (Layout C)"
-                aria-label="Layout Minimal"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-            </div>
-          }
-        />
-      </div>
-      <ShortcutsModal open={showShortcuts} onOpenChange={setShowShortcuts} />
-      
-      <main id="main-content" className="flex-1 relative z-10" tabIndex={-1}>
-        <div key={layoutMode} className="h-full animate-fluid-fade">
-        {layoutMode === "compact" ? (
-          <DashboardLayoutCompact
-            activeLayer={compactActiveLayer}
-            onLayerChange={(layer) => {
-              setCompactActiveLayer(layer);
-              if (layer) {
-                setActiveLayers({
-                  preview: false,
-                  pulso: layer === "pulso",
-                  finops: layer === "finops",
-                  data: layer === "data",
-                  cloud: layer === "cloud",
-                });
-              } else {
-                setActiveLayers({ preview: false, pulso: false, finops: false, data: false, cloud: false });
-              }
-            }}
-          >
-            <div className="container mx-auto p-4 lg:p-6">
-              {compactActiveLayer === "pulso" && (
-                <div className="space-y-4 animate-slide-up">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2 transition-all duration-300 ease-out hover:scale-[1.02]" onClick={() => setShowLogs(!showLogs)}>
-                      <Terminal className="h-4 w-4" />
-                      <span>Logs</span>
-                    </Button>
-                    <Button variant="outline" size="sm" disabled={!previewFrontendUrl} className="transition-all duration-300 ease-out hover:scale-[1.02]" onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}>
-                      <Monitor className="h-4 w-4" />
-                      <span>Preview</span>
-                    </Button>
-                  </div>
-                  {showLogs && <LogsPanel />}
-                  <PromptPanel onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)} onClear={() => setPreviewFrontendUrl(null)} />
-                </div>
-              )}
-              {compactActiveLayer === "cloud" && <CloudChat />}
-              {compactActiveLayer === "finops" && <FinOpsChat />}
-              {compactActiveLayer === "data" && <DataChat />}
-              {!compactActiveLayer && (
-                <div className="flex flex-col items-center justify-center min-h-[400px] text-center text-muted-foreground">
-                  <p className="text-lg font-medium">Selecione uma camada na barra lateral</p>
-                  <p className="text-sm mt-2">Pulso, Cloud, FinOps ou Dados & IA</p>
-                </div>
-              )}
-            </div>
-          </DashboardLayoutCompact>
-        ) : layoutMode === "bento" ? (
-          <DashboardLayoutBento
-            activeLayer={compactActiveLayer}
-            onLayerChange={(layer) => {
-              setCompactActiveLayer(layer);
-              if (layer) {
-                setActiveLayers({
-                  preview: false,
-                  pulso: layer === "pulso",
-                  finops: layer === "finops",
-                  data: layer === "data",
-                  cloud: layer === "cloud",
-                });
-              } else {
-                setActiveLayers({ preview: false, pulso: false, finops: false, data: false, cloud: false });
-              }
-            }}
-          >
-            <div className="p-4 lg:p-6">
-              {compactActiveLayer === "pulso" && (
-                <div className="space-y-4 animate-fluid-fade">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2 transition-all duration-300 ease-out hover:scale-[1.02]" onClick={() => setShowLogs(!showLogs)}>
-                      <Terminal className="h-4 w-4" />
-                      <span>Logs</span>
-                    </Button>
-                    <Button variant="outline" size="sm" disabled={!previewFrontendUrl} className="transition-all duration-300 ease-out hover:scale-[1.02]" onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}>
-                      <Monitor className="h-4 w-4" />
-                      <span>Preview</span>
-                    </Button>
-                  </div>
-                  {showLogs && <LogsPanel />}
-                  <PromptPanel onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)} onClear={() => setPreviewFrontendUrl(null)} />
-                </div>
-              )}
-              {compactActiveLayer === "cloud" && <CloudChat />}
-              {compactActiveLayer === "finops" && <FinOpsChat />}
-              {compactActiveLayer === "data" && <DataChat />}
-            </div>
-          </DashboardLayoutBento>
-        ) : layoutMode === "dense" ? (
-          <DashboardLayoutDense
-            activeLayer={compactActiveLayer}
-            onLayerChange={(layer) => {
-              setCompactActiveLayer(layer);
-              if (layer) {
-                setActiveLayers({
-                  preview: false,
-                  pulso: layer === "pulso",
-                  finops: layer === "finops",
-                  data: layer === "data",
-                  cloud: layer === "cloud",
-                });
-              } else {
-                setActiveLayers({ preview: false, pulso: false, finops: false, data: false, cloud: false });
-              }
-            }}
-          >
-            <div className="container mx-auto p-4 lg:p-6 overflow-auto">
-              {compactActiveLayer === "pulso" && (
-                <div className="space-y-4 animate-slide-up">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={() => setShowLogs(!showLogs)}>
-                      <Terminal className="h-4 w-4" />
-                      <span>Logs</span>
-                    </Button>
-                    <Button variant="outline" size="sm" disabled={!previewFrontendUrl} onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}>
-                      <Monitor className="h-4 w-4" />
-                      <span>Preview</span>
-                    </Button>
-                  </div>
-                  {showLogs && <LogsPanel />}
-                  <PromptPanel onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)} onClear={() => setPreviewFrontendUrl(null)} />
-                </div>
-              )}
-              {compactActiveLayer === "cloud" && <CloudChat />}
-              {compactActiveLayer === "finops" && <FinOpsChat />}
-              {compactActiveLayer === "data" && <DataChat />}
-              {!compactActiveLayer && (
-                <div className="flex flex-col items-center justify-center min-h-[400px] text-center text-muted-foreground">
-                  <p className="text-lg font-medium">Selecione uma camada na barra lateral</p>
-                </div>
-              )}
-            </div>
-          </DashboardLayoutDense>
-        ) : layoutMode === "minimal" ? (
-          <DashboardLayoutMinimal
-            activeLayer={compactActiveLayer}
-            onLayerChange={(layer) => {
-              setCompactActiveLayer(layer);
-              if (layer) {
-                setActiveLayers({
-                  preview: false,
-                  pulso: layer === "pulso",
-                  finops: layer === "finops",
-                  data: layer === "data",
-                  cloud: layer === "cloud",
-                });
-              } else {
-                setActiveLayers({ preview: false, pulso: false, finops: false, data: false, cloud: false });
-              }
-            }}
-          >
-            <div className="p-4 lg:p-6">
-              {compactActiveLayer === "pulso" && (
-                <div className="space-y-4">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowLogs(!showLogs)}>
-                      <Terminal className="h-4 w-4" />
-                      <span>Logs</span>
-                    </Button>
-                    <Button variant="outline" size="sm" disabled={!previewFrontendUrl} onClick={() => setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}>
-                      <Monitor className="h-4 w-4" />
-                      <span>Preview</span>
-                    </Button>
-                  </div>
-                  {showLogs && <LogsPanel />}
-                  <PromptPanel onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)} onClear={() => setPreviewFrontendUrl(null)} />
-                </div>
-              )}
-              {compactActiveLayer === "cloud" && <CloudChat />}
-              {compactActiveLayer === "finops" && <FinOpsChat />}
-              {compactActiveLayer === "data" && <DataChat />}
-            </div>
-          </DashboardLayoutMinimal>
-        ) : (
-        <div className="flex flex-col gap-6 container mx-auto p-4 lg:p-6">
-          <div className="flex-1 space-y-6">
-            {activeLayers.pulso && (
-              <div className="space-y-4 animate-slide-up">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-300 ease-out hover:scale-[1.02] ${
-                      showLogs
-                        ? "border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 pulso-glow-cta text-white [&>span]:text-white [&>svg]:text-white"
-                        : "border-primary/40 hover:border-primary/60"
-                    }`}
-                    onClick={() => setShowLogs(!showLogs)}
-                  >
-                    <Terminal className="h-4 w-4" />
-                    <span>Controle de Logs</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!previewFrontendUrl}
-                    title={previewFrontendUrl ? "Abrir preview da tela de teste" : "Execute um workflow para gerar o preview"}
-                    className={`flex items-center gap-2 glass glass-hover border-2 transition-all duration-300 ease-out hover:scale-[1.02] ${
-                      activeLayers.preview
-                        ? "border-primary bg-gradient-to-r from-primary/80 to-primary-deep/60 pulso-glow-cta text-white [&>span]:text-white [&>svg]:text-white"
-                        : previewFrontendUrl
-                          ? "border-primary/40 hover:border-primary/60"
-                          : "border-primary/20 opacity-60 cursor-not-allowed"
-                    }`}
-                    onClick={() => previewFrontendUrl && setActiveLayers(prev => ({ ...prev, preview: !prev.preview }))}
-                  >
-                    <Monitor className="h-4 w-4" />
-                    <span>Preview do Frontend</span>
-                  </Button>
-                </div>
-                
-                {activeLayers.preview && (
-                  <div className="glass-strong rounded-lg p-4 border-2 border-primary/30">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                        <Monitor className="h-4 w-4 text-primary" />
-                        Preview do Frontend
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground font-mono px-2 py-1 rounded bg-primary/10">
-                          {previewFrontendUrl ?? "localhost:3000"}
-                        </span>
-                        {previewFrontendUrl && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(previewFrontendUrl, "_blank")}
-                            className="h-7 text-xs"
-                          >
-                            Abrir em nova aba
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="glass rounded-md overflow-hidden border border-primary/30" style={{ height: '600px' }}>
-                      {previewFrontendUrl ? (
-                        <iframe
-                          src={previewFrontendUrl}
-                          className="w-full h-full border-0"
-                          title="Preview do Frontend"
-                          sandbox="allow-scripts allow-same-origin"
-                        />
-                      ) : (
-                        <iframe
-                        srcDoc={`
-                          <!DOCTYPE html>
-                          <html lang="pt-BR">
-                          <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>App Demo</title>
-                            <style>
-                              * { margin: 0; padding: 0; box-sizing: border-box; }
-                              body {
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                min-height: 100vh;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                padding: 20px;
-                              }
-                              .container {
-                                background: white;
-                                border-radius: 16px;
-                                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                                max-width: 500px;
-                                width: 100%;
-                                padding: 40px;
-                              }
-                              h1 {
-                                color: #1a202c;
-                                font-size: 28px;
-                                margin-bottom: 10px;
-                              }
-                              p {
-                                color: #718096;
-                                margin-bottom: 30px;
-                                line-height: 1.6;
-                              }
-                              .feature {
-                                background: #f7fafc;
-                                padding: 20px;
-                                border-radius: 12px;
-                                margin-bottom: 15px;
-                                border-left: 4px solid #667eea;
-                              }
-                              .feature h3 {
-                                color: #2d3748;
-                                font-size: 16px;
-                                margin-bottom: 8px;
-                              }
-                              .feature p {
-                                color: #718096;
-                                font-size: 14px;
-                                margin: 0;
-                              }
-                              button {
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                border: none;
-                                padding: 14px 28px;
-                                border-radius: 8px;
-                                font-size: 16px;
-                                font-weight: 600;
-                                cursor: pointer;
-                                width: 100%;
-                                margin-top: 20px;
-                                transition: transform 0.2s, box-shadow 0.2s;
-                              }
-                              button:hover {
-                                transform: translateY(-2px);
-                                box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-                              }
-                              button:active {
-                                transform: translateY(0);
-                              }
-                            </style>
-                          </head>
-                          <body>
-                            <div class="container">
-                              <h1>🚀 Meu App</h1>
-                              <p>Este é um exemplo de frontend gerado automaticamente</p>
-                              
-                              <div class="feature">
-                                <h3>✨ Design Moderno</h3>
-                                <p>Interface limpa e responsiva</p>
-                              </div>
-                              
-                              <div class="feature">
-                                <h3>⚡ Performance</h3>
-                                <p>Otimizado para velocidade</p>
-                              </div>
-                              
-                              <div class="feature">
-                                <h3>🎯 Componentes</h3>
-                                <p>Estrutura organizada e escalável</p>
-                              </div>
-                              
-                              <button onclick="alert('Funcionalidade em desenvolvimento!')">
-                                Começar Agora
-                              </button>
-                            </div>
-                          </body>
-                          </html>
-                        `}
-                        className="w-full h-full border-0"
-                        title="Frontend Preview"
-                        sandbox="allow-scripts"
-                      />
-                      )}
-                    </div>
-                  </div>
-                )}
+  const handleInsightsZoomIn = () => setInsightsZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
+  const handleInsightsZoomOut = () => setInsightsZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
+  const handleInsightsCreateChart = () => {
+    const id = `widget-${Date.now()}`;
+    const newIndex = insightsWidgets.length;
+    const defaultService: ServiceKey | "custom" = insightsFilter === "custom" ? "custom" : insightsFilter === "all" ? "data" : insightsFilter;
+    setInsightsWidgets((prev) => [
+      ...prev,
+      { id, title: "Novo gráfico", value: "0", trend: "0%", period: "—", chartType: "area", insights: [], serviceFilter: defaultService },
+    ]);
+    if (insightsLayoutMode === "free") {
+      setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
+    }
+    toast({ title: "Gráfico criado", description: "Adicione dados e insights conforme necessário." });
+  };
+  const handleInsightsDeleteChart = (id: string) => {
+    setInsightsWidgets((prev) => prev.filter((w) => w.id !== id));
+    setInsightsPositions((pos) => {
+      const next = { ...pos };
+      delete next[id];
+      return next;
+    });
+    setInsightsConnections((prev) => prev.filter((c) => c.from !== id && c.to !== id));
+    toast({ title: "Gráfico excluído", variant: "destructive" });
+  };
+  const handleInsightsUpdateChart = () => {
+    toast({ title: "Atualização", description: "Dados dos gráficos atualizados." });
+  };
+  const handleInsightsToggleReposition = () => {
+    setInsightsLayoutMode((mode) => {
+      const next = mode === "grid" ? "free" : "grid";
+      if (next === "free") {
+        setInsightsPositions((pos) => {
+          const nextPos = { ...pos };
+          insightsWidgets.forEach((w, i) => {
+            if (nextPos[w.id]) return;
+            nextPos[w.id] = { x: 20 + (i % 3) * 280, y: 20 + Math.floor(i / 3) * 200 };
+          });
+          return nextPos;
+        });
+      }
+      return next;
+    });
+  };
 
-                {showLogs && (
-                  <LogsPanel />
-                )}
-                
-                <PromptPanel
-                  onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)}
-                  onClear={() => setPreviewFrontendUrl(null)}
+  useEffect(() => {
+    if (!insightsDragging) return;
+    const onMove = (e: MouseEvent) => {
+      setInsightsPositions((pos) => {
+        const cur = pos[insightsDragging.id] ?? { x: 0, y: 0 };
+        return { ...pos, [insightsDragging.id]: { x: cur.x + e.clientX - insightsDragging.startX, y: cur.y + e.clientY - insightsDragging.startY } };
+      });
+      setInsightsDragging((d) => d ? { ...d, startX: e.clientX, startY: e.clientY } : null);
+    };
+    const onUp = () => setInsightsDragging(null);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [insightsDragging]);
+
+  useEffect(() => {
+    if (!insightsPanning) return;
+    const onMove = (e: MouseEvent) => {
+      setInsightsPan((p) => ({
+        x: insightsPanning.startPanX + (e.clientX - insightsPanning.startX),
+        y: insightsPanning.startPanY + (e.clientY - insightsPanning.startY),
+      }));
+    };
+    const onUp = () => setInsightsPanning(null);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [insightsPanning]);
+
+  const insightsFilteredWidgets = insightsFilter === "all"
+    ? insightsWidgets
+    : insightsWidgets.filter((w) => (w.serviceFilter ?? "data") === insightsFilter);
+
+  const handleCustomizeSubmit = () => {
+    if (!customizeWidgetId) return;
+    const prompt = customizeForm.prompt.trim();
+    const service = customizeForm.service;
+    setInsightsWidgets((prev) =>
+      prev.map((w) => {
+        if (w.id !== customizeWidgetId) return w;
+        const generated = prompt
+          ? {
+              title: prompt.slice(0, 40) + (prompt.length > 40 ? "…" : ""),
+              insights: [
+                `Análise gerada a partir do pedido: "${prompt.slice(0, 80)}${prompt.length > 80 ? "…" : ""}".`,
+                "Conectado ao serviço selecionado. Dados podem ser refinados ao atualizar.",
+              ],
+              analysisSummary: `Gráfico customizado: ${prompt.slice(0, 100)}${prompt.length > 100 ? "…" : ""}.`,
+              technicalConclusion: "Conclusão técnica será preenchida quando o modelo de dados estiver integrado.",
+            }
+          : {};
+        return {
+          ...w,
+          serviceFilter: service === "custom" ? "custom" : service,
+          customPrompt: prompt || undefined,
+          ...generated,
+        };
+      })
+    );
+    setCustomizeWidgetId(null);
+    toast({ title: "Gráfico atualizado", description: prompt ? "Análise gerada conforme sua descrição." : "Serviço e preferências salvos." });
+  };
+
+  const handleInsightsCreateFromChat = (prompt: string) => {
+    const lower = prompt.toLowerCase();
+    let chartType: AnalyticsChartType = "bar";
+    if (/\b(evolução|evolucao|tendência|tendencia|ao longo|série|serie|linha)\b/.test(lower)) chartType = "line";
+    else if (/\b(distribuição|distribuicao|participação|participacao|proporção|proporcao|%|pie|pizza)\b/.test(lower)) chartType = "pie";
+    else if (/\b(progresso|meta|objetivo|% do total)\b/.test(lower)) chartType = "progress";
+
+    const sampleDataByType: Record<string, Array<{ label: string; value: number }>> = {
+      line: [
+        { label: "Jan", value: 120 },
+        { label: "Fev", value: 180 },
+        { label: "Mar", value: 145 },
+        { label: "Abr", value: 220 },
+        { label: "Mai", value: 190 },
+        { label: "Jun", value: 260 },
+      ],
+      bar: [
+        { label: "Norte", value: 420 },
+        { label: "Sul", value: 380 },
+        { label: "Leste", value: 510 },
+        { label: "Oeste", value: 290 },
+        { label: "Centro", value: 340 },
+      ],
+      pie: [
+        { label: "Canal A", value: 35 },
+        { label: "Canal B", value: 28 },
+        { label: "Canal C", value: 22 },
+        { label: "Outros", value: 15 },
+      ],
+      area: [
+        { label: "8h", value: 120 },
+        { label: "10h", value: 280 },
+        { label: "12h", value: 450 },
+        { label: "14h", value: 380 },
+        { label: "16h", value: 520 },
+        { label: "18h", value: 412 },
+      ],
+    };
+    const data = sampleDataByType[chartType] ?? sampleDataByType.bar;
+
+    const id = `widget-${Date.now()}`;
+    const newIndex = insightsWidgets.length;
+    const defaultService: ServiceKey | "custom" = insightsFilter === "custom" ? "custom" : insightsFilter === "all" ? "data" : insightsFilter;
+    const title = prompt.length > 36 ? prompt.slice(0, 36) + "…" : prompt;
+    const isProgressChart = chartType === "progress";
+    setInsightsWidgets((prev) => [
+      ...prev,
+      {
+        id,
+        title,
+        value: data.length ? String(data.reduce((a, d) => a + d.value, 0).toLocaleString("pt-BR")) : "—",
+        trend: "+0%",
+        period: "Gerado por chat",
+        chartType: chartType === "pie" ? "pie" : chartType,
+        progressPercent: isProgressChart ? 65 : undefined,
+        insights: [`Gráfico criado a partir de: "${prompt.slice(0, 60)}${prompt.length > 60 ? "…" : ""}".`],
+        serviceFilter: defaultService,
+        customPrompt: prompt,
+        analysisSummary: `Análise: ${prompt.slice(0, 80)}${prompt.length > 80 ? "…" : ""}.`,
+        technicalConclusion: "Dados de demonstração. Conecte uma fonte real para dados em tempo real.",
+        data: isProgressChart ? undefined : data,
+      },
+    ]);
+    if (insightsLayoutMode === "free") {
+      setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
+    }
+    toast({ title: "Gráfico criado", description: `"${title}" adicionado ao dashboard.` });
+  };
+
+  const handleInsightsAddConnection = (fromId: string, toId: string) => {
+    const id = [fromId, toId].sort().join("--");
+    if (insightsConnections.some((c) => c.id === id || (c.from === fromId && c.to === toId))) return;
+    setInsightsConnections((prev) => [...prev, { id: `conn-${Date.now()}`, from: fromId, to: toId, summary: `Análise de correlação entre os gráficos.` }]);
+    toast({ title: "Conexão criada", description: "Os dois gráficos estão conectados para análise." });
+  };
+
+  const handleExportInsights = () => {
+    const lines: string[] = ["# Dashboard de Insights", "", `Exportado em: ${new Date().toLocaleString("pt-BR")}`, ""];
+    insightsWidgets.forEach((w) => {
+      lines.push(`## ${w.title}`);
+      lines.push(`- Valor: ${w.value} | Tendência: ${w.trend} | Período: ${w.period}`);
+      lines.push("### Insights");
+      w.insights.forEach((i) => lines.push(`- ${i}`));
+      lines.push("");
+    });
+    const content = lines.join("\n");
+    const blob = new Blob([content], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dashboard-insights-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Dashboard exportado", description: "Arquivo baixado com sucesso." });
+  };
+
+  const renderServiceContent = () => {
+    if (activeService === "pulso") {
+      return (
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden animate-slide-up">
+          {showLogs && <LogsPanel />}
+          {showPreview && previewFrontendUrl && (
+            <div className="rounded-lg border border-border bg-card p-4 shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Monitor className="h-4 w-4 text-primary shrink-0" />
+                  <span className="truncate">Preview do Frontend</span>
+                </h3>
+                <Button
+                  variant="pulso"
+                  size="sm"
+                  onClick={() => window.open(previewFrontendUrl, "_blank")}
+                  className="shrink-0"
+                >
+                  Abrir em nova aba
+                </Button>
+              </div>
+              <div className="rounded-lg overflow-hidden border border-border bg-muted/30" style={{ height: "400px" }}>
+                <iframe
+                  src={previewFrontendUrl}
+                  className="w-full h-full border-0"
+                  title="Preview do Frontend"
+                  sandbox="allow-scripts allow-same-origin"
                 />
               </div>
-            )}
-            {activeLayers.cloud && <div className="animate-slide-up"><CloudChat /></div>}
-            {activeLayers.finops && <div className="animate-slide-up"><FinOpsChat /></div>}
-            {activeLayers.data && <div className="animate-slide-up"><DataChat /></div>}
+            </div>
+          )}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <PromptPanel
+              onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)}
+              onClear={() => setPreviewFrontendUrl(null)}
+              toolbarExtra={
+                <>
+                  <Button
+                    variant="pulso"
+                    size="sm"
+                    className="flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    onClick={() => setShowLogs(!showLogs)}
+                  >
+                    <Terminal className="h-3.5 w-3.5" />
+                    <span>Logs</span>
+                  </Button>
+                  <Button
+                    variant="pulso"
+                    size="sm"
+                    disabled={!previewFrontendUrl}
+                    className="flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    onClick={() => setShowPreview((p) => !p)}
+                  >
+                    <Monitor className="h-3.5 w-3.5" />
+                    <span>Preview</span>
+                  </Button>
+                </>
+              }
+            />
           </div>
         </div>
-        )}
+      );
+    }
+    if (activeService === "cloud") return <div className="flex-1 min-h-0 overflow-hidden"><CloudChat /></div>;
+    if (activeService === "finops") return <div className="flex-1 min-h-0 overflow-hidden"><FinOpsChat /></div>;
+    if (activeService === "data") return <div className="flex-1 min-h-0 overflow-hidden"><DataChat /></div>;
+
+    const INSIGHTS_FILTER_BUTTONS: { key: InsightsFilterKey; icon: LucideIcon; label: string }[] = [
+      { key: "all", icon: LayoutGrid, label: "Todos" },
+      { key: "pulso", icon: Workflow, label: "Pulso CSA" },
+      { key: "cloud", icon: CloudCog, label: "Cloud IaC" },
+      { key: "finops", icon: TrendingDown, label: "FinOps" },
+      { key: "data", icon: Brain, label: "Dados & IA" },
+      { key: "custom", icon: SlidersHorizontal, label: "Personalizado" },
+    ];
+
+    return (
+      <div className="pulso-insights-screen flex-1 min-h-0 flex flex-col overflow-hidden relative">
+        {/* Navbar compacta: filtros de análise (Todos, serviços, personalizado) + exportar */}
+        <nav className="pulso-insights-navbar" aria-label="Filtros de Insights">
+          <div className="pulso-insights-navbar-inner">
+            {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setInsightsFilter(key)}
+                className={cn(
+                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal pulso-insights-navbar-btn-icon text-white",
+                  insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
+                )}
+                title={label}
+                aria-label={`Filtrar: ${label}`}
+                aria-pressed={insightsFilter === key}
+              >
+                <Icon className="shrink-0" strokeWidth={1.5} />
+                <span className="sr-only">{label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={handleExportInsights}
+              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1 px-3 min-w-[36px] h-9 w-auto text-xs"
+              title="Baixar relatório"
+              aria-label="Baixar relatório do dashboard"
+            >
+              <Download className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+              <span className="hidden sm:inline font-medium whitespace-nowrap">Exportar</span>
+            </button>
+          </div>
+        </nav>
+        {/* Criação por chat — estilo Power BI */}
+        <div className="flex-shrink-0 px-4 pt-2 pb-1">
+          <InsightsChatBar onSubmit={handleInsightsCreateFromChat} placeholder="Ex: vendas por região, churn mensal, evolução de receita..." />
         </div>
-      </main>
+        {/* Conteúdo rolável (cards + zoom) */}
+        <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
+        <div
+          ref={insightsZoomContainerRef}
+          className={cn(
+            "flex-1 min-h-0 overflow-hidden",
+            insightsLayoutMode === "free" && (insightsPanning ? "cursor-grabbing" : "cursor-grab"),
+            insightsLayoutMode === "grid" && "cursor-context-menu"
+          )}
+          style={{ minHeight: 200 }}
+          onClick={(e) => {
+            if (!(e.target as HTMLElement).closest(".pulso-metric-card")) setInsightsMenuOpen(true);
+          }}
+          onMouseDown={(e) => {
+            if (e.button !== 0 || insightsLayoutMode !== "free") return;
+            if ((e.target as HTMLElement).closest(".pulso-metric-card")) return;
+            setInsightsPanning({ startX: e.clientX, startY: e.clientY, startPanX: insightsPan.x, startPanY: insightsPan.y });
+          }}
+        >
+          <div
+            className="flex-1 min-h-0"
+            style={{
+              transform: `translate(${insightsPan.x}px, ${insightsPan.y}px) scale(${insightsZoom})`,
+              transformOrigin: "0 0",
+              width: `${100 / insightsZoom}%`,
+              height: `${100 / insightsZoom}%`,
+              minHeight: (200 / insightsZoom),
+            }}
+          >
+            {insightsLayoutMode === "grid" ? (
+              <div className="pulso-insights-grid h-full min-h-[200px]">
+                {insightsFilteredWidgets.map((w) => (
+                  <ContextMenu key={w.id}>
+                    <ContextMenuTrigger asChild>
+                      <div className="h-full min-h-0">
+                        <AnalyticsCard
+                          title={w.title}
+                          value={w.value}
+                          trend={w.trend}
+                          period={w.period}
+                          chartType={w.chartType}
+                          progressPercent={w.progressPercent}
+                          data={w.data}
+                          compact
+                          insight={w.insights.length ? w.insights : undefined}
+                          analysisSummary={w.analysisSummary}
+                          technicalConclusion={w.technicalConclusion}
+                          className="pulso-metric-card pulso-insights-card"
+                        />
+                      </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="w-56 pulso-dropdown-menu-glass">
+                      <ContextMenuItem onClick={() => { handleInsightsCreateChart(); setInsightsMenuOpen(false); }}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Criar gráfico
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => { setCustomizeWidgetId(w.id); setCustomizeForm({ service: (w.serviceFilter ?? "data") as ServiceKey | "custom", prompt: w.customPrompt ?? "" }); }}>
+                        <SlidersHorizontal className="mr-2 h-4 w-4" />
+                        Customizar
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => { handleInsightsUpdateChart(); setInsightsMenuOpen(false); }}>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Atualizar
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuSub>
+                        <ContextMenuSubTrigger>
+                          <Link2 className="mr-2 h-4 w-4" />
+                          Conectar a...
+                        </ContextMenuSubTrigger>
+                        <ContextMenuSubContent className="pulso-dropdown-menu-glass">
+                          {insightsWidgets.filter((o) => o.id !== w.id).map((other) => (
+                            <ContextMenuItem key={other.id} onClick={() => handleInsightsAddConnection(w.id, other.id)}>
+                              {other.title}
+                            </ContextMenuItem>
+                          ))}
+                        </ContextMenuSubContent>
+                      </ContextMenuSub>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem onClick={() => handleInsightsDeleteChart(w.id)} className="text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir gráfico
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
+                ))}
+              </div>
+            ) : (
+              <div className="relative w-full h-full min-h-[400px]" style={{ width: "100%", minHeight: 400 }}>
+                {/* Cordas entre gráficos conectados */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+                  <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                      <polygon points="0 0, 10 3.5, 0 7" fill="hsl(var(--primary) / 0.6)" />
+                    </marker>
+                  </defs>
+                  {insightsConnections
+                    .filter((c) => insightsFilteredWidgets.some((w) => w.id === c.from) && insightsFilteredWidgets.some((w) => w.id === c.to))
+                    .map((c) => {
+                      const posA = insightsPositions[c.from] ?? { x: 0, y: 0 };
+                      const posB = insightsPositions[c.to] ?? { x: 0, y: 0 };
+                      const cx1 = posA.x + 160;
+                      const cy1 = posA.y + 90;
+                      const cx2 = posB.x + 160;
+                      const cy2 = posB.y + 90;
+                      const isHovered = connectionHoverId === c.id;
+                      return (
+                        <g
+                          key={c.id}
+                          pointerEvents="stroke"
+                          style={{ cursor: "pointer" }}
+                          onMouseEnter={() => setConnectionHoverId(c.id)}
+                          onMouseLeave={() => setConnectionHoverId(null)}
+                        >
+                          <line
+                            x1={cx1}
+                            y1={cy1}
+                            x2={cx2}
+                            y2={cy2}
+                            stroke="hsl(var(--primary) / 0.5)"
+                            strokeWidth={isHovered ? 12 : 6}
+                            strokeLinecap="round"
+                          />
+                          <line x1={cx1} y1={cy1} x2={cx2} y2={cy2} stroke="hsl(var(--primary))" strokeWidth={2} strokeLinecap="round" markerEnd="url(#arrowhead)" />
+                        </g>
+                      );
+                    })}
+                </svg>
+                {connectionHoverId && (() => {
+                  const c = insightsConnections.find((x) => x.id === connectionHoverId);
+                  if (!c) return null;
+                  const posA = insightsPositions[c.from] ?? { x: 0, y: 0 };
+                  const cx = (posA.x + 160 + (insightsPositions[c.to]?.x ?? 0) + 160) / 2;
+                  const cy = (posA.y + 90 + (insightsPositions[c.to]?.y ?? 0) + 90) / 2;
+                  return (
+                    <div
+                      className="absolute z-20 px-3 py-2 rounded-lg bg-popover border border-border shadow-lg text-xs text-foreground max-w-[220px] pointer-events-none"
+                      style={{ left: cx - 110, top: cy - 40 }}
+                    >
+                      {c.summary ?? "Análise de correlação entre os dois gráficos."}
+                    </div>
+                  );
+                })()}
+                {insightsFilteredWidgets.map((w) => {
+                  const pos = insightsPositions[w.id] ?? { x: 0, y: 0 };
+                  return (
+                    <div
+                      key={w.id}
+                      className="absolute cursor-grab active:cursor-grabbing"
+                      style={{ left: pos.x, top: pos.y, width: 320, zIndex: insightsDragging?.id === w.id ? 10 : 1 }}
+                      onMouseDown={(e) => {
+                        if (e.button !== 0) return;
+                        setInsightsDragging({ id: w.id, startX: e.clientX, startY: e.clientY, posX: pos.x, posY: pos.y });
+                      }}
+                    >
+                      <ContextMenu>
+                        <ContextMenuTrigger asChild>
+                          <div className="w-full h-full">
+                            <AnalyticsCard
+                              title={w.title}
+                              value={w.value}
+                              trend={w.trend}
+                              period={w.period}
+                              chartType={w.chartType}
+                              progressPercent={w.progressPercent}
+                              data={w.data}
+                              compact
+                              insight={w.insights.length ? w.insights : undefined}
+                              analysisSummary={w.analysisSummary}
+                              technicalConclusion={w.technicalConclusion}
+                              className="pulso-metric-card pulso-insights-card"
+                            />
+                          </div>
+                        </ContextMenuTrigger>
+                        <ContextMenuContent className="w-56 pulso-dropdown-menu-glass">
+                          <ContextMenuItem onClick={() => { handleInsightsCreateChart(); setInsightsMenuOpen(false); }}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Criar gráfico
+                          </ContextMenuItem>
+                          <ContextMenuItem onClick={() => setCustomizeWidgetId(w.id)}>
+                            <SlidersHorizontal className="mr-2 h-4 w-4" />
+                            Customizar
+                          </ContextMenuItem>
+                          <ContextMenuItem onClick={() => { handleInsightsUpdateChart(); setInsightsMenuOpen(false); }}>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Atualizar
+                          </ContextMenuItem>
+                          <ContextMenuSeparator />
+                          <ContextMenuSub>
+                            <ContextMenuSubTrigger>
+                              <Link2 className="mr-2 h-4 w-4" />
+                              Conectar a...
+                            </ContextMenuSubTrigger>
+                            <ContextMenuSubContent className="pulso-dropdown-menu-glass">
+                              {insightsWidgets.filter((o) => o.id !== w.id).map((other) => (
+                                <ContextMenuItem key={other.id} onClick={() => handleInsightsAddConnection(w.id, other.id)}>
+                                  {other.title}
+                                </ContextMenuItem>
+                              ))}
+                            </ContextMenuSubContent>
+                          </ContextMenuSub>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem onClick={() => handleInsightsDeleteChart(w.id)} className="text-destructive focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir gráfico
+                          </ContextMenuItem>
+                        </ContextMenuContent>
+                      </ContextMenu>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+        {/* Barra de zoom: canto inferior central */}
+        {activeService === null && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg min-w-[200px] max-w-[280px]">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Zoom</span>
+            <Slider
+              value={[insightsZoom]}
+              onValueChange={([v]) => setInsightsZoom(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, v)))}
+              min={ZOOM_MIN}
+              max={ZOOM_MAX}
+              step={ZOOM_STEP}
+              className="flex-1"
+            />
+            <span className="text-xs font-mono text-foreground w-10 text-right">{Math.round(insightsZoom * 100)}%</span>
+          </div>
+        )}
+        {activeService === null && (
+          <InsightsFab
+            open={insightsMenuOpen}
+            onOpenChange={setInsightsMenuOpen}
+            onZoomIn={handleInsightsZoomIn}
+            onZoomOut={handleInsightsZoomOut}
+            onCreateChart={handleInsightsCreateChart}
+            onDeleteChart={handleInsightsDeleteChart}
+            onUpdateChart={handleInsightsUpdateChart}
+            onToggleReposition={handleInsightsToggleReposition}
+            repositionMode={insightsLayoutMode === "free"}
+            widgetIds={insightsWidgets.map((w) => ({ id: w.id, title: w.title }))}
+            zoomLevel={insightsZoom}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const serviceErrorFallback = (
+    <div className="pulso-empty-state">
+      <p className="pulso-empty-state-title">Erro ao carregar o serviço</p>
+      <p className="pulso-empty-state-desc mb-4">Ocorreu um problema. Tente recarregar ou selecione outro serviço.</p>
+      <Button variant="pulso" onClick={() => window.location.reload()} className="gap-2">
+        <RefreshCw className="h-4 w-4" />
+        Recarregar página
+      </Button>
     </div>
+  );
+
+  const content = (
+    <ErrorBoundary fallback={serviceErrorFallback}>
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div
+          key={activeService ?? "welcome"}
+          className="flex-1 min-h-0 flex flex-col overflow-hidden animate-service-transition"
+        >
+          {renderServiceContent()}
+        </div>
+      </div>
+    </ErrorBoundary>
+  );
+
+  return (
+    <>
+      <ShortcutsModal open={showShortcuts} onOpenChange={setShowShortcuts} />
+      <Dialog open={!!customizeWidgetId} onOpenChange={(open) => !open && setCustomizeWidgetId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Customizar gráfico</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="customize-service">Serviço ao qual conectar</Label>
+              <Select
+                value={customizeForm.service}
+                onValueChange={(v) => setCustomizeForm((f) => ({ ...f, service: v as ServiceKey | "custom" }))}
+              >
+                <SelectTrigger id="customize-service">
+                  <SelectValue placeholder="Selecione o serviço" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pulso">Pulso CSA</SelectItem>
+                  <SelectItem value="cloud">Cloud IaC</SelectItem>
+                  <SelectItem value="finops">FinOps</SelectItem>
+                  <SelectItem value="data">Dados & IA</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="customize-prompt">O que você quer que este gráfico seja?</Label>
+              <Textarea
+                id="customize-prompt"
+                placeholder='Ex: "Correlacionar variável X e Y"; "Analisar se meus clientes estão se evadindo"; "Projeções de churn para o mês que vem"'
+                value={customizeForm.prompt}
+                onChange={(e) => setCustomizeForm((f) => ({ ...f, prompt: e.target.value }))}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCustomizeWidgetId(null)}>
+              Cancelar
+            </Button>
+            <Button variant="pulso" onClick={handleCustomizeSubmit}>
+              Gerar gráfico
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <LayoutA activeService={activeService} onServiceChange={setActiveService}>
+        {content}
+      </LayoutA>
+    </>
   );
 };
 

@@ -1,13 +1,9 @@
 /**
- * Layout A — Analítico / Denso
- * Grid central, sidebar colapsável, métricas em cards compactos acima do input
- * Uso: power users, análise intensiva
+ * Layout Denso — estilo da imagem
+ * Cards com bordas em gradiente brilhante, fundo escuro
  */
-import { useState } from "react";
-import { Workflow, TrendingDown, Brain, CloudCog, PanelLeftClose, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type LayerKey = "pulso" | "cloud" | "finops" | "data";
+import { LAYER_CONFIG, type LayerKey } from "./LayerCard";
 
 interface DashboardLayoutDenseProps {
   activeLayer: LayerKey | null;
@@ -16,12 +12,84 @@ interface DashboardLayoutDenseProps {
   className?: string;
 }
 
-const LAYERS: { key: LayerKey; label: string; icon: typeof Workflow; short: string }[] = [
-  { key: "pulso", label: "Pulso CSA", icon: Workflow, short: "Pulso" },
-  { key: "cloud", label: "Infra Cloud", icon: CloudCog, short: "Cloud" },
-  { key: "finops", label: "FinOps", icon: TrendingDown, short: "FinOps" },
-  { key: "data", label: "Dados & IA", icon: Brain, short: "Data" },
-];
+const BORDER_GLOW: Record<LayerKey, { active: string; inactive: string }> = {
+  pulso: {
+    active: "shadow-[0_0_30px_-5px_rgba(249,115,22,0.6),0_0_20px_-5px_rgba(236,72,153,0.5)]",
+    inactive: "shadow-[0_0_15px_-5px_rgba(139,92,246,0.4),0_0_10px_-5px_rgba(59,130,246,0.3)]",
+  },
+  cloud: {
+    active: "shadow-[0_0_30px_-5px_rgba(249,115,22,0.6),0_0_20px_-5px_rgba(236,72,153,0.5)]",
+    inactive: "shadow-[0_0_15px_-5px_rgba(139,92,246,0.4),0_0_10px_-5px_rgba(99,102,241,0.3)]",
+  },
+  finops: {
+    active: "shadow-[0_0_30px_-5px_rgba(249,115,22,0.6),0_0_20px_-5px_rgba(236,72,153,0.5)]",
+    inactive: "shadow-[0_0_15px_-5px_rgba(34,211,238,0.4),0_0_10px_-5px_rgba(34,197,94,0.3)]",
+  },
+  data: {
+    active: "shadow-[0_0_30px_-5px_rgba(249,115,22,0.6),0_0_20px_-5px_rgba(236,72,153,0.5)]",
+    inactive: "shadow-[0_0_15px_-5px_rgba(34,211,238,0.4),0_0_10px_-5px_rgba(250,204,21,0.3)]",
+  },
+};
+
+const BORDER_GRADIENT: Record<LayerKey, { active: string; inactive: string }> = {
+  pulso: {
+    active: "from-orange-500 via-pink-500 to-fuchsia-500",
+    inactive: "from-violet-600 via-purple-500 to-blue-500",
+  },
+  cloud: {
+    active: "from-orange-500 via-pink-500 to-fuchsia-500",
+    inactive: "from-violet-600 via-indigo-500 to-blue-500",
+  },
+  finops: {
+    active: "from-orange-500 via-pink-500 to-fuchsia-500",
+    inactive: "from-cyan-500 via-teal-500 to-emerald-500",
+  },
+  data: {
+    active: "from-orange-500 via-pink-500 to-fuchsia-500",
+    inactive: "from-cyan-500 via-sky-500 to-amber-400",
+  },
+};
+
+function DenseCard({
+  layer,
+  isActive,
+  onClick,
+}: {
+  layer: (typeof LAYER_CONFIG)[number];
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const { key, label, desc, icon: Icon } = layer;
+  const glow = BORDER_GLOW[key];
+  const gradient = BORDER_GRADIENT[key];
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "group relative flex flex-col items-center rounded-xl min-w-[200px] transition-all duration-300 p-[2px]",
+        isActive ? glow.active : cn(glow.inactive, "hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.4)]")
+      )}
+    >
+      {/* Borda em gradiente — wrapper */}
+      <div
+        className={cn(
+          "w-full h-full rounded-xl bg-gradient-to-b p-[2px]",
+          isActive ? gradient.active : gradient.inactive
+        )}
+      >
+        {/* Interior escuro */}
+        <div className="w-full h-full rounded-[10px] bg-black flex flex-col items-center justify-center p-5">
+          <div className="p-2.5 rounded-lg bg-white/10 mb-3">
+            <Icon className="h-7 w-7 text-white" strokeWidth={1.5} />
+          </div>
+          <h3 className="font-bold text-white text-sm">{label}</h3>
+          <p className="text-xs text-white/70 mt-0.5">{desc}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
 
 export function DashboardLayoutDense({
   activeLayer,
@@ -29,80 +97,24 @@ export function DashboardLayoutDense({
   children,
   className,
 }: DashboardLayoutDenseProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
   return (
-    <div className={cn("flex min-h-[calc(100vh-4rem)]", className)}>
-      {/* Sidebar colapsável */}
-      <aside
-        className={cn(
-          "flex flex-col border-r border-border/60 bg-card/40 backdrop-blur-xl shrink-0 transition-all duration-300 ease-out",
-          sidebarCollapsed ? "w-14" : "w-20 lg:w-24"
-        )}
-        aria-label="Seleção de camadas"
-      >
-        <div className="p-2 flex flex-col gap-1">
-          {LAYERS.map(({ key, label, icon: Icon, short }) => (
-            <button
-              key={key}
-              onClick={() => onLayerChange(activeLayer === key ? null : key)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-lg transition-all duration-300",
-                "hover:scale-105 active:scale-95",
-                activeLayer === key
-                  ? "bg-primary text-primary-foreground shadow-md scale-105"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-              title={label}
-              aria-pressed={activeLayer === key}
-              aria-label={`${label} ${activeLayer === key ? "ativo" : "inativo"}`}
-            >
-              <Icon className="h-4 w-4 lg:h-5 lg:w-5" strokeWidth={1.5} />
-              {!sidebarCollapsed && (
-                <span className="text-[10px] font-medium truncate w-full text-center">{short}</span>
-              )}
-            </button>
+    <div className={cn("flex flex-col min-h-[calc(100vh-4rem)]", className)}>
+      {/* Barra de cards com glow */}
+      <div className="shrink-0 px-4 py-4 bg-black/80 border-b border-white/5">
+        <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+          {LAYER_CONFIG.map((layer) => (
+            <DenseCard
+              key={layer.key}
+              layer={layer}
+              isActive={activeLayer === layer.key}
+              onClick={() => onLayerChange(activeLayer === layer.key ? null : layer.key)}
+            />
           ))}
         </div>
-        <button
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="mt-auto p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          title={sidebarCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
-          aria-label={sidebarCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
-        >
-          {sidebarCollapsed ? (
-            <PanelLeft className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
-        </button>
-      </aside>
+      </div>
 
-      {/* Área principal — 70% foco em conteúdo */}
-      <main className="flex-1 overflow-auto min-w-0 flex flex-col">
-        {/* Métricas compactas (cards acima do conteúdo quando aplicável) */}
-        {activeLayer && (
-          <div className="shrink-0 border-b border-border/40 bg-card/20 px-4 py-2">
-            <div className="flex flex-wrap gap-2">
-              {LAYERS.map(({ key, label, icon: Icon }) => (
-                <button
-                  key={key}
-                  onClick={() => onLayerChange(activeLayer === key ? null : key)}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                    activeLayer === key
-                      ? "bg-primary/20 text-primary border border-primary/40"
-                      : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="flex-1 flex flex-col min-h-0">{children}</div>
+      <main className="flex-1 overflow-auto min-w-0 bg-background">
+        {children}
       </main>
     </div>
   );

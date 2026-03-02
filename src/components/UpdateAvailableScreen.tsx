@@ -85,11 +85,11 @@ export function UpdateAvailableScreen() {
               agora?
             </p>
             <div className="flex gap-2">
-              <Button onClick={handleDownload} className="flex-1">
+              <Button variant="pulso" onClick={handleDownload} className="flex-1">
                 <Download className="mr-2 h-4 w-4" />
                 Instalar e reiniciar
               </Button>
-              <Button variant="outline" onClick={handleDismiss}>
+              <Button variant="pulso" onClick={handleDismiss}>
                 Depois
               </Button>
             </div>
@@ -114,7 +114,7 @@ export function UpdateAvailableScreen() {
             <p className="text-muted-foreground">
               A atualização foi baixada. Reinicie o aplicativo para aplicar.
             </p>
-            <Button onClick={handleInstall} className="w-full">
+            <Button variant="pulso" onClick={handleInstall} className="w-full">
               <RefreshCw className="mr-2 h-4 w-4" />
               Reiniciar agora
             </Button>
@@ -128,8 +128,8 @@ export function UpdateAvailableScreen() {
             </h2>
             <p className="text-muted-foreground">{errorMsg ?? "Erro desconhecido"}</p>
             <div className="flex gap-2">
-              <Button onClick={handleDownload}>Tentar novamente</Button>
-              <Button variant="outline" onClick={handleDismiss}>
+              <Button variant="pulso" onClick={handleDownload}>Tentar novamente</Button>
+              <Button variant="pulso" onClick={handleDismiss}>
                 Fechar
               </Button>
             </div>

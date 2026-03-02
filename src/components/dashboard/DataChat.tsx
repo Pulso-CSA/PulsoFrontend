@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
-import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare, Loader2 } from "lucide-react";
 import { DataChatCharts } from "./DataChatCharts";
 import { DataChatML, stripMarkdown } from "./DataChatML";
 import { DataPreviewTable } from "./DataPreviewTable";
-import { LoadingSkeleton } from "./LoadingSkeleton";
+import { ChatSidebar } from "./ChatSidebar";
+import { exportReport } from "@/lib/exportReport";
+import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
 
 /** Tenta extrair tabela do texto (ex.: "Primeiras 5 linhas:" + dados) e retorna colunas/linhas ou null */
 function parseTableFromText(content: string): { colunas: string[]; linhas: Record<string, unknown>[]; contentWithoutTable: string } | null {
@@ -82,7 +84,7 @@ function parseTableFromText(content: string): { colunas: string[]; linhas: Recor
 }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChatTextarea } from "@/components/ui/chat-textarea";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -114,7 +116,25 @@ interface Message {
 type DataChatSession = ChatSession<Message & { timestamp: string }>;
 
 function restoreMessages(messages: (Omit<Message, "timestamp"> & { timestamp: string })[]): Message[] {
-  return messages.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
+  if (!Array.isArray(messages)) return [];
+  return messages
+    .filter((m): m is Omit<Message, "timestamp"> & { timestamp: string } => m && typeof m === "object" && "content" in m)
+    .map((m) => ({ ...m, timestamp: new Date(m.timestamp || Date.now()) }));
+}
+
+/** Carrega sessões do storage com validação para evitar erros de estrutura */
+function loadDataChatSessions(): DataChatSession[] {
+  try {
+    const raw = getDataChatSessions();
+    if (!Array.isArray(raw)) return [];
+    return raw.filter((s): s is DataChatSession => {
+      if (!s || typeof s !== "object" || !s.id || !s.title) return false;
+      if (!Array.isArray(s.messages)) return false;
+      return true;
+    });
+  } catch {
+    return [];
+  }
 }
 
 interface StatsMetric {
@@ -252,19 +272,24 @@ function formatarEstrutura(
 const DataChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [sessions, setSessions] = useState<DataChatSession[]>(() => getDataChatSessions());
+  const [sessions, setSessions] = useState<DataChatSession[]>(() => loadDataChatSessions());
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const s = getDataChatSessions();
+    const s = loadDataChatSessions();
     setSessions(s);
     if (s.length > 0 && !currentSessionId) {
       const last = s[s.length - 1];
       setCurrentSessionId(last.id);
-      setMessages(restoreMessages(last.messages as (Omit<Message, "timestamp"> & { timestamp: string })[]));
+      try {
+        const restored = restoreMessages(last.messages as (Omit<Message, "timestamp"> & { timestamp: string })[]);
+        setMessages(restored);
+      } catch {
+        setMessages([]);
+      }
     }
   }, []);
 
@@ -381,6 +406,7 @@ const DataChat = () => {
     }
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    loadingPhaseRef.current = (messages.length === 0 || /estrutura|carregar|conectar|dados|base/i.test(promptText)) ? "connecting" : "writing";
     setLoading(true);
 
     try {
@@ -444,6 +470,8 @@ const DataChat = () => {
     }
   };
 
+  const loadingPhaseRef = useRef<"connecting" | "writing">("writing");
+
   const handleQuickAction = (action: string) => {
     setInput(action);
     handleSend(action);
@@ -505,36 +533,63 @@ const DataChat = () => {
     }
   };
 
+  const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
+
   return (
-    <div className="glass-strong pulso-card rounded-xl overflow-hidden border-primary/20">
-      {/* Header */}
-      <div className="p-4 border-b border-primary/20">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
-              <Database className="h-5 w-5 text-primary" />
+    <div className="pulso-chat-layout h-full min-h-0">
+      {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
+      <div className="pulso-chat-sidebar glass-strong">
+        <ChatSidebar
+          sessions={sessionItems}
+          currentSessionId={currentSessionId}
+          onSelect={handleOpenChat}
+          onDelete={handleDeleteChat}
+          onNewChat={handleNewChat}
+          emptyMessage="Nenhum chat ainda"
+        />
+      </div>
+
+      {/* Área principal */}
+      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="p-3 shrink-0 min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+              <Database className="h-4 w-4 shrink-0 text-primary" />
               Inteligência de Dados
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Explore estrutura, estatísticas e modelos · Atalho: Alt+D
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              Explore estrutura, estatísticas e modelos · Alt+D
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowConnection(!showConnection)}
-          >
-            {showConnection ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            Conexão
-          </Button>
+          <div className="flex gap-1.5 flex-wrap items-center shrink-0">
+            <DownloadReportButton
+              onClick={async () => {
+                const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
+                const result = await exportReport({ serviceId: "dados-ia", messages: msgs, format: "md" });
+                toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+              }}
+              disabled={messages.length === 0}
+              className="showcase-download-report-btn--compact text-white shrink-0"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConnection(!showConnection)}
+              className="showcase-toolbar-btn px-3 py-1.5 text-xs gap-1 shrink-0"
+              aria-expanded={showConnection}
+              aria-label={showConnection ? "Fechar painel de conexão" : "Abrir painel de conexão"}
+            >
+              {showConnection ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              Conexão
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Connection Drawer */}
       {showConnection && (
-        <div className="p-4 glass border-b border-primary/20 space-y-3">
-          <h3 className="text-sm font-medium text-foreground">Conexão de Dados (Opcional)</h3>
-          
+        <div className="p-4 pt-3 glass border-t border-primary/10 space-y-4">
+          <h3 className="text-sm font-semibold text-foreground">Conexão de Dados (Opcional)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="db-type" className="text-xs">Tipo de Base</Label>
@@ -601,13 +656,15 @@ const DataChat = () => {
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                ⚠️ Nunca compartilhe segredos nesta conversa
+              <p className="flex items-center gap-1.5 text-xs text-amber-200/90 mt-1.5">
+                <span className="shrink-0" aria-hidden>⚠️</span>
+                <span>Nunca compartilhe segredos nesta conversa</span>
               </p>
             </div>
           </div>
 
           <Button
+            variant="pulso"
             size="sm"
             className="w-full"
             onClick={handleApplyConnection}
@@ -617,19 +674,18 @@ const DataChat = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Chat Area */}
-        <div className="lg:col-span-2 border-r border-primary/20">
-          <div className="min-h-[624px] overflow-y-auto p-5 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                <Brain className="h-12 w-12 text-primary/50" />
+              <div className="flex flex-col items-center justify-center min-h-[280px] text-center space-y-4">
+                <Brain className="h-12 w-12 text-primary/60" />
                 <div>
                   <p className="text-sm text-foreground font-medium">
-                    Conecte-se à base ou faça uma pergunta
+                    Dados & IA — Pronto para usar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Ex.: "Quais são as tabelas e volumes?" ou "Mostre as principais correlações"
+                    Configure a conexão (opcional) ou faça uma pergunta. Ex.: &quot;Quais são as tabelas?&quot; ou &quot;Mostre correlações&quot;
                   </p>
                 </div>
                 <div className="pt-4 w-full max-w-md">
@@ -641,7 +697,7 @@ const DataChat = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuickAction(action)}
-                        className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10"
+                        className="text-xs pulso-suggestion-btn"
                       >
                         {action}
                       </Button>
@@ -658,7 +714,7 @@ const DataChat = () => {
               <div
                 className={`max-w-[90%] rounded-2xl px-5 py-4 shadow-sm transition-all duration-fluid ease-fluid hover:shadow-md ${
                   message.role === "user"
-                    ? "bg-chat-user text-chat-user-foreground shadow-md ml-auto"
+                    ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground shadow-md ml-auto border"
                     : message.retryPrompt
                       ? "rounded-xl border border-amber-500/30 bg-amber-500/5"
                       : "bg-chat-system text-chat-system-foreground border border-white/5 shadow-md hover:border-white/10"
@@ -922,79 +978,38 @@ const DataChat = () => {
           ))
         )}
 
-        {loading && (
-          <div className="flex justify-start animate-slide-up mb-4" role="status" aria-live="polite" aria-label="Aguardando resposta">
-            <LoadingSkeleton message="Processando..." variant="metrics" className="max-w-[90%] w-full" />
-          </div>
-        )}
-          </div>
+          {loading && (
+            <div className="flex justify-start mb-4">
+              <div className="rounded-2xl px-4 py-3 bg-chat-system border border-white/5 text-sm text-muted-foreground flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                <span>Aguardando resposta...</span>
+              </div>
+            </div>
+          )}
 
-          {/* Input */}
-          <div className="p-4 border-t border-primary/20">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="flex gap-2 items-end"
-        >
-          <ChatTextarea
-            id="data-input"
-            placeholder="Pergunte sobre dados, modelos ou previsões"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onSend={handleSend}
-            className="py-2"
-          />
-          <Button type="submit" disabled={!input.trim() || loading} className="shrink-0">
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-          </div>
         </div>
 
-        {/* Chats Sidebar */}
-        <div className="bg-background/30">
-          <div className="p-3 border-b border-primary/20 flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><MessageSquare className="h-4 w-4" />Chats</h3>
-            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-primary hover:bg-primary/10">
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-          <div className="min-h-[500px] overflow-y-auto p-2 space-y-2">
-            {sessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                <MessageSquare className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                <p className="text-xs text-muted-foreground">Nenhum chat ainda</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Envie uma mensagem para começar</p>
-              </div>
-            ) : (
-              [...sessions].reverse().map((session) => (
-                <div key={session.id} className="group relative">
-                  <button
-                    onClick={() => handleOpenChat(session)}
-                    className={cn(
-                      "w-full text-left p-3 rounded-lg transition-all duration-200",
-                      currentSessionId === session.id
-                        ? "bg-primary/20 border border-primary/40"
-                        : "bg-background/50 hover:bg-primary/10 border border-transparent hover:border-primary/30"
-                    )}
-                  >
-                    <p className="text-xs text-foreground line-clamp-2 pr-6">{session.title || "Novo chat"}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">{new Date(session.updatedAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteChat(session.id); }}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
+        {/* Barra de envio — sempre mesma altura/estilo; em loading fica desabilitada com placeholder */}
+        <div className="p-4 shrink-0 border-t border-primary/10 bg-card/30">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex gap-2 items-end w-full max-w-full"
+          >
+            <div className="flex-1 min-w-0 w-full">
+              <PromptSearchTextarea
+                id="data-input"
+                placeholder={loading ? "Aguardando resposta..." : "Pergunte sobre dados, modelos ou previsões"}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onSend={handleSend}
+                disabled={loading}
+              />
+            </div>
+          </form>
+        </div>
         </div>
       </div>
     </div>

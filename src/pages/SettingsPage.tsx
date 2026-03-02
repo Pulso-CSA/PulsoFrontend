@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,15 +81,32 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8">
-      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
+    <div className="pulso-page-container container max-w-2xl py-8">
+      <Button variant="pulso" onClick={() => navigate(-1)} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Voltar
       </Button>
 
       <h1 className="text-2xl font-bold mb-6">Configurações</h1>
 
-      <section className="space-y-6">
+      {typeof window !== "undefined" && window.electronAPI?.openUninstall && (
+        <section className="space-y-4 mb-8 p-4 rounded-lg border border-destructive/30 bg-destructive/5">
+          <h2 className="text-lg font-semibold text-destructive">Desinstalar</h2>
+          <p className="text-sm text-muted-foreground">
+            Remover o Pulso do seu computador. O aplicativo será fechado e o assistente de desinstalação será aberto.
+          </p>
+          <Button
+            variant="destructive"
+            onClick={() => window.electronAPI?.openUninstall?.()}
+            className="gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            Desinstalar Pulso
+          </Button>
+        </section>
+      )}
+
+      <section className="pulso-page-card space-y-6 p-6 rounded-xl border">
         <h2 className="text-lg font-semibold">Configuração de versão (admin)</h2>
         <p className="text-sm text-muted-foreground">
           Apenas usuários autorizados podem alterar. O backend retornará 403 se você não tiver permissão.
@@ -155,10 +172,17 @@ export default function SettingsPage() {
               />
               <Label htmlFor="forceUpgrade">Forçar atualização obrigatória</Label>
             </div>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Salvar
-            </Button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="showcase-sparkle-btn gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="showcase-spark" aria-hidden />
+              <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+              {saving ? <Loader2 className="w-5 h-5 relative z-10 animate-spin" /> : <Save className="w-5 h-5 relative z-10" />}
+              <span className="relative z-10">{saving ? "Salvando..." : "Salvar"}</span>
+            </button>
           </div>
         )}
       </section>

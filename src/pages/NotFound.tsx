@@ -2,6 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Home, ArrowLeft, Rocket, Coffee, Bug, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ThemeSelector from "@/components/ThemeSelector";
 
 const NotFound = () => {
   const location = useLocation();
@@ -25,8 +26,15 @@ const NotFound = () => {
   const RandomIcon = icons[Math.floor(Math.random() * icons.length)];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="glass-strong rounded-2xl p-8 md:p-12 max-w-2xl w-full text-center space-y-8 animate-fade-in">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeSelector />
+      </div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
+      </div>
+      <div className="glass-strong rounded-2xl p-8 md:p-12 max-w-2xl w-full text-center space-y-8 animate-fade-in relative z-10">
         <div className="flex justify-center">
           <div className="relative">
             <RandomIcon 
@@ -50,20 +58,16 @@ const NotFound = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-          <Button
-            variant="default"
-            size="lg"
-            asChild
-            className="pulso-glow-cta group hover-scale"
-          >
+          <Button asChild variant="default" size="lg" className="showcase-sparkle-btn gap-2 px-8">
             <Link to="/">
-              <Home className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+              <span className="showcase-spark" aria-hidden />
+              <Home className="w-5 h-5" />
               Ir para o Início
             </Link>
           </Button>
           
           <Button
-            variant="outline"
+            variant="pulso"
             size="lg"
             onClick={() => window.history.back()}
             className="glass hover:glass-strong hover-scale"

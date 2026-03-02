@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 )}
               </div>
             )}
-            <Button onClick={this.handleRetry} className="gap-2">
+            <Button variant="pulso" onClick={this.handleRetry} className="gap-2">
               <RefreshCw className="h-4 w-4" />
               Tentar novamente
             </Button>

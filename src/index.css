@@ -1,3 +1,11 @@
+/* Header sticky offset quando Electron title bar está fixa */
+.sticky-below-electron {
+  top: 0;
+}
+html[data-electron="true"] .sticky-below-electron {
+  top: 2.5rem;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -47,6 +55,10 @@ All colors MUST be HSL.
     --chat-system-foreground: 0 0% 100%;
     --glow-primary: 178 95% 48%;
     --glow-finops: 150 65% 40%;
+    /* Glass padrão (inset shadow — cores Pulso) */
+    --glass-bg: hsl(232 32% 12% / 0.55);
+    --glass-shadow-dark: rgba(8, 5, 29, 0.65);
+    --glass-shadow-light: rgba(79, 159, 243, 0.1);
   }
 
   /* ===== NEON CYAN - cyan perguntas, roxo respostas, legibilidade premium ===== */
@@ -501,107 +513,163 @@ All colors MUST be HSL.
     --glow-finops: 218 52% 54%;
   }
 
-  /* ===== PULSO — Temas oficiais (base instalador + App.png: ciano #00BEC8 + roxo #522A6F) ===== */
+  /* ===== PULSO — Paleta base (degradê) ===== */
+  /* Design Tokens: #222023, #420d95, #a54bce, #60bcd5, #1897a0, #4d4d4d */
+  :root {
+    --pulso-bg-dark: #222023;
+    --pulso-purple-deep: #420d95;
+    --pulso-purple: #a54bce;
+    --pulso-cyan: #60bcd5;
+    --pulso-teal: #1897a0;
+    --pulso-gray: #4d4d4d;
+  }
+
+  /* ===== SPACE-NEON / AURORA — Tokens extraídos do logo App.png ===== */
+  /* Near-black, indigo, purple neon, cyan neon, magenta */
+  :root {
+    --pulso-near-black: #08051D;
+    --pulso-near-black-2: #090521;
+    --pulso-near-black-3: #0B0526;
+    --pulso-indigo-deep: #160E5B;
+    --pulso-indigo-deep-2: #1C1259;
+    --pulso-indigo-deep-3: #281651;
+    --pulso-purple-neon: #905DED;
+    --pulso-purple-neon-2: #925DF1;
+    --pulso-cyan-neon: #4F9FF3;
+    --pulso-cyan-neon-2: #60AACE;
+    --pulso-cyan-neon-3: #2599A5;
+    --pulso-magenta-aurora: #A74FD8;
+    --pulso-gray-frost: #4C4C4C;
+    --pulso-gray-frost-2: #5D5D5E;
+    --pulso-gray-frost-3: #545468;
+    --pulso-radius-sm: 16px;
+    --pulso-radius-md: 20px;
+    --pulso-radius-lg: 24px;
+    --pulso-blur-sm: 12px;
+    --pulso-blur-md: 16px;
+    --pulso-blur-lg: 24px;
+    --pulso-stroke-glass: rgba(255, 255, 255, 0.12);
+  }
+
+  /* ===== PULSO LIGHT — refinado, contraste suave, paleta harmoniosa ===== */
   .theme-pulso-light {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 6%;
+    --background: 220 20% 98%;
+    --foreground: 225 35% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 6%;
+    --card-foreground: 225 35% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 6%;
-    --primary: 183 100% 39%;
+    --popover-foreground: 225 35% 12%;
+    --primary: 189 72% 38%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 183 100% 32%;
-    --primary-light: 183 90% 55%;
-    --secondary: 280 45% 28%;
+    --primary-deep: 189 72% 28%;
+    --primary-light: 189 55% 55%;
+    --secondary: 268 45% 42%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 38%;
-    --accent: 183 100% 45%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 225 20% 35%;
+    --accent: 189 65% 42%;
     --accent-foreground: 0 0% 100%;
-    --success: 158 56% 36%;
-    --warning: 38 82% 46%;
-    --destructive: 0 62% 48%;
-    --info: 183 100% 42%;
-    --finops: 158 56% 36%;
-    --data-ai: 268 75% 58%;
-    --border: 270 20% 90%;
-    --input: 0 0% 93%;
-    --ring: 183 100% 39%;
-    --chat-user: 183 100% 39%;
-    --chat-system: 280 45% 35%;
+    --success: 158 52% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 88% 50%;
+    --warning-foreground: 225 35% 12%;
+    --destructive: 0 65% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 199 70% 44%;
+    --finops: 158 52% 36%;
+    --data-ai: 268 50% 50%;
+    --border: 220 14% 88%;
+    --input: 220 12% 96%;
+    --ring: 189 72% 38%;
+    --chat-user: 189 68% 40%;
+    --chat-system: 268 45% 45%;
     --chat-user-foreground: 0 0% 100%;
-    --chat-system-foreground: 270 20% 95%;
-    --glow-primary: 183 100% 45%;
-    --glow-finops: 183 100% 45%;
+    --chat-system-foreground: 0 0% 100%;
+    --glow-primary: 189 68% 44%;
+    --glow-finops: 158 52% 40%;
+    --radius: 0.625rem;
+    /* Glass light — sombras mais suaves */
+    --glass-bg: hsl(0 0% 100% / 0.85);
+    --glass-shadow-dark: rgba(0, 0, 0, 0.04);
+    --glass-shadow-light: rgba(79, 159, 243, 0.06);
   }
 
   .theme-pulso-medium {
-    --background: 232 42% 4%;
-    --foreground: 0 0% 98%;
-    --card: 232 32% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 232 32% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 178 92% 52%;
-    --primary-foreground: 232 42% 4%;
-    --primary-deep: 178 92% 40%;
-    --primary-light: 178 88% 65%;
-    --secondary: 268 75% 35%;
+    --background: 230 25% 6%;
+    --foreground: 220 10% 96%;
+    --card: 228 20% 10%;
+    --card-foreground: 220 10% 96%;
+    --popover: 225 22% 11%;
+    --popover-foreground: 220 10% 95%;
+    --primary: 178 65% 50%;
+    --primary-foreground: 225 28% 8%;
+    --primary-deep: 178 65% 38%;
+    --primary-light: 178 55% 65%;
+    --secondary: 268 48% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 232 28% 12%;
-    --muted-foreground: 0 0% 72%;
-    --accent: 183 100% 48%;
+    --muted: 225 18% 16%;
+    --muted-foreground: 220 10% 66%;
+    --accent: 178 65% 54%;
     --accent-foreground: 0 0% 100%;
-    --success: 158 55% 50%;
-    --warning: 38 88% 56%;
-    --destructive: 0 62% 55%;
-    --info: 218 62% 57%;
-    --finops: 158 55% 50%;
-    --data-ai: 270 55% 62%;
-    --border: 270 20% 22% / 0.55;
-    --input: 270 15% 15%;
-    --ring: 270 55% 55%;
-    --chat-user: 178 92% 52%;
-    --chat-system: 268 75% 50%;
+    --success: 152 52% 46%;
+    --warning: 36 92% 54%;
+    --destructive: 0 62% 52%;
+    --info: 199 72% 52%;
+    --finops: 152 52% 46%;
+    --data-ai: 268 48% 58%;
+    --border: 225 16% 24%;
+    --input: 225 14% 14%;
+    --ring: 178 65% 50%;
+    --chat-user: 178 65% 52%;
+    --chat-system: 268 48% 54%;
     --chat-user-foreground: 0 0% 100%;
     --chat-system-foreground: 0 0% 100%;
-    --glow-primary: 178 92% 52%;
-    --glow-finops: 183 100% 50%;
+    --glow-primary: 178 65% 52%;
+    --glow-finops: 152 52% 50%;
+    --radius: 0.5rem;
+    /* Glass medium — herda ou sobrescreve */
+    --glass-bg: hsl(228 20% 12% / 0.55);
+    --glass-shadow-dark: rgba(8, 5, 29, 0.6);
+    --glass-shadow-light: rgba(79, 159, 243, 0.1);
   }
 
   .theme-pulso-dark {
-    --background: 232 42% 4%;
-    --foreground: 0 0% 98%;
-    --card: 232 32% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 232 32% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 178 92% 52%;
-    --primary-foreground: 232 42% 4%;
-    --primary-deep: 178 92% 40%;
-    --primary-light: 178 88% 68%;
-    --secondary: 268 75% 30%;
+    --background: 230 30% 4%;
+    --foreground: 220 8% 97%;
+    --card: 230 22% 8%;
+    --card-foreground: 220 8% 97%;
+    --popover: 230 24% 9%;
+    --popover-foreground: 220 8% 96%;
+    --primary: 178 62% 52%;
+    --primary-foreground: 230 30% 5%;
+    --primary-deep: 178 62% 40%;
+    --primary-light: 178 52% 68%;
+    --secondary: 268 45% 48%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 232 28% 12%;
-    --muted-foreground: 0 0% 72%;
-    --accent: 183 100% 50%;
+    --muted: 230 18% 13%;
+    --muted-foreground: 220 8% 62%;
+    --accent: 178 62% 56%;
     --accent-foreground: 0 0% 100%;
-    --success: 158 55% 52%;
-    --warning: 38 88% 58%;
-    --destructive: 0 62% 55%;
-    --info: 218 62% 58%;
-    --finops: 158 55% 52%;
-    --data-ai: 270 55% 65%;
-    --border: 270 15% 18% / 0.5;
-    --input: 270 12% 10%;
-    --ring: 270 55% 58%;
-    --chat-user: 178 92% 52%;
-    --chat-system: 268 75% 48%;
+    --success: 152 50% 48%;
+    --warning: 36 92% 56%;
+    --destructive: 0 62% 54%;
+    --info: 199 70% 54%;
+    --finops: 152 50% 48%;
+    --data-ai: 268 45% 60%;
+    --border: 230 14% 20%;
+    --input: 230 12% 11%;
+    --ring: 178 62% 52%;
+    --chat-user: 178 62% 54%;
+    --chat-system: 268 45% 52%;
     --chat-user-foreground: 0 0% 100%;
     --chat-system-foreground: 0 0% 100%;
-    --glow-primary: 178 92% 52%;
-    --glow-finops: 183 100% 50%;
+    --glow-primary: 178 62% 54%;
+    --glow-finops: 152 50% 52%;
+    --radius: 0.5rem;
+    /* Glass dark — sombras mais profundas */
+    --glass-bg: hsl(230 22% 10% / 0.6);
+    --glass-shadow-dark: rgba(0, 0, 0, 0.5);
+    --glass-shadow-light: rgba(79, 159, 243, 0.08);
   }
 
   /* ===== FUCHSIA - luxo jewel, elegância vibrante ===== */
@@ -767,31 +835,20 @@ All colors MUST be HSL.
     background: transparent !important;
   }
 
-  /* PULSO — Gradiente profundo conforme App.png: ciano → azul → roxo → grafite */
+  /* PULSO — fundos escuros com profundidade */
   .theme-pulso-medium body,
   .theme-pulso-dark body {
-    background: linear-gradient(
-      160deg,
-      hsl(240 10% 4%) 0%,
-      hsl(200 40% 8%) 20%,
-      hsl(270 30% 10%) 50%,
-      hsl(260 25% 8%) 80%,
-      hsl(240 10% 4%) 100%
-    ) !important;
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(230 28% 3%) 100%) !important;
+    background-attachment: fixed;
+  }
+
+  .theme-pulso-light body {
+    background: linear-gradient(180deg, hsl(220 18% 97%) 0%, hsl(220 14% 94%) 100%) !important;
     background-attachment: fixed;
   }
 
   .theme-pulso-medium .min-h-screen.bg-background,
-  .theme-pulso-dark .min-h-screen.bg-background {
-    background: transparent !important;
-  }
-
-  /* PULSO Tema Claro — gradiente sutil #FAFAFA → #F5F5F5 */
-  .theme-pulso-light body {
-    background: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(0 0% 96%) 100%) !important;
-    background-attachment: fixed;
-  }
-
+  .theme-pulso-dark .min-h-screen.bg-background,
   .theme-pulso-light .min-h-screen.bg-background {
     background: transparent !important;
   }
@@ -806,12 +863,23 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Glass padrão — inset shadow (Elemento 23, cores Pulso) */
   .glass {
-    @apply bg-card/40 backdrop-blur-xl transition-all duration-fluid ease-fluid;
+    background: var(--glass-bg, hsl(var(--card) / 0.4));
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: inset 20px -20px 40px var(--glass-shadow-dark, rgba(8, 5, 29, 0.5)),
+                inset -20px 20px 40px var(--glass-shadow-light, rgba(79, 159, 243, 0.08));
+    @apply transition-all duration-fluid ease-fluid;
   }
-  
+
   .glass-strong {
-    @apply bg-card/60 backdrop-blur-2xl transition-all duration-fluid ease-fluid;
+    background: var(--glass-bg, hsl(var(--card) / 0.6));
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    box-shadow: inset 28px -28px 56px var(--glass-shadow-dark, rgba(8, 5, 29, 0.6)),
+                inset -28px 28px 56px var(--glass-shadow-light, rgba(79, 159, 243, 0.1));
+    @apply transition-all duration-fluid ease-fluid;
   }
   
   .glass-hover {
@@ -834,40 +902,102 @@ All colors MUST be HSL.
     box-shadow: 0 0 25px hsl(var(--glow-finops) / 0.45), 0 0 50px hsl(var(--glow-finops) / 0.2);
   }
 
-  /* PULSO — Cards flutuantes, micro-luz, núcleos */
+  /* PULSO — Cards */
   .pulso-card {
-    @apply rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl shadow-lg shadow-black/10;
+    @apply rounded-lg border border-border bg-card shadow-sm;
   }
 
-  /* PULSO — Semiesferas com gradiente (App.png: roxo → ciano), bordas suaves */
+  /* PULSO — Orbes de fundo */
   .pulso-orb {
-    background: radial-gradient(
-      ellipse 80% 80% at 35% 35%,
-      hsl(var(--primary) / 0.22),
-      hsl(var(--accent) / 0.1),
-      transparent 70%
-    );
+    background: radial-gradient(ellipse 70% 70% at 40% 30%, hsl(var(--primary) / 0.06), transparent 65%);
     border-radius: 50%;
-    filter: blur(40px);
+    filter: blur(48px);
   }
 
   .pulso-orb-sm {
-    background: radial-gradient(
-      ellipse 75% 75% at 30% 30%,
-      hsl(var(--primary) / 0.18),
-      hsl(var(--accent) / 0.08),
-      transparent 65%
-    );
+    background: radial-gradient(ellipse 60% 60% at 35% 35%, hsl(var(--primary) / 0.05), transparent 60%);
     border-radius: 50%;
-    filter: blur(32px);
+    filter: blur(40px);
   }
 
   .pulso-glow {
     box-shadow: 0 0 20px hsl(var(--glow-primary) / 0.25);
   }
 
+  /* Carousel Glow — jogo de luzes */
+  .carousel-glow-card {
+    box-shadow: 0 0 40px -12px rgba(168, 85, 247, 0.35), 0 0 25px -10px rgba(99, 102, 241, 0.25);
+  }
+
+  .carousel-glow-card:hover,
+  .carousel-glow-card-active {
+    box-shadow: 0 0 60px -12px rgba(168, 85, 247, 0.5), 0 0 40px -8px rgba(99, 102, 241, 0.4);
+  }
+
   .pulso-glow-cta {
     box-shadow: 0 0 16px hsl(var(--primary) / 0.4);
+  }
+
+  /* ===== SPACE-NEON — Fundo "space" (radial + vinheta) ===== */
+  .bg-space {
+    background:
+      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.45) 0%, rgba(40, 22, 81, 0) 60%),
+      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.25) 0%, rgba(8, 5, 29, 0) 65%),
+      radial-gradient(120% 120% at 50% 50%, #0b0526 0%, #08051d 55%, #000 100%);
+  }
+
+  /* Aplica bg-space apenas quando tema escuro (space-neon) */
+  .theme-pulso-dark .bg-space-if-dark,
+  .theme-pulso-medium .bg-space-if-dark {
+    background:
+      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.35) 0%, rgba(40, 22, 81, 0) 60%),
+      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.2) 0%, rgba(8, 5, 29, 0) 65%),
+      radial-gradient(120% 120% at 50% 50%, #0b0526 0%, #08051d 55%, #000 100%);
+  }
+
+  /* Tema claro: fundo suave para manter consistência */
+  .theme-pulso-light .bg-space-if-dark {
+    background:
+      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.08) 0%, transparent 60%),
+      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.06) 0%, transparent 65%),
+      radial-gradient(120% 120% at 50% 50%, hsl(var(--background)) 0%, hsl(var(--background)) 100%);
+  }
+
+  /* ===== SPACE-NEON — Card de vidro (glassmorphism premium) ===== */
+  .glass-card {
+    background: rgba(20, 14, 91, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.55),
+      0 0 40px rgba(146, 93, 241, 0.18);
+  }
+
+  /* ===== SPACE-NEON — CTA gradiente aurora ===== */
+  .btn-aurora {
+    background: linear-gradient(90deg, rgba(167, 79, 216, 1), rgba(146, 93, 241, 1), rgba(96, 170, 206, 1));
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 10px 30px rgba(146, 93, 241, 0.25);
+    border-radius: 999px;
+  }
+
+  /* ===== SPACE-NEON — Faixa luminosa inferior (cards Elemento A/C) ===== */
+  .card-bottom-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  .card-bottom-glow::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -18px;
+    height: 44px;
+    background: linear-gradient(90deg, rgba(146, 93, 241, 0), rgba(146, 93, 241, 0.8), rgba(96, 170, 206, 0.8), rgba(96, 170, 206, 0));
+    filter: blur(14px);
+    opacity: 0.9;
   }
 }
 
@@ -1047,4 +1177,73 @@ All colors MUST be HSL.
 *::-webkit-scrollbar-corner {
   background: hsl(var(--muted) / 0.3);
   border-radius: 4px;
+}
+
+/* Overlay do diálogo Minha Conta: desfoque fluido ao abrir */
+.pulso-dialog-overlay-blur {
+  background: hsl(var(--background) / 0.35);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition:
+    backdrop-filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    -webkit-backdrop-filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.4s ease;
+}
+.pulso-dialog-overlay-blur[data-state="open"] {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: hsl(var(--background) / 0.45);
+}
+
+/* Select/dropdown: sempre borda sólida e fundo sólido (sem borda em gradiente) */
+.pulso-select-trigger {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.pulso-select-trigger:hover {
+  background-color: hsl(var(--muted) / 0.6) !important;
+  border-color: hsl(var(--border)) !important;
+}
+.pulso-select-trigger:focus {
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3) !important;
+}
+
+/* Elemento 13 (Card Menu) + efeito glass — dropdown de perfil */
+.pulso-dropdown-menu-glass {
+  min-width: 200px;
+  padding: 12px 0 !important;
+  border-radius: 10px;
+  border: 1px solid hsl(var(--border) / 0.5) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    inset 12px -12px 24px var(--glass-shadow-dark),
+    inset -12px 12px 24px var(--glass-shadow-light),
+    0 10px 40px rgba(0, 0, 0, 0.25);
+}
+.pulso-dropdown-menu-glass [role="menuitem"] {
+  margin: 0 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.pulso-dropdown-menu-glass [role="menuitem"]:hover,
+.pulso-dropdown-menu-glass [role="menuitem"][data-highlighted] {
+  background-color: hsl(var(--primary) / 0.2) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  transform: translate(1px, -1px);
+}
+.pulso-dropdown-menu-glass [role="menuitem"]:hover {
+  outline: none;
+}
+.pulso-dropdown-menu-glass [data-radix-dropdown-menu-label] {
+  padding: 8px 14px 6px;
+  margin: 0 6px 4px;
+}
+.pulso-dropdown-menu-glass [data-radix-dropdown-menu-separator] {
+  margin: 6px 10px;
+  height: 1px;
+  background: hsl(var(--border) / 0.6);
 }

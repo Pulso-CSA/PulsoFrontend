@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import { Send, TrendingDown, Server, DollarSign, Lightbulb, MessageSquare, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChatTextarea } from "@/components/ui/chat-textarea";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { finopsApi } from "@/lib/api";
 import { getFinOpsChatSessions, setFinOpsChatSessions, type ChatSession } from "@/lib/connectionStorage";
+import { exportReport } from "@/lib/exportReport";
+import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
+import { LoaderGenerating } from "@/components/loaders";
+import { ChatSidebar } from "./ChatSidebar";
 
 interface Message {
   id: string;
@@ -162,21 +166,46 @@ const FinOpsChat = () => {
     }
   };
 
+  const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
+
   return (
-    <div className="glass-strong pulso-card rounded-xl overflow-hidden border-primary/20">
-      {/* Header */}
-      <div className="p-4 border-b border-primary/20">
-        <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
-          <DollarSign className="h-5 w-5 text-primary" />
-          FinOps Inteligente
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Insights de custo em linguagem natural · Atalho: Alt+F
-        </p>
+    <div className="pulso-chat-layout h-full min-h-0">
+      {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
+      <div className="pulso-chat-sidebar glass-strong">
+        <ChatSidebar
+          sessions={sessionItems}
+          currentSessionId={currentSessionId}
+          onSelect={handleOpenChat}
+          onDelete={handleDeleteChat}
+          onNewChat={handleNewChat}
+          emptyMessage="Nenhum chat ainda"
+        />
       </div>
 
-      {/* Cost Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass border-y border-primary/15">
+      {/* Área principal */}
+      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+            <DollarSign className="h-4 w-4 shrink-0 text-primary" />
+            FinOps Inteligente
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            Insights de custo em linguagem natural · Alt+F
+          </p>
+        </div>
+        <DownloadReportButton
+          onClick={async () => {
+            const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
+            const result = await exportReport({ serviceId: "finops", messages: msgs, format: "md" });
+            toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+          }}
+          disabled={messages.length === 0}
+          className="showcase-download-report-btn--compact text-white shrink-0"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass shrink-0">
         <div className="space-y-1 opacity-0 animate-fade-in stagger-1">
           <p className="text-xs text-muted-foreground">Custo mensal</p>
           <p className="text-xl font-bold text-foreground">{costSummary.monthly}</p>
@@ -198,10 +227,9 @@ const FinOpsChat = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Chat Area */}
-        <div className="lg:col-span-2 border-r border-primary/20">
-          <div className="min-h-[624px] overflow-y-auto p-5 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Server className="h-12 w-12 text-primary/50" />
@@ -222,7 +250,7 @@ const FinOpsChat = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleQuickAction(action)}
-                        className="text-xs border-primary/30 hover:border-primary hover:bg-primary/10"
+                        className="text-xs pulso-suggestion-btn"
                       >
                         {action}
                       </Button>
@@ -240,7 +268,7 @@ const FinOpsChat = () => {
               <div
                 className={`max-w-[80%] rounded-lg p-3 transition-all duration-300 hover:scale-[1.01] ${
                   message.role === "user"
-                    ? "bg-chat-user text-chat-user-foreground"
+                    ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground border border-primary/20"
                     : "bg-chat-system text-chat-system-foreground"
                 }`}
               >
@@ -285,23 +313,13 @@ const FinOpsChat = () => {
         )}
         
         {loading && (
-          <div className="flex justify-start animate-slide-up">
-            <div className="bg-chat-system text-foreground rounded-lg p-3">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5 items-end h-4">
-                  <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "200ms" }} />
-                  <div className="w-2 h-2 rounded-full animate-typing-bounce bg-primary" style={{ animationDelay: "400ms" }} />
-                </div>
-                <span className="text-sm text-muted-foreground">Digitando...</span>
-              </div>
-            </div>
+          <div className="relative min-h-[120px]">
+            <LoaderGenerating />
           </div>
         )}
-          </div>
+        </div>
 
-          {/* Input */}
-          <div className="p-4 border-t border-primary/20">
+        <div className="p-4 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -309,63 +327,17 @@ const FinOpsChat = () => {
           }}
           className="flex gap-2 items-end"
         >
-          <ChatTextarea
+          <PromptSearchTextarea
             id="finops-input"
             placeholder="Ex.: 'Como reduzir custos do RDS em horário ocioso?'"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onSend={handleSend}
-            className="py-2"
+            disabled={loading}
           />
-          <Button type="submit" disabled={!input.trim() || loading} className="shrink-0">
-            <Send className="h-4 w-4" />
-          </Button>
         </form>
-          </div>
         </div>
-
-        {/* Chats Sidebar */}
-        <div className="bg-background/30">
-            <div className="p-3 border-b border-primary/20 flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><MessageSquare className="h-4 w-4" />Chats</h3>
-            <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-7 px-2 text-xs text-primary hover:bg-primary/10">
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-          <div className="min-h-[500px] overflow-y-auto p-2 space-y-2">
-            {sessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                <MessageSquare className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                <p className="text-xs text-muted-foreground">Nenhum chat ainda</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Envie uma mensagem para começar</p>
-              </div>
-            ) : (
-              [...sessions].reverse().map((session) => (
-                <div key={session.id} className="group relative">
-                  <button
-                    onClick={() => handleOpenChat(session)}
-                    className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
-                      currentSessionId === session.id
-                        ? "bg-primary/20 border border-primary/40"
-                        : "bg-background/50 hover:bg-primary/10 border border-transparent hover:border-primary/30"
-                    }`}
-                  >
-                    <p className="text-xs text-foreground line-clamp-2 pr-6">{session.title || "Novo chat"}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">{new Date(session.updatedAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteChat(session.id); }}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      </div>
       </div>
     </div>
   );
