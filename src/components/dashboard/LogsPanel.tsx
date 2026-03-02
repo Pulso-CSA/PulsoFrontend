@@ -333,8 +333,8 @@ const LogsPanel = () => {
             disabled={isLoading}
             className="min-h-[42px] gap-2"
           >
-            <Download className="h-4 w-4" />
-            Buscar Logs
+            <Download className="h-4 w-4 shrink-0" />
+            <span>Buscar Logs</span>
           </Button>
           <Button
             variant="pulso"
@@ -342,8 +342,8 @@ const LogsPanel = () => {
             onClick={toggleAppLogs}
             className={`min-h-[42px] gap-2 ${showAppLogs ? "bg-primary/20 border-primary" : ""}`}
           >
-            <FileText className="h-4 w-4" />
-            Logs da App
+            <FileText className="h-4 w-4 shrink-0" />
+            <span>Logs da App</span>
           </Button>
           <Button
             variant="pulso"
@@ -352,8 +352,8 @@ const LogsPanel = () => {
             disabled={environmentStatus === "running" || isLoading}
             className="min-h-[42px] gap-2"
           >
-            <Play className="h-4 w-4" />
-            Subir
+            <Play className="h-4 w-4 shrink-0" />
+            <span>Subir</span>
           </Button>
 
           <Button
@@ -363,8 +363,8 @@ const LogsPanel = () => {
             disabled={environmentStatus === "stopped" || isLoading}
             className="min-h-[42px] gap-2"
           >
-            <RotateCw className="h-4 w-4" />
-            Reiniciar
+            <RotateCw className="h-4 w-4 shrink-0" />
+            <span>Reiniciar</span>
           </Button>
 
           <Button
@@ -374,8 +374,8 @@ const LogsPanel = () => {
             disabled={environmentStatus === "stopped" || isLoading}
             className="min-h-[42px] gap-2"
           >
-            <Power className="h-4 w-4" />
-            Desligar
+            <Power className="h-4 w-4 shrink-0" />
+            <span>Desligar</span>
           </Button>
         </div>
 
@@ -399,7 +399,7 @@ const LogsPanel = () => {
                 onClick={() => setLevelFilter(level)}
                 className={`capitalize shrink-0 min-h-[40px] ${levelFilter === level ? "bg-primary/20 border-primary" : ""}`}
               >
-                {level === "all" ? "Todos" : level}
+                <span>{level === "all" ? "Todos" : level}</span>
               </Button>
             ))}
           </div>
