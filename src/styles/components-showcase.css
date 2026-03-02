@@ -17,6 +17,17 @@
   z-index: -1;
 }
 
+/* Variante para chat — proporcional, atrás do glass */
+.showcase-loader1-bg--chat {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+}
+.showcase-loader1-bg--chat .showcase-loader1 {
+  width: min(40vmin, 200px);
+  height: min(40vmin, 200px);
+}
+
 .showcase-loader1-bg .showcase-loader1 {
   position: relative;
   width: min(90vmin, 500px);
@@ -750,30 +761,39 @@
 .showcase-docs-btn:active { transform: scale(0.95); }
 .showcase-docs-btn:hover .showcase-file-front { transform: rotateX(30deg); }
 
-/* Baixar Relatório — Elemento 24 (Uiverse.io by barisdogansutcu, cores Pulso) */
+/* Baixar Relatório — From Uiverse.io by Spacious74 (gradiente azul→rosa) */
 .showcase-download-report-btn {
   position: relative;
   border-width: 0;
-  color: hsl(var(--foreground));
-  font-size: 1rem;
+  color: #fff;
+  font-size: 1.1em;
   font-weight: 600;
-  border-radius: 8px;
+  padding: 3px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  border-radius: 0.9em;
   z-index: 1;
   overflow: hidden;
   cursor: pointer;
+  transition: all 0.4s ease;
 }
 .showcase-download-report-btn .showcase-docs {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.625rem;
-  min-height: 42px;
-  padding: 0.6em 1.25em;
-  border-radius: 8px;
+  gap: 0.5rem;
+  min-height: auto;
+  padding: 0.6em 0.8em;
+  border-radius: 0.5em;
   z-index: 1;
   background-color: hsl(var(--card));
-  border: solid 1px hsl(var(--border));
+  border: none;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+  color: #fff;
+}
+.showcase-download-report-btn .showcase-docs span,
+.showcase-download-report-btn .showcase-docs svg {
+  color: #fff;
 }
 .showcase-download-report-btn:hover:not(:disabled) .showcase-docs {
   transform: translateY(-100%);
@@ -785,18 +805,18 @@
 }
 .showcase-download-report-btn .showcase-download {
   position: absolute;
-  inset: 0;
+  inset: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 90%;
+  max-width: calc(100% - 6px);
   margin: 0 auto;
   z-index: -1;
-  border-radius: 4px;
+  border-radius: 0.5em;
   transform: translateY(100%);
-  background-color: hsl(var(--primary));
-  border: solid 1px hsl(var(--primary) / 0.5);
-  color: hsl(var(--primary-foreground));
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  border: none;
+  color: #fff;
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
 }
 .showcase-download-report-btn:hover:not(:disabled) .showcase-download {
@@ -818,6 +838,308 @@
 }
 .showcase-download-report-btn:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+/* ========== CARD PROGRESSO DOWNLOAD (glassmorphism) ========== */
+.download-progress-card {
+  position: relative;
+  width: min(380px, calc(100vw - 2rem));
+  padding: 1.5rem 1.5rem 1.25rem;
+  background: linear-gradient(145deg, hsl(var(--card) / 0.85) 0%, hsl(var(--card) / 0.6) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 24px 60px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 40px -10px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.download-progress-card__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.download-progress-card__close:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+}
+.download-progress-card__file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+.download-progress-card__icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.2) 0%, hsl(var(--secondary) / 0.15) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary));
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
+}
+.download-progress-card__icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+.download-progress-card__type {
+  align-self: flex-start;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
+}
+.download-progress-card__name {
+  width: 100%;
+  font-weight: 600;
+  font-size: 1rem;
+  color: hsl(var(--foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.download-progress-card__size {
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground));
+}
+.download-progress-card__progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.download-progress-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+.download-progress-card__status svg {
+  width: 1rem;
+  height: 1rem;
+  color: hsl(var(--primary));
+}
+.download-progress-card__bar {
+  flex: 1;
+  min-width: 0;
+  height: 6px;
+  border-radius: 3px;
+  background: hsl(var(--muted) / 0.6);
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.download-progress-card__bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.5);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.download-progress-card__percent {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  min-width: 2.5rem;
+  text-align: right;
+}
+.download-progress-card-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--background) / 0.7);
+  backdrop-filter: blur(8px);
+  animation: download-progress-fade-in 0.3s ease;
+}
+@keyframes download-progress-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.download-progress-card {
+  animation: download-progress-card-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes download-progress-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Variante compacta para toolbar (evitar sobreposição) */
+.showcase-download-report-btn--compact {
+  font-size: 0.8em;
+  padding: 2px;
+  border-radius: 0.6em;
+}
+.showcase-download-report-btn--compact .showcase-docs {
+  padding: 0.4em 0.55em;
+  gap: 0.35rem;
+  min-height: 28px;
+}
+.showcase-download-report-btn--compact .showcase-docs span {
+  font-size: 0.875rem;
+  color: #fff;
+}
+.showcase-download-report-btn--compact .showcase-docs svg {
+  width: 16px;
+  height: 16px;
+  color: #fff;
+}
+
+/* Botão de toolbar ao lado de Baixar Relatório — mesma borda em gradiente e fundo card (evita botão preto) */
+.showcase-toolbar-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 2px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  border-radius: 0.6em;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-height: 32px;
+  transition: all 0.3s ease;
+}
+.showcase-toolbar-btn::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background-color: hsl(var(--card));
+  border-radius: 0.45em;
+  z-index: 0;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+}
+.showcase-toolbar-btn:hover:not(:disabled) {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+}
+.showcase-toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.showcase-toolbar-btn > * {
+  position: relative;
+  z-index: 1;
+  color: #fff !important;
+}
+
+/* Botão escolher arquivo — From Uiverse.io by 3bdel3ziz-T, cores da plataforma */
+.pulso-folder-file-upload {
+  --transition: 350ms;
+  --folder-w: 36px;
+  --folder-h: 28px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.6));
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  min-height: 56px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.pulso-folder-file-upload:hover {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.75));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+.pulso-folder-file-upload-folder {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pulso-folder-float 2.5s infinite ease-in-out;
+  transition: transform var(--transition) ease;
+}
+.pulso-folder-file-upload:hover .pulso-folder-file-upload-folder {
+  transform: translateX(-50%) scale(1.08);
+}
+.pulso-folder-file-upload-tip {
+  background: linear-gradient(135deg, hsl(var(--primary-foreground) / 0.25), hsl(var(--primary-foreground) / 0.15));
+  width: 24px;
+  height: 8px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.pulso-folder-file-upload-cover {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary) / 0.55));
+  width: var(--folder-w);
+  height: var(--folder-h);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+}
+@keyframes pulso-folder-float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-6px); }
+}
+.pulso-folder-file-upload:hover .pulso-folder-file-upload-folder {
+  transform: translateX(-50%) scale(1.08);
+}
+.pulso-folder-file-upload-label {
+  font-size: 0.75rem;
+  color: hsl(var(--primary-foreground));
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+.pulso-folder-file-upload input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.pulso-folder-file-upload--compact {
+  min-height: 32px;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.pulso-folder-file-upload--compact .pulso-folder-file-upload-label {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pulso-folder-file-upload--compact .pulso-folder-file-upload-label svg {
+  color: hsl(var(--primary-foreground));
 }
 
 /* ========== DELETE BUTTON ========== */
@@ -1341,18 +1663,15 @@
   outline: none;
 }
 
-.showcase-search-main:focus-within .showcase-input-mask {
-  display: none;
+/* Sem grifado escuro: máscara desativada para placeholder sempre legível */
+.showcase-input-mask {
+  display: none !important;
 }
 
-.showcase-input-mask {
-  pointer-events: none;
-  width: 100px;
-  height: 20px;
-  position: absolute;
-  background: linear-gradient(90deg, transparent, black);
-  top: 18px;
-  left: 70px;
+/* Barras de envio (elemento 18): sem grifado preto */
+.showcase-search-poda--prompt .showcase-input-mask,
+.showcase-search-poda--prompt .showcase-pink-mask {
+  display: none !important;
 }
 
 .showcase-pink-mask {
@@ -1383,7 +1702,7 @@
   padding-left: 16px !important;
 }
 
-/* Variante prompt: barra maior, largura total */
+/* Variante prompt: elemento 18 exato — barra de mensagem em todos os chats, só botão enviar (sem lupa/filtro) */
 .showcase-search-poda--prompt .showcase-search-poda {
   width: 100%;
   justify-content: stretch;
@@ -1403,61 +1722,100 @@
   width: 100% !important;
   min-width: 0;
   min-height: 56px !important;
-  height: 56px !important;
+  height: auto !important;
+  padding-right: 52px !important; /* espaço para o botão enviar (elemento 18: um ícone à direita) */
+  /* Evita barra preta: fundo visível e texto legível na aba Inteligência de Dados */
+  background-color: hsl(var(--card)) !important;
+  background-image: none !important;
+  color: hsl(var(--foreground)) !important;
+}
+.showcase-search-input--prompt::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+}
+/* Tema escuro: fundo do input um pouco mais claro que o card para não parecer preto */
+.dark .showcase-search-input--prompt {
+  background-color: hsl(232 28% 14%) !important;
+}
+.showcase-search-poda--prompt .showcase-search-main {
+  background-color: transparent;
 }
 
-/* Elemento 22 - Botão Padrão — estilo neomórfico com inset shadow */
+/* Variante toolbar: mesma proporção do botão Baixar Relatório (compact) — altura ~32px */
+.showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-glow,
+.showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-darkBorderBg,
+.showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-white,
+.showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-border {
+  max-height: 36px !important;
+}
+.showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-input--prompt {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding-right: 12px !important;
+  font-size: 0.875rem !important;
+}
+.showcase-search-poda--toolbar .showcase-prompt-gradient-bar {
+  margin-top: 4px;
+  height: 4px;
+}
+
+/* Barra de gradiente abaixo da barra de mensagem (roxo → magenta → azul) — chat de dados e todos os chats */
+.showcase-prompt-gradient-bar {
+  background: linear-gradient(90deg, #402fb5 0%, #763e7e 25%, #cf30aa 50%, #905DED 75%, #4F9FF3 100%) !important;
+  opacity: 0.9;
+  min-height: 6px;
+  transition: opacity 0.3s ease;
+}
+.showcase-search-poda--prompt:hover .showcase-prompt-gradient-bar,
+.showcase-search-poda--prompt:focus-within .showcase-prompt-gradient-bar {
+  opacity: 1;
+}
+
+/* Elemento 22 - Botão Padrão — From Uiverse.io by Spacious74 */
 .btn-padrao-gradient {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  padding: 0.5em 1.25em;
-  background: #f295fe;
-  border-radius: 73px;
+  padding: calc(3px + 0.5em) calc(3px + 0.65em);
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  border-radius: 0.9em;
   border: none;
   cursor: pointer;
   transition: all 0.4s ease;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  color: #fff;
+  color: #fff !important;
   min-height: auto !important;
   height: auto !important;
-  box-shadow: inset 14px 14px 24px #613c66,
-    inset -14px -14px 24px #ffeeff;
 }
-.btn-padrao-gradient:hover:not(:disabled) {
-  filter: brightness(1.05);
-  box-shadow: inset 12px 12px 20px #613c66,
-    inset -12px -12px 20px #ffeeff;
-}
-.btn-padrao-gradient:active:not(:disabled) {
-  box-shadow: inset 16px 16px 28px #613c66,
-    inset -16px -16px 28px #ffeeff;
-}
-/* ::before oculto — estilo unificado no próprio botão */
+/* ::before = área interna (button) — fundo escuro (não preto puro) */
 .btn-padrao-gradient::before {
-  display: none;
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background-color: hsl(var(--card));
+  border-radius: 0.5em;
+  z-index: 0;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
 }
-/* ::after glow no hover */
+/* ::after = glow no hover */
 .btn-padrao-gradient::after {
   content: "";
   position: absolute;
   inset: 0;
   margin: auto;
-  border-radius: 73px;
+  border-radius: 0.9em;
   z-index: -10;
   filter: blur(0);
   transition: filter 0.4s ease;
 }
 .btn-padrao-gradient:hover:not(:disabled)::after {
-  background: #f295fe;
-  filter: blur(1em);
-  opacity: 0.5;
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  filter: blur(1.2em);
 }
 .btn-padrao-gradient:active:not(:disabled)::after {
-  filter: blur(0.3em);
+  filter: blur(0.2em);
 }
 .btn-padrao-gradient:disabled {
   opacity: 0.5;
@@ -1467,30 +1825,34 @@
 .btn-padrao-gradient > * {
   position: relative;
   z-index: 1;
+  color: #fff !important;
+}
+.btn-padrao-gradient span {
+  color: #fff !important;
 }
 /* Tamanhos proporcionais — sm, lg, icon */
 .btn-padrao-gradient.text-xs,
 .btn-padrao-gradient[data-size="sm"] {
-  font-size: 0.8125rem;
-  padding: 0.5em 1em;
+  font-size: 1.1em;
+  padding: calc(3px + 0.5em) calc(3px + 0.65em);
 }
 .btn-padrao-gradient.text-sm {
-  font-size: 0.875rem;
+  font-size: 1.25em;
 }
 .btn-padrao-gradient.text-base,
 .btn-padrao-gradient[data-size="lg"] {
-  font-size: 1rem;
-  padding: 0.6em 1.5em;
+  font-size: 1.25em;
+  padding: calc(3px + 0.6em) calc(3px + 0.8em);
 }
 .btn-padrao-gradient.h-9,
 .btn-padrao-gradient.h-8 {
-  font-size: 0.8125rem;
-  padding: 0.45em 0.9em;
+  font-size: 1.1em;
+  padding: calc(3px + 0.45em) calc(3px + 0.6em);
 }
 .btn-padrao-gradient.h-10.w-10,
 .btn-padrao-gradient[data-size="icon"] {
-  padding: 0.5em;
-  font-size: 0.875rem;
+  padding: calc(3px + 0.5em);
+  font-size: 1.2em;
   aspect-ratio: 1;
 }
 
@@ -1504,9 +1866,9 @@
   padding: 0.5em 1rem;
   font-size: 0.875rem;
   border-radius: 10px;
-  background: linear-gradient(180deg, #161329, black, #1d1b4b);
+  background: linear-gradient(180deg, #1e1b2e, #161329, #25224a);
   border: 1px solid hsl(var(--border) / 0.6);
-  color: hsl(var(--foreground));
+  color: #fff;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -1514,8 +1876,9 @@
 }
 .pulso-btn-padrao:hover:not(:disabled) {
   border-color: hsl(var(--primary) / 0.4);
-  background: linear-gradient(180deg, #1a1529, #0a0a0a, #1d1b4b);
+  background: linear-gradient(180deg, #25224a, #1e1b2e, #2d2a52);
   box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+  color: #fff;
 }
 .pulso-btn-padrao:disabled {
   opacity: 0.5;
@@ -1557,64 +1920,124 @@
   color: hsl(var(--primary));
 }
 
-.showcase-send-icon {
-  background: transparent !important;
+/* Botão enviar na barra de mensagem (elemento 18): fundo visível (nunca preto), ícone branco */
+.showcase-send-icon,
+.showcase-search-poda--prompt .showcase-filter-icon {
+  background: linear-gradient(180deg, #2a2742, #1e1b32, #352d5c) !important;
+  color: #fff !important;
+  border-radius: 10px;
+  min-width: 38px;
+  min-height: 40px;
+}
+.showcase-send-icon:hover,
+.showcase-search-poda--prompt .showcase-filter-icon:hover {
+  background: linear-gradient(180deg, #352d5c, #2a2742, #403a6e) !important;
+}
+.showcase-send-icon svg,
+.showcase-search-poda--prompt .showcase-filter-icon svg {
+  color: inherit !important;
 }
 
-/* Elemento 10 — Botão deletar com estilo dos botões de envio de prompt */
+/* Elemento 10 Delete — From Uiverse.io by Spacious74 (gradiente azul→rosa) */
 .showcase-elemento-10-delete {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   min-height: auto;
-  padding: 0.5em 1.25rem;
-  font-size: 0.875rem;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #161329, black, #1d1b4b);
-  border: 1px solid hsl(var(--border) / 0.6);
-  color: hsl(var(--foreground));
+  padding: calc(3px + 0.6em) calc(3px + 0.8em);
+  font-size: 1.1em;
+  border-radius: 0.9em;
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  border: none;
+  color: #fff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.4s ease;
 }
-.showcase-elemento-10-delete:hover:not(:disabled) {
-  border-color: hsl(var(--destructive) / 0.5);
-  background: linear-gradient(180deg, #1a1329, #0a0a0a, #1d1b4b);
-  box-shadow: 0 0 20px hsl(var(--destructive) / 0.15);
+.showcase-elemento-10-delete::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background-color: hsl(var(--card));
+  border-radius: 0.5em;
+  z-index: 0;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+}
+.showcase-elemento-10-delete:hover:not(:disabled)::before {
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4), 0 0 12px hsl(var(--destructive) / 0.2);
 }
 .showcase-elemento-10-delete--compact {
-  width: 2.75rem;
-  min-width: 2.75rem;
-  height: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0.5em;
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  padding: 4px;
   aspect-ratio: 1;
 }
+.showcase-elemento-10-delete--compact svg {
+  width: 14px;
+  height: 14px;
+}
 .showcase-elemento-10-delete svg {
-  color: hsl(var(--foreground));
+  position: relative;
+  z-index: 1;
+  color: #fff;
 }
 .showcase-elemento-10-delete:hover:not(:disabled) svg {
   color: hsl(var(--destructive));
 }
 
-/* Elemento 10 no dropdown (item Excluir) */
+/* Elemento 10 no dropdown (item Excluir) — mesmo estilo do botão principal */
 .showcase-elemento-10-delete-item {
-  padding: 0.5rem 0.75rem;
+  padding: calc(3px + 0.5em) calc(3px + 0.75em);
   margin: 0 -0.5rem;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #161329, black, #1d1b4b);
-  border: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 0.9em;
+  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  border: none;
+  position: relative;
   transition: all 0.2s ease;
 }
-.showcase-elemento-10-delete-item:hover {
-  border-color: hsl(var(--destructive) / 0.5);
-  box-shadow: 0 0 12px hsl(var(--destructive) / 0.1);
+.showcase-elemento-10-delete-item::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background-color: hsl(var(--card));
+  border-radius: 0.5em;
+  z-index: 0;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
 }
+.showcase-elemento-10-delete-item:hover {
+  box-shadow: 0 0 12px hsl(var(--destructive) / 0.3);
+}
+.showcase-elemento-10-delete-item span,
 .showcase-elemento-10-delete-item svg {
-  color: hsl(var(--foreground));
+  position: relative;
+  z-index: 1;
+  color: #fff !important;
 }
 .showcase-elemento-10-delete-item:hover svg {
-  color: hsl(var(--destructive));
+  color: hsl(var(--destructive)) !important;
+}
+
+/* Wrapper para botões ao lado do enviar (ex.: Testar) — mesmo estilo da barra */
+.showcase-trailing-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+.showcase-trailing-actions .showcase-filter-icon {
+  position: static;
+  height: 40px;
+  width: 38px;
+  max-height: 40px;
+  max-width: 38px;
+  min-width: 38px;
+  min-height: 40px;
 }
 
 .showcase-filter-icon {
@@ -1632,7 +2055,7 @@
   isolation: isolate;
   overflow: hidden;
   border-radius: 10px;
-  background: linear-gradient(180deg, #161329, black, #1d1b4b);
+  background: linear-gradient(180deg, #1e1b2e, #161329, #25224a);
   border: 1px solid transparent;
 }
 

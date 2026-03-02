@@ -20,6 +20,9 @@ const Index = () => {
           className="h-10 w-10 object-contain"
         />
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate("/download")}>
+            Baixar
+          </Button>
           <button
             type="button"
             onClick={() => setUploadModalOpen(true)}

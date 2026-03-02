@@ -84,14 +84,17 @@ export function AppShell() {
         <LayoutWrapper />
       </main>
 
-      {/* Sidebar fixa: conta, tema, layout — apenas quando header está oculto (Dashboard, profile-selection) */}
-      {!isPublicPage && hideHeader && (
+      {/* Perfil: apenas em páginas com header escondido exceto dashboard (no dashboard o perfil fica só na navbar) */}
+      {!isPublicPage && hideHeader && location.pathname !== "/dashboard" && (
         <aside
-          className="fixed bottom-0 left-0 z-40 flex flex-col items-center justify-end pb-4 pl-4 pointer-events-none"
+          className={cn(
+            "fixed z-40 flex flex-col pointer-events-none",
+            "bottom-0 left-0 items-center justify-end pb-4 pl-4"
+          )}
           aria-label="Área do usuário"
         >
           <div className="pointer-events-auto">
-            <UserSidebar />
+            <UserSidebar position="bottom-left" />
           </div>
         </aside>
       )}

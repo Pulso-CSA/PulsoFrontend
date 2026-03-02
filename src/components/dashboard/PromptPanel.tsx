@@ -20,11 +20,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import FileTree, { type FileNode } from "./FileTree";
-import { LoaderEstudandoArquivos, LoaderEscrevendoCodigo } from "@/components/loaders";
+import { LoaderGenerating } from "@/components/loaders";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
 import { ChatSidebar } from "./ChatSidebar";
-import { PromptSearchInput } from "@/components/ui/PromptSearchInput";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { ProjectStructureDropdown } from "./ProjectStructureDropdown";
 import { getPulsoCsaSessions, setPulsoCsaSessions, type ChatSession } from "@/lib/connectionStorage";
 
@@ -150,11 +150,13 @@ function buildEnvContent(envVars: EnvVariable[]): string {
 interface PromptPanelProps {
   onComprehensionResult?: (result: ComprehensionResult) => void;
   onClear?: () => void;
+  /** Conteúdo extra na toolbar (ex.: botões Logs e Preview) à esquerda de Baixar Relatório */
+  toolbarExtra?: React.ReactNode;
 }
 
 type PulsoCsaSession = ChatSession<{ id: string; role: string; content: string; timestamp: string }>;
 
-const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
+const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPanelProps) => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<PulsoCsaSession[]>(() => getPulsoCsaSessions());
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -603,24 +605,25 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
 
       {/* Área principal — formato de chat (igual CloudChat, DataChat, FinOpsChat) */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-        <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-4 min-w-0">
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2.5 text-primary">
-                <Workflow className="h-6 w-6 text-primary" />
+        <div className="sticky top-0 z-10 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 shrink-0 bg-card/95 backdrop-blur-md border-b border-primary/10">
+          <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+                <Workflow className="h-4 w-4 shrink-0 text-primary" />
                 Pulso CSA
               </h2>
-              <p className="text-base text-muted-foreground mt-1.5">
-                Blueprint e estrutura de projetos · Atalho: Alt+P
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                Blueprint e estrutura de projetos · Alt+P
               </p>
             </div>
             {fileStructure && fileStructure.length > 0 && (
-              <div className="shrink-0">
+              <div className="shrink-0 min-w-0">
                 <ProjectStructureDropdown structure={fileStructure} />
               </div>
             )}
           </div>
-          <div className="flex gap-3 flex-wrap shrink-0 items-center">
+          <div className="flex gap-1.5 flex-wrap items-center justify-end shrink-0 min-w-0">
+            {toolbarExtra}
             <DownloadReportButton
               onClick={async () => {
                 if (messages.length === 0) return;
@@ -629,12 +632,8 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
                 toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Download iniciado" });
               }}
               disabled={messages.length === 0}
-              className="text-base min-h-[42px]"
+              className="showcase-download-report-btn--compact text-white"
             />
-            <Button variant="ghost" size="default" onClick={() => setShowTestDialog(true)} disabled={curlCommands.length === 0} title={curlCommands.length === 0 ? "Aguarde a resposta do backend" : "Testar aplicação"} className="min-h-[42px] px-4 gap-2">
-              <TestTube className="h-5 w-5" />
-              Testar
-            </Button>
             <Elemento10DeleteButton onClick={handleClear} disabled={messages.length === 0 && !requestId} compact />
           </div>
         </div>
@@ -689,8 +688,9 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
                               <td className="px-3 py-2 text-sm font-mono truncate max-w-[120px]">{envVar.name}</td>
                               <td className="px-3 py-2 text-sm font-mono text-muted-foreground truncate max-w-[140px]">{envVar.value}</td>
                               <td className="px-3 py-2">
-                                <Button variant="ghost" size="icon" onClick={() => removeEnvVariable(index)} className="h-7 w-7 text-destructive hover:bg-destructive/10">
-                                  <X className="h-4 w-4" />
+                                <Button variant="ghost" size="sm" onClick={() => removeEnvVariable(index)} className="h-7 gap-1 text-xs text-destructive hover:bg-destructive/10">
+                                  <X className="h-4 w-4 shrink-0" />
+                                  <span>Remover</span>
                                 </Button>
                               </td>
                             </tr>
@@ -703,8 +703,9 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
                 <div className="grid grid-cols-[1fr,1fr,auto] gap-2">
                   <Input placeholder="Nome (ex: API_KEY)" value={newVarName} onChange={(e) => setNewVarName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50" />
                   <Input placeholder="Valor" value={newVarValue} onChange={(e) => setNewVarValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50" />
-                  <Button onClick={addEnvVariable} size="icon" className="h-10 w-10" variant="pulso">
-                    <Plus className="h-4 w-4" />
+                  <Button onClick={addEnvVariable} size="sm" className="h-10 gap-1.5 px-3" variant="pulso">
+                    <Plus className="h-4 w-4 shrink-0" />
+                    <span>Adicionar</span>
                   </Button>
                 </div>
               </div>
@@ -727,7 +728,7 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
                     <p className="text-xs text-muted-foreground mb-2">Sugestões:</p>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {["Gerar blueprint de pastas e endpoints", "Criar estrutura de API REST", "Sistema de gestão de pedidos"].map((s, i) => (
-                        <Button key={i} variant="pulso" size="sm" onClick={() => setInput(s)} className="text-xs">
+                        <Button key={i} variant="outline" size="sm" onClick={() => setInput(s)} className="text-xs pulso-suggestion-btn">
                           {s}
                         </Button>
                       ))}
@@ -763,13 +764,8 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
                   </div>
                 ))}
                 {loading && (
-                  <div className="flex items-end gap-2 justify-start animate-slide-up">
-                    <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden ring-2 ring-primary/40 ring-offset-2 ring-offset-background/80 flex items-center justify-center">
-                      <img src={import.meta.env.BASE_URL + "App.png"} alt="Pulso CSA" className="w-7 h-7 object-contain" />
-                    </div>
-                    <div className="bg-muted/50 text-foreground rounded-lg p-4">
-                      {loadingPhase === "analisando" ? <LoaderEstudandoArquivos message="Analisando seu projeto..." /> : <LoaderEscrevendoCodigo message="Escrevendo seu código..." />}
-                    </div>
+                  <div className="relative min-h-[120px]">
+                    <LoaderGenerating className="rounded-lg" />
                   </div>
                 )}
               </>
@@ -784,13 +780,24 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
               className="flex gap-2 items-end"
             >
               <div className="flex-1 min-w-0">
-                <PromptSearchInput
+                <PromptSearchTextarea
                   id="prompt-input"
                   placeholder="Ex.: Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onSend={handleSubmit}
-                  variant="prompt"
+                  trailingActions={
+                    <button
+                      type="button"
+                      onClick={() => setShowTestDialog(true)}
+                      disabled={curlCommands.length === 0}
+                      title={curlCommands.length === 0 ? "Aguarde a resposta do backend" : "Testar aplicação"}
+                      className="showcase-filter-icon showcase-send-icon cursor-pointer border-0 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Testar aplicação"
+                    >
+                      <TestTube className="h-5 w-5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                    </button>
+                  }
                 />
               </div>
             </form>
@@ -800,8 +807,9 @@ const PromptPanel = ({ onComprehensionResult, onClear }: PromptPanelProps) => {
         {requestId && (
           <div className="flex items-center gap-2 p-4 glass border-t border-primary/20 shrink-0">
             <span className="text-sm font-mono text-primary flex-1">ID: {requestId}</span>
-            <Button variant="ghost" size="icon" onClick={handleCopyId} className="h-8 w-8">
-              <Copy className="h-4 w-4" />
+            <Button variant="ghost" size="sm" onClick={handleCopyId} className="h-8 gap-1.5 text-xs">
+              <Copy className="h-4 w-4 shrink-0" />
+              <span>Copiar ID</span>
             </Button>
           </div>
         )}

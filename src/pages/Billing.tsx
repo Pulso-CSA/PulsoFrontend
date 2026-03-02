@@ -137,12 +137,13 @@ const Billing = () => {
           <div className="flex items-center gap-4 animate-fade-in">
             <Button
               variant="pulso"
-              size="icon"
+              size="sm"
               onClick={() => navigate("/dashboard")}
-              className="h-11 w-11 shrink-0"
+              className="h-11 gap-2 shrink-0"
               aria-label="Voltar"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 shrink-0" />
+              <span>Voltar</span>
             </Button>
             <div>
               <h1 className="text-3xl font-bold" style={{ 
@@ -276,11 +277,13 @@ const Billing = () => {
                       type="button"
                       onClick={() => !isDisabled && !isLoading && handleSelectPlan(plan.id)}
                       disabled={isDisabled || isLoading}
-                      className="showcase-sparkle-btn w-full justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="showcase-sparkle-btn w-full justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-white"
                     >
                       <span className="showcase-spark" aria-hidden />
                       <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
-                      {isDisabled ? "Em Breve" : isLoading ? (
+                      {isDisabled ? (
+                        <span className="relative z-10">Em Breve</span>
+                      ) : isLoading ? (
                         "Redirecionando..."
                       ) : (
                         <>

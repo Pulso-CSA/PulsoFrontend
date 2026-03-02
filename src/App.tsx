@@ -16,6 +16,7 @@ import { UpdateAvailableScreen } from "@/components/UpdateAvailableScreen";
 import { Loader2 } from "lucide-react";
 
 const Index = lazy(() => import("./pages/Index"));
+const DownloadPage = lazy(() => import("./pages/DownloadPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -71,6 +72,7 @@ const App = () => {
                       <Route element={<AppShell />}>
                         {/* Public routes */}
                         <Route path="/" element={<Index />} />
+                        <Route path="/download" element={<DownloadPage />} />
                         <Route path="/auth" element={<Auth />} />
                         <Route path="/auth/callback" element={<AuthCallback />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />

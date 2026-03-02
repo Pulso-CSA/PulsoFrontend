@@ -123,7 +123,7 @@ const DashboardHeader = ({ hideLogo, activeLayers, setActiveLayers, showLayerSel
                   <User className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="pulso-dropdown-menu-glass">
                 {currentProfile && (
                   <>
                     <DropdownMenuLabel>

@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare } from "lucide-react";
+import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare, Loader2 } from "lucide-react";
 import { DataChatCharts } from "./DataChatCharts";
 import { DataChatML, stripMarkdown } from "./DataChatML";
 import { DataPreviewTable } from "./DataPreviewTable";
-import { LoaderEscrevendoCodigo, LoaderEstudandoArquivos } from "@/components/loaders";
 import { ChatSidebar } from "./ChatSidebar";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
@@ -85,7 +84,7 @@ function parseTableFromText(content: string): { colunas: string[]; linhas: Recor
 }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChatTextarea } from "@/components/ui/chat-textarea";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -552,18 +551,18 @@ const DataChat = () => {
 
       {/* Área principal */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="p-4 shrink-0">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
-              <Database className="h-5 w-5 text-primary" />
+      <div className="p-3 shrink-0 min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+              <Database className="h-4 w-4 shrink-0 text-primary" />
               Inteligência de Dados
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Explore estrutura, estatísticas e modelos · Atalho: Alt+D
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              Explore estrutura, estatísticas e modelos · Alt+D
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 flex-wrap items-center shrink-0">
             <DownloadReportButton
               onClick={async () => {
                 const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
@@ -571,24 +570,26 @@ const DataChat = () => {
                 toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
               }}
               disabled={messages.length === 0}
+              className="showcase-download-report-btn--compact text-white shrink-0"
             />
-            <Button
-              variant="pulso"
-              size="sm"
+            <button
+              type="button"
               onClick={() => setShowConnection(!showConnection)}
+              className="showcase-toolbar-btn px-3 py-1.5 text-xs gap-1 shrink-0"
+              aria-expanded={showConnection}
+              aria-label={showConnection ? "Fechar painel de conexão" : "Abrir painel de conexão"}
             >
-              {showConnection ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {showConnection ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
               Conexão
-            </Button>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Connection Drawer */}
       {showConnection && (
-        <div className="p-4 glass space-y-3">
-          <h3 className="text-sm font-medium text-foreground">Conexão de Dados (Opcional)</h3>
-          
+        <div className="p-4 pt-3 glass border-t border-primary/10 space-y-4">
+          <h3 className="text-sm font-semibold text-foreground">Conexão de Dados (Opcional)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <Label htmlFor="db-type" className="text-xs">Tipo de Base</Label>
@@ -655,8 +656,9 @@ const DataChat = () => {
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                ⚠️ Nunca compartilhe segredos nesta conversa
+              <p className="flex items-center gap-1.5 text-xs text-amber-200/90 mt-1.5">
+                <span className="shrink-0" aria-hidden>⚠️</span>
+                <span>Nunca compartilhe segredos nesta conversa</span>
               </p>
             </div>
           </div>
@@ -692,10 +694,10 @@ const DataChat = () => {
                     {quickActions.map((action, idx) => (
                       <Button
                         key={idx}
-                        variant="pulso"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleQuickAction(action)}
-                        className="text-xs"
+                        className="text-xs pulso-suggestion-btn"
                       >
                         {action}
                       </Button>
@@ -976,51 +978,38 @@ const DataChat = () => {
           ))
         )}
 
+          {loading && (
+            <div className="flex justify-start mb-4">
+              <div className="rounded-2xl px-4 py-3 bg-chat-system border border-white/5 text-sm text-muted-foreground flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                <span>Aguardando resposta...</span>
+              </div>
+            </div>
+          )}
+
         </div>
 
-        <div className="p-4 shrink-0">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="flex gap-2 items-end"
-        >
-          {loading ? (
-            <div
-              className="flex-1 min-h-[44px] w-full rounded-lg border border-white/10 bg-background px-4 py-2 flex items-center"
-              role="status"
-              aria-live="polite"
-              aria-label="Aguardando resposta"
-            >
-              {loadingPhaseRef.current === "connecting" ? (
-                <LoaderEstudandoArquivos message="Conectando e carregando dataset..." compact className="!p-0 !min-h-0 !rounded-none !border-0 !bg-transparent w-full" />
-              ) : (
-                <LoaderEscrevendoCodigo message="Escrevendo seu código..." compact className="!p-0 !min-h-0 !rounded-none !border-0 !bg-transparent w-full" />
-              )}
-            </div>
-          ) : (
-          <ChatTextarea
-            id="data-input"
-            placeholder="Pergunte sobre dados, modelos ou previsões"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onSend={handleSend}
-            className="py-2"
-          />
-          )}
-          <button
-            type="submit"
-            disabled={!input.trim() || loading}
-            className="showcase-sparkle-btn showcase-sparkle-btn--compact shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+        {/* Barra de envio — sempre mesma altura/estilo; em loading fica desabilitada com placeholder */}
+        <div className="p-4 shrink-0 border-t border-primary/10 bg-card/30">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex gap-2 items-end w-full max-w-full"
           >
-            <span className="showcase-spark" aria-hidden />
-            <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
-            <Send className="w-4 h-4 relative z-10 shrink-0" />
-            <span className="relative z-10">Enviar</span>
-          </button>
-        </form>
-          </div>
+            <div className="flex-1 min-w-0 w-full">
+              <PromptSearchTextarea
+                id="data-input"
+                placeholder={loading ? "Aguardando resposta..." : "Pergunte sobre dados, modelos ou previsões"}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onSend={handleSend}
+                disabled={loading}
+              />
+            </div>
+          </form>
+        </div>
         </div>
       </div>
     </div>

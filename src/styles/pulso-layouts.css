@@ -90,54 +90,63 @@
   background: transparent;
 }
 
-/* Barra de 4 serviços fixa no topo (Layout A) — não scrolla */
+/* Barra de 4 serviços fixa no topo (Layout A) — não rola com o scroll */
 .pulso-layout-a-services-bar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 30;
   flex-shrink: 0;
-  padding: 1rem 2rem;
-  background: transparent;
-  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  overflow: visible;
+  pointer-events: none;
+}
+.pulso-layout-a-services-bar > .pulso-layout-a-services-inner {
+  pointer-events: auto;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: inset 16px -16px 32px var(--glass-shadow-dark),
+              inset -16px 16px 32px var(--glass-shadow-light);
+  border-radius: 62px;
+  border: 1px solid hsl(var(--border) / 0.4);
+  padding: 0.5rem 1rem;
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
 }
 html[data-electron="true"] .pulso-layout-a-services-bar {
   top: 2.5rem;
 }
 
 .pulso-layout-a-services-inner {
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.pulso-layout-a-services-inner::-webkit-scrollbar {
-  height: 4px;
-}
-
-.pulso-layout-a-services-inner::-webkit-scrollbar-thumb {
-  background: rgba(165, 75, 206, 0.3);
-  border-radius: 4px;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  overflow: visible;
+  padding: 2px 0;
 }
 
 .pulso-layout-a-btn-horizontal {
   flex-direction: row !important;
   flex-shrink: 0 !important;
   width: auto !important;
-  min-width: 120px;
+  min-width: 44px;
   max-width: none;
-  height: 48px !important;
-  padding: 0 1.25rem !important;
+  height: 44px !important;
+  padding: 0 1rem !important;
   gap: 0.5rem;
   transform: none !important;
   writing-mode: horizontal-tb !important;
+  border-radius: 9999px !important;
+  transition: transform 0.28s ease, background 0.28s ease, box-shadow 0.28s ease;
+}
+.pulso-layout-a-btn-horizontal:hover {
+  transform: translateY(-2px);
 }
 
 /* ========== Layout padrão de chat (PulsoCSA base) ========== */
@@ -186,6 +195,10 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   position: relative;
   box-shadow: inset 0 0 100px rgba(144, 93, 237, 0.03);
 }
+/* Evita linha ciano forte entre navbar e conteúdo — borda superior suave */
+.pulso-layout-a-content .pulso-chat-main {
+  border-top-color: transparent !important;
+}
 
 .pulso-chat-main::before {
   content: "";
@@ -229,6 +242,17 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
     rgba(144, 93, 237, 0.05) 100%
   );
   border-color: rgba(79, 159, 243, 0.2);
+}
+
+/* Botão excluir chat — círculo glass, ícone lixeira (Elemento 10), mesmo tamanho dos 3 pontinhos */
+.pulso-chat-item-delete-btn {
+  box-shadow: inset 4px -4px 12px var(--glass-shadow-dark),
+              inset -4px 4px 12px var(--glass-shadow-light);
+}
+.pulso-chat-item-delete-btn:hover {
+  box-shadow: inset 4px -4px 12px var(--glass-shadow-dark),
+              inset -4px 4px 12px var(--glass-shadow-light),
+              0 0 12px hsl(var(--destructive) / 0.2);
 }
 
 .pulso-chat-sidebar-inner {
@@ -314,27 +338,33 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
 }
 
 /* Corpo: main (sidebar conta/tema/layout fica no AppShell) */
+/* Espaço para a navbar fixa não cobrir o conteúdo */
 .pulso-layout-a-body {
   display: flex;
   flex-direction: row;
   min-height: 0;
+  padding-top: 5rem;
+}
+html[data-electron="true"] .pulso-layout-a-body {
+  padding-top: 7.5rem;
 }
 
 .pulso-layout-a-btn {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: auto;
+  min-width: 44px;
+  height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  border-radius: 16px;
+  border-radius: 9999px;
   border: 1px solid transparent;
   background: transparent;
-  color: hsl(var(--muted-foreground));
+  color: #fff;
   cursor: pointer;
-  transition: var(--pulso-transition);
+  transition: var(--pulso-transition), box-shadow 0.28s ease;
   overflow: hidden;
 }
 
@@ -343,17 +373,27 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
 }
 
 .pulso-layout-a-btn:hover {
-  color: hsl(var(--foreground));
-  background: rgba(165, 75, 206, 0.08);
+  color: #fff;
+  background: hsl(var(--primary) / 0.12);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(165, 75, 206, 0.15);
+  /* Efeito LED circular em volta do botão ao hover */
+  box-shadow:
+    0 0 0 2px hsl(var(--primary) / 0.7),
+    0 0 12px hsl(var(--primary) / 0.5),
+    0 0 24px hsl(var(--primary) / 0.25),
+    0 6px 20px rgba(165, 75, 206, 0.12);
 }
 
 .pulso-layout-a-btn.pulso-active {
-  color: hsl(var(--primary));
-  background: linear-gradient(135deg, rgba(165, 75, 206, 0.2), rgba(96, 188, 213, 0.1));
-  border-color: rgba(165, 75, 206, 0.4);
-  box-shadow: 0 0 30px rgba(165, 75, 206, 0.2), inset 0 0 20px rgba(165, 75, 206, 0.05);
+  color: #fff;
+  background: hsl(var(--primary) / 0.18);
+  border-color: hsl(var(--primary) / 0.5);
+  /* LED sutil também no estado ativo */
+  box-shadow:
+    0 0 0 2px hsl(var(--primary) / 0.5),
+    0 0 16px hsl(var(--primary) / 0.25),
+    0 0 20px hsl(var(--primary) / 0.2),
+    inset 0 0 16px hsl(var(--primary) / 0.06);
 }
 
 .pulso-layout-a-main {
@@ -522,16 +562,95 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   animation: pulso-fade-in 0.4s ease-out;
 }
 
-/* ========== Tela de Insights (nenhum botão selecionado) ========== */
-.pulso-insights-screen {
-  padding: 1rem 1.5rem;
+/* Sugestões: bordas em gradiente animadas (loop moderado); fundo escuro (não preto) */
+.pulso-suggestion-btn {
+  position: relative;
+  background: hsl(var(--card)) !important;
+  border: none !important;
+  color: #fff !important;
+  overflow: visible;
+}
+.pulso-suggestion-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
+  background-size: 200% 100%;
+  background-position: 100% 50%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: pulso-suggestion-border-loop 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pulso-suggestion-border-loop {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
-.pulso-insights-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin-bottom: 1rem;
+/* ========== Tela de Insights (nenhum botão selecionado) ========== */
+.pulso-insights-screen {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Navbar da área Insights — compacta, glass, pill; botões funcionam como filtro */
+.pulso-insights-navbar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0.4rem 0.75rem;
+  margin: 0.5rem 1rem 0;
+}
+
+.pulso-insights-navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  padding: 0.35rem 0.6rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: inset 12px -12px 24px var(--glass-shadow-dark),
+              inset -12px 12px 24px var(--glass-shadow-light);
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border) / 0.4);
+  width: fit-content;
+  max-width: calc(100% - 1.5rem);
+}
+
+.pulso-insights-navbar .pulso-layout-a-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+}
+
+.pulso-insights-navbar .pulso-insights-navbar-btn-icon {
+  width: 36px;
+  padding: 0;
+}
+
+.pulso-insights-navbar .pulso-insights-navbar-btn-icon span {
+  display: none;
+}
+
+.pulso-insights-navbar .pulso-insights-navbar-btn-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.pulso-insights-navbar .pulso-insights-navbar-btn-filter-active {
+  background: hsl(var(--primary) / 0.35);
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.5);
 }
 
 .pulso-insights-grid {
@@ -544,6 +663,31 @@ html[data-electron="true"] .pulso-layout-b-carousel {
 
 .pulso-insights-grid > * {
   min-height: 0;
+}
+
+/* Cards de insight — estilo Power BI: limpo, preciso, elegante */
+.pulso-insights-card {
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--card));
+  box-shadow: 0 1px 3px hsl(var(--border) / 0.15);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.pulso-insights-card:hover {
+  box-shadow: 0 4px 12px hsl(var(--border) / 0.2);
+  border-color: hsl(var(--border) / 0.8);
+}
+
+/* Barra de criação por chat (Power BI simplificado) */
+.pulso-insights-chat-bar {
+  width: 100%;
+  max-width: 100%;
+}
+.pulso-insights-chat-bar-inner {
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.5);
+  background: hsl(var(--muted) / 0.25);
 }
 
 @media (max-width: 1024px) {

@@ -170,7 +170,10 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto glass-strong border-2 border-primary/25 shadow-[0_0_40px_hsl(var(--primary)/0.15)]">
+      <DialogContent
+        overlayClassName="pulso-dialog-overlay-blur"
+        className="w-[min(92vw,960px)] max-w-[92vw] max-h-[78vh] overflow-y-auto overflow-x-hidden glass-strong border border-primary/20 rounded-2xl shadow-[0_0_40px_hsl(var(--primary)/0.12)] p-6 gap-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-300"
+      >
         <DialogHeader className="space-y-2 pb-6">
           <DialogTitle className="text-2xl font-bold flex items-center gap-3" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             <div className="p-2 rounded-xl bg-primary/10">

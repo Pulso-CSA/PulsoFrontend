@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Send, TrendingDown, Server, DollarSign, Lightbulb, MessageSquare, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChatTextarea } from "@/components/ui/chat-textarea";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,7 +10,7 @@ import { finopsApi } from "@/lib/api";
 import { getFinOpsChatSessions, setFinOpsChatSessions, type ChatSession } from "@/lib/connectionStorage";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
-import { LoaderEscrevendoCodigo } from "@/components/loaders";
+import { LoaderGenerating } from "@/components/loaders";
 import { ChatSidebar } from "./ChatSidebar";
 
 interface Message {
@@ -185,13 +185,13 @@ const FinOpsChat = () => {
       {/* Área principal */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
       <div className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
-        <div>
-          <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
-            <DollarSign className="h-5 w-5 text-primary" />
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+            <DollarSign className="h-4 w-4 shrink-0 text-primary" />
             FinOps Inteligente
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Insights de custo em linguagem natural · Atalho: Alt+F
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            Insights de custo em linguagem natural · Alt+F
           </p>
         </div>
         <DownloadReportButton
@@ -201,6 +201,7 @@ const FinOpsChat = () => {
             toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
           }}
           disabled={messages.length === 0}
+          className="showcase-download-report-btn--compact text-white shrink-0"
         />
       </div>
 
@@ -246,10 +247,10 @@ const FinOpsChat = () => {
                     {quickActions.map((action, idx) => (
                       <Button
                         key={idx}
-                        variant="pulso"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleQuickAction(action)}
-                        className="text-xs"
+                        className="text-xs pulso-suggestion-btn"
                       >
                         {action}
                       </Button>
@@ -312,8 +313,8 @@ const FinOpsChat = () => {
         )}
         
         {loading && (
-          <div className="flex justify-start animate-slide-up">
-            <LoaderEscrevendoCodigo message="Analisando custos e gerando insights..." className="w-full max-w-sm" />
+          <div className="relative min-h-[120px]">
+            <LoaderGenerating />
           </div>
         )}
         </div>
@@ -326,24 +327,14 @@ const FinOpsChat = () => {
           }}
           className="flex gap-2 items-end"
         >
-          <ChatTextarea
+          <PromptSearchTextarea
             id="finops-input"
             placeholder="Ex.: 'Como reduzir custos do RDS em horário ocioso?'"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onSend={handleSend}
-            className="py-2"
+            disabled={loading}
           />
-          <button
-            type="submit"
-            disabled={!input.trim() || loading}
-            className="showcase-sparkle-btn showcase-sparkle-btn--compact shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="showcase-spark" aria-hidden />
-            <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
-            <Send className="w-4 h-4 relative z-10 shrink-0" />
-            <span className="relative z-10">Enviar</span>
-          </button>
         </form>
         </div>
       </div>

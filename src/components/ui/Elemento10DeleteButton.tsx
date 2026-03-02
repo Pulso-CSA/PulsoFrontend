@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const ELEMENTO_10_SVG = (
   <svg
-    className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
+    className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
     viewBox="0 0 448 512"
     fill="currentColor"
     aria-hidden

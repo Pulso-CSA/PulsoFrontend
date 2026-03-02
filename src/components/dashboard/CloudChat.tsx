@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Send, Trash2, Copy, FolderOpen, FileCode, Key, MapPin, Eye, EyeOff, CloudCog, MessageSquare, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChatTextarea } from "@/components/ui/chat-textarea";
+import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import {
@@ -23,7 +23,8 @@ import { infraApi } from "@/lib/api";
 import { getAllCloudCredentials, setCloudCredentials, getRootPath, setRootPath, getCloudChatSessions, setCloudChatSessions, type ChatSession } from "@/lib/connectionStorage";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
-import { LoaderEscrevendoCodigo } from "@/components/loaders";
+import { FolderFileUpload } from "@/components/ui/FolderFileUpload";
+import { LoaderGenerating } from "@/components/loaders";
 import { ChatSidebar } from "./ChatSidebar";
 import { SiAmazonwebservices, SiGooglecloud } from "react-icons/si";
 import { TbBrandAzure } from "react-icons/tb";
@@ -67,6 +68,12 @@ const CloudChat = () => {
   useEffect(() => {
     setCredentials(getAllCloudCredentials());
     setRootPathState(getRootPath());
+  }, []);
+
+  useEffect(() => {
+    const openCredentials = () => setExpandedProvider("aws");
+    window.addEventListener("pulso-open-cloud-credentials", openCredentials);
+    return () => window.removeEventListener("pulso-open-cloud-credentials", openCredentials);
   }, []);
 
   useEffect(() => {
@@ -451,35 +458,106 @@ const CloudChat = () => {
 
       {/* Área principal */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
-        <div>
-          <h2 className="text-lg font-semibold flex items-center gap-2 text-primary">
-            <CloudCog className="h-5 w-5 text-primary" />
-            Cloud Infrastructure
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Crie infraestruturas usando linguagem natural ou caminhos de arquivo
-          </p>
+      <div className="p-3 flex flex-row items-center gap-3 shrink-0 min-w-0">
+        {/* Caminho do projeto + Escolher arquivo + Baixar relatório à esquerda (mesmo estilo da barra de envio) */}
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="relative w-full max-w-[320px] min-w-[200px] overflow-hidden showcase-search-poda--prompt showcase-search-poda--toolbar">
+            <div className="showcase-search-poda w-full">
+              <div className="showcase-search-glow" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-white" aria-hidden />
+              <div className="showcase-search-border" aria-hidden />
+              <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
+                <input
+                  type="text"
+                  placeholder="Caminho do projeto (opcional)"
+                  value={rootPath}
+                  onChange={(e) => handleRootPathChange(e.target.value)}
+                  className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
+                  aria-label="Caminho do projeto"
+                />
+                <div className="showcase-trailing-actions absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <FolderFileUpload
+                    compact
+                    onFileChange={(files) => {
+                      const f = files?.item(0);
+                      if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
+                    }}
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                  </FolderFileUpload>
+                </div>
+              </div>
+            </div>
+            <div className="showcase-prompt-gradient-bar rounded-full w-full" aria-hidden />
+          </div>
+          <DownloadReportButton
+            onClick={async () => {
+              const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
+              const result = await exportReport({ serviceId: "cloud", messages: msgs, format: "md" });
+              toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+            }}
+            disabled={messages.length === 0}
+            className="showcase-download-report-btn--compact text-white shrink-0"
+          />
         </div>
-        <DownloadReportButton
-          onClick={async () => {
-            const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
-            const result = await exportReport({ serviceId: "cloud", messages: msgs, format: "md" });
-            toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
-          }}
-          disabled={messages.length === 0}
-        />
+        <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate shrink-0">
+          <CloudCog className="h-4 w-4 shrink-0 text-primary" />
+          Cloud Infrastructure
+        </h2>
       </div>
 
-      <div className="p-3 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          {renderProviderButton("aws", <SiAmazonwebservices className="h-6 w-6" />, "AWS")}
-          {renderProviderButton("azure", <TbBrandAzure className="h-6 w-6" />, "Azure")}
-          {renderProviderButton("gcp", <SiGooglecloud className="h-6 w-6" />, "GCP")}
+      {/* Provedores + Credenciais — painel vertical (estilo do dropdown da navbar) */}
+      <div className="p-3 shrink-0 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm max-w-[280px]">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-2">Provedores</p>
+        <div className="flex flex-col gap-0.5">
+          {(["aws", "azure", "gcp"] as const).map((provider) => {
+            const info = providerInfo[provider];
+            const isActive = activeProvider === provider;
+            const icon = provider === "aws" ? <SiAmazonwebservices className="h-5 w-5 shrink-0" /> : provider === "azure" ? <TbBrandAzure className="h-5 w-5 shrink-0" /> : <SiGooglecloud className="h-5 w-5 shrink-0" />;
+            const label = provider === "aws" ? "AWS" : provider === "azure" ? "Azure" : "GCP";
+            const configured = hasCredentials(provider);
+            return (
+              <div key={provider} className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveProvider(provider)}
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive ? `bg-gradient-to-r ${info.gradient} text-white shadow-md` : "text-foreground hover:bg-primary/15 hover:text-primary"
+                  }`}
+                  style={isActive ? { boxShadow: `0 0 10px ${info.glow}` } : undefined}
+                >
+                  <span className={isActive ? "text-white" : providerColors[provider].text}>{icon}</span>
+                  <span className="flex-1 text-left">{label}</span>
+                  {configured && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-green-500"}`} />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExpandedProvider(expandedProvider === provider ? null : provider)}
+                  className={`p-1.5 rounded-lg transition-colors ${expandedProvider === provider ? info.bg + " text-white" : "hover:bg-accent text-muted-foreground"}`}
+                  title="Credenciais"
+                >
+                  <Key className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
         </div>
-        {renderCredentialsPanel("aws")}
-        {renderCredentialsPanel("azure")}
-        {renderCredentialsPanel("gcp")}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("pulso-open-cloud-credentials"))}
+          className="w-full flex items-center gap-2 px-3 py-2 mt-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors border-t border-border/50"
+        >
+          <Key className="h-4 w-4 shrink-0" />
+          Credenciais
+        </button>
+        <div className="mt-2">
+          {renderCredentialsPanel("aws")}
+          {renderCredentialsPanel("azure")}
+          {renderCredentialsPanel("gcp")}
+        </div>
       </div>
 
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
@@ -496,7 +574,7 @@ const CloudChat = () => {
                   <p className="text-xs text-muted-foreground mb-2">Sugestões:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {quickActions.map((action, idx) => (
-                      <Button key={idx} variant="pulso" size="sm" onClick={() => handleQuickAction(action)} className="text-xs">
+                      <Button key={idx} variant="outline" size="sm" onClick={() => handleQuickAction(action)} className="text-xs pulso-suggestion-btn">
                         {action}
                       </Button>
                     ))}
@@ -538,13 +616,13 @@ const CloudChat = () => {
               ))
             )}
             {loading && (
-              <div className="flex justify-start animate-slide-up">
-                <LoaderEscrevendoCodigo message="Gerando infraestrutura..." className="w-full max-w-sm" />
+              <div className="relative min-h-[120px]">
+                <LoaderGenerating />
               </div>
             )}
         </div>
 
-        <div className="p-4 space-y-2 shrink-0">
+        <div className="p-4 shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -552,29 +630,15 @@ const CloudChat = () => {
               }}
               className="flex gap-2 items-end"
             >
-              <Input
-                placeholder="Caminho do projeto (opcional)"
-                value={rootPath}
-                onChange={(e) => handleRootPathChange(e.target.value)}
-                className="border-primary/30 focus-visible:ring-primary max-w-[200px]"
-              />
-              <ChatTextarea
-                placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas'"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onSend={handleSend}
-                className="border-primary/30 focus-visible:ring-primary flex-1 py-2"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || loading}
-                className="showcase-sparkle-btn showcase-sparkle-btn--compact shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 [&.disabled]:[--active:0]"
-              >
-                <span className="showcase-spark" aria-hidden />
-                <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
-                <Send className="w-4 h-4 relative z-10 shrink-0" />
-                <span className="relative z-10">Enviar</span>
-              </button>
+              <div className="flex-1 min-w-0">
+                <PromptSearchTextarea
+                  placeholder="Ex.: 'Criar VPC com 2 subnets públicas e 2 privadas'"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onSend={handleSend}
+                  disabled={loading}
+                />
+              </div>
             </form>
         </div>
       </div>

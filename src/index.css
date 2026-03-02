@@ -553,30 +553,33 @@ All colors MUST be HSL.
 
   /* ===== PULSO LIGHT — refinado, contraste suave, paleta harmoniosa ===== */
   .theme-pulso-light {
-    --background: 220 18% 96%;
-    --foreground: 225 30% 14%;
+    --background: 220 20% 98%;
+    --foreground: 225 35% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 225 30% 14%;
+    --card-foreground: 225 35% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 225 30% 14%;
+    --popover-foreground: 225 35% 12%;
     --primary: 189 72% 38%;
     --primary-foreground: 0 0% 100%;
     --primary-deep: 189 72% 28%;
     --primary-light: 189 55% 55%;
     --secondary: 268 45% 42%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 220 14% 92%;
-    --muted-foreground: 225 18% 38%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 225 20% 35%;
     --accent: 189 65% 42%;
     --accent-foreground: 0 0% 100%;
     --success: 158 52% 36%;
+    --success-foreground: 0 0% 100%;
     --warning: 38 88% 50%;
+    --warning-foreground: 225 35% 12%;
     --destructive: 0 65% 48%;
+    --destructive-foreground: 0 0% 100%;
     --info: 199 70% 44%;
     --finops: 158 52% 36%;
     --data-ai: 268 50% 50%;
-    --border: 220 16% 90%;
-    --input: 220 14% 94%;
+    --border: 220 14% 88%;
+    --input: 220 12% 96%;
     --ring: 189 72% 38%;
     --chat-user: 189 68% 40%;
     --chat-system: 268 45% 45%;
@@ -586,9 +589,9 @@ All colors MUST be HSL.
     --glow-finops: 158 52% 40%;
     --radius: 0.625rem;
     /* Glass light — sombras mais suaves */
-    --glass-bg: hsl(0 0% 100% / 0.7);
-    --glass-shadow-dark: rgba(0, 0, 0, 0.06);
-    --glass-shadow-light: rgba(79, 159, 243, 0.08);
+    --glass-bg: hsl(0 0% 100% / 0.85);
+    --glass-shadow-dark: rgba(0, 0, 0, 0.04);
+    --glass-shadow-light: rgba(79, 159, 243, 0.06);
   }
 
   .theme-pulso-medium {
@@ -1174,4 +1177,73 @@ All colors MUST be HSL.
 *::-webkit-scrollbar-corner {
   background: hsl(var(--muted) / 0.3);
   border-radius: 4px;
+}
+
+/* Overlay do diálogo Minha Conta: desfoque fluido ao abrir */
+.pulso-dialog-overlay-blur {
+  background: hsl(var(--background) / 0.35);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition:
+    backdrop-filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    -webkit-backdrop-filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.4s ease;
+}
+.pulso-dialog-overlay-blur[data-state="open"] {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: hsl(var(--background) / 0.45);
+}
+
+/* Select/dropdown: sempre borda sólida e fundo sólido (sem borda em gradiente) */
+.pulso-select-trigger {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.pulso-select-trigger:hover {
+  background-color: hsl(var(--muted) / 0.6) !important;
+  border-color: hsl(var(--border)) !important;
+}
+.pulso-select-trigger:focus {
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3) !important;
+}
+
+/* Elemento 13 (Card Menu) + efeito glass — dropdown de perfil */
+.pulso-dropdown-menu-glass {
+  min-width: 200px;
+  padding: 12px 0 !important;
+  border-radius: 10px;
+  border: 1px solid hsl(var(--border) / 0.5) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    inset 12px -12px 24px var(--glass-shadow-dark),
+    inset -12px 12px 24px var(--glass-shadow-light),
+    0 10px 40px rgba(0, 0, 0, 0.25);
+}
+.pulso-dropdown-menu-glass [role="menuitem"] {
+  margin: 0 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.pulso-dropdown-menu-glass [role="menuitem"]:hover,
+.pulso-dropdown-menu-glass [role="menuitem"][data-highlighted] {
+  background-color: hsl(var(--primary) / 0.2) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  transform: translate(1px, -1px);
+}
+.pulso-dropdown-menu-glass [role="menuitem"]:hover {
+  outline: none;
+}
+.pulso-dropdown-menu-glass [data-radix-dropdown-menu-label] {
+  padding: 8px 14px 6px;
+  margin: 0 6px 4px;
+}
+.pulso-dropdown-menu-glass [data-radix-dropdown-menu-separator] {
+  margin: 6px 10px;
+  height: 1px;
+  background: hsl(var(--border) / 0.6);
 }

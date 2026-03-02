@@ -21,13 +21,7 @@ const LAYOUT_KEY = "pulso_layout_mode";
 const THEME_KEY = "pulso_theme_mode";
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
-  const [layoutMode, setLayoutModeState] = useState<LayoutMode>(() => {
-    if (typeof window !== "undefined") {
-      const s = localStorage.getItem(LAYOUT_KEY);
-      return s === "A" || s === "B" ? s : "A";
-    }
-    return "A";
-  });
+  const [layoutMode, setLayoutModeState] = useState<LayoutMode>("A");
 
   const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
     if (typeof window !== "undefined") {

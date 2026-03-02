@@ -165,10 +165,12 @@ const SubscriptionManagement = () => {
           <div className="flex items-center gap-4 animate-fade-in">
             <Button
               variant="pulso"
-              size="icon"
+              size="sm"
               onClick={() => navigate("/dashboard")}
+              className="gap-2"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 shrink-0" />
+              <span>Voltar</span>
             </Button>
             <div className="flex-1">
               <h1 className="text-3xl font-bold" style={{ 

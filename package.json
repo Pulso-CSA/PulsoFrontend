@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:icon": "node scripts/build-icon.cjs",
-    "build:electron": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win dir && node scripts/embed-exe-icon.cjs"
+    "build:electron": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win && node scripts/embed-exe-icon.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -104,13 +104,15 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "seu-usuario",
+      "owner": "Pulso-CSA",
       "repo": "PulsoFrontend",
       "releaseType": "release",
       "vPrefixedTagName": true
     },
     "win": {
-      "target": "dir",
+      "target": [
+        "nsis"
+      ],
       "icon": "build/icon.ico",
       "signAndEditExecutable": false
     },
