@@ -126,7 +126,9 @@ export function UpdateAvailableScreen() {
             <h2 className="text-xl font-semibold text-destructive">
               Erro na atualização
             </h2>
-            <p className="text-muted-foreground">{errorMsg ?? "Erro desconhecido"}</p>
+            <p className="text-muted-foreground text-sm break-words max-h-24 overflow-y-auto">
+              {errorMsg && errorMsg.length > 400 ? `${errorMsg.slice(0, 400).trim()}...` : (errorMsg ?? "Erro desconhecido")}
+            </p>
             <div className="flex gap-2">
               <Button variant="pulso" onClick={handleDownload}>Tentar novamente</Button>
               <Button variant="pulso" onClick={handleDismiss}>

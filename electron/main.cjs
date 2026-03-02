@@ -32,7 +32,15 @@ function setupAutoUpdater() {
     });
 
     autoUpdater.on("error", (err) => {
-      mainWindow?.webContents?.send("update-error", err?.message || "Erro desconhecido");
+      let message = err?.message || "Erro desconhecido";
+      if (String(message).includes("404") || String(message).toLowerCase().includes("not found")) {
+        message =
+          "Não foi possível acessar as atualizações (repositório não encontrado ou privado). " +
+          "Se for repositório privado, configure a variável de ambiente GH_TOKEN com um Personal Access Token do GitHub (escopo repo) e reinicie o aplicativo.";
+      } else if (message.length > 280) {
+        message = message.slice(0, 260).trim() + "...";
+      }
+      mainWindow?.webContents?.send("update-error", message);
     });
 
     if (app.isPackaged) {
