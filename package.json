@@ -116,6 +116,20 @@
       "icon": "build/icon.ico",
       "signAndEditExecutable": false
     },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "public/App.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility",
+      "icon": "public/App.png"
+    },
     "toolsets": {
       "winCodeSign": "1.1.0"
     }

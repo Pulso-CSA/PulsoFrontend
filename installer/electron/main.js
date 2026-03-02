@@ -210,13 +210,13 @@ function createWindow() {
     minWidth: 600,
     minHeight: 480,
     frame: false,
+    autoHideMenuBar: true,
     backgroundColor: "#0a0a0f",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, "../public/App.png"),
   });
 
   ipcMain.on("window-minimize", () => mainWindow?.minimize());

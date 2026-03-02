@@ -17,16 +17,41 @@ import {
 import "@/styles/components-showcase.css";
 import { DownloadProgressCard } from "@/components/ui/DownloadProgressCard";
 
-const DOWNLOAD_URL =
-  import.meta.env.VITE_DOWNLOAD_URL ||
+type DownloadOS = "windows" | "linux" | "mac";
+
+const DOWNLOAD_URL_WINDOWS =
+  import.meta.env.VITE_DOWNLOAD_URL_WINDOWS ||
   "https://github.com/your-org/PulsoFrontend/releases/latest/download/Pulso-Setup.exe";
+
+const DOWNLOAD_URL_LINUX =
+  import.meta.env.VITE_DOWNLOAD_URL_LINUX ||
+  "https://github.com/your-org/PulsoFrontend/releases/latest/download/Pulso.AppImage";
+
+const DOWNLOAD_URL_MAC =
+  import.meta.env.VITE_DOWNLOAD_URL_MAC ||
+  "https://github.com/your-org/PulsoFrontend/releases/latest/download/Pulso.dmg";
+
+const DOWNLOAD_URLS: Record<DownloadOS, string> = {
+  windows: DOWNLOAD_URL_WINDOWS,
+  linux: DOWNLOAD_URL_LINUX,
+  mac: DOWNLOAD_URL_MAC,
+};
+
+const DOWNLOAD_METADATA: Record<DownloadOS, { fileName: string; fileSize: string }> =
+  {
+    windows: { fileName: "Pulso-Setup.exe", fileSize: "85 MB" },
+    linux: { fileName: "Pulso.AppImage", fileSize: "90 MB" },
+    mac: { fileName: "Pulso.dmg", fileSize: "95 MB" },
+  };
 
 export default function DownloadPage() {
   const [preparing, setPreparing] = useState(false);
+  const [currentOs, setCurrentOs] = useState<DownloadOS>("windows");
 
-  const handleDownload = () => {
+  const handleDownload = (os: DownloadOS) => {
+    setCurrentOs(os);
     setPreparing(true);
-    window.open(DOWNLOAD_URL, "_blank", "noopener,noreferrer");
+    window.open(DOWNLOAD_URLS[os], "_blank", "noopener,noreferrer");
   };
 
   const handleClose = () => setPreparing(false);
@@ -99,16 +124,44 @@ export default function DownloadPage() {
               Assistente de código e dados na sua máquina. Rápido, seguro e
               offline quando precisar.
             </p>
-            <div className="mt-10">
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-center">
               <button
                 type="button"
-                onClick={handleDownload}
+                onClick={() => handleDownload("windows")}
                 className="showcase-download-report-btn shrink-0 text-foreground"
                 aria-label="Baixar instalador do Pulso para Windows"
               >
                 <div className="showcase-docs">
                   <DocIcon />
-                  <span>Baixar Pulso</span>
+                  <span>Baixar para Windows</span>
+                </div>
+                <div className="showcase-download" aria-hidden>
+                  <DownloadIcon />
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownload("linux")}
+                className="showcase-download-report-btn shrink-0 text-foreground"
+                aria-label="Baixar instalador do Pulso para Linux"
+              >
+                <div className="showcase-docs">
+                  <DocIcon />
+                  <span>Baixar para Linux</span>
+                </div>
+                <div className="showcase-download" aria-hidden>
+                  <DownloadIcon />
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownload("mac")}
+                className="showcase-download-report-btn shrink-0 text-foreground"
+                aria-label="Baixar instalador do Pulso para macOS"
+              >
+                <div className="showcase-docs">
+                  <DocIcon />
+                  <span>Baixar para macOS</span>
                 </div>
                 <div className="showcase-download" aria-hidden>
                   <DownloadIcon />
@@ -116,8 +169,8 @@ export default function DownloadPage() {
               </button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground">
-              Download via HTTPS. Windows 10/11. Verifique a origem antes de
-              instalar.
+              Download via HTTPS. Windows, Linux e macOS. Verifique a origem
+              antes de instalar.
             </p>
           </div>
         </section>
