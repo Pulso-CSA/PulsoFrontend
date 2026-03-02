@@ -126,11 +126,17 @@ export function UpdateAvailableScreen() {
             <h2 className="text-xl font-semibold text-destructive">
               Erro na atualização
             </h2>
-            <p className="text-muted-foreground text-sm break-words max-h-24 overflow-y-auto">
-              {errorMsg && errorMsg.length > 400 ? `${errorMsg.slice(0, 400).trim()}...` : (errorMsg ?? "Erro desconhecido")}
+            <p className="text-muted-foreground text-sm">
+              {!errorMsg
+                ? "Não foi possível verificar atualizações no momento."
+                : errorMsg.includes("404") || errorMsg.toLowerCase().includes("not found")
+                  ? "Não foi possível acessar as atualizações (repositório não encontrado ou privado). Se o repositório for privado, configure a variável de ambiente GH_TOKEN com um token do GitHub com acesso ao repositório e abra o aplicativo novamente."
+                  : "Ocorreu um erro ao verificar ou baixar atualizações. Tente novamente mais tarde."}
             </p>
             <div className="flex gap-2">
-              <Button variant="pulso" onClick={handleDownload}>Tentar novamente</Button>
+              <Button variant="pulso" onClick={handleDownload}>
+                Tentar novamente
+              </Button>
               <Button variant="pulso" onClick={handleDismiss}>
                 Fechar
               </Button>
