@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Atenção: true permite qualquer host (usar só em dev)
+    allowedHosts: true,
     proxy: {
       "/health": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/auth": { target: "http://127.0.0.1:8000", changeOrigin: true },
@@ -36,6 +38,10 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  // Atenção: true permite qualquer host (usar só em ambiente controlado)
+  preview: {
+    allowedHosts: true,
   },
   build: {
     target: "es2020",

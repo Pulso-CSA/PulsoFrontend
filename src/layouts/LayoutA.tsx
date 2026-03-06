@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { Workflow, CloudCog, TrendingDown, Brain, User, LogOut, Users, Settings, Sun, Moon, Key, UserPlus, type LucideIcon } from "lucide-react";
+import { Workflow, CloudCog, TrendingDown, Brain, User, LogOut, Users, Settings, Sun, Moon, Key, UserPlus, DollarSign, type LucideIcon } from "lucide-react";
 import { SiAmazonwebservices } from "react-icons/si";
 import { TbBrandAzure } from "react-icons/tb";
 import { SiGooglecloud } from "react-icons/si";
@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 import { useToast } from "@/hooks/use-toast";
 import ProfileDialog from "@/components/dashboard/ProfileDialog";
+import { useSfapAllowed } from "@/hooks/useSfapAllowed";
 import "@/styles/pulso-layouts.css";
 
 function getInitial(name: string | undefined): string {
@@ -86,6 +87,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
   }, [avatarHover]);
   const navigate = useNavigate();
   const { user, currentProfile, setCurrentProfile, logout } = useAuth();
+  const sfapAllowed = useSfapAllowed();
   const { themeMode, toggleTheme } = useLayoutContext();
   const { toast } = useToast();
   const displayName = currentProfile?.name || user?.name || "";
@@ -260,6 +262,18 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   {themeMode === "dark" ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
                   Tema
                 </button>
+                {currentProfile && sfapAllowed && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => { setAvatarHover(false); navigate("/sfap"); }}
+                    className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
+                    title="Sistema Financeiro Administrativo Pulso"
+                  >
+                    <DollarSign className="h-4 w-4 shrink-0" />
+                    SFAP
+                  </button>
+                )}
                 <button
                   type="button"
                   role="menuitem"

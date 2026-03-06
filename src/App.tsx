@@ -26,6 +26,7 @@ const Billing = lazy(() => import("./pages/Billing"));
 const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
 const ProfileSelection = lazy(() => import("./pages/ProfileSelection"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const SFAPPage = lazy(() => import("./pages/sfap"));
 const Error = lazy(() => import("./pages/Error"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -109,6 +110,14 @@ const App = () => {
                           element={
                             <ProtectedRoute>
                               <SettingsPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/sfap"
+                          element={
+                            <ProtectedRoute requireProfile>
+                              <SFAPPage />
                             </ProtectedRoute>
                           }
                         />

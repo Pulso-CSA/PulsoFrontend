@@ -2,7 +2,7 @@
  * HeaderControls — A/B, tema, menu usuário (versão compacta para o header)
  * Mantém os elementos próximos entre si
  */
-import { LogOut, User, Users, Settings, Sun, Moon } from "lucide-react";
+import { LogOut, User, Users, Settings, Sun, Moon, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSfapAllowed } from "@/hooks/useSfapAllowed";
 import { useToast } from "@/hooks/use-toast";
 import ProfileDialog from "./ProfileDialog";
 import { useState } from "react";
@@ -23,6 +24,7 @@ export function HeaderControls() {
   const navigate = useNavigate();
   const { themeMode, toggleTheme } = useLayoutContext();
   const { currentProfile, setCurrentProfile, logout } = useAuth();
+  const sfapAllowed = useSfapAllowed();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -60,9 +62,9 @@ export function HeaderControls() {
         {/* Menu usuário */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs font-medium" aria-label="Menu do usuário">
+            <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs font-medium text-foreground" aria-label="Menu do usuário (Perfil)" title="Perfil e conta">
               <User className="h-4 w-4 shrink-0" />
-              <span className="hidden sm:inline">Perfil</span>
+              <span>Perfil</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="bottom" className="pulso-dropdown-menu-glass">
@@ -76,6 +78,12 @@ export function HeaderControls() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
               </>
+            )}
+            {sfapAllowed && (
+              <DropdownMenuItem onClick={() => navigate("/sfap")} title="Sistema Financeiro Administrativo Pulso">
+                <DollarSign className="mr-2 h-4 w-4" />
+                SFAP
+              </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={() => setProfileOpen(true)}>
               <User className="mr-2 h-4 w-4" />

@@ -706,3 +706,114 @@ export const deployApi = {
     deactivate: () => apiRequest<{ message?: string }>('/venv/deactivate', { method: 'POST' }),
   },
 };
+
+// SFAP — Sistema Financeiro Administrativo Pulso (requer X-Profile-Id)
+function sfapHeaders(): Record<string, string> {
+  const profileId = profilesApi.getCurrentId();
+  if (!profileId) return {};
+  return { 'X-Profile-Id': profileId };
+}
+
+export const sfapApi = {
+  visibility: async (): Promise<{ allowed: boolean }> => {
+    const h = sfapHeaders();
+    if (!h['X-Profile-Id']) return { allowed: false };
+    return apiRequest<{ allowed: boolean }>('/sfap/visibility', { headers: h });
+  },
+  dashboard: async (): Promise<{ receita_total_usd: number; custo_total_usd: number; saldo_usd: number }> => {
+    return apiRequest('/sfap/dashboard', { headers: sfapHeaders() });
+  },
+  planos: {
+    list: async (tipo?: string): Promise<PlanoItem[]> => {
+      const q = tipo ? `?tipo=${encodeURIComponent(tipo)}` : '';
+      return apiRequest<PlanoItem[]>(`/sfap/planos${q}`, { headers: sfapHeaders() });
+    },
+    create: async (data: PlanoCreate): Promise<PlanoItem> => {
+      return apiRequest<PlanoItem>('/sfap/planos', { method: 'POST', body: JSON.stringify(data), headers: sfapHeaders() });
+    },
+    update: async (id: string, data: Partial<PlanoCreate>): Promise<PlanoItem> => {
+      return apiRequest<PlanoItem>(`/sfap/planos/${id}`, { method: 'PATCH', body: JSON.stringify(data), headers: sfapHeaders() });
+    },
+    delete: async (id: string): Promise<void> => {
+      return apiRequest<void>(`/sfap/planos/${id}`, { method: 'DELETE', headers: sfapHeaders() });
+    },
+  },
+  movimentos: {
+    list: async (params?: { tipo?: string; categoria?: string; data_inicio?: string; data_fim?: string }): Promise<MovimentoItem[]> => {
+      const sp = new URLSearchParams();
+      if (params?.tipo) sp.set('tipo', params.tipo);
+      if (params?.categoria) sp.set('categoria', params.categoria);
+      if (params?.data_inicio) sp.set('data_inicio', params.data_inicio);
+      if (params?.data_fim) sp.set('data_fim', params.data_fim);
+      const q = sp.toString() ? `?${sp.toString()}` : '';
+      return apiRequest<MovimentoItem[]>(`/sfap/movimentos${q}`, { headers: sfapHeaders() });
+    },
+    create: async (data: MovimentoCreate): Promise<MovimentoItem> => {
+      return apiRequest<MovimentoItem>('/sfap/movimentos', { method: 'POST', body: JSON.stringify(data), headers: sfapHeaders() });
+    },
+    update: async (id: string, data: Partial<MovimentoCreate>): Promise<MovimentoItem> => {
+      return apiRequest<MovimentoItem>(`/sfap/movimentos/${id}`, { method: 'PATCH', body: JSON.stringify(data), headers: sfapHeaders() });
+    },
+    delete: async (id: string): Promise<void> => {
+      return apiRequest<void>(`/sfap/movimentos/${id}`, { method: 'DELETE', headers: sfapHeaders() });
+    },
+  },
+};
+
+export type PlanoItem = {
+  id: string;
+  tipo_plano: string;
+  preco_unit_usd: number;
+  taxa_stripe_unit_usd: number;
+  taxa_stripe_total_10k_usd: number;
+  lucro_100_usd: number;
+  lucro_1000_usd: number;
+  lucro_10000_usd: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type PlanoCreate = {
+  tipo_plano: string;
+  preco_unit_usd: number;
+  taxa_stripe_unit_usd: number;
+  taxa_stripe_total_10k_usd: number;
+  lucro_100_usd: number;
+  lucro_1000_usd: number;
+  lucro_10000_usd: number;
+};
+
+export type MovimentoItem = {
+  id: string;
+  data: string;
+  tipo: 'ganho' | 'gasto';
+  categoria: string;
+  descricao: string;
+  valor_usd: number;
+  moeda: string;
+  notas?: string;
+  recorrencia?: string;
+  recorrencia_intervalo?: number;
+  recorrencia_unidade?: string;
+  plano_tipo?: string;
+  plano_preco?: number;
+  num_usuarios?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type MovimentoCreate = {
+  data: string;
+  tipo: 'ganho' | 'gasto';
+  categoria: string;
+  descricao: string;
+  valor_usd: number;
+  moeda: string;
+  notas?: string;
+  recorrencia?: string;
+  recorrencia_intervalo?: number;
+  recorrencia_unidade?: string;
+  plano_tipo?: string;
+  plano_preco?: number;
+  num_usuarios?: number;
+};

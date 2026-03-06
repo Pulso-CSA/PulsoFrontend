@@ -1,7 +1,7 @@
 /**
  * UserSidebar — Avatar do usuário que, ao hover, revela painel glass com tema e layout
  */
-import { LogOut, User, Users, Settings, Sun, Moon } from "lucide-react";
+import { LogOut, User, Users, Settings, Sun, Moon, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSfapAllowed } from "@/hooks/useSfapAllowed";
 import { useToast } from "@/hooks/use-toast";
 import ProfileDialog from "@/components/dashboard/ProfileDialog";
 import { useState } from "react";
@@ -38,6 +39,7 @@ export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
   const navigate = useNavigate();
   const { themeMode, toggleTheme } = useLayoutContext();
   const { user, currentProfile, setCurrentProfile, logout } = useAuth();
+  const sfapAllowed = useSfapAllowed();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -97,6 +99,12 @@ export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                   </>
+                )}
+                {sfapAllowed && (
+                  <DropdownMenuItem onClick={() => navigate("/sfap")} title="Sistema Financeiro Administrativo Pulso">
+                    <DollarSign className="mr-2 h-4 w-4" />
+                    SFAP
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={() => setProfileOpen(true)}>
                   <User className="mr-2 h-4 w-4" />

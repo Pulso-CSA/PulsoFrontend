@@ -4,6 +4,7 @@ import { Elemento10DeleteButton } from "@/components/ui/Elemento10DeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { comprehensionApi } from "@/lib/api";
@@ -166,6 +167,10 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const [newVarName, setNewVarName] = useState("");
   const [newVarValue, setNewVarValue] = useState("");
   const [folderPath, setFolderPath] = useState("");
+  const [usePython, setUsePython] = useState(false);
+  const [useJavaScript, setUseJavaScript] = useState(false);
+  const [useTypeScript, setUseTypeScript] = useState(false);
+  const [useReact, setUseReact] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState<"analisando" | "escrevendo">("analisando");
@@ -200,10 +205,14 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   useEffect(() => {
     if (!currentSessionId) {
       setMessages([]);
-      setFileStructure(null);
-      setFolderPath("");
-      setEnvVars([]);
-      return;
+    setFileStructure(null);
+    setFolderPath("");
+    setEnvVars([]);
+    setUsePython(false);
+    setUseJavaScript(false);
+    setUseTypeScript(false);
+    setUseReact(false);
+    return;
     }
     const s = sessions.find((x) => x.id === currentSessionId);
     if (!s) return;
@@ -214,10 +223,22 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           .map((m) => msgFromStorage(m as { id: string; role: "user" | "system"; content: string; timestamp: string }))
       : [];
     setMessages(msgs);
-    const ctx = s.context as { folderPath?: string; envVars?: EnvVariable[]; fileStructure?: FileNode[] } | undefined;
+    const ctx = s.context as { 
+      folderPath?: string; 
+      envVars?: EnvVariable[]; 
+      fileStructure?: FileNode[];
+      usePython?: boolean;
+      useJavaScript?: boolean;
+      useTypeScript?: boolean;
+      useReact?: boolean;
+    } | undefined;
     setFolderPath(ctx?.folderPath ?? "");
     setEnvVars(ctx?.envVars ?? []);
     setFileStructure(ctx?.fileStructure ?? null);
+    setUsePython(ctx?.usePython ?? false);
+    setUseJavaScript(ctx?.useJavaScript ?? false);
+    setUseTypeScript(ctx?.useTypeScript ?? false);
+    setUseReact(ctx?.useReact ?? false);
   }, [currentSessionId, sessions]);
 
   // Persistir sessões
@@ -261,7 +282,15 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           ? {
               ...s,
               messages: msgs.map(msgToStorage),
-              context: { folderPath, envVars, fileStructure: fStruct },
+              context: { 
+                folderPath, 
+                envVars, 
+                fileStructure: fStruct,
+                usePython,
+                useJavaScript,
+                useTypeScript,
+                useReact,
+              },
               updatedAt: new Date().toISOString(),
               title: s.title || msgs.find((m) => m.role === "user")?.content?.slice(0, 50) || "Novo chat",
             }
@@ -288,13 +317,17 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
       setCurrentSessionId(id);
     }
     setCurrentSessionId(null);
-    setMessages([]);
-    setInput("");
-    setFileStructure(null);
-    setFolderPath("");
-    setEnvVars([]);
-    setHistory([]);
-    onClear?.();
+      setMessages([]);
+      setInput("");
+      setFileStructure(null);
+      setFolderPath("");
+      setEnvVars([]);
+      setUsePython(false);
+      setUseJavaScript(false);
+      setUseTypeScript(false);
+      setUseReact(false);
+      setHistory([]);
+      onClear?.();
   };
 
   const handleSelectSession = (session: { id: string }) => {
@@ -309,6 +342,10 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
       setFileStructure(null);
       setFolderPath("");
       setEnvVars([]);
+      setUsePython(false);
+      setUseJavaScript(false);
+      setUseTypeScript(false);
+      setUseReact(false);
     }
   };
 
@@ -352,7 +389,15 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           messages: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          context: { folderPath, envVars, fileStructure },
+          context: { 
+            folderPath, 
+            envVars, 
+            fileStructure,
+            usePython,
+            useJavaScript,
+            useTypeScript,
+            useReact,
+          },
         },
       ]);
     }
@@ -707,6 +752,85 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                     <Plus className="h-4 w-4 shrink-0" />
                     <span>Adicionar</span>
                   </Button>
+                </div>
+              </div>
+              
+              {/* Seção de Linguagens */}
+              <div className="space-y-3 pt-2 border-t border-primary/10">
+                <Label className="text-sm font-medium">Linguagens e Frameworks</Label>
+                
+                {/* Python */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="use-python"
+                    checked={usePython}
+                    onCheckedChange={(checked) => setUsePython(checked === true)}
+                    className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <Label
+                    htmlFor="use-python"
+                    className="text-sm font-normal cursor-pointer text-foreground"
+                  >
+                    Python
+                  </Label>
+                </div>
+
+                {/* JavaScript */}
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="use-javascript"
+                      checked={useJavaScript}
+                      onCheckedChange={(checked) => {
+                        setUseJavaScript(checked === true);
+                        if (!checked) {
+                          setUseTypeScript(false);
+                          setUseReact(false);
+                        }
+                      }}
+                      className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    />
+                    <Label
+                      htmlFor="use-javascript"
+                      className="text-sm font-normal cursor-pointer text-foreground"
+                    >
+                      JavaScript
+                    </Label>
+                  </div>
+                  
+                  {/* Sub-opções de JavaScript */}
+                  {useJavaScript && (
+                    <div className="pl-6 space-y-2 border-l-2 border-primary/20">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="use-typescript"
+                          checked={useTypeScript}
+                          onCheckedChange={(checked) => setUseTypeScript(checked === true)}
+                          className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                        <Label
+                          htmlFor="use-typescript"
+                          className="text-sm font-normal cursor-pointer text-muted-foreground"
+                        >
+                          TypeScript
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="use-react"
+                          checked={useReact}
+                          onCheckedChange={(checked) => setUseReact(checked === true)}
+                          className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                        <Label
+                          htmlFor="use-react"
+                          className="text-sm font-normal cursor-pointer text-muted-foreground"
+                        >
+                          React
+                        </Label>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -24,11 +24,13 @@ const ThemeSelector = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
-          className="h-9 w-9 rounded-lg hover:bg-muted/80 transition-colors"
-          aria-label="Selecionar tema"
+          size="sm"
+          className="h-9 gap-1.5 px-2 rounded-lg hover:bg-muted/80 transition-colors text-foreground"
+          aria-label="Selecionar tema (claro ou escuro)"
+          title="Alterar tema"
         >
-          <Palette className="h-5 w-5 text-foreground" />
+          <Palette className="h-5 w-5 shrink-0" />
+          <span className="hidden sm:inline text-xs font-medium">Tema</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44 p-1.5 rounded-lg border border-border shadow-lg bg-popover">

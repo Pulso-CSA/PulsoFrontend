@@ -594,8 +594,8 @@ const DataChat = () => {
             <div>
               <Label htmlFor="db-type" className="text-xs">Tipo de Base</Label>
               <Select value={connectionData.type} onValueChange={(value) => setConnectionData({ ...connectionData, type: value })}>
-                <SelectTrigger id="db-type">
-                  <SelectValue />
+                <SelectTrigger id="db-type" aria-label="Tipo de base de dados">
+                  <SelectValue placeholder="Tipo de base" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="sql">SQL</SelectItem>

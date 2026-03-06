@@ -71,10 +71,10 @@ const CloudChat = () => {
   }, []);
 
   useEffect(() => {
-    const openCredentials = () => setExpandedProvider("aws");
+    const openCredentials = () => setExpandedProvider(activeProvider);
     window.addEventListener("pulso-open-cloud-credentials", openCredentials);
     return () => window.removeEventListener("pulso-open-cloud-credentials", openCredentials);
-  }, []);
+  }, [activeProvider]);
 
   useEffect(() => {
     const s = getCloudChatSessions();
@@ -509,56 +509,29 @@ const CloudChat = () => {
         </h2>
       </div>
 
-      {/* Provedores + Credenciais — painel vertical (estilo do dropdown da navbar) */}
-      <div className="p-3 shrink-0 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm max-w-[280px]">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-2">Provedores</p>
-        <div className="flex flex-col gap-0.5">
-          {(["aws", "azure", "gcp"] as const).map((provider) => {
-            const info = providerInfo[provider];
-            const isActive = activeProvider === provider;
-            const icon = provider === "aws" ? <SiAmazonwebservices className="h-5 w-5 shrink-0" /> : provider === "azure" ? <TbBrandAzure className="h-5 w-5 shrink-0" /> : <SiGooglecloud className="h-5 w-5 shrink-0" />;
-            const label = provider === "aws" ? "AWS" : provider === "azure" ? "Azure" : "GCP";
-            const configured = hasCredentials(provider);
-            return (
-              <div key={provider} className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveProvider(provider)}
-                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    isActive ? `bg-gradient-to-r ${info.gradient} text-white shadow-md` : "text-foreground hover:bg-primary/15 hover:text-primary"
-                  }`}
-                  style={isActive ? { boxShadow: `0 0 10px ${info.glow}` } : undefined}
-                >
-                  <span className={isActive ? "text-white" : providerColors[provider].text}>{icon}</span>
-                  <span className="flex-1 text-left">{label}</span>
-                  {configured && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-green-500"}`} />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setExpandedProvider(expandedProvider === provider ? null : provider)}
-                  className={`p-1.5 rounded-lg transition-colors ${expandedProvider === provider ? info.bg + " text-white" : "hover:bg-accent text-muted-foreground"}`}
-                  title="Credenciais"
-                >
-                  <Key className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            );
-          })}
+      {/* Provedores + Credenciais — painel vertical ao lado do chat */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div className="p-3 shrink-0 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm max-w-[280px] flex flex-col gap-2">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">Provedores</p>
+          <div className="flex flex-col gap-0.5">
+            {renderProviderButton("aws", <SiAmazonwebservices className="h-5 w-5 shrink-0" />, "AWS")}
+            {renderProviderButton("azure", <TbBrandAzure className="h-5 w-5 shrink-0" />, "Azure")}
+            {renderProviderButton("gcp", <SiGooglecloud className="h-5 w-5 shrink-0" />, "GCP")}
+          </div>
+          <button
+            type="button"
+            onClick={() => setExpandedProvider(expandedProvider === activeProvider ? null : activeProvider)}
+            className="w-full flex items-center gap-2 px-3 py-2 mt-1 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors border-t border-border/50"
+          >
+            <Key className="h-4 w-4 shrink-0" />
+            Credenciais
+          </button>
+          <div className="mt-1 flex flex-col gap-2">
+            {renderCredentialsPanel("aws")}
+            {renderCredentialsPanel("azure")}
+            {renderCredentialsPanel("gcp")}
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent("pulso-open-cloud-credentials"))}
-          className="w-full flex items-center gap-2 px-3 py-2 mt-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors border-t border-border/50"
-        >
-          <Key className="h-4 w-4 shrink-0" />
-          Credenciais
-        </button>
-        <div className="mt-2">
-          {renderCredentialsPanel("aws")}
-          {renderCredentialsPanel("azure")}
-          {renderCredentialsPanel("gcp")}
-        </div>
-      </div>
 
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Chat Area */}
@@ -641,6 +614,7 @@ const CloudChat = () => {
               </div>
             </form>
         </div>
+      </div>
       </div>
       </div>
     </div>

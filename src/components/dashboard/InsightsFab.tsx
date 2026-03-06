@@ -67,6 +67,7 @@ export function InsightsFab({
             className
           )}
           aria-label="Opções do dashboard de Insights"
+          title="Opções do dashboard de Insights (gráficos, zoom)"
         >
           <LayoutGrid className="h-6 w-6" strokeWidth={2} />
         </button>
