@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileManagement from "./ProfileManagement";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi } from "@/lib/api";
 
@@ -27,6 +28,7 @@ interface ProfileDialogProps {
 const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -131,6 +133,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
       await authApi.updateMe(payload);
       await refreshUser();
+      queryClient.invalidateQueries({ queryKey: ["sfap-visibility"] });
 
       toast({
         title: "Conta atualizada",

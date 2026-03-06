@@ -44,6 +44,9 @@ export function ProjectStructureDropdown({ structure, className }: ProjectStruct
         type="button"
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border bg-card hover:bg-muted/50 transition-colors text-foreground shrink-0 max-w-full"
+        aria-label="Ver estrutura do projeto"
+        aria-expanded={open}
+        title="Estrutura do projeto (pastas e arquivos)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 14" className="h-4 w-4 flex-shrink-0">
           <path fill="#FFA000" d="M16.2 1.75H8.1L6.3 0H1.8C0.81 0 0 0.7875 0 1.75V12.25C0 13.2125 0.81 14 1.8 14H15.165L18 9.1875V3.5C18 2.5375 17.19 1.75 16.2 1.75Z" />

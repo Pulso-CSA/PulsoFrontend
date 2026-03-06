@@ -1835,6 +1835,8 @@
   position: relative;
   z-index: 1;
   color: #fff !important;
+  fill: #fff !important;
+  stroke: #fff !important;
 }
 .btn-padrao-gradient span {
   color: #fff !important;
@@ -1945,6 +1947,17 @@
 .showcase-send-icon svg,
 .showcase-search-poda--prompt .showcase-filter-icon svg {
   color: inherit !important;
+}
+
+/* Botões/dropdowns com .showcase-filter-icon: garantir contraste texto/ícone (WCAG) */
+button.showcase-filter-icon,
+[role="button"].showcase-filter-icon {
+  color: #fff !important;
+}
+button.showcase-filter-icon svg,
+[role="button"].showcase-filter-icon svg {
+  color: #fff !important;
+  stroke: #fff;
 }
 
 /* Elemento 10 Delete — From Uiverse.io by Spacious74 (gradiente azul→rosa) */

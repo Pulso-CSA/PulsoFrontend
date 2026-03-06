@@ -1,4 +1,4 @@
-import { LogOut, User, UserCircle, RefreshCw, Users, Keyboard, Settings } from "lucide-react";
+import { LogOut, User, UserCircle, RefreshCw, Users, Keyboard, Settings, DollarSign } from "lucide-react";
 import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import ProfileDialog from "./ProfileDialog";
 import LayerSelection from "./LayerSelection";
 import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSfapAllowed } from "@/hooks/useSfapAllowed";
 
 interface DashboardHeaderProps {
   /** Oculta logo quando true (ex: Electron já exibe no title bar) */
@@ -47,6 +48,7 @@ const DashboardHeader = ({ hideLogo, activeLayers, setActiveLayers, showLayerSel
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
   const { currentProfile, setCurrentProfile, logout } = useAuth();
+  const sfapAllowed = useSfapAllowed();
 
   const handleLogout = async () => {
     await logout();
@@ -116,11 +118,13 @@ const DashboardHeader = ({ hideLogo, activeLayers, setActiveLayers, showLayerSel
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  aria-label="Menu do usuário"
-                  className="h-8 w-8 rounded-lg hover:bg-muted/80"
+                  size="sm"
+                  aria-label="Menu do usuário (Perfil)"
+                  title="Perfil e conta"
+                  className="h-8 gap-1.5 px-2 rounded-lg hover:bg-muted/80 text-foreground"
                 >
-                  <User className="h-4 w-4" />
+                  <User className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-xs font-medium">Perfil</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="pulso-dropdown-menu-glass">
@@ -134,6 +138,12 @@ const DashboardHeader = ({ hideLogo, activeLayers, setActiveLayers, showLayerSel
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                   </>
+                )}
+                {sfapAllowed && (
+                  <DropdownMenuItem onClick={() => navigate("/sfap")} title="Sistema Financeiro Administrativo Pulso">
+                    <DollarSign className="mr-2 h-4 w-4" />
+                    SFAP
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={() => setProfileOpen(true)}>
                   <UserCircle className="mr-2 h-4 w-4" />

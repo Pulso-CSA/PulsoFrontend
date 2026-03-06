@@ -15,5 +15,11 @@ export default defineConfig({
   },
   server: {
     port: 5174,
+    // Atenção: true permite qualquer host (usar só em dev)
+    allowedHosts: true,
+  },
+  preview: {
+    // Atenção: true permite qualquer host (usar só em ambiente controlado)
+    allowedHosts: true,
   },
 });

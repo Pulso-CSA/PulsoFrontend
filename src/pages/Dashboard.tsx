@@ -791,7 +791,7 @@ const Dashboard = () => {
                 value={customizeForm.service}
                 onValueChange={(v) => setCustomizeForm((f) => ({ ...f, service: v as ServiceKey | "custom" }))}
               >
-                <SelectTrigger id="customize-service">
+                <SelectTrigger id="customize-service" aria-label="Serviço ao qual conectar">
                   <SelectValue placeholder="Selecione o serviço" />
                 </SelectTrigger>
                 <SelectContent>

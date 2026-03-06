@@ -47,7 +47,7 @@ const DownloadIcon = () => (
 );
 
 const DownloadReportButton = forwardRef<HTMLButtonElement, DownloadReportButtonProps>(
-  ({ className, children = "Baixar Relatório", disabled, ...props }, ref) => {
+  ({ className, children = "Baixar Relatório", disabled, "aria-label": ariaLabel, title, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -58,6 +58,8 @@ const DownloadReportButton = forwardRef<HTMLButtonElement, DownloadReportButtonP
           disabled && "opacity-50 cursor-not-allowed",
           className
         )}
+        aria-label={ariaLabel ?? "Baixar relatório"}
+        title={title ?? "Baixar relatório da conversa"}
         {...props}
       >
         <div className="showcase-docs">

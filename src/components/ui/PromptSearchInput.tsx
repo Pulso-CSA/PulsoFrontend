@@ -53,7 +53,8 @@ const PromptSearchInput = React.forwardRef<HTMLInputElement, PromptSearchInputPr
               onClick={onSend}
               disabled={disabled}
               className="showcase-filter-icon showcase-send-icon cursor-pointer border-0 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Enviar"
+              aria-label="Enviar mensagem"
+              title="Enviar mensagem"
             >
               <Send className="h-5 w-5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </button>
