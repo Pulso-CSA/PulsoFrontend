@@ -662,11 +662,21 @@ export const workflowApi = {
 
 // Comprehension API – entrada única do fluxo (análise/criação/correção)
 export const comprehensionApi = {
-  run: async (payload: {
-    usuario: string;
-    prompt: string;
-    root_path: string | null;
-  }) => {
+  run: async (
+    payload: {
+      usuario: string;
+      prompt: string;
+      root_path: string | null;
+      use_python?: boolean;
+      use_javascript?: boolean;
+      use_typescript?: boolean;
+      use_react?: boolean;
+      use_vue?: boolean;
+      use_angular?: boolean;
+    },
+    endpoint: string = 'comprehension'
+  ) => {
+    const endpointPath = endpoint === 'comprehension-js' ? '/comprehension-js/run' : '/comprehension/run';
     return apiRequest<{
       intent: string;
       project_state: string;
@@ -680,11 +690,32 @@ export const comprehensionApi = {
       frontend_suggestion: string | null;
       curl_commands?: string[];
       preview_frontend_url?: string | null;
-    }>('/comprehension/run', {
+      language?: string;
+      framework?: string;
+    }>(endpointPath, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   },
+};
+
+// Preview API – inicia servidor de desenvolvimento (npm run dev / streamlit run)
+export const previewApi = {
+  start: async (payload: { root_path: string; project_type?: "auto" | "javascript" | "python" }) =>
+    apiRequest<{
+      success: boolean;
+      preview_url?: string | null;
+      /** URL do frontend (alternativa a preview_url). Backend pode retornar um ou outro. */
+      preview_frontend_url?: string | null;
+      /** Backend retorna sempre false. Quando false: NUNCA abrir nova aba/terminal/navegador automaticamente. */
+      preview_auto_open?: boolean;
+      message?: string;
+      project_type?: string;
+      details?: unknown;
+    }>("/preview/start", {
+      method: "POST",
+      body: JSON.stringify({ ...payload, project_type: payload.project_type ?? "auto" }),
+    }),
 };
 
 // Deploy / Logs API - Docker e Venv

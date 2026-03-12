@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, type LucideIcon } from "lucide-react";
+import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, Play, Loader2, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { previewApi } from "@/lib/api";
 
 export type InsightsFilterKey = "all" | ServiceKey | "custom";
 
@@ -84,6 +85,8 @@ const Dashboard = () => {
   const [previewFrontendUrl, setPreviewFrontendUrlState] = useState<string | null>(
     () => localStorage.getItem("pulso_preview_frontend_url")
   );
+  const [rootPathForPreview, setRootPathForPreview] = useState<string | null>(null);
+  const [previewStartLoading, setPreviewStartLoading] = useState(false);
 
   const [insightsWidgets, setInsightsWidgets] = useState<InsightsWidget[]>(() => INSIGHTS_WIDGETS_INITIAL);
   const [insightsZoom, setInsightsZoom] = useState(1);
@@ -129,6 +132,63 @@ const Dashboard = () => {
     setPreviewFrontendUrlState(url);
     if (url) localStorage.setItem("pulso_preview_frontend_url", url);
     else localStorage.removeItem("pulso_preview_frontend_url");
+  };
+
+  const handleTestarPreview = async () => {
+    const rp = rootPathForPreview?.trim();
+    if (!rp) {
+      toast({
+        title: "Caminho da pasta necessário",
+        description: "Configure o caminho da pasta do projeto na seção Configuração antes de testar o preview.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setPreviewStartLoading(true);
+    try {
+      const res = await previewApi.start({ root_path: rp, project_type: "auto" });
+      if (res.success) {
+        const previewUrl = res.preview_url ?? res.preview_frontend_url ?? null;
+        if (previewUrl) {
+          setPreviewFrontendUrl(previewUrl);
+          setShowPreview(true);
+        }
+        const msg = res.message ?? "Servidor de desenvolvimento iniciado. O preview estará disponível em breve.";
+        toast({
+          title: "Preview iniciado",
+          description: (
+            <>
+              {msg}
+              {previewUrl && (
+                <>
+                  {" "}
+                  <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline font-medium hover:underline">
+                    Acessar preview
+                  </a>
+                </>
+              )}
+            </>
+          ),
+        });
+        if (res.preview_auto_open === true && previewUrl) {
+          window.open(previewUrl, "_blank", "noopener,noreferrer");
+        }
+      } else {
+        toast({
+          title: "Erro ao iniciar preview",
+          description: res.message ?? (res.details != null ? String(res.details) : "Tente novamente."),
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erro ao iniciar preview",
+        description: err instanceof Error ? err.message : "Falha ao conectar com o backend.",
+        variant: "destructive",
+      });
+    } finally {
+      setPreviewStartLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -206,6 +266,7 @@ const Dashboard = () => {
   const handleInsightsUpdateChart = () => {
     toast({ title: "Atualização", description: "Dados dos gráficos atualizados." });
   };
+
   const handleInsightsToggleReposition = () => {
     setInsightsLayoutMode((mode) => {
       const next = mode === "grid" ? "free" : "grid";
@@ -400,14 +461,29 @@ const Dashboard = () => {
                   <Monitor className="h-4 w-4 text-primary shrink-0" />
                   <span className="truncate">Preview do Frontend</span>
                 </h3>
-                <Button
-                  variant="pulso"
-                  size="sm"
-                  onClick={() => window.open(previewFrontendUrl, "_blank")}
-                  className="shrink-0"
-                >
-                  Abrir em nova aba
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="pulso"
+                    size="sm"
+                    onClick={handleTestarPreview}
+                    disabled={previewStartLoading || !rootPathForPreview?.trim()}
+                    title={!rootPathForPreview?.trim() ? "Configure o caminho da pasta na seção Configuração" : "Inicia npm run dev ou streamlit em background"}
+                  >
+                    {previewStartLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    ) : (
+                      <Play className="h-3.5 w-3.5 mr-1.5" />
+                    )}
+                    Testar Preview
+                  </Button>
+                  <Button
+                    variant="pulso"
+                    size="sm"
+                    onClick={() => window.open(previewFrontendUrl, "_blank")}
+                  >
+                    Abrir em nova aba
+                  </Button>
+                </div>
               </div>
               <div className="rounded-lg overflow-hidden border border-border bg-muted/30" style={{ height: "400px" }}>
                 <iframe
@@ -421,8 +497,14 @@ const Dashboard = () => {
           )}
           <div className="flex-1 min-h-0 overflow-hidden">
             <PromptPanel
-              onComprehensionResult={(r) => setPreviewFrontendUrl(r.preview_frontend_url ?? null)}
-              onClear={() => setPreviewFrontendUrl(null)}
+              onComprehensionResult={(r) => {
+                setPreviewFrontendUrl(r.preview_frontend_url ?? null);
+                setRootPathForPreview(r.root_path ?? null);
+              }}
+              onClear={() => {
+                setPreviewFrontendUrl(null);
+                setRootPathForPreview(null);
+              }}
               toolbarExtra={
                 <>
                   <Button
@@ -433,6 +515,21 @@ const Dashboard = () => {
                   >
                     <Terminal className="h-3.5 w-3.5" />
                     <span>Logs</span>
+                  </Button>
+                  <Button
+                    variant="pulso"
+                    size="sm"
+                    disabled={!previewFrontendUrl || !rootPathForPreview?.trim() || previewStartLoading}
+                    className="flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    onClick={handleTestarPreview}
+                    title={!rootPathForPreview?.trim() ? "Configure o caminho da pasta na seção Configuração" : "Inicia o servidor de desenvolvimento (npm run dev)"}
+                  >
+                    {previewStartLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Play className="h-3.5 w-3.5" />
+                    )}
+                    <span>Testar Preview</span>
                   </Button>
                   <Button
                     variant="pulso"
