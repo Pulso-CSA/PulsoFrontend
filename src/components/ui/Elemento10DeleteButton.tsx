@@ -1,14 +1,12 @@
 /**
- * Elemento 10 — Botão de deletar/excluir com estilo dos botões de envio de prompt
- * SVG: ícone de lixeira (trash)
- * Estilo: showcase-filter-icon (gradiente escuro, bordas arredondadas)
+ * Botão de exclusão com o estilo exato do Botão 4.
  */
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 const ELEMENTO_10_SVG = (
   <svg
-    className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+    className="showcase-delete-svg h-4 w-4 shrink-0 sm:h-5 sm:w-5"
     viewBox="0 0 448 512"
     fill="currentColor"
     aria-hidden
@@ -33,8 +31,8 @@ const Elemento10DeleteButton = forwardRef<
       type="button"
       disabled={disabled}
       className={cn(
-        "showcase-elemento-10-delete shrink-0",
-        compact && "showcase-elemento-10-delete--compact",
+        "showcase-delete-btn shrink-0",
+        compact && "showcase-delete-btn--compact",
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}

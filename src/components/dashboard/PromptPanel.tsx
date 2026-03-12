@@ -24,6 +24,7 @@ import FileTree, { type FileNode } from "./FileTree";
 import { LoaderGenerating } from "@/components/loaders";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
+import { FolderFileUpload } from "@/components/ui/FolderFileUpload";
 import { ChatSidebar } from "./ChatSidebar";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { ProjectStructureDropdown } from "./ProjectStructureDropdown";
@@ -230,7 +231,6 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const [useAngular, setUseAngular] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingPhase, setLoadingPhase] = useState<"analisando" | "escrevendo">("analisando");
   const [history, setHistory] = useState<PromptHistory[]>([]);
   const [fileStructure, setFileStructure] = useState<FileNode[] | null>(null);
   const [rawFileTree, setRawFileTree] = useState<string | null>(null);
@@ -248,20 +248,14 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const [renameValue, setRenameValue] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Alternar loading entre "analisando seu projeto" (04) e "escrevendo seu código" (05)
+  // Scroll apenas na lista de mensagens (sem afetar header/sidebar/layout)
   useEffect(() => {
-    if (!loading) return;
-    const t = setInterval(() => {
-      setLoadingPhase((p) => (p === "analisando" ? "escrevendo" : "analisando"));
-    }, 2500);
-    return () => clearInterval(t);
-  }, [loading]);
-
-  // Scroll para a última mensagem ao enviar ou ao carregar
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
   // Carregar sessão ao selecionar
@@ -467,7 +461,6 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
     setMessages(nextMessages);
     setInput("");
     setLoading(true);
-    setLoadingPhase("analisando");
 
     if (!currentSessionId) {
       const id = `csa-${Date.now()}`;
@@ -734,10 +727,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   }));
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0">
+    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
       {/* Sidebar - Histórico de conversas (elementos 08 Save, 10 Delete) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
+          serviceId="pulso-csa"
           sessions={sessionItems}
           currentSessionId={currentSessionId}
           onSelect={handleSelectSession}
@@ -750,7 +744,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
 
       {/* Área principal — formato de chat (igual CloudChat, DataChat, FinOpsChat) */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-        <div className="sticky top-0 z-10 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 shrink-0 bg-card/95 backdrop-blur-md border-b border-primary/10">
+        <div className="pulso-chat-main-header p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 shrink-0 border-b border-primary/10">
           <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
             <div className="min-w-0 flex-1">
               <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
@@ -796,13 +790,37 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
             <div className="p-4 space-y-4 border-t border-primary/10">
               <div className="space-y-2">
                 <Label htmlFor="folder-path" className="text-sm font-medium">Caminho da pasta raiz</Label>
-                <Input
-                  id="folder-path"
-                  placeholder="Ex.: C:\Users\pytho\Desktop\Study\Github Repos\PulsoAPI"
-                  value={folderPath}
-                  onChange={(e) => setFolderPath(e.target.value)}
-                  className="border-primary/30 bg-background/50 focus-visible:ring-primary"
-                />
+                <div className="relative w-full overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
+                  <div className="showcase-search-poda w-full">
+                    <div className="showcase-search-glow" aria-hidden />
+                    <div className="showcase-search-darkBorderBg" aria-hidden />
+                    <div className="showcase-search-darkBorderBg" aria-hidden />
+                    <div className="showcase-search-darkBorderBg" aria-hidden />
+                    <div className="showcase-search-white" aria-hidden />
+                    <div className="showcase-search-border" aria-hidden />
+                    <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
+                      <input
+                        id="folder-path"
+                        type="text"
+                        placeholder="Ex.: C:\Users\pytho\Desktop\Study\Github Repos\PulsoAPI"
+                        value={folderPath}
+                        onChange={(e) => setFolderPath(e.target.value)}
+                        className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
+                        aria-label="Caminho da pasta raiz"
+                      />
+                      <FolderFileUpload
+                        compact
+                        className="pulso-folder-file-upload--inline-path"
+                        onFileChange={(files) => {
+                          const f = files?.item(0);
+                          if (f) setFolderPath((f as File & { path?: string }).path ?? f.name ?? "");
+                        }}
+                      >
+                        {""}
+                      </FolderFileUpload>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -1018,7 +1036,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
 
         {/* Chat area */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
+          <div ref={messagesContainerRef} className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Workflow className="h-12 w-12 text-primary/50" />
@@ -1062,22 +1080,6 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                     )}
                     <div className={`max-w-[85%] rounded-lg p-3 text-sm ${msg.role === "user" ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground border" : "bg-chat-system text-chat-system-foreground border border-border/50"}`}>
                       <p className="whitespace-pre-wrap">{msg.content}</p>
-                      {msg.role === "system" && msg.file_tree?.trim() && (
-                        <Collapsible defaultOpen={false} className="mt-3">
-                          <CollapsibleTrigger className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline group">
-                            <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180" />
-                            Árvore do projeto
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <pre className="mt-2 p-3 rounded-md bg-background/50 border border-border/60 text-xs font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">
-                              {msg.file_tree.trim()}
-                            </pre>
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              <span className="text-emerald-600 dark:text-emerald-400 font-medium">*</span> = arquivo criado neste run
-                            </p>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      )}
                       {msg.role === "system" && msg.preview_frontend_url?.trim() && (
                         <p className="mt-2 text-xs">
                           <a
@@ -1099,14 +1101,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                     </div>
                   </div>
                 ))}
-                {loading && (
-                  <div className="flex justify-start mb-4">
-                    <div className="rounded-2xl px-4 py-3 bg-chat-system border border-white/5 text-sm text-muted-foreground flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                      <span>Aguardando resposta...</span>
-                    </div>
-                  </div>
-                )}
+                {loading && <LoaderGenerating className="mb-4" />}
               </>
             )}
             <div ref={messagesEndRef} />

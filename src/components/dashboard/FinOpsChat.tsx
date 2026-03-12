@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { Send, TrendingDown, Server, DollarSign, Lightbulb, MessageSquare, Trash2, Plus } from "lucide-react";
+import { TrendingDown, Server, DollarSign, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { finopsApi } from "@/lib/api";
-import { getFinOpsChatSessions, setFinOpsChatSessions, type ChatSession } from "@/lib/connectionStorage";
+import { getFinOpsChatSessions, setFinOpsChatSessions, getAllCloudCredentials, setCloudCredentials, type ChatSession } from "@/lib/connectionStorage";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
 import { LoaderGenerating } from "@/components/loaders";
 import { ChatSidebar } from "./ChatSidebar";
+import CloudCredentialsDialog, { type CloudCredentialsState } from "./CloudCredentialsDialog";
 
 interface Message {
   id: string;
@@ -36,6 +36,9 @@ const FinOpsChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeProvider, setActiveProvider] = useState<"aws" | "azure" | "gcp">("aws");
+  const [credentialsOpen, setCredentialsOpen] = useState(false);
+  const [credentials, setCredentials] = useState<CloudCredentialsState>(getAllCloudCredentials);
 
   useEffect(() => {
     const s = getFinOpsChatSessions();
@@ -45,6 +48,29 @@ const FinOpsChat = () => {
       setCurrentSessionId(last.id);
       setMessages(restoreMessages(last.messages as (Omit<Message, "timestamp"> & { timestamp: string })[]));
     }
+  }, []);
+
+  useEffect(() => {
+    setCredentials(getAllCloudCredentials());
+  }, []);
+
+  useEffect(() => {
+    const openCredentials = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: "cloud" | "finops" }>).detail;
+      if (detail?.target !== "finops") return;
+      setCredentialsOpen(true);
+    };
+    const selectProvider = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: "cloud" | "finops"; provider?: "aws" | "azure" | "gcp" }>).detail;
+      if (detail?.target !== "finops" || !detail.provider) return;
+      setActiveProvider(detail.provider);
+    };
+    window.addEventListener("pulso-open-cloud-credentials", openCredentials as EventListener);
+    window.addEventListener("pulso-select-cloud-provider", selectProvider as EventListener);
+    return () => {
+      window.removeEventListener("pulso-open-cloud-credentials", openCredentials as EventListener);
+      window.removeEventListener("pulso-select-cloud-provider", selectProvider as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -76,6 +102,45 @@ const FinOpsChat = () => {
     trend: "↓ 8% vs mês anterior",
   };
 
+  const buildProviderCredentialsPayload = () => {
+    if (activeProvider === "aws") {
+      const c = credentials.aws;
+      if (!c.accessKeyId || !c.secretAccessKey || !c.region) return {};
+      return {
+        aws_credentials: {
+          access_key_id: c.accessKeyId,
+          secret_access_key: c.secretAccessKey,
+          region: c.region,
+        },
+      };
+    }
+    if (activeProvider === "azure") {
+      const c = credentials.azure;
+      if (!c.tenantId || !c.clientId || !c.clientSecret || !c.subscriptionId) return {};
+      return {
+        azure_credentials: {
+          tenant_id: c.tenantId,
+          client_id: c.clientId,
+          client_secret: c.clientSecret,
+          subscription_id: c.subscriptionId,
+        },
+      };
+    }
+    const c = credentials.gcp;
+    if (!c.projectId || !c.clientEmail || !c.privateKey) return {};
+    return {
+      gcp_credentials: {
+        project_id: c.projectId,
+        service_account_json: {
+          type: "service_account",
+          project_id: c.projectId,
+          client_email: c.clientEmail,
+          private_key: c.privateKey,
+        },
+      },
+    };
+  };
+
   const handleSend = async (overridePrompt?: string) => {
     const promptText = (overridePrompt ?? input).trim();
     if (!promptText) return;
@@ -102,6 +167,7 @@ const FinOpsChat = () => {
         mensagem: promptText,
         id_requisicao: idRequisicao,
         usuario: user?.id,
+        ...buildProviderCredentialsPayload(),
       });
 
       const content = res?.resposta_texto ?? "Resposta recebida sem conteúdo.";
@@ -168,11 +234,21 @@ const FinOpsChat = () => {
 
   const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
 
+  const handleSaveCredentials = (provider: "aws" | "azure" | "gcp") => {
+    setCloudCredentials(provider, credentials[provider]);
+    setCredentialsOpen(false);
+    toast({
+      title: "Credenciais salvas",
+      description: `Credenciais ${provider.toUpperCase()} atualizadas com sucesso`,
+    });
+  };
+
   return (
-    <div className="pulso-chat-layout h-full min-h-0">
+    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
       {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
+          serviceId="finops"
           sessions={sessionItems}
           currentSessionId={currentSessionId}
           onSelect={handleOpenChat}
@@ -184,7 +260,7 @@ const FinOpsChat = () => {
 
       {/* Área principal */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
+      <div className="pulso-chat-main-header p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
             <DollarSign className="h-4 w-4 shrink-0 text-primary" />
@@ -229,7 +305,7 @@ const FinOpsChat = () => {
 
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Chat Area */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
+        <div className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Server className="h-12 w-12 text-primary/50" />
@@ -339,6 +415,16 @@ const FinOpsChat = () => {
         </div>
       </div>
       </div>
+      <CloudCredentialsDialog
+        open={credentialsOpen}
+        onOpenChange={setCredentialsOpen}
+        provider={activeProvider}
+        credentials={credentials}
+        onCredentialsChange={setCredentials}
+        onSave={handleSaveCredentials}
+        title="Credenciais FinOps"
+        description="Preencha as credenciais do provedor selecionado para usar no FinOps."
+      />
     </div>
   );
 };

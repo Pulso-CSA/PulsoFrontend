@@ -57,7 +57,7 @@
   height: 56px;
   border-radius: 10px;
   color: hsl(var(--foreground));
-  padding-inline: 44px 52px;
+  padding-inline: 14px 52px;
   font-size: 14px;
 }
 
@@ -263,15 +263,6 @@
   transition: all 2s;
 }
 
-.cosmic-search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: hsl(var(--primary));
-}
-
 /* Ícone wormhole à direita com borda em gradiente rotativa */
 .cosmic-wormhole-border {
   height: calc(100% - 6px);
@@ -332,12 +323,8 @@
 /* Variante compacta para sidebar */
 .cosmic-search-container.cosmic-search--compact .cosmic-input {
   height: 38px;
-  padding-inline: 38px 12px;
+  padding-inline: 12px 44px;
   font-size: 13px;
-}
-
-.cosmic-search-container.cosmic-search--compact .cosmic-search-icon {
-  left: 10px;
 }
 
 /* Variante Pulso: sem borda em gradiente — glass + borda sólida (igual ao restante do app) */

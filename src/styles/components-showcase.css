@@ -711,6 +711,64 @@
   --duration: 1s;
 }
 
+/* Novo chat (Uiverse OnCloud125252 adaptado para paleta Pulso) */
+.pulso-new-chat-btn {
+  --plus-side-length: 2.25rem;
+  --plus-corner-size: 0.82rem;
+  --plus-border: rgba(120, 196, 255, 0.55);
+  --plus-bg: linear-gradient(180deg, #1c1736 0%, #16122f 55%, #141029 100%);
+  --plus-corner: #6ac8ff;
+  --plus-icon: #eaf4ff;
+  --plus-icon-hover: #0d1328;
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--plus-side-length);
+  height: var(--plus-side-length);
+  border: 1px solid var(--plus-border);
+  border-radius: 0.5rem;
+  background: var(--plus-bg);
+  box-shadow: 0 0 0 1px rgba(79, 159, 243, 0.18), 0 6px 16px rgba(7, 10, 30, 0.35);
+  overflow: hidden;
+}
+
+.pulso-new-chat-btn::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-width: 0 var(--plus-corner-size) var(--plus-corner-size) 0;
+  border-style: solid;
+  border-color: transparent var(--plus-corner) transparent transparent;
+  transition: border-width 0.2s ease-in-out;
+}
+
+.pulso-new-chat-btn:hover {
+  cursor: pointer;
+}
+
+.pulso-new-chat-btn:hover::before,
+.pulso-new-chat-btn:focus-visible::before {
+  border-width: 0 calc(var(--plus-side-length) * 2) calc(var(--plus-side-length) * 2) 0;
+}
+
+.pulso-new-chat-btn__icon {
+  color: var(--plus-icon);
+  width: calc(var(--plus-side-length) * 0.58);
+  height: calc(var(--plus-side-length) * 0.58);
+  z-index: 1;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.pulso-new-chat-btn:hover > .pulso-new-chat-btn__icon,
+.pulso-new-chat-btn:focus-visible > .pulso-new-chat-btn__icon {
+  color: var(--plus-icon-hover);
+  transform: rotate(180deg);
+}
+
 /* ========== DOCUMENTS BUTTON ========== */
 .showcase-docs-btn {
   display: flex;
@@ -761,7 +819,21 @@
 .showcase-docs-btn:active { transform: scale(0.95); }
 .showcase-docs-btn:hover .showcase-file-front { transform: rotateX(30deg); }
 
-/* Baixar Relatório — From Uiverse.io by Spacious74 (gradiente azul→rosa) */
+/* Botão principal "Documentos" com paleta da plataforma */
+.pulso-docs-trigger-btn {
+  background: linear-gradient(135deg, #2f2754 0%, #3b2f72 45%, #345d9f 100%);
+  border: 1px solid rgba(132, 178, 255, 0.26);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+.pulso-docs-trigger-btn p {
+  color: #e6f0ff;
+}
+.pulso-docs-trigger-btn:hover {
+  background: linear-gradient(135deg, #3b2f72 0%, #4a3d86 45%, #3f76c6 100%) !important;
+  border-color: rgba(146, 196, 255, 0.4);
+}
+
+/* Baixar Relatório — mantém animação original com paleta dos botões de sugestão */
 .showcase-download-report-btn {
   position: relative;
   border-width: 0;
@@ -769,7 +841,7 @@
   font-size: 1.1em;
   font-weight: 600;
   padding: 3px;
-  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
   border-radius: 0.9em;
   z-index: 1;
   overflow: hidden;
@@ -817,7 +889,7 @@
   z-index: -1;
   border-radius: 0.5em;
   transform: translateY(100%);
-  background: linear-gradient(90deg, #03a9f4, #f441a5);
+  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
   border: none;
   color: #fff;
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
@@ -1059,82 +1131,126 @@
   color: #fff !important;
 }
 
-/* Botão escolher arquivo — From Uiverse.io by 3bdel3ziz-T, cores da plataforma */
+/* Botão escolher arquivo — From Uiverse.io by 3bdel3ziz-T */
 .pulso-folder-file-upload {
   --transition: 350ms;
-  --folder-w: 36px;
-  --folder-h: 28px;
-  display: inline-flex;
+  --folder-w: 120px;
+  --folder-h: 80px;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 6px 10px;
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.6));
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  min-height: 56px;
+  padding: 10px;
+  background: linear-gradient(135deg, #6dd5ed, #2193b0);
+  border-radius: 15px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  height: calc(var(--folder-h) * 1.7);
   position: relative;
-  cursor: pointer;
-  transition: background var(--transition), box-shadow var(--transition);
-}
-.pulso-folder-file-upload:hover {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.75));
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
 }
 .pulso-folder-file-upload-folder {
   position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -20px;
+  left: calc(50% - 60px);
   animation: pulso-folder-float 2.5s infinite ease-in-out;
   transition: transform var(--transition) ease;
 }
+
 .pulso-folder-file-upload:hover .pulso-folder-file-upload-folder {
-  transform: translateX(-50%) scale(1.08);
+  transform: scale(1.05);
 }
-.pulso-folder-file-upload-tip {
-  background: linear-gradient(135deg, hsl(var(--primary-foreground) / 0.25), hsl(var(--primary-foreground) / 0.15));
-  width: 24px;
-  height: 8px;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+.pulso-folder-file-upload-front-side,
+.pulso-folder-file-upload-back-side {
   position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
+  transition: transform var(--transition);
+  transform-origin: bottom center;
 }
-.pulso-folder-file-upload-cover {
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary) / 0.55));
+
+.pulso-folder-file-upload-back-side::before,
+.pulso-folder-file-upload-back-side::after {
+  content: "";
+  display: block;
+  background-color: white;
+  opacity: 0.5;
   width: var(--folder-w);
   height: var(--folder-h);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
-}
-@keyframes pulso-folder-float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-6px); }
-}
-.pulso-folder-file-upload:hover .pulso-folder-file-upload-folder {
-  transform: translateX(-50%) scale(1.08);
-}
-.pulso-folder-file-upload-label {
-  font-size: 0.75rem;
-  color: hsl(var(--primary-foreground));
-  text-align: center;
-  position: relative;
-  z-index: 1;
-  margin-top: 2px;
-}
-.pulso-folder-file-upload input[type="file"] {
   position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
+  transform-origin: bottom center;
+  border-radius: 15px;
+  transition: transform 350ms;
+  z-index: 0;
+}
+
+.pulso-folder-file-upload:hover .pulso-folder-file-upload-back-side::before {
+  transform: rotateX(-5deg) skewX(5deg);
+}
+
+.pulso-folder-file-upload:hover .pulso-folder-file-upload-back-side::after {
+  transform: rotateX(-15deg) skewX(12deg);
+}
+
+.pulso-folder-file-upload-front-side {
+  z-index: 1;
+}
+
+.pulso-folder-file-upload:hover .pulso-folder-file-upload-front-side {
+  transform: rotateX(-40deg) skewX(15deg);
+}
+
+.pulso-folder-file-upload-tip {
+  background: linear-gradient(135deg, #ff9a56, #ff6f56);
+  width: 80px;
+  height: 20px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: -10px;
   z-index: 2;
 }
+
+.pulso-folder-file-upload-cover {
+  background: linear-gradient(135deg, #ffe563, #ffc663);
+  width: var(--folder-w);
+  height: var(--folder-h);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+@keyframes pulso-folder-float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+.pulso-folder-file-upload-label {
+  font-size: 1.1em;
+  color: #ffffff;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background var(--transition) ease;
+  display: inline-block;
+  width: 100%;
+  padding: 10px 35px;
+  position: relative;
+  z-index: 1;
+}
+.pulso-folder-file-upload-label:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.pulso-folder-file-upload-input {
+  display: none;
+}
 .pulso-folder-file-upload--compact {
-  min-height: 32px;
+  min-height: 52px;
   padding: 4px 8px;
   border-radius: 8px;
 }
@@ -1146,6 +1262,185 @@
 }
 .pulso-folder-file-upload--compact .pulso-folder-file-upload-label svg {
   color: hsl(var(--primary-foreground));
+}
+
+/* Variante proporcional para toolbar do CloudChat */
+.pulso-folder-file-upload--toolbar {
+  --folder-w: 32px;
+  --folder-h: 21px;
+  height: 36px;
+  min-width: 136px;
+  padding: 3px 6px;
+  border-radius: 10px;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
+  background: linear-gradient(135deg, #3e2f82 0%, #4b3898 45%, #3f76c6 100%);
+}
+.pulso-folder-file-upload--toolbar .pulso-folder-file-upload-folder {
+  top: -2px;
+  left: calc(50% - 16px);
+  animation: none;
+  transform: scale(0.96);
+  transform-origin: top center;
+}
+.pulso-folder-file-upload--toolbar:hover .pulso-folder-file-upload-folder {
+  transform: scale(1.02);
+}
+.pulso-folder-file-upload--toolbar .pulso-folder-file-upload-tip {
+  width: 19px;
+  height: 6px;
+  top: -3px;
+  background: linear-gradient(135deg, #b067d8, #8f45be);
+}
+.pulso-folder-file-upload--toolbar .pulso-folder-file-upload-cover {
+  background: linear-gradient(135deg, #8c79ec, #61bad4);
+}
+.pulso-folder-file-upload--toolbar .pulso-folder-file-upload-label {
+  font-size: 0.8em;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: #eaf4ff;
+  background: rgba(14, 20, 46, 0.34);
+  border: 1px solid rgba(178, 212, 255, 0.28);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
+.pulso-folder-file-upload--toolbar .pulso-folder-file-upload-label:hover {
+  background: rgba(23, 32, 68, 0.46);
+}
+
+/* Variante icon-only para toolbar: sem texto, ícone centralizado */
+.pulso-folder-file-upload--toolbar-icon-only {
+  --folder-w: 40px;
+  --folder-h: 26px;
+  width: 88px;
+  min-width: 88px;
+  max-width: 88px;
+  height: 36px;
+  padding: 0;
+  border-radius: 7px;
+  justify-content: center;
+}
+
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-folder {
+  width: var(--folder-w);
+  height: var(--folder-h);
+  top: 50%;
+  left: 50%;
+  animation: none;
+  transform: translate(-50%, -46%) scale(0.92);
+  transform-origin: center;
+}
+
+.pulso-folder-file-upload--toolbar-icon-only:hover .pulso-folder-file-upload-folder {
+  transform: translate(-50%, -46%) scale(0.97);
+}
+
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-tip {
+  width: 24px;
+  height: 7px;
+  top: -4px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(135deg, #7f6cf2 0%, #6b5fd8 100%);
+}
+
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-cover {
+  border-radius: 7px;
+  background: linear-gradient(135deg, #8a7bf0 0%, #5f8fe0 55%, #56b3d3 100%);
+}
+
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-back-side::before,
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-back-side::after {
+  border-radius: 7px;
+}
+
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-label {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  font-size: 0;
+  line-height: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: inherit;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-label:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Botão de pasta embutido no campo "Caminho do projeto" */
+.pulso-folder-file-upload--inline-path {
+  --folder-w: 28px;
+  --folder-h: 18px;
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  justify-content: center;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  z-index: 3;
+}
+
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-folder {
+  width: var(--folder-w);
+  height: var(--folder-h);
+  top: 50%;
+  left: 50%;
+  animation: none;
+  transform: translate(-50%, -46%) scale(0.9);
+  transform-origin: center;
+}
+
+.pulso-folder-file-upload--inline-path:hover .pulso-folder-file-upload-folder {
+  transform: translate(-50%, -46%) scale(0.95);
+}
+
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-tip {
+  width: 17px;
+  height: 5px;
+  top: -3px;
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(135deg, #7f6cf2 0%, #6b5fd8 100%);
+}
+
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-cover {
+  border-radius: 6px;
+  background: linear-gradient(135deg, #8a7bf0 0%, #5f8fe0 55%, #56b3d3 100%);
+}
+
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-back-side::before,
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-back-side::after {
+  border-radius: 6px;
+}
+
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-label {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  font-size: 0;
+  line-height: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: inherit;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pulso-folder-file-upload--inline-path .pulso-folder-file-upload-label:hover {
+  background: transparent;
 }
 
 /* ========== DELETE BUTTON ========== */
@@ -1198,6 +1493,53 @@
   font-size: 13px;
   opacity: 1;
   transform: translateY(30px);
+}
+
+/* Ações (salvar + excluir) no item de chat */
+.pulso-chat-item-actions {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulso-chat-item-save-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 4px;
+  border-radius: 8px;
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+.pulso-chat-item-save-btn--active {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.45), 0 0 14px hsl(var(--primary) / 0.2);
+}
+
+.pulso-chat-item-save-btn--active svg {
+  color: hsl(var(--primary));
+}
+
+.pulso-chat-item-delete-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 4px;
+}
+
+.pulso-chat-item-delete-btn:hover {
+  width: 86px;
+}
+
+.pulso-chat-item-delete-btn .showcase-delete-svg {
+  width: 14px;
 }
 
 /* Delete button compacto (sidebar) - não expande */
@@ -1669,14 +2011,8 @@
   outline: none;
 }
 
-/* Sem grifado escuro: máscara desativada para placeholder sempre legível */
+/* Máscara escura desativada para evitar fade sobre o texto */
 .showcase-input-mask {
-  display: none !important;
-}
-
-/* Barras de envio (elemento 18): sem grifado preto */
-.showcase-search-poda--prompt .showcase-input-mask,
-.showcase-search-poda--prompt .showcase-pink-mask {
   display: none !important;
 }
 
@@ -1727,20 +2063,16 @@
 .showcase-search-input--prompt {
   width: 100% !important;
   min-width: 0;
-  min-height: 56px !important;
+  min-height: 52px !important;
   height: auto !important;
-  padding-right: 52px !important; /* espaço para o botão enviar (elemento 18: um ícone à direita) */
-  /* Evita barra preta: fundo visível e texto legível na aba Inteligência de Dados */
-  background-color: hsl(var(--card)) !important;
+  border: none !important;
+  padding-right: 48px !important; /* espaço para o botão enviar (elemento 18: um ícone à direita) */
+  background-color: #010201 !important;
   background-image: none !important;
-  color: hsl(var(--foreground)) !important;
+  color: #fff !important;
 }
 .showcase-search-input--prompt::placeholder {
-  color: hsl(var(--muted-foreground)) !important;
-}
-/* Tema escuro: fundo do input um pouco mais claro que o card para não parecer preto */
-.dark .showcase-search-input--prompt {
-  background-color: hsl(232 28% 14%) !important;
+  color: #c0b9c0 !important;
 }
 .showcase-search-poda--prompt .showcase-search-main {
   background-color: transparent;
@@ -1751,13 +2083,13 @@
 .showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-darkBorderBg,
 .showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-white,
 .showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-border {
-  max-height: 36px !important;
+  max-height: 50px !important;
 }
 .showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-input--prompt {
-  min-height: 32px !important;
-  height: 32px !important;
-  padding-right: 12px !important;
-  font-size: 0.875rem !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding-right: 44px !important;
+  font-size: 0.9rem !important;
 }
 .showcase-search-poda--toolbar .showcase-prompt-gradient-bar {
   margin-top: 4px;
@@ -1867,6 +2199,29 @@
   aspect-ratio: 1;
 }
 
+/* Padronização visual: botões "gradient/glow" no padrão das sugestões */
+.btn-padrao-gradient,
+.showcase-toolbar-btn {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--primary) / 0.6) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.14) !important;
+  color: #fff !important;
+}
+
+.btn-padrao-gradient::before,
+.btn-padrao-gradient::after,
+.showcase-toolbar-btn::before {
+  display: none !important;
+}
+
+.btn-padrao-gradient:hover:not(:disabled),
+.showcase-toolbar-btn:hover:not(:disabled) {
+  background: hsl(var(--card) / 0.95) !important;
+  border-color: hsl(var(--primary) / 0.85) !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.28), 0 0 16px hsl(var(--primary) / 0.18) !important;
+}
+
 /* Padrão de botão (estilo send/barra de busca) — para botões genéricos */
 .pulso-btn-padrao {
   display: inline-flex;
@@ -1936,9 +2291,9 @@
 .showcase-search-poda--prompt .showcase-filter-icon {
   background: linear-gradient(180deg, #2a2742, #1e1b32, #352d5c) !important;
   color: #fff !important;
-  border-radius: 10px;
-  min-width: 38px;
-  min-height: 40px;
+  border-radius: 9px;
+  min-width: 34px;
+  min-height: 36px;
 }
 .showcase-send-icon:hover,
 .showcase-search-poda--prompt .showcase-filter-icon:hover {
@@ -2053,8 +2408,8 @@ button.showcase-filter-icon svg,
 /* Wrapper para botões ao lado do enviar (ex.: Testar) — mesmo estilo da barra */
 .showcase-trailing-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2062,41 +2417,41 @@ button.showcase-filter-icon svg,
 }
 .showcase-trailing-actions .showcase-filter-icon {
   position: static;
-  height: 40px;
-  width: 38px;
-  max-height: 40px;
-  max-width: 38px;
-  min-width: 38px;
-  min-height: 40px;
+  height: 36px;
+  width: 34px;
+  max-height: 36px;
+  max-width: 34px;
+  min-width: 34px;
+  min-height: 36px;
 }
 
 .showcase-filter-icon {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  max-height: 40px;
-  max-width: 38px;
+  max-height: 36px;
+  max-width: 34px;
   height: 100%;
   width: 100%;
   isolation: isolate;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 9px;
   background: linear-gradient(180deg, #1e1b2e, #161329, #25224a);
   border: 1px solid transparent;
 }
 
 .showcase-filter-border {
-  height: 42px;
-  width: 40px;
+  height: 38px;
+  width: 36px;
   position: absolute;
   overflow: hidden;
-  top: 7px;
-  right: 7px;
-  border-radius: 10px;
+  top: 5px;
+  right: 5px;
+  border-radius: 9px;
 }
 
 .showcase-filter-border::before {

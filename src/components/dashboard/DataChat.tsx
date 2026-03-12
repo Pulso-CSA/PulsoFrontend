@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare, Loader2 } from "lucide-react";
+import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare } from "lucide-react";
 import { DataChatCharts } from "./DataChatCharts";
 import { DataChatML, stripMarkdown } from "./DataChatML";
 import { DataPreviewTable } from "./DataPreviewTable";
 import { ChatSidebar } from "./ChatSidebar";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
+import { LoaderGenerating } from "@/components/loaders";
 
 /** Tenta extrair tabela do texto (ex.: "Primeiras 5 linhas:" + dados) e retorna colunas/linhas ou null */
 function parseTableFromText(content: string): { colunas: string[]; linhas: Record<string, unknown>[]; contentWithoutTable: string } | null {
@@ -536,10 +537,11 @@ const DataChat = () => {
   const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0">
+    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
       {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
+          serviceId="dados-ia"
           sessions={sessionItems}
           currentSessionId={currentSessionId}
           onSelect={handleOpenChat}
@@ -551,7 +553,7 @@ const DataChat = () => {
 
       {/* Área principal */}
       <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="p-3 shrink-0 min-w-0">
+      <div className="pulso-chat-main-header p-3 shrink-0 min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
             <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
@@ -575,12 +577,12 @@ const DataChat = () => {
             <button
               type="button"
               onClick={() => setShowConnection(!showConnection)}
-              className="showcase-toolbar-btn px-3 py-1.5 text-xs gap-1 shrink-0"
+              className="showcase-toolbar-btn px-3 py-1.5 text-xs gap-1 shrink-0 min-w-[98px] justify-center"
               aria-expanded={showConnection}
               aria-label={showConnection ? "Fechar painel de conexão" : "Abrir painel de conexão"}
             >
               {showConnection ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-              Conexão
+              <span className="whitespace-nowrap">Conexão</span>
             </button>
           </div>
         </div>
@@ -666,17 +668,17 @@ const DataChat = () => {
           <Button
             variant="pulso"
             size="sm"
-            className="w-full"
+            className="w-full text-white font-medium"
             onClick={handleApplyConnection}
           >
-            Aplicar conexão
+            <span className="whitespace-nowrap">Aplicar Conexão</span>
           </Button>
         </div>
       )}
 
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Chat Area */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
+        <div className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[280px] text-center space-y-4">
                 <Brain className="h-12 w-12 text-primary/60" />
@@ -978,14 +980,7 @@ const DataChat = () => {
           ))
         )}
 
-          {loading && (
-            <div className="flex justify-start mb-4">
-              <div className="rounded-2xl px-4 py-3 bg-chat-system border border-white/5 text-sm text-muted-foreground flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                <span>Aguardando resposta...</span>
-              </div>
-            </div>
-          )}
+          {loading && <LoaderGenerating className="mb-4" />}
 
         </div>
 

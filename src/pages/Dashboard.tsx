@@ -922,7 +922,7 @@ const Dashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <LayoutA activeService={activeService} onServiceChange={setActiveService}>
+      <LayoutA className="pulso-layout-a--chat-scroll-lock" activeService={activeService} onServiceChange={setActiveService}>
         {content}
       </LayoutA>
     </>

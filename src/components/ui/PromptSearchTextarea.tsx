@@ -43,7 +43,7 @@ const PromptSearchTextarea = React.forwardRef<HTMLTextAreaElement, PromptSearchT
     };
 
     return (
-      <div className={cn("relative w-full overflow-hidden", "showcase-search-poda--prompt")}>
+      <div className={cn("relative w-full overflow-visible", "showcase-search-poda--prompt")}>
         <div className="showcase-search-poda w-full">
           <div className="showcase-search-glow" aria-hidden />
           <div className="showcase-search-darkBorderBg" aria-hidden />
@@ -82,11 +82,6 @@ const PromptSearchTextarea = React.forwardRef<HTMLTextAreaElement, PromptSearchT
             </div>
           </div>
         </div>
-        {/* Barra de gradiente fluido abaixo (roxo → magenta → azul) — igual chat de dados */}
-        <div
-          className="showcase-prompt-gradient-bar mt-2 rounded-full h-1.5 w-full"
-          aria-hidden
-        />
       </div>
     );
   }

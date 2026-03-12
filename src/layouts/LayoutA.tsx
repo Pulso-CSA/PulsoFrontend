@@ -49,11 +49,19 @@ interface LayoutAProps {
 }
 
 export function LayoutA({ activeService, onServiceChange, children, className }: LayoutAProps) {
-  const [cloudHover, setCloudHover] = useState(false);
+  const [serviceHover, setServiceHover] = useState<ServiceKey | null>(null);
+  const [selectedProviderByService, setSelectedProviderByService] = useState<{
+    cloud: "aws" | "azure" | "gcp";
+    finops: "aws" | "azure" | "gcp";
+  }>({
+    cloud: "aws",
+    finops: "aws",
+  });
   const [avatarHover, setAvatarHover] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const avatarRef = useRef<HTMLDivElement>(null);
   const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const serviceLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [avatarRect, setAvatarRect] = useState<DOMRect | null>(null);
 
   const setAvatarHoverWithDelay = (value: boolean) => {
@@ -65,6 +73,18 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
       setAvatarHover(true);
     } else {
       leaveTimeoutRef.current = setTimeout(() => setAvatarHover(false), 150);
+    }
+  };
+
+  const setServiceHoverWithDelay = (value: ServiceKey | null) => {
+    if (serviceLeaveTimeoutRef.current) {
+      clearTimeout(serviceLeaveTimeoutRef.current);
+      serviceLeaveTimeoutRef.current = null;
+    }
+    if (value) {
+      setServiceHover(value);
+    } else {
+      serviceLeaveTimeoutRef.current = setTimeout(() => setServiceHover(null), 180);
     }
   };
 
@@ -119,11 +139,15 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
     navigate("/profile-selection");
   };
 
-  const handleOpenCloudCredentials = () => {
-    onServiceChange("cloud");
-    setCloudHover(false);
+  const dispatchOpenCredentials = (target: "cloud" | "finops") => {
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("pulso-open-cloud-credentials"));
+      window.dispatchEvent(new CustomEvent("pulso-open-cloud-credentials", { detail: { target } }));
+    }
+  };
+
+  const dispatchSelectProvider = (target: "cloud" | "finops", provider: "aws" | "azure" | "gcp") => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("pulso-select-cloud-provider", { detail: { target, provider } }));
     }
   };
 
@@ -134,13 +158,13 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
         <div className="pulso-layout-a-services-inner">
           {SERVICES.slice(0, 2).map(({ key, label, icon: Icon }) => {
             const isActive = activeService === key;
-            const isCloud = key === "cloud";
+            const supportsCloudMenu = key === "cloud" || key === "finops";
             return (
               <div
                 key={key}
                 className="relative flex items-center justify-center"
-                onMouseEnter={() => isCloud && setCloudHover(true)}
-                onMouseLeave={() => isCloud && setCloudHover(false)}
+                onMouseEnter={() => supportsCloudMenu && setServiceHoverWithDelay(key)}
+                onMouseLeave={() => supportsCloudMenu && setServiceHoverWithDelay(null)}
               >
                 <div className="relative flex items-center justify-center">
                   <button
@@ -157,17 +181,21 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
                     <span className="text-xs font-medium truncate">{label}</span>
                   </button>
-                  {/* Efeito hover embaixo do botão Cloud IaC (igual ao do perfil) */}
-                  {isCloud && cloudHover && (
+                  {/* Efeito hover embaixo do botão com submenu de cloud */}
+                  {supportsCloudMenu && serviceHover === key && (
                     <div
                       className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-8 h-0.5 rounded-full bg-primary/60 shadow-[0_0_12px_hsl(var(--primary)/0.5)] pointer-events-none"
                       aria-hidden
                     />
                   )}
                 </div>
-                {/* Mini navbar (Provedores + Credenciais) abaixo da aba ao hover — igual ao do perfil */}
-                {isCloud && cloudHover && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 py-2 px-2 rounded-xl glass border border-border/50 shadow-xl z-50 flex items-center gap-1 min-w-[160px] justify-center flex-wrap">
+                {/* Mini navbar (Provedores + Credenciais) abaixo da aba ao hover */}
+                {supportsCloudMenu && serviceHover === key && (
+                  <div
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 px-2 rounded-xl glass border border-border/50 shadow-xl z-50 flex items-center gap-1 min-w-[160px] justify-center flex-wrap"
+                    onMouseEnter={() => setServiceHoverWithDelay(key)}
+                    onMouseLeave={() => setServiceHoverWithDelay(null)}
+                  >
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">Provedores</span>
                       <div className="flex flex-wrap gap-1 justify-center">
@@ -175,8 +203,15 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                           <button
                             key={id}
                             type="button"
-                            onClick={() => { onServiceChange("cloud"); setCloudHover(false); }}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors"
+                            onClick={() => {
+                              setSelectedProviderByService((prev) => ({ ...prev, cloud: id }));
+                            }}
+                            className={cn(
+                              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                              selectedProviderByService.cloud === id
+                                ? "bg-primary/20 text-primary border border-primary/35"
+                                : "text-foreground hover:bg-primary/15 hover:text-primary border border-transparent"
+                            )}
                           >
                             <OptIcon className="h-3.5 w-3.5 shrink-0" />
                             {optLabel}
@@ -186,7 +221,12 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     </div>
                     <button
                       type="button"
-                      onClick={handleOpenCloudCredentials}
+                      onClick={() => {
+                        onServiceChange("cloud");
+                        dispatchSelectProvider("cloud", selectedProviderByService.cloud);
+                        dispatchOpenCredentials("cloud");
+                        setServiceHover(null);
+                      }}
                       className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors"
                       aria-label="Abrir credenciais de cloud"
                     >
@@ -326,19 +366,78 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
             )}
           {SERVICES.slice(2, 4).map(({ key, label, icon: Icon }) => {
             const isActive = activeService === key;
+            const supportsCloudMenu = key === "finops";
             return (
-              <div key={key} className="relative">
-                <button
-                  type="button"
-                  onClick={() => onServiceChange(isActive ? null : key)}
-                  className={cn("pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white", isActive && "pulso-active")}
-                  title={label}
-                  aria-pressed={isActive}
-                  aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
-                >
-                  <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
-                  <span className="text-xs font-medium truncate">{label}</span>
-                </button>
+              <div
+                key={key}
+                className="relative flex items-center justify-center"
+                onMouseEnter={() => supportsCloudMenu && setServiceHoverWithDelay(key)}
+                onMouseLeave={() => supportsCloudMenu && setServiceHoverWithDelay(null)}
+              >
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => onServiceChange(isActive ? null : key)}
+                    className={cn("pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white", isActive && "pulso-active")}
+                    title={label}
+                    aria-pressed={isActive}
+                    aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                    <span className="text-xs font-medium truncate">{label}</span>
+                  </button>
+                  {supportsCloudMenu && serviceHover === key && (
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-8 h-0.5 rounded-full bg-primary/60 shadow-[0_0_12px_hsl(var(--primary)/0.5)] pointer-events-none"
+                      aria-hidden
+                    />
+                  )}
+                </div>
+                {supportsCloudMenu && serviceHover === key && (
+                  <div
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 px-2 rounded-xl glass border border-border/50 shadow-xl z-50 flex items-center gap-1 min-w-[160px] justify-center flex-wrap"
+                    onMouseEnter={() => setServiceHoverWithDelay(key)}
+                    onMouseLeave={() => setServiceHoverWithDelay(null)}
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">Provedores</span>
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {CLOUD_OPTIONS.map(({ id, label: optLabel, Icon: OptIcon }) => (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedProviderByService((prev) => ({ ...prev, finops: id }));
+                            }}
+                            className={cn(
+                              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                              selectedProviderByService.finops === id
+                                ? "bg-primary/20 text-primary border border-primary/35"
+                                : "text-foreground hover:bg-primary/15 hover:text-primary border border-transparent"
+                            )}
+                          >
+                            <OptIcon className="h-3.5 w-3.5 shrink-0" />
+                            {optLabel}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onServiceChange("finops");
+                        dispatchSelectProvider("finops", selectedProviderByService.finops);
+                        dispatchOpenCredentials("finops");
+                        setServiceHover(null);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors"
+                      aria-label="Abrir credenciais de cloud"
+                    >
+                      <Key className="h-4 w-4 shrink-0" />
+                      Credenciais
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -348,7 +447,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
       {/* Área inferior: conteúdo (sidebar conta/tema/layout fica no AppShell) */}
       <div className="pulso-layout-a-body flex-1 flex min-h-0">
         {/* Área principal centralizada */}
-        <main className="pulso-layout-a-main flex-1 bg-background/50 w-full">
+        <main className="pulso-layout-a-main flex-1 bg-transparent w-full">
           <div className="pulso-layout-a-content">{children}</div>
         </main>
       </div>
