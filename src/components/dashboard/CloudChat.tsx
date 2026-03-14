@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Copy, FolderOpen, FileCode, CloudCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
@@ -42,6 +42,7 @@ const CloudChat = () => {
   const [activeProvider, setActiveProvider] = useState<"aws" | "azure" | "gcp">("aws");
   const [credentialsOpen, setCredentialsOpen] = useState(false);
   const [credentials, setCredentials] = useState<CloudCredentialsState>(getAllCloudCredentials);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setRootPathState(getRootPath());
@@ -93,6 +94,13 @@ const CloudChat = () => {
   useEffect(() => {
     if (sessions.length > 0) setCloudChatSessions(sessions);
   }, [sessions]);
+
+  // Mantém rolagem unitária no container da conversa.
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages, loading, currentSessionId]);
 
   const quickActions = [
     "Criar VPC com subnets públicas e privadas",
@@ -269,40 +277,16 @@ const CloudChat = () => {
       </div>
 
       {/* Área principal */}
-      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="pulso-chat-main-header p-3 flex flex-row items-center justify-between gap-3 shrink-0 min-w-0">
-        {/* Caminho do projeto + Escolher arquivo à esquerda */}
-        <div className="flex items-center min-w-0 flex-1">
-          <div className="relative w-full max-w-[320px] min-w-[200px] overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
-            <div className="showcase-search-poda w-full">
-              <div className="showcase-search-glow" aria-hidden />
-              <div className="showcase-search-darkBorderBg" aria-hidden />
-              <div className="showcase-search-darkBorderBg" aria-hidden />
-              <div className="showcase-search-darkBorderBg" aria-hidden />
-              <div className="showcase-search-white" aria-hidden />
-              <div className="showcase-search-border" aria-hidden />
-              <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
-                <input
-                  type="text"
-                  placeholder="Caminho do projeto (opcional)"
-                  value={rootPath}
-                  onChange={(e) => handleRootPathChange(e.target.value)}
-                  className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
-                  aria-label="Caminho do projeto"
-                />
-                <FolderFileUpload
-                  compact
-                  className="pulso-folder-file-upload--inline-path"
-                  onFileChange={(files) => {
-                    const f = files?.item(0);
-                    if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
-                  }}
-                >
-                  {""}
-                </FolderFileUpload>
-              </div>
-            </div>
-          </div>
+      <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="pulso-chat-main-header p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+            <CloudCog className="h-4 w-4 shrink-0 text-primary" />
+            Cloud IaC
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            Infraestrutura como código em linguagem natural
+          </p>
         </div>
         <DownloadReportButton
           onClick={async () => {
@@ -311,13 +295,46 @@ const CloudChat = () => {
             toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
           }}
           disabled={messages.length === 0}
-          className="showcase-download-report-btn--compact text-white shrink-0 ml-2"
+          className="showcase-download-report-btn--compact text-white shrink-0"
         />
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="pulso-chat-main-fixed-section p-3 shrink-0">
+        <div className="relative w-full max-w-[320px] min-w-[200px] overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
+          <div className="showcase-search-poda w-full">
+            <div className="showcase-search-glow" aria-hidden />
+            <div className="showcase-search-darkBorderBg" aria-hidden />
+            <div className="showcase-search-darkBorderBg" aria-hidden />
+            <div className="showcase-search-darkBorderBg" aria-hidden />
+            <div className="showcase-search-white" aria-hidden />
+            <div className="showcase-search-border" aria-hidden />
+            <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
+              <input
+                type="text"
+                placeholder="Caminho do projeto (opcional)"
+                value={rootPath}
+                onChange={(e) => handleRootPathChange(e.target.value)}
+                className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
+                aria-label="Caminho do projeto"
+              />
+              <FolderFileUpload
+                compact
+                className="pulso-folder-file-upload--inline-path"
+                onFileChange={(files) => {
+                  const f = files?.item(0);
+                  if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
+                }}
+              >
+                {""}
+              </FolderFileUpload>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pulso-chat-main-body">
         {/* Chat Area */}
-        <div className="pulso-chat-scroll-area p-5 space-y-5">
+        <div ref={messagesContainerRef} className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <CloudCog className="h-12 w-12 text-primary/50" />
@@ -377,7 +394,7 @@ const CloudChat = () => {
             )}
         </div>
 
-        <div className="p-4 shrink-0">
+        <div className="pulso-chat-main-footer">
             <form
               onSubmit={(e) => {
                 e.preventDefault();

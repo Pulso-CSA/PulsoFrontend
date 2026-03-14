@@ -157,6 +157,7 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   min-height: 0;
   gap: 1rem;
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 /* Gradiente suave App.png (ciano → azul → roxo) para áreas de chat */
@@ -172,6 +173,7 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   overflow: hidden;
   position: relative;
   box-shadow: none;
+  overscroll-behavior: contain;
 }
 
 .pulso-chat-sidebar::before {
@@ -199,6 +201,30 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   overflow: hidden;
   position: relative;
   box-shadow: none;
+}
+
+/* Estrutura padrão dos 4 chats */
+.pulso-chat-main-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.pulso-chat-main-fixed-section {
+  flex-shrink: 0;
+  border-top: 1px solid hsl(var(--primary) / 0.1);
+  border-bottom: 1px solid hsl(var(--primary) / 0.1);
+  background: hsl(var(--card) / 0.25);
+}
+
+.pulso-chat-main-footer {
+  flex-shrink: 0;
+  padding: 1rem;
+  border-top: 1px solid hsl(var(--primary) / 0.1);
+  background: hsl(var(--card) / 0.3);
 }
 /* Evita linha ciano forte entre navbar e conteúdo — borda superior suave */
 .pulso-layout-a-content .pulso-chat-main {
@@ -297,6 +323,16 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Scroll exclusivo da lista na sidebar (histórico de chats) */
+.pulso-chat-sidebar-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: visible;
   overscroll-behavior: contain;
 }
 
@@ -460,7 +496,10 @@ html[data-electron="true"] .pulso-layout-a-body {
 }
 
 /* Dashboard (chats): scroll isolado apenas em sidebar/mensagens */
-.pulso-layout-a--chat-scroll-lock .pulso-layout-a-main,
+.pulso-layout-a--chat-scroll-lock .pulso-layout-a-main {
+  overflow: hidden;
+}
+
 .pulso-layout-a--chat-scroll-lock .pulso-layout-a-content {
   overflow: hidden;
 }
@@ -605,33 +644,18 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   animation: pulso-fade-in 0.4s ease-out;
 }
 
-/* Sugestões: bordas em gradiente animadas (loop moderado); fundo escuro (não preto) */
+/* Sugestões: estilo sólido padrão (fundo escuro + borda ciano) */
 .pulso-suggestion-btn {
-  position: relative;
   background: hsl(var(--card)) !important;
-  border: none !important;
+  border: 1px solid hsl(var(--primary) / 0.6) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.14) !important;
   color: #fff !important;
-  overflow: visible;
 }
-.pulso-suggestion-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
-  background-size: 200% 100%;
-  background-position: 100% 50%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: pulso-suggestion-border-loop 4s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes pulso-suggestion-border-loop {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+.pulso-suggestion-btn:hover:not(:disabled) {
+  background: hsl(var(--card) / 0.95) !important;
+  border-color: hsl(var(--primary) / 0.85) !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.28), 0 0 16px hsl(var(--primary) / 0.18) !important;
 }
 
 /* ========== Tela de Insights (nenhum botão selecionado) ========== */

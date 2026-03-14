@@ -325,6 +325,80 @@
   height: 38px;
   padding-inline: 12px 44px;
   font-size: 13px;
+  background: linear-gradient(180deg, #1c1736 0%, #16122f 55%, #141029 100%);
+  color: #eaf4ff;
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-input::placeholder {
+  color: rgba(192, 218, 255, 0.72);
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-input-mask {
+  background: linear-gradient(90deg, transparent, #16122f);
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-glow {
+  background: #6ac8ff;
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-stardust::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0) 0%,
+    #6ac8ff,
+    rgba(0, 0, 0, 0) 8%,
+    rgba(0, 0, 0, 0) 50%,
+    #6ac8ff,
+    rgba(0, 0, 0, 0) 58%
+  );
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-ring::before {
+  background-image: conic-gradient(
+    #141029,
+    #6ac8ff 5%,
+    #141029 14%,
+    #141029 50%,
+    #6ac8ff 60%,
+    #141029 64%
+  );
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-starfield::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0),
+    rgba(106, 200, 255, 0.45),
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(106, 200, 255, 0.62),
+    rgba(0, 0, 0, 0) 60%
+  );
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-nebula::before {
+  background-image: conic-gradient(
+    #141029,
+    #6ac8ff 5%,
+    #141029 38%,
+    #141029 50%,
+    #6ac8ff 60%,
+    #141029 87%
+  );
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-wormhole-border::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0),
+    #6ac8ff,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0) 50%,
+    #6ac8ff,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.cosmic-search-container.cosmic-search--compact .cosmic-wormhole-icon {
+  background: linear-gradient(180deg, #1c1736 0%, #16122f 55%, #141029 100%);
+  color: #6ac8ff;
 }
 
 /* Variante Pulso: sem borda em gradiente — glass + borda sólida (igual ao restante do app) */

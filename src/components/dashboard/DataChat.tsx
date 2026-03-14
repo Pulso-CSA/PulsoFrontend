@@ -276,6 +276,7 @@ const DataChat = () => {
   const [sessions, setSessions] = useState<DataChatSession[]>(() => loadDataChatSessions());
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -311,6 +312,13 @@ const DataChat = () => {
   useEffect(() => {
     if (sessions.length > 0) setDataChatSessions(sessions);
   }, [sessions]);
+
+  // Mantém rolagem unitária no container da conversa.
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages, loading, currentSessionId]);
   const [showConnection, setShowConnection] = useState(false);
   const [connectionData, setConnectionData] = useState(() => {
     const stored = getDbConnection();
@@ -552,8 +560,8 @@ const DataChat = () => {
       </div>
 
       {/* Área principal */}
-      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="pulso-chat-main-header p-3 shrink-0 min-w-0">
+      <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="pulso-chat-main-header p-3 shrink-0 min-w-0 border-b border-primary/10">
         <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
             <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
@@ -577,7 +585,7 @@ const DataChat = () => {
             <button
               type="button"
               onClick={() => setShowConnection(!showConnection)}
-              className="showcase-toolbar-btn px-3 py-1.5 text-xs gap-1 shrink-0 min-w-[98px] justify-center"
+              className="pulso-suggestion-btn inline-flex items-center px-3 py-1.5 text-xs gap-1 shrink-0 min-w-[98px] justify-center rounded-md"
               aria-expanded={showConnection}
               aria-label={showConnection ? "Fechar painel de conexão" : "Abrir painel de conexão"}
             >
@@ -590,7 +598,7 @@ const DataChat = () => {
 
       {/* Connection Drawer */}
       {showConnection && (
-        <div className="p-4 pt-3 glass border-t border-primary/10 space-y-4">
+        <div className="pulso-chat-main-fixed-section p-4 pt-3 glass space-y-4">
           <h3 className="text-sm font-semibold text-foreground">Conexão de Dados (Opcional)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
@@ -676,9 +684,9 @@ const DataChat = () => {
         </div>
       )}
 
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="pulso-chat-main-body">
         {/* Chat Area */}
-        <div className="pulso-chat-scroll-area p-5 space-y-5">
+        <div ref={messagesContainerRef} className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[280px] text-center space-y-4">
                 <Brain className="h-12 w-12 text-primary/60" />
@@ -985,7 +993,7 @@ const DataChat = () => {
         </div>
 
         {/* Barra de envio — sempre mesma altura/estilo; em loading fica desabilitada com placeholder */}
-        <div className="p-4 shrink-0 border-t border-primary/10 bg-card/30">
+        <div className="pulso-chat-main-footer">
           <form
             onSubmit={(e) => {
               e.preventDefault();

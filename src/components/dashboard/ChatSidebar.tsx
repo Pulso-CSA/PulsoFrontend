@@ -454,7 +454,7 @@ export function ChatSidebar({
         />
       </div>
 
-      <div className="pulso-chat-scroll-area overflow-x-visible p-2 space-y-2">
+      <div className="pulso-chat-sidebar-scroll-area p-2 space-y-2">
         {filteredSessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-4">
             <MessageSquare className="h-8 w-8 text-muted-foreground/30 mb-2" />

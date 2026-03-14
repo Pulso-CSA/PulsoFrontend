@@ -508,19 +508,19 @@ const Dashboard = () => {
               toolbarExtra={
                 <>
                   <Button
-                    variant="pulso"
+                    variant="outline"
                     size="sm"
-                    className="flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
                     onClick={() => setShowLogs(!showLogs)}
                   >
                     <Terminal className="h-3.5 w-3.5" />
                     <span>Logs</span>
                   </Button>
                   <Button
-                    variant="pulso"
+                    variant="outline"
                     size="sm"
                     disabled={!previewFrontendUrl || !rootPathForPreview?.trim() || previewStartLoading}
-                    className="flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
                     onClick={handleTestarPreview}
                     title={!rootPathForPreview?.trim() ? "Configure o caminho da pasta na seção Configuração" : "Inicia o servidor de desenvolvimento (npm run dev)"}
                   >
@@ -532,10 +532,10 @@ const Dashboard = () => {
                     <span>Testar Preview</span>
                   </Button>
                   <Button
-                    variant="pulso"
+                    variant="outline"
                     size="sm"
                     disabled={!previewFrontendUrl}
-                    className="flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
                     onClick={() => setShowPreview((p) => !p)}
                   >
                     <Monitor className="h-3.5 w-3.5" />
@@ -548,9 +548,9 @@ const Dashboard = () => {
         </div>
       );
     }
-    if (activeService === "cloud") return <div className="flex-1 min-h-0 overflow-hidden"><CloudChat /></div>;
-    if (activeService === "finops") return <div className="flex-1 min-h-0 overflow-hidden"><FinOpsChat /></div>;
-    if (activeService === "data") return <div className="flex-1 min-h-0 overflow-hidden"><DataChat /></div>;
+    if (activeService === "cloud") return <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"><CloudChat /></div>;
+    if (activeService === "finops") return <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"><FinOpsChat /></div>;
+    if (activeService === "data") return <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"><DataChat /></div>;
 
     const INSIGHTS_FILTER_BUTTONS: { key: InsightsFilterKey; icon: LucideIcon; label: string }[] = [
       { key: "all", icon: LayoutGrid, label: "Todos" },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TrendingDown, Server, DollarSign, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
@@ -22,7 +22,38 @@ interface Message {
   tags?: string[];
 }
 
+interface FinOpsCostSummary {
+  monthly: string;
+  topServices: string[];
+  trend: string;
+}
+
 type FinOpsSession = ChatSession<Message & { timestamp: string }>;
+const FINOPS_COST_SUMMARY_KEY = "pulso_finops_cost_summary";
+
+function getFinOpsCostSummaryFromStorage(): FinOpsCostSummary | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(FINOPS_COST_SUMMARY_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<FinOpsCostSummary>;
+    if (
+      typeof parsed.monthly !== "string" ||
+      !Array.isArray(parsed.topServices) ||
+      parsed.topServices.some((item) => typeof item !== "string") ||
+      typeof parsed.trend !== "string"
+    ) {
+      return null;
+    }
+    return {
+      monthly: parsed.monthly,
+      topServices: parsed.topServices,
+      trend: parsed.trend,
+    };
+  } catch {
+    return null;
+  }
+}
 
 function restoreMessages(messages: (Omit<Message, "timestamp"> & { timestamp: string })[]): Message[] {
   return messages.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
@@ -39,6 +70,8 @@ const FinOpsChat = () => {
   const [activeProvider, setActiveProvider] = useState<"aws" | "azure" | "gcp">("aws");
   const [credentialsOpen, setCredentialsOpen] = useState(false);
   const [credentials, setCredentials] = useState<CloudCredentialsState>(getAllCloudCredentials);
+  const [costSummary, setCostSummary] = useState<FinOpsCostSummary | null>(() => getFinOpsCostSummaryFromStorage());
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const s = getFinOpsChatSessions();
@@ -52,6 +85,14 @@ const FinOpsChat = () => {
 
   useEffect(() => {
     setCredentials(getAllCloudCredentials());
+  }, []);
+
+  useEffect(() => {
+    const refreshCostSummary = () => setCostSummary(getFinOpsCostSummaryFromStorage());
+    window.addEventListener("storage", refreshCostSummary);
+    return () => {
+      window.removeEventListener("storage", refreshCostSummary);
+    };
   }, []);
 
   useEffect(() => {
@@ -90,17 +131,18 @@ const FinOpsChat = () => {
     if (sessions.length > 0) setFinOpsChatSessions(sessions);
   }, [sessions]);
 
+  // Mantém rolagem unitária no container da conversa.
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages, loading, currentSessionId]);
+
   const quickActions = [
     "Ver Quick Wins",
     "Comparar regiões",
     "Políticas de desligamento automático",
   ];
-
-  const costSummary = {
-    monthly: "R$ 12.450",
-    topServices: ["EC2: R$ 5.200", "RDS: R$ 3.100", "S3: R$ 1.800"],
-    trend: "↓ 8% vs mês anterior",
-  };
 
   const buildProviderCredentialsPayload = () => {
     if (activeProvider === "aws") {
@@ -259,8 +301,8 @@ const FinOpsChat = () => {
       </div>
 
       {/* Área principal */}
-      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="pulso-chat-main-header p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
+      <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="pulso-chat-main-header p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
             <DollarSign className="h-4 w-4 shrink-0 text-primary" />
@@ -281,31 +323,33 @@ const FinOpsChat = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass shrink-0">
-        <div className="space-y-1 opacity-0 animate-fade-in stagger-1">
-          <p className="text-xs text-muted-foreground">Custo mensal</p>
-          <p className="text-xl font-bold text-foreground">{costSummary.monthly}</p>
-        </div>
-        <div className="space-y-1 opacity-0 animate-fade-in stagger-2">
-          <p className="text-xs text-muted-foreground">Principais serviços</p>
-          <div className="text-sm text-foreground space-y-0.5">
-            {costSummary.topServices.map((service, idx) => (
-              <div key={idx}>{service}</div>
-            ))}
+      {costSummary && (
+        <div className="pulso-chat-main-fixed-section grid grid-cols-1 md:grid-cols-3 gap-4 p-4 glass shrink-0">
+          <div className="space-y-1 opacity-0 animate-fade-in stagger-1">
+            <p className="text-xs text-muted-foreground">Custo mensal</p>
+            <p className="text-xl font-bold text-foreground">{costSummary.monthly}</p>
+          </div>
+          <div className="space-y-1 opacity-0 animate-fade-in stagger-2">
+            <p className="text-xs text-muted-foreground">Principais serviços</p>
+            <div className="text-sm text-foreground space-y-0.5">
+              {costSummary.topServices.map((service, idx) => (
+                <div key={idx}>{service}</div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1 opacity-0 animate-fade-in stagger-3">
+            <p className="text-xs text-muted-foreground">Tendência</p>
+            <p className="text-lg font-semibold text-primary flex items-center gap-1">
+              <TrendingDown className="h-4 w-4 animate-bounce-subtle" />
+              {costSummary.trend}
+            </p>
           </div>
         </div>
-        <div className="space-y-1 opacity-0 animate-fade-in stagger-3">
-          <p className="text-xs text-muted-foreground">Tendência</p>
-          <p className="text-lg font-semibold text-primary flex items-center gap-1">
-            <TrendingDown className="h-4 w-4 animate-bounce-subtle" />
-            {costSummary.trend}
-          </p>
-        </div>
-      </div>
+      )}
 
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="pulso-chat-main-body">
         {/* Chat Area */}
-        <div className="pulso-chat-scroll-area p-5 space-y-5">
+        <div ref={messagesContainerRef} className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Server className="h-12 w-12 text-primary/50" />
@@ -395,7 +439,7 @@ const FinOpsChat = () => {
         )}
         </div>
 
-        <div className="p-4 shrink-0">
+        <div className="pulso-chat-main-footer">
         <form
           onSubmit={(e) => {
             e.preventDefault();

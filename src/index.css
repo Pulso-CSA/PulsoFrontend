@@ -798,8 +798,16 @@ All colors MUST be HSL.
     --leading-relaxed: 1.625;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
+    min-height: 100%;
     font-family: var(--font-sans);
     font-size: var(--text-body);
     line-height: 1.6;

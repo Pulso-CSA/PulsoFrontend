@@ -743,7 +743,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
       </div>
 
       {/* Área principal — formato de chat (igual CloudChat, DataChat, FinOpsChat) */}
-      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
         <div className="pulso-chat-main-header p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 shrink-0 border-b border-primary/10">
           <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
             <div className="min-w-0 flex-1">
@@ -779,7 +779,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
 
         {/* Config — colapsável */}
         <Collapsible defaultOpen={false}>
-          <CollapsibleTrigger className="w-full p-3 flex items-center justify-between shrink-0 hover:bg-primary/5 transition-colors">
+          <CollapsibleTrigger className="pulso-chat-main-fixed-section w-full p-3 flex items-center justify-between shrink-0 hover:bg-primary/5 transition-colors">
             <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <FolderOpen className="h-4 w-4" />
               Configuração (pasta, .env)
@@ -1108,7 +1108,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           </div>
 
           {/* Input bar — igual aos outros chats */}
-          <div className="p-4 shrink-0">
+          <div className="pulso-chat-main-footer">
             <form
               onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
               className="flex gap-2 items-end"

@@ -836,17 +836,37 @@
 /* Baixar Relatório — mantém animação original com paleta dos botões de sugestão */
 .showcase-download-report-btn {
   position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: center;
   border-width: 0;
   color: #fff;
   font-size: 1.1em;
   font-weight: 600;
-  padding: 3px;
-  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
+  padding: 2px;
+  background: hsl(var(--card));
   border-radius: 0.9em;
   z-index: 1;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.4s ease;
+}
+.showcase-download-report-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
+  background-size: 200% 100%;
+  background-position: 100% 50%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: pulso-suggestion-border-loop 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 .showcase-download-report-btn .showcase-docs {
   display: flex;
@@ -864,7 +884,11 @@
   box-shadow: inset 8px -8px 16px var(--glass-shadow-dark, rgba(8, 5, 29, 0.5)),
               inset -8px 8px 16px var(--glass-shadow-light, rgba(79, 159, 243, 0.08));
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+  transform: translateY(0%);
   color: #fff;
+  position: relative;
+  z-index: 2;
+  will-change: transform;
 }
 .showcase-download-report-btn .showcase-docs span,
 .showcase-download-report-btn .showcase-docs svg {
@@ -886,17 +910,22 @@
   justify-content: center;
   max-width: calc(100% - 6px);
   margin: 0 auto;
-  z-index: -1;
+  z-index: 1;
   border-radius: 0.5em;
   transform: translateY(100%);
-  background: linear-gradient(90deg, hsl(var(--primary)), #a54bce, hsl(var(--primary)));
+  background: var(--glass-bg, hsl(232 32% 12% / 0.55));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: none;
   color: #fff;
+  opacity: 0;
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+  will-change: transform, opacity;
 }
 .showcase-download-report-btn:hover:not(:disabled) .showcase-download {
   transform: translateY(0%);
-  z-index: 0;
+  opacity: 1;
+  z-index: 1;
 }
 .showcase-download-report-btn .showcase-download svg polyline,
 .showcase-download-report-btn .showcase-download svg line {
@@ -1072,6 +1101,7 @@
   font-size: 0.8em;
   padding: 2px;
   border-radius: 0.6em;
+  min-height: 32px;
 }
 .showcase-download-report-btn--compact .showcase-docs {
   padding: 0.4em 0.55em;
@@ -2199,8 +2229,9 @@
   aspect-ratio: 1;
 }
 
-/* Padronização visual: botões "gradient/glow" no padrão das sugestões */
+/* Padronização visual global: botões escuros com borda ciano */
 .btn-padrao-gradient,
+.pulso-suggestion-btn,
 .showcase-toolbar-btn {
   background: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--primary) / 0.6) !important;
@@ -2211,15 +2242,38 @@
 
 .btn-padrao-gradient::before,
 .btn-padrao-gradient::after,
-.showcase-toolbar-btn::before {
+.pulso-suggestion-btn::before,
+.pulso-suggestion-btn::after,
+.showcase-toolbar-btn::before,
+.showcase-toolbar-btn::after {
   display: none !important;
 }
 
 .btn-padrao-gradient:hover:not(:disabled),
+.pulso-suggestion-btn:hover:not(:disabled),
 .showcase-toolbar-btn:hover:not(:disabled) {
   background: hsl(var(--card) / 0.95) !important;
   border-color: hsl(var(--primary) / 0.85) !important;
   box-shadow: 0 0 0 1px hsl(var(--primary) / 0.28), 0 0 16px hsl(var(--primary) / 0.18) !important;
+}
+
+/* Toolbar: herda a padronização global */
+.showcase-toolbar-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 2px;
+  min-height: 32px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: hsl(var(--card)) !important;
+  border: none !important;
+  border-radius: 0.6em;
+  color: #fff !important;
+  overflow: visible;
+  transition: all 0.3s ease;
 }
 
 /* Padrão de botão (estilo send/barra de busca) — para botões genéricos */
