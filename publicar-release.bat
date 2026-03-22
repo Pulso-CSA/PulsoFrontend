@@ -5,7 +5,7 @@ title Pulso - Build e publicar release no GitHub
 cd /d "%~dp0"
 
 REM Descomente a linha abaixo e coloque seu token (ou deixe GH_TOKEN definido nas variáveis de ambiente do Windows)
-set GH_TOKEN=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
+REM set GH_TOKEN=seu_token_aqui
 
 if "%GH_TOKEN%"=="" (
     echo [AVISO] GH_TOKEN nao definido. Defina nas variaveis de ambiente do Windows

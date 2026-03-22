@@ -286,7 +286,7 @@ const FinOpsChat = () => {
   };
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
+    <div className="pulso-chat-layout flex-1 h-full min-h-0 overflow-hidden">
       {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
@@ -302,7 +302,7 @@ const FinOpsChat = () => {
 
       {/* Área principal */}
       <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="pulso-chat-main-header p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
+      <div className="pulso-chat-main-header p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
             <DollarSign className="h-4 w-4 shrink-0 text-primary" />
@@ -386,7 +386,7 @@ const FinOpsChat = () => {
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div
-                className={`max-w-[80%] rounded-lg p-3 transition-all duration-300 hover:scale-[1.01] ${
+                className={`max-w-[85%] rounded-lg p-3 transition-all duration-300 hover:scale-[1.01] ${
                   message.role === "user"
                     ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground border border-primary/20"
                     : "bg-chat-system text-chat-system-foreground"

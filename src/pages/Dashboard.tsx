@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, Play, Loader2, type LucideIcon } from "lucide-react";
+import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, Play, Loader2, Activity, BarChart3, TrendingUp, Circle, Percent, MessageCircle, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -44,7 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { previewApi } from "@/lib/api";
+import { previewApi, insightsApi, type InsightsWidgetResponse } from "@/lib/api";
 
 export type InsightsFilterKey = "all" | ServiceKey | "custom";
 
@@ -69,11 +69,75 @@ type InsightsWidget = {
   data?: Array<{ label: string; value: number }>;
 };
 
+type InsightsChatHistoryItem = {
+  id: string;
+  prompt: string;
+  createdAt: number;
+  status: "gerando" | "criado" | "fallback" | "orientacao";
+  chartTitle?: string;
+  assistantMessage?: string;
+};
+
 const INSIGHTS_WIDGETS_INITIAL: InsightsWidget[] = [
   { id: "post-views", title: "Post Views", value: "2,012", trend: "+12.3%", period: "Últimas 24h", chartType: "area", insights: ["O pico de visualizações ocorre entre 12h e 14h.", "Considere agendar posts nesse horário para maximizar alcance."], serviceFilter: "pulso", analysisSummary: "Visualizações de posts ao longo do dia.", technicalConclusion: "Pico entre 12h–14h; recomendado agendar publicações nesse intervalo." },
   { id: "conversoes", title: "Conversões", value: "1,245", trend: "+8.1%", period: "Últimos 7 dias", chartType: "bar", insights: ["Taxa de conversão está acima da média do setor.", "O funil sugere que o checkout pode ser simplificado."], serviceFilter: "data", analysisSummary: "Conversões por período.", technicalConclusion: "Taxa acima da média; oportunidade de simplificar checkout." },
   { id: "sales", title: "Sales", value: "39,500", trend: "+20%", period: "Este mês", chartType: "progress", progressPercent: 76, insights: ["Volume de conversas está estável nesta semana.", "Tempo médio de resposta pode ser reduzido com automação."], serviceFilter: "finops", analysisSummary: "Progresso de vendas no mês.", technicalConclusion: "Volume estável; automação pode reduzir tempo de resposta." },
 ];
+
+const INSIGHTS_CHART_TYPE_OPTIONS: {
+  type: AnalyticsChartType;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { type: "area", label: "Gráfico de área", icon: Activity },
+  { type: "bar", label: "Gráfico de barras", icon: BarChart3 },
+  { type: "line", label: "Gráfico de linha", icon: TrendingUp },
+  { type: "pie", label: "Gráfico de pizza", icon: Circle },
+  { type: "progress", label: "Gráfico de progresso", icon: Percent },
+];
+
+const INSIGHTS_SERVICE_LABELS: Record<ServiceKey | "custom", string> = {
+  pulso: "Pulso CSA",
+  cloud: "Cloud IaC",
+  finops: "FinOps",
+  data: "Dados & IA",
+  custom: "Personalizado",
+};
+
+const INSIGHTS_CHART_LABELS: Record<AnalyticsChartType, string> = {
+  area: "Área",
+  bar: "Barras",
+  line: "Linha",
+  pie: "Pizza",
+  progress: "Progresso",
+};
+
+const buildInsightsRequestId = () =>
+  (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function")
+    ? crypto.randomUUID()
+    : `ins-${Date.now()}`;
+
+const mapApiWidgetToDashboard = (widget: InsightsWidgetResponse): InsightsWidget => ({
+  id: widget.id,
+  title: widget.title,
+  value: widget.value,
+  trend: widget.trend,
+  period: widget.period,
+  chartType: widget.chart_type,
+  progressPercent: widget.progress_percent,
+  insights: widget.insights ?? [],
+  serviceFilter: widget.service_filter ?? "data",
+  customPrompt: widget.custom_prompt,
+  analysisSummary: widget.analysis_summary,
+  technicalConclusion: widget.technical_conclusion,
+  data: widget.data,
+});
+
+const isGenericCreateChartPrompt = (prompt: string) => {
+  const p = prompt.trim().toLowerCase();
+  if (!p) return true;
+  return /^(criar|gere|gerar|montar|fazer)?\s*(um\s*)?(gr[aá]fico|grafico|insight)(\s*por\s*chat)?[.!?]*$/.test(p);
+};
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -89,11 +153,15 @@ const Dashboard = () => {
   const [previewStartLoading, setPreviewStartLoading] = useState(false);
 
   const [insightsWidgets, setInsightsWidgets] = useState<InsightsWidget[]>(() => INSIGHTS_WIDGETS_INITIAL);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insightsGenerating, setInsightsGenerating] = useState(false);
   const [insightsZoom, setInsightsZoom] = useState(1);
-  const [insightsLayoutMode, setInsightsLayoutMode] = useState<"grid" | "free">("grid");
+  const insightsLayoutMode = "free" as const;
   const [insightsPositions, setInsightsPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [insightsDragging, setInsightsDragging] = useState<{ id: string; startX: number; startY: number; posX: number; posY: number } | null>(null);
   const [insightsMenuOpen, setInsightsMenuOpen] = useState(false);
+  const [insightsChatOpen, setInsightsChatOpen] = useState(false);
+  const [insightsChatHistory, setInsightsChatHistory] = useState<InsightsChatHistoryItem[]>([]);
   const [insightsFilter, setInsightsFilter] = useState<InsightsFilterKey>("all");
   const [insightsPan, setInsightsPan] = useState({ x: 0, y: 0 });
   const [insightsPanning, setInsightsPanning] = useState<{ startX: number; startY: number; startPanX: number; startPanY: number } | null>(null);
@@ -234,24 +302,105 @@ const Dashboard = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadInsightsWidgets = async () => {
+      setInsightsLoading(true);
+      try {
+        const res = await insightsApi.listWidgets();
+        if (cancelled || !res.widgets?.length) return;
+        setInsightsWidgets(res.widgets.map(mapApiWidgetToDashboard));
+      } catch (err) {
+        if (cancelled) return;
+        toast({
+          title: "Insights com dados locais",
+          description: err instanceof Error ? err.message : "Não foi possível carregar os widgets do backend.",
+        });
+      } finally {
+        if (!cancelled) setInsightsLoading(false);
+      }
+    };
+    loadInsightsWidgets();
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
+
   const ZOOM_MIN = 0.5;
   const ZOOM_MAX = 2;
   const ZOOM_STEP = 0.1;
 
   const handleInsightsZoomIn = () => setInsightsZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
   const handleInsightsZoomOut = () => setInsightsZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
-  const handleInsightsCreateChart = () => {
+  const handleInsightsCreateChart = (chartType: AnalyticsChartType = "area") => {
+    const chartLabelMap: Record<AnalyticsChartType, string> = {
+      area: "Área",
+      bar: "Barras",
+      line: "Linha",
+      pie: "Pizza",
+      progress: "Progresso",
+    };
+    const sampleDataByType: Record<"area" | "bar" | "line" | "pie", Array<{ label: string; value: number }>> = {
+      area: [
+        { label: "8h", value: 120 },
+        { label: "10h", value: 280 },
+        { label: "12h", value: 450 },
+        { label: "14h", value: 380 },
+        { label: "16h", value: 520 },
+        { label: "18h", value: 412 },
+      ],
+      bar: [
+        { label: "Norte", value: 420 },
+        { label: "Sul", value: 380 },
+        { label: "Leste", value: 510 },
+        { label: "Oeste", value: 290 },
+        { label: "Centro", value: 340 },
+      ],
+      line: [
+        { label: "Jan", value: 120 },
+        { label: "Fev", value: 180 },
+        { label: "Mar", value: 145 },
+        { label: "Abr", value: 220 },
+        { label: "Mai", value: 190 },
+        { label: "Jun", value: 260 },
+      ],
+      pie: [
+        { label: "Canal A", value: 35 },
+        { label: "Canal B", value: 28 },
+        { label: "Canal C", value: 22 },
+        { label: "Outros", value: 15 },
+      ],
+    };
+    const isProgressChart = chartType === "progress";
+    const chartData = !isProgressChart
+      ? sampleDataByType[chartType as "area" | "bar" | "line" | "pie"]
+      : [];
+    const value = isProgressChart
+      ? "65%"
+      : String(chartData.reduce((acc, item) => acc + item.value, 0).toLocaleString("pt-BR"));
+
     const id = `widget-${Date.now()}`;
     const newIndex = insightsWidgets.length;
     const defaultService: ServiceKey | "custom" = insightsFilter === "custom" ? "custom" : insightsFilter === "all" ? "data" : insightsFilter;
     setInsightsWidgets((prev) => [
       ...prev,
-      { id, title: "Novo gráfico", value: "0", trend: "0%", period: "—", chartType: "area", insights: [], serviceFilter: defaultService },
+      {
+        id,
+        title: `Novo gráfico (${chartLabelMap[chartType]})`,
+        value,
+        trend: "+0%",
+        period: "Agora",
+        chartType,
+        progressPercent: isProgressChart ? 65 : undefined,
+        insights: [],
+        serviceFilter: defaultService,
+        data: isProgressChart ? undefined : chartData,
+      },
     ]);
     if (insightsLayoutMode === "free") {
       setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
     }
-    toast({ title: "Gráfico criado", description: "Adicione dados e insights conforme necessário." });
+    toast({ title: "Gráfico criado", description: `Tipo selecionado: ${chartLabelMap[chartType]}.` });
   };
   const handleInsightsDeleteChart = (id: string) => {
     setInsightsWidgets((prev) => prev.filter((w) => w.id !== id));
@@ -263,25 +412,44 @@ const Dashboard = () => {
     setInsightsConnections((prev) => prev.filter((c) => c.from !== id && c.to !== id));
     toast({ title: "Gráfico excluído", variant: "destructive" });
   };
-  const handleInsightsUpdateChart = () => {
-    toast({ title: "Atualização", description: "Dados dos gráficos atualizados." });
-  };
-
-  const handleInsightsToggleReposition = () => {
-    setInsightsLayoutMode((mode) => {
-      const next = mode === "grid" ? "free" : "grid";
-      if (next === "free") {
-        setInsightsPositions((pos) => {
-          const nextPos = { ...pos };
-          insightsWidgets.forEach((w, i) => {
-            if (nextPos[w.id]) return;
-            nextPos[w.id] = { x: 20 + (i % 3) * 280, y: 20 + Math.floor(i / 3) * 200 };
+  const handleInsightsUpdateChart = async () => {
+    const widgetsToRefresh = insightsWidgets.filter((w) => !!w.customPrompt?.trim());
+    if (!widgetsToRefresh.length) {
+      toast({
+        title: "Sem gráficos para atualizar",
+        description: "Crie ao menos um gráfico via chat para atualizar com dados do backend.",
+      });
+      return;
+    }
+    setInsightsGenerating(true);
+    try {
+      const refreshed = await Promise.all(
+        widgetsToRefresh.map(async (widget) => {
+          const res = await insightsApi.generateWidget({
+            prompt: widget.customPrompt!,
+            id_requisicao: buildInsightsRequestId(),
+            service_filter: (widget.serviceFilter ?? "data") as "pulso" | "cloud" | "finops" | "data" | "custom",
           });
-          return nextPos;
-        });
-      }
-      return next;
-    });
+          return { previousId: widget.id, next: mapApiWidgetToDashboard(res.widget) };
+        })
+      );
+      setInsightsWidgets((prev) =>
+        prev.map((item) => {
+          const found = refreshed.find((f) => f.previousId === item.id);
+          if (!found) return item;
+          return { ...found.next, id: item.id };
+        })
+      );
+      toast({ title: "Atualização concluída", description: `${refreshed.length} gráfico(s) atualizado(s).` });
+    } catch (err) {
+      toast({
+        title: "Falha ao atualizar insights",
+        description: err instanceof Error ? err.message : "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    } finally {
+      setInsightsGenerating(false);
+    }
   };
 
   useEffect(() => {
@@ -353,73 +521,129 @@ const Dashboard = () => {
     toast({ title: "Gráfico atualizado", description: prompt ? "Análise gerada conforme sua descrição." : "Serviço e preferências salvos." });
   };
 
-  const handleInsightsCreateFromChat = (prompt: string) => {
-    const lower = prompt.toLowerCase();
-    let chartType: AnalyticsChartType = "bar";
-    if (/\b(evolução|evolucao|tendência|tendencia|ao longo|série|serie|linha)\b/.test(lower)) chartType = "line";
-    else if (/\b(distribuição|distribuicao|participação|participacao|proporção|proporcao|%|pie|pizza)\b/.test(lower)) chartType = "pie";
-    else if (/\b(progresso|meta|objetivo|% do total)\b/.test(lower)) chartType = "progress";
-
-    const sampleDataByType: Record<string, Array<{ label: string; value: number }>> = {
-      line: [
-        { label: "Jan", value: 120 },
-        { label: "Fev", value: 180 },
-        { label: "Mar", value: 145 },
-        { label: "Abr", value: 220 },
-        { label: "Mai", value: 190 },
-        { label: "Jun", value: 260 },
-      ],
-      bar: [
-        { label: "Norte", value: 420 },
-        { label: "Sul", value: 380 },
-        { label: "Leste", value: 510 },
-        { label: "Oeste", value: 290 },
-        { label: "Centro", value: 340 },
-      ],
-      pie: [
-        { label: "Canal A", value: 35 },
-        { label: "Canal B", value: 28 },
-        { label: "Canal C", value: 22 },
-        { label: "Outros", value: 15 },
-      ],
-      area: [
-        { label: "8h", value: 120 },
-        { label: "10h", value: 280 },
-        { label: "12h", value: 450 },
-        { label: "14h", value: 380 },
-        { label: "16h", value: 520 },
-        { label: "18h", value: 412 },
-      ],
-    };
-    const data = sampleDataByType[chartType] ?? sampleDataByType.bar;
-
+  const handleInsightsCreateFromChat = async (prompt: string): Promise<{
+    ok: boolean;
+    chartTitle: string;
+    chartType: AnalyticsChartType;
+    service: ServiceKey | "custom";
+  }> => {
+    const defaultService: ServiceKey | "custom" = insightsFilter === "custom" ? "custom" : insightsFilter === "all" ? "data" : insightsFilter;
     const id = `widget-${Date.now()}`;
     const newIndex = insightsWidgets.length;
-    const defaultService: ServiceKey | "custom" = insightsFilter === "custom" ? "custom" : insightsFilter === "all" ? "data" : insightsFilter;
-    const title = prompt.length > 36 ? prompt.slice(0, 36) + "…" : prompt;
-    const isProgressChart = chartType === "progress";
-    setInsightsWidgets((prev) => [
-      ...prev,
-      {
-        id,
-        title,
-        value: data.length ? String(data.reduce((a, d) => a + d.value, 0).toLocaleString("pt-BR")) : "—",
-        trend: "+0%",
-        period: "Gerado por chat",
-        chartType: chartType === "pie" ? "pie" : chartType,
-        progressPercent: isProgressChart ? 65 : undefined,
-        insights: [`Gráfico criado a partir de: "${prompt.slice(0, 60)}${prompt.length > 60 ? "…" : ""}".`],
-        serviceFilter: defaultService,
-        customPrompt: prompt,
-        analysisSummary: `Análise: ${prompt.slice(0, 80)}${prompt.length > 80 ? "…" : ""}.`,
-        technicalConclusion: "Dados de demonstração. Conecte uma fonte real para dados em tempo real.",
-        data: isProgressChart ? undefined : data,
-      },
-    ]);
-    if (insightsLayoutMode === "free") {
-      setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
+    setInsightsGenerating(true);
+    try {
+      const res = await insightsApi.generateWidget({
+        prompt,
+        id_requisicao: buildInsightsRequestId(),
+        service_filter: defaultService,
+      });
+      const mapped = mapApiWidgetToDashboard(res.widget);
+      setInsightsWidgets((prev) => [...prev, { ...mapped, id }]);
+      if (insightsLayoutMode === "free") {
+        setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
+      }
+      toast({ title: "Gráfico criado", description: `"${mapped.title}" adicionado ao dashboard.` });
+      return {
+        ok: true,
+        chartTitle: mapped.title,
+        chartType: mapped.chartType,
+        service: (mapped.serviceFilter ?? defaultService) as ServiceKey | "custom",
+      };
+    } catch (err) {
+      toast({
+        title: "Falha ao gerar insight no backend",
+        description: "Usando gráfico local de fallback para não interromper o fluxo.",
+      });
+      const title = prompt.length > 36 ? prompt.slice(0, 36) + "…" : prompt;
+      const fallbackData = [
+        { label: "P1", value: 120 },
+        { label: "P2", value: 180 },
+        { label: "P3", value: 145 },
+        { label: "P4", value: 220 },
+      ];
+      setInsightsWidgets((prev) => [
+        ...prev,
+        {
+          id,
+          title,
+          value: String(fallbackData.reduce((a, d) => a + d.value, 0).toLocaleString("pt-BR")),
+          trend: "+0%",
+          period: "Gerado por chat",
+          chartType: "bar",
+          insights: [err instanceof Error ? err.message : "Erro ao conectar com o backend de insights."],
+          serviceFilter: defaultService,
+          customPrompt: prompt,
+          analysisSummary: `Análise: ${prompt.slice(0, 80)}${prompt.length > 80 ? "…" : ""}.`,
+          technicalConclusion: "Fallback local utilizado por indisponibilidade temporária do backend.",
+          data: fallbackData,
+        },
+      ]);
+      if (insightsLayoutMode === "free") {
+        setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
+      }
+      return {
+        ok: false,
+        chartTitle: title,
+        chartType: "bar",
+        service: defaultService,
+      };
+    } finally {
+      setInsightsGenerating(false);
     }
-    toast({ title: "Gráfico criado", description: `"${title}" adicionado ao dashboard.` });
+  };
+
+  const submitInsightsPromptWithHistory = async (prompt: string) => {
+    if (isGenericCreateChartPrompt(prompt)) {
+      const serviceHint = insightsFilter === "all"
+        ? "Todos (ou selecione Pulso CSA, Cloud IaC, FinOps, Dados & IA)"
+        : insightsFilter === "custom"
+          ? "Personalizado"
+          : INSIGHTS_SERVICE_LABELS[insightsFilter];
+      const guidance = [
+        "Para criar de forma autônoma, me diga:",
+        `1) Serviço: ${serviceHint}`,
+        "2) Tipo de gráfico: área, barras, linha, pizza ou progresso",
+        "3) Objetivo do gráfico: ex. comparar custo por cloud, monitorar churn, evolução de receita",
+      ].join("\n");
+      setInsightsChatHistory((prev) => [
+        ...prev,
+        {
+          id: `hist-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          prompt,
+          createdAt: Date.now(),
+          status: "orientacao",
+          assistantMessage: guidance,
+        },
+      ]);
+      toast({
+        title: "Detalhes necessários para criar o gráfico",
+        description: "Informe serviço, tipo e objetivo para geração autônoma.",
+      });
+      return;
+    }
+
+    const historyId = `hist-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setInsightsChatHistory((prev) => [
+      ...prev,
+      { id: historyId, prompt, createdAt: Date.now(), status: "gerando" },
+    ]);
+    const result = await handleInsightsCreateFromChat(prompt);
+    const serviceLabel = INSIGHTS_SERVICE_LABELS[result.service];
+    const chartLabel = INSIGHTS_CHART_LABELS[result.chartType];
+    const outcome = result.ok ? "criado com sucesso" : "criado com fallback local";
+    const assistantMessage = `Serviço selecionado: ${serviceLabel}. Tipo definido: ${chartLabel}. Objetivo interpretado: ${prompt}. Resultado: ${outcome}.`;
+    setInsightsChatHistory((prev) =>
+      prev.map((item) =>
+        item.id === historyId
+          ? {
+              ...item,
+              status: result.ok ? "criado" : "fallback",
+              chartTitle: result.chartTitle,
+              assistantMessage,
+            }
+          : item
+      )
+    );
   };
 
   const handleInsightsAddConnection = (fromId: string, toId: string) => {
@@ -548,9 +772,9 @@ const Dashboard = () => {
         </div>
       );
     }
-    if (activeService === "cloud") return <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"><CloudChat /></div>;
-    if (activeService === "finops") return <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"><FinOpsChat /></div>;
-    if (activeService === "data") return <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"><DataChat /></div>;
+    if (activeService === "cloud") return <div className="flex-1 h-full min-h-0 flex flex-col overflow-hidden"><CloudChat /></div>;
+    if (activeService === "finops") return <div className="flex-1 h-full min-h-0 flex flex-col overflow-hidden"><FinOpsChat /></div>;
+    if (activeService === "data") return <div className="flex-1 h-full min-h-0 flex flex-col overflow-hidden"><DataChat /></div>;
 
     const INSIGHTS_FILTER_BUTTONS: { key: InsightsFilterKey; icon: LucideIcon; label: string }[] = [
       { key: "all", icon: LayoutGrid, label: "Todos" },
@@ -563,44 +787,37 @@ const Dashboard = () => {
 
     return (
       <div className="pulso-insights-screen flex-1 min-h-0 flex flex-col overflow-hidden relative">
-        {/* Navbar compacta: filtros de análise (Todos, serviços, personalizado) + exportar */}
-        <nav className="pulso-insights-navbar" aria-label="Filtros de Insights">
-          <div className="pulso-insights-navbar-inner">
-            {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setInsightsFilter(key)}
-                className={cn(
-                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal pulso-insights-navbar-btn-with-label text-white gap-1.5 px-3",
-                  insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
-                )}
-                title={label}
-                aria-label={`Filtrar: ${label}`}
-                aria-pressed={insightsFilter === key}
-              >
-                <Icon className="shrink-0" strokeWidth={1.5} />
-                <span className="font-medium whitespace-nowrap text-xs">{label}</span>
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={handleExportInsights}
-              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
-              title="Baixar relatório"
-              aria-label="Baixar relatório do dashboard"
-            >
-              <Download className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-              <span className="font-medium whitespace-nowrap">Exportar</span>
-            </button>
-          </div>
-        </nav>
-        {/* Criação por chat — estilo Power BI */}
-        <div className="flex-shrink-0 px-4 pt-2 pb-1">
-          <InsightsChatBar onSubmit={handleInsightsCreateFromChat} placeholder="Ex: vendas por região, churn mensal, evolução de receita..." />
-        </div>
         {/* Conteúdo rolável (cards + zoom) */}
         <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
+        <div className="flex flex-wrap items-center gap-2 py-3">
+          {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setInsightsFilter(key)}
+              className={cn(
+                "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1.5 px-3 h-9 min-w-[36px] text-xs",
+                insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
+              )}
+              title={label}
+              aria-label={`Filtrar: ${label}`}
+              aria-pressed={insightsFilter === key}
+            >
+              <Icon className="shrink-0 h-4 w-4" strokeWidth={1.5} />
+              <span className="font-medium whitespace-nowrap text-xs">{label}</span>
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={handleExportInsights}
+            className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
+            title="Baixar relatório"
+            aria-label="Baixar relatório do dashboard"
+          >
+            <Download className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <span className="font-medium whitespace-nowrap">Exportar</span>
+          </button>
+        </div>
         <div
           ref={insightsZoomContainerRef}
           className={cn(
@@ -609,9 +826,6 @@ const Dashboard = () => {
             insightsLayoutMode === "grid" && "cursor-context-menu"
           )}
           style={{ minHeight: 200 }}
-          onClick={(e) => {
-            if (!(e.target as HTMLElement).closest(".pulso-metric-card")) setInsightsMenuOpen(true);
-          }}
           onMouseDown={(e) => {
             if (e.button !== 0 || insightsLayoutMode !== "free") return;
             if ((e.target as HTMLElement).closest(".pulso-metric-card")) return;
@@ -651,10 +865,20 @@ const Dashboard = () => {
                       </div>
                     </ContextMenuTrigger>
                     <ContextMenuContent className="w-56 pulso-dropdown-menu-glass">
-                      <ContextMenuItem onClick={() => { handleInsightsCreateChart(); setInsightsMenuOpen(false); }}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Criar gráfico
-                      </ContextMenuItem>
+                      <ContextMenuSub>
+                        <ContextMenuSubTrigger>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Criar gráfico
+                        </ContextMenuSubTrigger>
+                        <ContextMenuSubContent className="pulso-dropdown-menu-glass">
+                          {INSIGHTS_CHART_TYPE_OPTIONS.map(({ type, label, icon: Icon }) => (
+                            <ContextMenuItem key={type} onClick={() => { handleInsightsCreateChart(type); setInsightsMenuOpen(false); }}>
+                              <Icon className="mr-2 h-4 w-4" />
+                              {label}
+                            </ContextMenuItem>
+                          ))}
+                        </ContextMenuSubContent>
+                      </ContextMenuSub>
                       <ContextMenuItem onClick={() => { setCustomizeWidgetId(w.id); setCustomizeForm({ service: (w.serviceFilter ?? "data") as ServiceKey | "custom", prompt: w.customPrompt ?? "" }); }}>
                         <SlidersHorizontal className="mr-2 h-4 w-4" />
                         Customizar
@@ -774,10 +998,20 @@ const Dashboard = () => {
                           </div>
                         </ContextMenuTrigger>
                         <ContextMenuContent className="w-56 pulso-dropdown-menu-glass">
-                          <ContextMenuItem onClick={() => { handleInsightsCreateChart(); setInsightsMenuOpen(false); }}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Criar gráfico
-                          </ContextMenuItem>
+                          <ContextMenuSub>
+                            <ContextMenuSubTrigger>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Criar gráfico
+                            </ContextMenuSubTrigger>
+                            <ContextMenuSubContent className="pulso-dropdown-menu-glass">
+                              {INSIGHTS_CHART_TYPE_OPTIONS.map(({ type, label, icon: Icon }) => (
+                                <ContextMenuItem key={type} onClick={() => { handleInsightsCreateChart(type); setInsightsMenuOpen(false); }}>
+                                  <Icon className="mr-2 h-4 w-4" />
+                                  {label}
+                                </ContextMenuItem>
+                              ))}
+                            </ContextMenuSubContent>
+                          </ContextMenuSub>
                           <ContextMenuItem onClick={() => setCustomizeWidgetId(w.id)}>
                             <SlidersHorizontal className="mr-2 h-4 w-4" />
                             Customizar
@@ -815,9 +1049,89 @@ const Dashboard = () => {
           </div>
         </div>
         </div>
+        {/* Chatbot popup para criar insights em linguagem natural */}
+        {activeService === null && (
+          <>
+            <div className="pulso-insights-chat-launcher">
+              <ul>
+                <li
+                  style={{ ["--i" as string]: "#905DED", ["--j" as string]: "#4F9FF3" }}
+                  onClick={() => setInsightsChatOpen(true)}
+                  aria-label="Abrir chatbot de insights"
+                  title="Criar gráfico por chat"
+                >
+                  <span className="icon">
+                    <MessageCircle className="h-6 w-6" />
+                  </span>
+                  <span className="title">Messages</span>
+                </li>
+              </ul>
+            </div>
+            <Dialog open={insightsChatOpen} onOpenChange={setInsightsChatOpen}>
+              <DialogContent className="sm:max-w-2xl pulso-insights-chat-dialog">
+                <DialogHeader>
+                  <DialogTitle>Criar gráfico por chat</DialogTitle>
+                </DialogHeader>
+                <div className="pulso-insights-chat-history">
+                  {insightsChatHistory.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      Histórico da sessão aparecerá aqui. Envie um prompt para gerar seu primeiro gráfico.
+                    </p>
+                  ) : (
+                    insightsChatHistory.map((item) => (
+                      <div key={item.id} className="space-y-1">
+                        <div className="pulso-insights-chat-user-bubble">
+                          <p className="text-sm text-foreground">{item.prompt}</p>
+                        </div>
+                        <div className="pulso-insights-chat-assistant-bubble">
+                          <p className="text-xs text-muted-foreground">
+                            {item.status === "gerando" && "Gerando insight no backend..."}
+                            {item.status === "criado" && `Gráfico criado: ${item.chartTitle ?? "Novo gráfico"}`}
+                            {item.status === "fallback" && `Fallback local aplicado: ${item.chartTitle ?? "Novo gráfico"}`}
+                            {item.status === "orientacao" && "Detalhes necessários para criação autônoma."}
+                          </p>
+                          {item.assistantMessage && (
+                            <p className="text-xs text-foreground/90 mt-2 whitespace-pre-line leading-relaxed">
+                              {item.assistantMessage}
+                            </p>
+                          )}
+                          {(item.status === "criado" || item.status === "fallback") && (
+                            <div className="mt-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs pulso-insights-chat-repeat-btn"
+                                onClick={() => {
+                                  void submitInsightsPromptWithHistory(item.prompt);
+                                }}
+                                disabled={insightsGenerating}
+                              >
+                                Usar novamente
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground px-1">
+                          {new Date(item.createdAt).toLocaleTimeString("pt-BR")}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <InsightsChatBar
+                  onSubmit={(prompt) => {
+                    void submitInsightsPromptWithHistory(prompt);
+                  }}
+                  disabled={insightsLoading || insightsGenerating}
+                  placeholder={insightsGenerating ? "Gerando insight no backend..." : "Ex: vendas por região, churn mensal, evolução de receita..."}
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
         {/* Barra de zoom: canto inferior central */}
         {activeService === null && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg min-w-[200px] max-w-[280px]">
+          <div className="absolute bottom-[6.5rem] left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg min-w-[200px] max-w-[280px]">
             <span className="text-xs text-muted-foreground whitespace-nowrap">Zoom</span>
             <Slider
               value={[insightsZoom]}
@@ -839,8 +1153,6 @@ const Dashboard = () => {
             onCreateChart={handleInsightsCreateChart}
             onDeleteChart={handleInsightsDeleteChart}
             onUpdateChart={handleInsightsUpdateChart}
-            onToggleReposition={handleInsightsToggleReposition}
-            repositionMode={insightsLayoutMode === "free"}
             widgetIds={insightsWidgets.map((w) => ({ id: w.id, title: w.title }))}
             zoomLevel={insightsZoom}
           />
@@ -922,7 +1234,11 @@ const Dashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <LayoutA className="pulso-layout-a--chat-scroll-lock" activeService={activeService} onServiceChange={setActiveService}>
+      <LayoutA
+        className={cn(activeService === null && "pulso-layout-a--chat-scroll-lock")}
+        activeService={activeService}
+        onServiceChange={setActiveService}
+      >
         {content}
       </LayoutA>
     </>

@@ -375,14 +375,12 @@
 
 /* Variante compacta — dentro da caixa de texto */
 .showcase-docs-loader--compact {
-  width: auto;
+  width: 52px;
   height: 36px;
-  min-width: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
+  min-width: 52px;
+  display: block;
   margin-top: 0;
+  flex-shrink: 0;
 }
 .showcase-docs-loader--compact > div {
   width: 44px;
@@ -406,11 +404,7 @@
   height: 36px;
 }
 .showcase-docs-loader--compact span {
-  margin-top: 0;
-  text-align: left;
-  flex: 1;
-  min-width: 0;
-  font-size: 0.8125rem;
+  display: none;
 }
 
 @keyframes showcase-page-2 {
@@ -453,13 +447,13 @@
 
 /* Variante compacta — dentro da caixa de texto */
 .showcase-typewriter--compact {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  transform: scale(0.32);
+  display: inline-block;
+  width: 120px;
+  height: 56px;
+  transform: scale(0.5);
   transform-origin: left center;
   animation: none;
+  flex-shrink: 0;
 }
 .showcase-typewriter--compact .showcase-slide {
   animation: showcase-slide05 var(--showcase-duration) ease infinite;

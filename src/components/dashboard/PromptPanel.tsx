@@ -727,7 +727,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   }));
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
+    <div className="pulso-chat-layout flex-1 h-full min-h-0 overflow-hidden">
       {/* Sidebar - Histórico de conversas (elementos 08 Save, 10 Delete) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar

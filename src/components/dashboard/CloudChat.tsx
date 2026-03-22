@@ -262,7 +262,7 @@ const CloudChat = () => {
   const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
+    <div className="pulso-chat-layout flex-1 h-full min-h-0 overflow-hidden">
       {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
@@ -278,7 +278,7 @@ const CloudChat = () => {
 
       {/* Área principal */}
       <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="pulso-chat-main-header p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
+      <div className="pulso-chat-main-header p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
             <CloudCog className="h-4 w-4 shrink-0 text-primary" />
@@ -288,47 +288,46 @@ const CloudChat = () => {
             Infraestrutura como código em linguagem natural
           </p>
         </div>
-        <DownloadReportButton
-          onClick={async () => {
-            const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
-            const result = await exportReport({ serviceId: "cloud", messages: msgs, format: "md" });
-            toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
-          }}
-          disabled={messages.length === 0}
-          className="showcase-download-report-btn--compact text-white shrink-0"
-        />
-      </div>
-
-      <div className="pulso-chat-main-fixed-section p-3 shrink-0">
-        <div className="relative w-full max-w-[320px] min-w-[200px] overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
-          <div className="showcase-search-poda w-full">
-            <div className="showcase-search-glow" aria-hidden />
-            <div className="showcase-search-darkBorderBg" aria-hidden />
-            <div className="showcase-search-darkBorderBg" aria-hidden />
-            <div className="showcase-search-darkBorderBg" aria-hidden />
-            <div className="showcase-search-white" aria-hidden />
-            <div className="showcase-search-border" aria-hidden />
-            <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
-              <input
-                type="text"
-                placeholder="Caminho do projeto (opcional)"
-                value={rootPath}
-                onChange={(e) => handleRootPathChange(e.target.value)}
-                className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
-                aria-label="Caminho do projeto"
-              />
-              <FolderFileUpload
-                compact
-                className="pulso-folder-file-upload--inline-path"
-                onFileChange={(files) => {
-                  const f = files?.item(0);
-                  if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
-                }}
-              >
-                {""}
-              </FolderFileUpload>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-[320px] min-w-[200px] overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
+            <div className="showcase-search-poda w-full">
+              <div className="showcase-search-glow" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-darkBorderBg" aria-hidden />
+              <div className="showcase-search-white" aria-hidden />
+              <div className="showcase-search-border" aria-hidden />
+              <div className="showcase-search-main flex-1 min-w-0 flex items-center relative">
+                <input
+                  type="text"
+                  placeholder="Caminho do projeto (opcional)"
+                  value={rootPath}
+                  onChange={(e) => handleRootPathChange(e.target.value)}
+                  className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
+                  aria-label="Caminho do projeto"
+                />
+                <FolderFileUpload
+                  compact
+                  className="pulso-folder-file-upload--inline-path"
+                  onFileChange={(files) => {
+                    const f = files?.item(0);
+                    if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
+                  }}
+                >
+                  {""}
+                </FolderFileUpload>
+              </div>
             </div>
           </div>
+          <DownloadReportButton
+            onClick={async () => {
+              const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
+              const result = await exportReport({ serviceId: "cloud", messages: msgs, format: "md" });
+              toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+            }}
+            disabled={messages.length === 0}
+            className="showcase-download-report-btn--compact text-white shrink-0"
+          />
         </div>
       </div>
 

@@ -545,7 +545,7 @@ const DataChat = () => {
   const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0 overflow-hidden">
+    <div className="pulso-chat-layout flex-1 h-full min-h-0 overflow-hidden">
       {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
@@ -722,7 +722,7 @@ const DataChat = () => {
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-4 animate-slide-up`}
             >
               <div
-                className={`max-w-[90%] rounded-2xl px-5 py-4 shadow-sm transition-all duration-fluid ease-fluid hover:shadow-md ${
+                className={`max-w-[85%] rounded-2xl px-5 py-4 shadow-sm transition-all duration-fluid ease-fluid hover:shadow-md ${
                   message.role === "user"
                     ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground shadow-md ml-auto border"
                     : message.retryPrompt

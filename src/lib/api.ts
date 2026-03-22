@@ -429,7 +429,7 @@ export const subscriptionApi = {
   },
 
   getInvoices: async () => {
-    return apiRequest<{ invoices: any[] }>('/subscription/invoices');
+    return apiRequest<{ invoices: unknown[] }>('/subscription/invoices');
   },
 
   cancel: async (immediately: boolean = false) => {
@@ -566,6 +566,47 @@ export const inteligenciaApi = {
       };
     }>('/inteligencia-dados/chat', {
       method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+export type InsightsServiceFilter = "pulso" | "cloud" | "finops" | "data" | "custom";
+export type InsightsChartType = "area" | "bar" | "line" | "pie" | "progress";
+
+export type InsightsWidgetResponse = {
+  id: string;
+  title: string;
+  value: string;
+  trend: string;
+  period: string;
+  chart_type: InsightsChartType;
+  progress_percent?: number;
+  insights: string[];
+  service_filter?: InsightsServiceFilter;
+  custom_prompt?: string;
+  analysis_summary?: string;
+  technical_conclusion?: string;
+  data?: Array<{ label: string; value: number }>;
+};
+
+export const insightsApi = {
+  listWidgets: async () => {
+    return apiRequest<{ widgets: InsightsWidgetResponse[] }>("/inteligencia-dados/insights/widgets");
+  },
+
+  generateWidget: async (payload: {
+    prompt: string;
+    id_requisicao: string;
+    dataset_ref?: string;
+    service_filter?: InsightsServiceFilter;
+  }) => {
+    return apiRequest<{
+      id_requisicao: string;
+      dataset_ref?: string;
+      widget: InsightsWidgetResponse;
+    }>("/inteligencia-dados/insights/generate", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
   },
