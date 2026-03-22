@@ -24,7 +24,7 @@ const PromptSearchInput = React.forwardRef<HTMLInputElement, PromptSearchInputPr
     };
 
     return (
-      <div className={cn("relative w-full overflow-hidden", variant === "prompt" && "showcase-search-poda--prompt")}>
+      <div className={cn("relative w-full overflow-visible", variant === "prompt" && "showcase-search-poda--prompt")}>
         <div className="showcase-search-poda">
           <div className="showcase-search-glow" aria-hidden />
           <div className="showcase-search-darkBorderBg" aria-hidden />

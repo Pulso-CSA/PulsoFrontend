@@ -1,3 +1,5 @@
+import eulaText from "../../../PULSO TECH - EULA (Contrato de Licença de Usuário Final).docx.md?raw";
+
 const btnBase = {
   padding: "10px 24px",
   borderRadius: 8,
@@ -19,7 +21,14 @@ export default function EulaScreen({ onNext, onBack }: { onNext: () => void; onB
         flexDirection: "column",
       }}
     >
-      <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 16, color: "hsl(var(--fg))" }}>
+      <h2
+        style={{
+          fontSize: 22,
+          fontWeight: 700,
+          marginBottom: 16,
+          color: "hsl(var(--fg))",
+        }}
+      >
         Contrato de Licença (EULA)
       </h2>
       <div
@@ -37,32 +46,16 @@ export default function EulaScreen({ onNext, onBack }: { onNext: () => void; onB
           color: "hsl(var(--muted-fg))",
         }}
       >
-        <p style={{ marginBottom: 12 }}>
-          <strong>EXEMPLO DE EULA — Substitua pelo texto real</strong>
-        </p>
-        <p style={{ marginBottom: 12 }}>
-          Este Acordo de Licença de Usuário Final (EULA) é um contrato legal entre você e a Pulso Tech
-          (Licenciador) relativo ao software Pulso (Software).
-        </p>
-        <p style={{ marginBottom: 12 }}>
-          <strong>1. Concessão de Licença.</strong> O Licenciador concede a você uma licença limitada, não exclusiva
-          e intransferível para usar o Software, sujeita aos termos deste EULA.
-        </p>
-        <p style={{ marginBottom: 12 }}>
-          <strong>2. Restrições.</strong> Você concorda em não copiar, modificar, distribuir ou fazer engenharia reversa
-          do Software sem autorização prévia por escrito.
-        </p>
-        <p style={{ marginBottom: 12 }}>
-          <strong>3. Propriedade Intelectual.</strong> O Software é protegido por leis de propriedade intelectual.
-          Todos os direitos não expressamente concedidos são reservados ao Licenciador.
-        </p>
-        <p style={{ marginBottom: 12 }}>
-          <strong>4. Limitação de Responsabilidade.</strong> O Software é fornecido como está. O Licenciador não
-          se responsabiliza por danos indiretos, incidentais ou consequenciais.
-        </p>
-        <p>
-          Ao clicar em Aceito, você concorda com os termos deste contrato. Caso não concorde, cancele a instalação.
-        </p>
+        <pre
+          style={{
+            margin: 0,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+          }}
+        >
+          {eulaText}
+        </pre>
       </div>
       <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
         <button

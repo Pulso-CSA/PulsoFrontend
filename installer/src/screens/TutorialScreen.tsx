@@ -1,4 +1,4 @@
-import { Workflow, CloudCog, TrendingDown, Brain, LayoutGrid, PanelLeft, LayoutDashboard } from "lucide-react";
+import { Workflow, CloudCog, TrendingDown, Brain } from "lucide-react";
 
 const btnBase = {
   padding: "10px 24px",
@@ -37,12 +37,6 @@ const features = [
   },
 ];
 
-const layouts = [
-  { icon: LayoutGrid, name: "Grid", desc: "Seleção central de camadas" },
-  { icon: PanelLeft, name: "Sidebar", desc: "Navegação lateral compacta" },
-  { icon: LayoutDashboard, name: "Bento", desc: "Grade com cards que expandem" },
-];
-
 export default function TutorialScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
   return (
     <div
@@ -56,10 +50,10 @@ export default function TutorialScreen({ onNext, onBack }: { onNext: () => void;
       }}
     >
       <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: "hsl(var(--fg))" }}>
-        O que o Pulso faz
+        Como o Pulso organiza seu trabalho
       </h2>
       <p style={{ fontSize: 14, color: "hsl(var(--muted-fg))", marginBottom: 20 }}>
-        Quatro camadas integradas em um único dashboard:
+        Quatro camadas integradas em um único dashboard, sempre com o mesmo visual do app principal:
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
         {features.map((f, i) => {
@@ -98,34 +92,13 @@ export default function TutorialScreen({ onNext, onBack }: { onNext: () => void;
         })}
       </div>
       <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: "hsl(var(--fg))" }}>
-        Três layouts disponíveis
+        Área de Insights
       </h3>
-      <p style={{ fontSize: 13, color: "hsl(var(--muted-fg))", marginBottom: 12 }}>
-        Use o seletor no header para alternar entre Grid, Sidebar e Bento.
+      <p style={{ fontSize: 13, color: "hsl(var(--muted-fg))", marginBottom: 16 }}>
+        Quando nenhuma camada estiver selecionada, o Pulso mostra um painel de Insights com gráficos gerados a partir
+        do uso real das camadas. Você pode criar novos gráficos por texto, reorganizar os cards, conectar análises
+        relacionadas e exportar um relatório em Markdown — tudo com o mesmo estilo visual da aplicação.
       </p>
-      <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
-        {layouts.map((l, i) => {
-          const Icon = l.icon;
-          return (
-            <div
-              key={i}
-              style={{
-                flex: 1,
-                minWidth: 100,
-                padding: 12,
-                borderRadius: 10,
-                background: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border) / 0.5)",
-                textAlign: "center",
-              }}
-            >
-              <Icon size={24} style={{ color: "hsl(var(--primary))", marginBottom: 6 }} />
-              <div style={{ fontSize: 13, fontWeight: 600, color: "hsl(var(--fg))" }}>{l.name}</div>
-              <div style={{ fontSize: 11, color: "hsl(var(--muted-fg))" }}>{l.desc}</div>
-            </div>
-          );
-        })}
-      </div>
       <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: "auto" }}>
         <button
           onClick={onBack}

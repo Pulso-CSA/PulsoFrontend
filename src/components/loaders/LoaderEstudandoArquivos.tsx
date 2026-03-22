@@ -21,16 +21,35 @@ export function LoaderEstudandoArquivos({
   message = "Estudando seus arquivos...",
   compact = false,
 }: LoaderEstudandoArquivosProps) {
+  if (compact) {
+    return (
+      <div className={cn("flex flex-row items-center gap-3 w-full min-h-[44px] px-2", className)}>
+        <div className="w-[56px] h-[36px] shrink-0 flex items-center" aria-hidden>
+          <div className="showcase-docs-loader showcase-docs-loader--compact">
+            <div>
+              <ul>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <li key={i}>
+                    <DocSvg />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs font-medium text-foreground/90 truncate">{message}</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        compact
-          ? "flex flex-row items-center justify-center gap-3 w-full min-h-[44px] px-4"
-          : "flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-card/60 backdrop-blur-xl p-6",
+        "flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-card/60 backdrop-blur-xl p-6",
         className
       )}
     >
-      <div className={cn("showcase-docs-loader", compact && "showcase-docs-loader--compact")}>
+      <div className="showcase-docs-loader">
         <div>
           <ul>
             {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -40,7 +59,7 @@ export function LoaderEstudandoArquivos({
             ))}
           </ul>
         </div>
-        <span className={compact ? "text-xs" : ""}>{message}</span>
+        <span>{message}</span>
       </div>
     </div>
   );

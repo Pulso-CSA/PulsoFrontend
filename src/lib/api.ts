@@ -429,7 +429,7 @@ export const subscriptionApi = {
   },
 
   getInvoices: async () => {
-    return apiRequest<{ invoices: any[] }>('/subscription/invoices');
+    return apiRequest<{ invoices: unknown[] }>('/subscription/invoices');
   },
 
   cancel: async (immediately: boolean = false) => {
@@ -571,6 +571,47 @@ export const inteligenciaApi = {
   },
 };
 
+export type InsightsServiceFilter = "pulso" | "cloud" | "finops" | "data" | "custom";
+export type InsightsChartType = "area" | "bar" | "line" | "pie" | "progress";
+
+export type InsightsWidgetResponse = {
+  id: string;
+  title: string;
+  value: string;
+  trend: string;
+  period: string;
+  chart_type: InsightsChartType;
+  progress_percent?: number;
+  insights: string[];
+  service_filter?: InsightsServiceFilter;
+  custom_prompt?: string;
+  analysis_summary?: string;
+  technical_conclusion?: string;
+  data?: Array<{ label: string; value: number }>;
+};
+
+export const insightsApi = {
+  listWidgets: async () => {
+    return apiRequest<{ widgets: InsightsWidgetResponse[] }>("/inteligencia-dados/insights/widgets");
+  },
+
+  generateWidget: async (payload: {
+    prompt: string;
+    id_requisicao: string;
+    dataset_ref?: string;
+    service_filter?: InsightsServiceFilter;
+  }) => {
+    return apiRequest<{
+      id_requisicao: string;
+      dataset_ref?: string;
+      widget: InsightsWidgetResponse;
+    }>("/inteligencia-dados/insights/generate", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
 // FinOps API
 export const finopsApi = {
   chat: async (payload: {
@@ -662,11 +703,21 @@ export const workflowApi = {
 
 // Comprehension API – entrada única do fluxo (análise/criação/correção)
 export const comprehensionApi = {
-  run: async (payload: {
-    usuario: string;
-    prompt: string;
-    root_path: string | null;
-  }) => {
+  run: async (
+    payload: {
+      usuario: string;
+      prompt: string;
+      root_path: string | null;
+      use_python?: boolean;
+      use_javascript?: boolean;
+      use_typescript?: boolean;
+      use_react?: boolean;
+      use_vue?: boolean;
+      use_angular?: boolean;
+    },
+    endpoint: string = 'comprehension'
+  ) => {
+    const endpointPath = endpoint === 'comprehension-js' ? '/comprehension-js/run' : '/comprehension/run';
     return apiRequest<{
       intent: string;
       project_state: string;
@@ -680,11 +731,32 @@ export const comprehensionApi = {
       frontend_suggestion: string | null;
       curl_commands?: string[];
       preview_frontend_url?: string | null;
-    }>('/comprehension/run', {
+      language?: string;
+      framework?: string;
+    }>(endpointPath, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   },
+};
+
+// Preview API – inicia servidor de desenvolvimento (npm run dev / streamlit run)
+export const previewApi = {
+  start: async (payload: { root_path: string; project_type?: "auto" | "javascript" | "python" }) =>
+    apiRequest<{
+      success: boolean;
+      preview_url?: string | null;
+      /** URL do frontend (alternativa a preview_url). Backend pode retornar um ou outro. */
+      preview_frontend_url?: string | null;
+      /** Backend retorna sempre false. Quando false: NUNCA abrir nova aba/terminal/navegador automaticamente. */
+      preview_auto_open?: boolean;
+      message?: string;
+      project_type?: string;
+      details?: unknown;
+    }>("/preview/start", {
+      method: "POST",
+      body: JSON.stringify({ ...payload, project_type: payload.project_type ?? "auto" }),
+    }),
 };
 
 // Deploy / Logs API - Docker e Venv

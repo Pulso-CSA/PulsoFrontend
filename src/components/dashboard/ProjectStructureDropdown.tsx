@@ -9,6 +9,8 @@ import type { FileNode } from "./FileTree";
 
 interface ProjectStructureDropdownProps {
   structure: FileNode[] | null;
+  /** Fallback: exibe o texto bruto quando o parsing da estrutura falhar */
+  rawFileTree?: string | null;
   className?: string;
 }
 
@@ -33,10 +35,12 @@ function renderNode(node: FileNode, level: number): React.ReactNode {
   );
 }
 
-export function ProjectStructureDropdown({ structure, className }: ProjectStructureDropdownProps) {
+export function ProjectStructureDropdown({ structure, rawFileTree, className }: ProjectStructureDropdownProps) {
   const [open, setOpen] = useState(false);
 
-  if (!structure || structure.length === 0) return null;
+  const hasStructure = structure && structure.length > 0;
+  const hasRawFallback = rawFileTree?.trim() && !hasStructure;
+  if (!hasStructure && !hasRawFallback) return null;
 
   return (
     <div className={cn("relative inline-block", className)}>
@@ -63,7 +67,13 @@ export function ProjectStructureDropdown({ structure, className }: ProjectStruct
               <span className="text-emerald-600 dark:text-emerald-400 font-medium">*</span> = criado neste run
             </p>
             <div className="space-y-0.5">
-              {structure.map((node) => renderNode(node, 0))}
+              {hasStructure
+                ? structure!.map((node) => renderNode(node, 0))
+                : (
+                    <pre className="text-xs font-mono text-foreground whitespace-pre-wrap break-words overflow-x-auto">
+                      {rawFileTree!.trim()}
+                    </pre>
+                  )}
             </div>
           </div>
         </>

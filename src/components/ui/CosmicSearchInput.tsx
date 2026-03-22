@@ -3,7 +3,7 @@
  * Efeito galaxy, stardust, cosmic-ring, starfield, nebula; ícone wormhole à direita com borda rotativa.
  */
 import * as React from "react";
-import { Search, Globe } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface CosmicSearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -50,14 +50,11 @@ const CosmicSearchInput = React.forwardRef<HTMLInputElement, CosmicSearchInputPr
           />
           <div className="cosmic-input-mask" aria-hidden />
           <div className="cosmic-glow" aria-hidden />
-          <div className="cosmic-search-icon" aria-hidden>
-            <Search className="h-5 w-5" strokeWidth={2} />
-          </div>
           {!isPulso && (
             <>
               <div className="cosmic-wormhole-border" aria-hidden />
               <div className="cosmic-wormhole-icon" aria-hidden>
-                <Globe className="h-5 w-5" strokeWidth={2} />
+                <Search className="h-5 w-5" strokeWidth={2} />
               </div>
             </>
           )}

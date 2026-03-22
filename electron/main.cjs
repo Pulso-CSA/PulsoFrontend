@@ -4,13 +4,10 @@ const fs = require("fs");
 
 let mainWindow;
 
-function setupAutoUpdater() {
+/** Repositório privado: o GitHub devolve 404 sem credencial válida (não revela se o repo existe). */
+function applyGithubTokenToAutoUpdater() {
   try {
     const { autoUpdater } = require("electron-updater");
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = true;
-
-    // Repositório privado no GitHub: precisa de token para listar/baixar releases
     const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
     if (token) {
       autoUpdater.requestHeaders = {
@@ -18,6 +15,18 @@ function setupAutoUpdater() {
         Authorization: `token ${token}`,
       };
     }
+  } catch (_) {
+    /* electron-updater indisponível */
+  }
+}
+
+function setupAutoUpdater() {
+  try {
+    const { autoUpdater } = require("electron-updater");
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+
+    applyGithubTokenToAutoUpdater();
 
     autoUpdater.on("update-available", (info) => {
       mainWindow?.webContents?.send("update-available", { version: info?.version });
@@ -88,6 +97,7 @@ function createWindow() {
 
   ipcMain.handle("check-for-updates", async () => {
     try {
+      applyGithubTokenToAutoUpdater();
       const { autoUpdater } = require("electron-updater");
       const result = await autoUpdater.checkForUpdates();
       const info = result?.updateInfo;
@@ -115,6 +125,7 @@ function createWindow() {
 
   ipcMain.handle("update-download", async () => {
     try {
+      applyGithubTokenToAutoUpdater();
       const { autoUpdater } = require("electron-updater");
       await autoUpdater.downloadUpdate();
     } catch (e) {

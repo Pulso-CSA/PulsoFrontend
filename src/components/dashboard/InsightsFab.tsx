@@ -1,10 +1,11 @@
 /**
- * FAB da aba Insights: criar, excluir, atualizar, deletar gráficos, reposicionar, zoom.
+ * FAB da aba Insights: criar, excluir, atualizar, deletar gráficos e zoom.
  * Só deve ser exibido quando o usuário está na aba de Insights (activeService === null).
  */
 import { useState } from "react";
-import { LayoutGrid, Plus, Trash2, RefreshCw, Move, ZoomIn, ZoomOut } from "lucide-react";
+import { LayoutGrid, Plus, Trash2, RefreshCw, ZoomIn, ZoomOut, Activity, BarChart3, TrendingUp, Circle, Percent, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { AnalyticsChartType } from "@/components/dashboard/AnalyticsCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,11 +20,9 @@ import {
 export interface InsightsFabProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
-  onCreateChart: () => void;
+  onCreateChart: (chartType: AnalyticsChartType) => void;
   onDeleteChart: (id: string) => void;
   onUpdateChart: () => void;
-  onToggleReposition: () => void;
-  repositionMode: boolean;
   widgetIds: { id: string; title: string }[];
   zoomLevel: number;
   /** Controla abertura do menu (ex.: clique esquerdo na área insights) */
@@ -38,14 +37,20 @@ export function InsightsFab({
   onCreateChart,
   onDeleteChart,
   onUpdateChart,
-  onToggleReposition,
-  repositionMode,
   widgetIds,
   zoomLevel,
   open: openProp,
   onOpenChange: onOpenChangeProp,
   className,
 }: InsightsFabProps) {
+  const CHART_TYPES: { type: AnalyticsChartType; label: string; Icon: LucideIcon }[] = [
+    { type: "area", label: "Gráfico de área", Icon: Activity },
+    { type: "bar", label: "Gráfico de barras", Icon: BarChart3 },
+    { type: "line", label: "Gráfico de linha", Icon: TrendingUp },
+    { type: "pie", label: "Gráfico de pizza", Icon: Circle },
+    { type: "progress", label: "Gráfico de progresso", Icon: Percent },
+  ];
+
   const [openInternal, setOpenInternal] = useState(false);
   const isControlled = openProp !== undefined;
   const open = isControlled ? openProp : openInternal;
@@ -78,18 +83,26 @@ export function InsightsFab({
         sideOffset={8}
         className="min-w-[220px] pulso-dropdown-menu-glass"
       >
-        <DropdownMenuItem onClick={() => { onCreateChart(); onOpenChange(false); }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Criar gráfico
-        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Plus className="mr-2 h-4 w-4" />
+            Criar gráfico
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="pulso-dropdown-menu-glass">
+            {CHART_TYPES.map((option) => (
+              <DropdownMenuItem
+                key={option.type}
+                onClick={() => { onCreateChart(option.type); onOpenChange(false); }}
+              >
+                <option.Icon className="mr-2 h-4 w-4" />
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuItem onClick={() => { onUpdateChart(); onOpenChange(false); }}>
           <RefreshCw className="mr-2 h-4 w-4" />
           Atualizar
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => { onToggleReposition(); onOpenChange(false); }}>
-          <Move className="mr-2 h-4 w-4" />
-          {repositionMode ? "Desativar reposição" : "Reposicionar livremente"}
         </DropdownMenuItem>
         {widgetIds.length > 0 && (
           <>

@@ -1,33 +1,18 @@
-import { useState, useEffect } from "react";
-import { Send, Trash2, Copy, FolderOpen, FileCode, Key, MapPin, Eye, EyeOff, CloudCog, MessageSquare, Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Copy, FolderOpen, FileCode, CloudCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { infraApi } from "@/lib/api";
-import { getAllCloudCredentials, setCloudCredentials, getRootPath, setRootPath, getCloudChatSessions, setCloudChatSessions, type ChatSession } from "@/lib/connectionStorage";
+import { getRootPath, setRootPath, getCloudChatSessions, setCloudChatSessions, getAllCloudCredentials, setCloudCredentials, type ChatSession } from "@/lib/connectionStorage";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
 import { FolderFileUpload } from "@/components/ui/FolderFileUpload";
 import { LoaderGenerating } from "@/components/loaders";
 import { ChatSidebar } from "./ChatSidebar";
-import { SiAmazonwebservices, SiGooglecloud } from "react-icons/si";
-import { TbBrandAzure } from "react-icons/tb";
+import CloudCredentialsDialog, { type CloudCredentialsState } from "./CloudCredentialsDialog";
 
 interface Message {
   id: string;
@@ -45,12 +30,6 @@ function restoreMessages(messages: (Omit<Message, "timestamp"> & { timestamp: st
   return messages.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
 }
 
-interface ProviderCredentials {
-  aws: { region: string; accessKeyId: string; secretAccessKey: string; accountId: string };
-  azure: { region: string; tenantId: string; clientId: string; clientSecret: string; subscriptionId: string };
-  gcp: { region: string; projectId: string; clientEmail: string; privateKey: string };
-}
-
 const CloudChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -61,20 +40,33 @@ const CloudChat = () => {
   const [rootPath, setRootPathState] = useState(() => getRootPath());
   const [loading, setLoading] = useState(false);
   const [activeProvider, setActiveProvider] = useState<"aws" | "azure" | "gcp">("aws");
-  const [showSecrets, setShowSecrets] = useState<{ aws: boolean; azure: boolean; gcp: boolean }>({ aws: false, azure: false, gcp: false });
-  const [expandedProvider, setExpandedProvider] = useState<"aws" | "azure" | "gcp" | null>(null);
-  const [credentials, setCredentials] = useState<ProviderCredentials>(getAllCloudCredentials);
+  const [credentialsOpen, setCredentialsOpen] = useState(false);
+  const [credentials, setCredentials] = useState<CloudCredentialsState>(getAllCloudCredentials);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCredentials(getAllCloudCredentials());
     setRootPathState(getRootPath());
+    setCredentials(getAllCloudCredentials());
   }, []);
 
   useEffect(() => {
-    const openCredentials = () => setExpandedProvider(activeProvider);
-    window.addEventListener("pulso-open-cloud-credentials", openCredentials);
-    return () => window.removeEventListener("pulso-open-cloud-credentials", openCredentials);
-  }, [activeProvider]);
+    const openCredentials = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: "cloud" | "finops" }>).detail;
+      if (detail?.target !== "cloud") return;
+      setCredentialsOpen(true);
+    };
+    const selectProvider = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: "cloud" | "finops"; provider?: "aws" | "azure" | "gcp" }>).detail;
+      if (detail?.target !== "cloud" || !detail.provider) return;
+      setActiveProvider(detail.provider);
+    };
+    window.addEventListener("pulso-open-cloud-credentials", openCredentials as EventListener);
+    window.addEventListener("pulso-select-cloud-provider", selectProvider as EventListener);
+    return () => {
+      window.removeEventListener("pulso-open-cloud-credentials", openCredentials as EventListener);
+      window.removeEventListener("pulso-select-cloud-provider", selectProvider as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     const s = getCloudChatSessions();
@@ -103,9 +95,12 @@ const CloudChat = () => {
     if (sessions.length > 0) setCloudChatSessions(sessions);
   }, [sessions]);
 
-  const awsRegions = ["us-east-1", "us-east-2", "us-west-1", "us-west-2", "sa-east-1", "eu-west-1", "eu-central-1", "ap-southeast-1"];
-  const azureRegions = ["eastus", "eastus2", "westus", "westus2", "brazilsouth", "westeurope", "northeurope", "southeastasia"];
-  const gcpRegions = ["us-east1", "us-west1", "us-central1", "southamerica-east1", "europe-west1", "asia-southeast1"];
+  // Mantém rolagem unitária no container da conversa.
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages, loading, currentSessionId]);
 
   const quickActions = [
     "Criar VPC com subnets públicas e privadas",
@@ -118,14 +113,6 @@ const CloudChat = () => {
     aws: { bg: "bg-orange-500", border: "border-orange-500", text: "text-orange-400", hsl: "hsl(35 100% 55%)" },
     azure: { bg: "bg-blue-500", border: "border-blue-500", text: "text-blue-400", hsl: "hsl(210 100% 55%)" },
     gcp: { bg: "bg-red-500", border: "border-red-500", text: "text-red-400", hsl: "hsl(4 80% 55%)" },
-  };
-
-  const handleSaveCredentials = (provider: "aws" | "azure" | "gcp") => {
-    setCloudCredentials(provider, credentials[provider]);
-    toast({
-      title: "Credenciais salvas",
-      description: `Configuração ${provider.toUpperCase()} salva com sucesso`,
-    });
   };
 
   const handleRootPathChange = (value: string) => {
@@ -263,190 +250,23 @@ const CloudChat = () => {
     toast({ title: "Código copiado", description: "Terraform copiado para a área de transferência" });
   };
 
-  const hasCredentials = (provider: "aws" | "azure" | "gcp") => {
-    const creds = credentials[provider];
-    return Object.values(creds).some(v => v && v.length > 0);
-  };
-
-  const providerInfo = {
-    aws: { 
-      name: "Amazon Web Services", 
-      gradient: "from-orange-500 to-yellow-500",
-      glow: "rgba(249, 115, 22, 0.4)",
-      border: "border-orange-500",
-      bg: "bg-orange-500"
-    },
-    azure: { 
-      name: "Microsoft Azure", 
-      gradient: "from-blue-500 to-cyan-400",
-      glow: "rgba(59, 130, 246, 0.4)",
-      border: "border-blue-500",
-      bg: "bg-blue-500"
-    },
-    gcp: { 
-      name: "Google Cloud Platform", 
-      gradient: "from-red-500 to-yellow-400",
-      glow: "rgba(239, 68, 68, 0.4)",
-      border: "border-red-500",
-      bg: "bg-red-500"
-    },
-  };
-
-  const renderProviderButton = (provider: "aws" | "azure" | "gcp", icon: React.ReactNode, label: string) => {
-    const info = providerInfo[provider];
-    const isActive = activeProvider === provider;
-    const isExpanded = expandedProvider === provider;
-    const configured = hasCredentials(provider);
-
-    return (
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => setActiveProvider(provider)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 ${
-            isActive 
-              ? `bg-gradient-to-r ${info.gradient} text-white shadow-lg` 
-              : 'bg-background/50 hover:bg-background/80 border border-border/50'
-          }`}
-          style={{ boxShadow: isActive ? `0 0 12px ${info.glow}` : 'none' }}
-        >
-          <div className={`text-xl ${isActive ? 'text-white' : providerColors[provider].text}`}>
-            {icon}
-          </div>
-          <span className={`font-semibold text-xs ${isActive ? 'text-white' : 'text-foreground'}`}>{label}</span>
-          {configured && (
-            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-green-500'}`} />
-          )}
-        </button>
-        
-        <button
-          onClick={() => setExpandedProvider(isExpanded ? null : provider)}
-          className={`p-1.5 rounded-lg transition-all ${isExpanded ? info.bg + ' text-white' : 'hover:bg-accent text-muted-foreground'}`}
-        >
-          <Key className="h-3 w-3" />
-        </button>
-      </div>
-    );
-  };
-
-  const renderCredentialsPanel = (provider: "aws" | "azure" | "gcp") => {
-    const info = providerInfo[provider];
-    
-    return (
-      <Collapsible open={expandedProvider === provider}>
-        <CollapsibleContent className="animate-accordion-down">
-          <div className={`space-y-3 p-3 mt-2 rounded-xl border ${info.border}/30 bg-background/80 backdrop-blur-sm`}>
-            {provider === "aws" && (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs flex items-center gap-1"><MapPin className="h-3 w-3" />Região</Label>
-                    <Select value={credentials.aws.region} onValueChange={(v) => setCredentials({ ...credentials, aws: { ...credentials.aws, region: v } })}>
-                      <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>{awsRegions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Account ID</Label>
-                    <Input className="h-8 text-xs" placeholder="123456789012" value={credentials.aws.accountId} onChange={(e) => setCredentials({ ...credentials, aws: { ...credentials.aws, accountId: e.target.value } })} />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs flex items-center gap-1"><Key className="h-3 w-3" />Access Key ID</Label>
-                  <Input className="h-8 text-xs" placeholder="AKIAIOSFODNN7EXAMPLE" value={credentials.aws.accessKeyId} onChange={(e) => setCredentials({ ...credentials, aws: { ...credentials.aws, accessKeyId: e.target.value } })} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Secret Access Key</Label>
-                  <div className="relative">
-                    <Input className="h-8 text-xs pr-8" type={showSecrets.aws ? "text" : "password"} placeholder="••••••••" value={credentials.aws.secretAccessKey} onChange={(e) => setCredentials({ ...credentials, aws: { ...credentials.aws, secretAccessKey: e.target.value } })} />
-                    <button type="button" onClick={() => setShowSecrets({ ...showSecrets, aws: !showSecrets.aws })} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
-                      {showSecrets.aws ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                    </button>
-                  </div>
-                </div>
-                <Button size="sm" className={`w-full h-8 text-xs bg-gradient-to-r ${info.gradient} hover:opacity-90 text-white`} onClick={() => handleSaveCredentials("aws")}>Salvar AWS</Button>
-              </>
-            )}
-            {provider === "azure" && (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs flex items-center gap-1"><MapPin className="h-3 w-3" />Região</Label>
-                    <Select value={credentials.azure.region} onValueChange={(v) => setCredentials({ ...credentials, azure: { ...credentials.azure, region: v } })}>
-                      <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>{azureRegions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Subscription ID</Label>
-                    <Input className="h-8 text-xs" placeholder="xxxxxxxx-xxxx" value={credentials.azure.subscriptionId} onChange={(e) => setCredentials({ ...credentials, azure: { ...credentials.azure, subscriptionId: e.target.value } })} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Tenant ID</Label>
-                    <Input className="h-8 text-xs" placeholder="xxxxxxxx-xxxx" value={credentials.azure.tenantId} onChange={(e) => setCredentials({ ...credentials, azure: { ...credentials.azure, tenantId: e.target.value } })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs flex items-center gap-1"><Key className="h-3 w-3" />Client ID</Label>
-                    <Input className="h-8 text-xs" placeholder="xxxxxxxx-xxxx" value={credentials.azure.clientId} onChange={(e) => setCredentials({ ...credentials, azure: { ...credentials.azure, clientId: e.target.value } })} />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Client Secret</Label>
-                  <div className="relative">
-                    <Input className="h-8 text-xs pr-8" type={showSecrets.azure ? "text" : "password"} placeholder="••••••••" value={credentials.azure.clientSecret} onChange={(e) => setCredentials({ ...credentials, azure: { ...credentials.azure, clientSecret: e.target.value } })} />
-                    <button type="button" onClick={() => setShowSecrets({ ...showSecrets, azure: !showSecrets.azure })} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
-                      {showSecrets.azure ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                    </button>
-                  </div>
-                </div>
-                <Button size="sm" className={`w-full h-8 text-xs bg-gradient-to-r ${info.gradient} hover:opacity-90 text-white`} onClick={() => handleSaveCredentials("azure")}>Salvar Azure</Button>
-              </>
-            )}
-            {provider === "gcp" && (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs flex items-center gap-1"><MapPin className="h-3 w-3" />Região</Label>
-                    <Select value={credentials.gcp.region} onValueChange={(v) => setCredentials({ ...credentials, gcp: { ...credentials.gcp, region: v } })}>
-                      <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>{gcpRegions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Project ID</Label>
-                    <Input className="h-8 text-xs" placeholder="my-project-123" value={credentials.gcp.projectId} onChange={(e) => setCredentials({ ...credentials, gcp: { ...credentials.gcp, projectId: e.target.value } })} />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs flex items-center gap-1"><Key className="h-3 w-3" />Client Email</Label>
-                  <Input className="h-8 text-xs" placeholder="sa@project.iam.gserviceaccount.com" value={credentials.gcp.clientEmail} onChange={(e) => setCredentials({ ...credentials, gcp: { ...credentials.gcp, clientEmail: e.target.value } })} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Private Key</Label>
-                  <div className="relative">
-                    <Input className="h-8 text-xs pr-8" type={showSecrets.gcp ? "text" : "password"} placeholder="••••••••" value={credentials.gcp.privateKey} onChange={(e) => setCredentials({ ...credentials, gcp: { ...credentials.gcp, privateKey: e.target.value } })} />
-                    <button type="button" onClick={() => setShowSecrets({ ...showSecrets, gcp: !showSecrets.gcp })} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
-                      {showSecrets.gcp ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                    </button>
-                  </div>
-                </div>
-                <Button size="sm" className={`w-full h-8 text-xs bg-gradient-to-r ${info.gradient} hover:opacity-90 text-white`} onClick={() => handleSaveCredentials("gcp")}>Salvar GCP</Button>
-              </>
-            )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    );
+  const handleSaveCredentials = (provider: "aws" | "azure" | "gcp") => {
+    setCloudCredentials(provider, credentials[provider]);
+    setCredentialsOpen(false);
+    toast({
+      title: "Credenciais salvas",
+      description: `Credenciais ${provider.toUpperCase()} atualizadas com sucesso`,
+    });
   };
 
   const sessionItems = sessions.map((s) => ({ id: s.id, title: s.title, updatedAt: s.updatedAt }));
 
   return (
-    <div className="pulso-chat-layout h-full min-h-0">
+    <div className="pulso-chat-layout flex-1 h-full min-h-0 overflow-hidden">
       {/* Sidebar — Histórico (mesma posição que PulsoCSA) */}
       <div className="pulso-chat-sidebar glass-strong">
         <ChatSidebar
+          serviceId="cloud"
           sessions={sessionItems}
           currentSessionId={currentSessionId}
           onSelect={handleOpenChat}
@@ -457,11 +277,19 @@ const CloudChat = () => {
       </div>
 
       {/* Área principal */}
-      <div className="pulso-chat-main flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
-      <div className="p-3 flex flex-row items-center gap-3 shrink-0 min-w-0">
-        {/* Caminho do projeto + Escolher arquivo + Baixar relatório à esquerda (mesmo estilo da barra de envio) */}
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <div className="relative w-full max-w-[320px] min-w-[200px] overflow-hidden showcase-search-poda--prompt showcase-search-poda--toolbar">
+      <div className="pulso-chat-main pulso-chat-main-shell flex flex-col min-h-0 rounded-xl border border-primary/20 glass-strong overflow-hidden">
+      <div className="pulso-chat-main-header p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0 border-b border-primary/10">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
+            <CloudCog className="h-4 w-4 shrink-0 text-primary" />
+            Cloud IaC
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            Infraestrutura como código em linguagem natural
+          </p>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-[320px] min-w-[200px] overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
             <div className="showcase-search-poda w-full">
               <div className="showcase-search-glow" aria-hidden />
               <div className="showcase-search-darkBorderBg" aria-hidden />
@@ -478,20 +306,18 @@ const CloudChat = () => {
                   className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
                   aria-label="Caminho do projeto"
                 />
-                <div className="showcase-trailing-actions absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                  <FolderFileUpload
-                    compact
-                    onFileChange={(files) => {
-                      const f = files?.item(0);
-                      if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
-                    }}
-                  >
-                    <FolderOpen className="h-4 w-4" />
-                  </FolderFileUpload>
-                </div>
+                <FolderFileUpload
+                  compact
+                  className="pulso-folder-file-upload--inline-path"
+                  onFileChange={(files) => {
+                    const f = files?.item(0);
+                    if (f) handleRootPathChange((f as File & { path?: string }).path ?? f.name ?? "");
+                  }}
+                >
+                  {""}
+                </FolderFileUpload>
               </div>
             </div>
-            <div className="showcase-prompt-gradient-bar rounded-full w-full" aria-hidden />
           </div>
           <DownloadReportButton
             onClick={async () => {
@@ -503,39 +329,11 @@ const CloudChat = () => {
             className="showcase-download-report-btn--compact text-white shrink-0"
           />
         </div>
-        <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate shrink-0">
-          <CloudCog className="h-4 w-4 shrink-0 text-primary" />
-          Cloud Infrastructure
-        </h2>
       </div>
 
-      {/* Provedores + Credenciais — painel vertical ao lado do chat */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
-        <div className="p-3 shrink-0 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm max-w-[280px] flex flex-col gap-2">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">Provedores</p>
-          <div className="flex flex-col gap-0.5">
-            {renderProviderButton("aws", <SiAmazonwebservices className="h-5 w-5 shrink-0" />, "AWS")}
-            {renderProviderButton("azure", <TbBrandAzure className="h-5 w-5 shrink-0" />, "Azure")}
-            {renderProviderButton("gcp", <SiGooglecloud className="h-5 w-5 shrink-0" />, "GCP")}
-          </div>
-          <button
-            type="button"
-            onClick={() => setExpandedProvider(expandedProvider === activeProvider ? null : activeProvider)}
-            className="w-full flex items-center gap-2 px-3 py-2 mt-1 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors border-t border-border/50"
-          >
-            <Key className="h-4 w-4 shrink-0" />
-            Credenciais
-          </button>
-          <div className="mt-1 flex flex-col gap-2">
-            {renderCredentialsPanel("aws")}
-            {renderCredentialsPanel("azure")}
-            {renderCredentialsPanel("gcp")}
-          </div>
-        </div>
-
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="pulso-chat-main-body">
         {/* Chat Area */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
+        <div ref={messagesContainerRef} className="pulso-chat-scroll-area p-5 space-y-5">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <CloudCog className="h-12 w-12 text-primary/50" />
@@ -595,7 +393,7 @@ const CloudChat = () => {
             )}
         </div>
 
-        <div className="p-4 shrink-0">
+        <div className="pulso-chat-main-footer">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -616,7 +414,16 @@ const CloudChat = () => {
         </div>
       </div>
       </div>
-      </div>
+      <CloudCredentialsDialog
+        open={credentialsOpen}
+        onOpenChange={setCredentialsOpen}
+        provider={activeProvider}
+        credentials={credentials}
+        onCredentialsChange={setCredentials}
+        onSave={handleSaveCredentials}
+        title="Credenciais Cloud IaC"
+        description="Preencha as credenciais do provedor selecionado para usar no Cloud IaC."
+      />
     </div>
   );
 };
