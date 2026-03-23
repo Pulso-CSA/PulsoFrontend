@@ -553,45 +553,46 @@ All colors MUST be HSL.
 
   /* ===== PULSO LIGHT — refinado, contraste suave, paleta harmoniosa ===== */
   .theme-pulso-light {
-    --background: 220 20% 98%;
-    --foreground: 225 35% 12%;
+    /* Inspirado no visual predominante dos HTMLs Pulso (surface claro + navy) */
+    --background: 210 24% 98%;
+    --foreground: 210 28% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 225 35% 12%;
+    --card-foreground: 210 28% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 225 35% 12%;
-    --primary: 189 72% 38%;
+    --popover-foreground: 210 28% 12%;
+    --primary: 214 38% 17%;
     --primary-foreground: 0 0% 100%;
-    --primary-deep: 189 72% 28%;
-    --primary-light: 189 55% 55%;
-    --secondary: 268 45% 42%;
+    --primary-deep: 214 42% 12%;
+    --primary-light: 214 24% 40%;
+    --secondary: 211 28% 39%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 220 14% 94%;
-    --muted-foreground: 225 20% 35%;
-    --accent: 189 65% 42%;
+    --muted: 210 18% 93%;
+    --muted-foreground: 210 12% 32%;
+    --accent: 214 34% 23%;
     --accent-foreground: 0 0% 100%;
-    --success: 158 52% 36%;
-    --success-foreground: 0 0% 100%;
+    --success: 145 62% 45%;
+    --success-foreground: 210 28% 10%;
     --warning: 38 88% 50%;
-    --warning-foreground: 225 35% 12%;
-    --destructive: 0 65% 48%;
+    --warning-foreground: 210 28% 10%;
+    --destructive: 0 68% 45%;
     --destructive-foreground: 0 0% 100%;
-    --info: 199 70% 44%;
-    --finops: 158 52% 36%;
-    --data-ai: 268 50% 50%;
-    --border: 220 14% 88%;
-    --input: 220 12% 96%;
-    --ring: 189 72% 38%;
-    --chat-user: 189 68% 40%;
-    --chat-system: 268 45% 45%;
+    --info: 208 38% 43%;
+    --finops: 145 62% 45%;
+    --data-ai: 214 26% 36%;
+    --border: 210 16% 82%;
+    --input: 210 20% 96%;
+    --ring: 214 38% 17%;
+    --chat-user: 214 34% 24%;
+    --chat-system: 208 24% 40%;
     --chat-user-foreground: 0 0% 100%;
     --chat-system-foreground: 0 0% 100%;
-    --glow-primary: 189 68% 44%;
-    --glow-finops: 158 52% 40%;
-    --radius: 0.625rem;
-    /* Glass light — sombras mais suaves */
+    --glow-primary: 145 88% 70%;
+    --glow-finops: 145 62% 45%;
+    --radius: 0.75rem;
+    /* Glass light com profundidade suave, alinhado aos HTMLs claros */
     --glass-bg: hsl(0 0% 100% / 0.85);
-    --glass-shadow-dark: rgba(0, 0, 0, 0.04);
-    --glass-shadow-light: rgba(79, 159, 243, 0.06);
+    --glass-shadow-dark: rgba(13, 27, 42, 0.08);
+    --glass-shadow-light: rgba(255, 255, 255, 0.45);
   }
 
   .theme-pulso-medium {
@@ -851,7 +852,7 @@ All colors MUST be HSL.
   }
 
   .theme-pulso-light body {
-    background: linear-gradient(180deg, hsl(220 18% 97%) 0%, hsl(220 14% 94%) 100%) !important;
+    background: linear-gradient(180deg, hsl(210 24% 98%) 0%, hsl(210 14% 93%) 100%) !important;
     background-attachment: fixed;
   }
 
@@ -967,8 +968,8 @@ All colors MUST be HSL.
   /* Tema claro: fundo suave para manter consistência */
   .theme-pulso-light .bg-space-if-dark {
     background:
-      radial-gradient(60% 50% at 50% 20%, rgba(146, 93, 241, 0.08) 0%, transparent 60%),
-      radial-gradient(45% 40% at 60% 70%, rgba(79, 159, 243, 0.06) 0%, transparent 65%),
+      radial-gradient(60% 50% at 20% 0%, rgba(13, 27, 42, 0.06) 0%, transparent 60%),
+      radial-gradient(45% 40% at 85% 80%, rgba(107, 254, 156, 0.09) 0%, transparent 65%),
       radial-gradient(120% 120% at 50% 50%, hsl(var(--background)) 0%, hsl(var(--background)) 100%);
   }
 
