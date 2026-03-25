@@ -1,3 +1,7 @@
+# Disparado por tag v* (ex.: release-patch.bat).
+# O electron-updater do app Pulso usa latest.yml + Setup + blockmap gerados pelo
+# build RAIZ (dist-electron-build), NAO os artefatos só do subprojeto installer
+# (o installer costuma nao gerar latest.yml sem publish).
 name: Release
 
 on:
@@ -8,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -21,13 +27,23 @@ jobs:
 
       - run: cd installer && npm ci && npm run installer:build
 
+      - name: Listar artefatos (debug)
+        shell: pwsh
+        run: |
+          Write-Host "=== dist-electron-build (feed auto-update Pulso) ==="
+          Get-ChildItem -Path dist-electron-build -ErrorAction SilentlyContinue | Format-Table Name, Length
+          Write-Host "=== installer/dist-installer ==="
+          Get-ChildItem -Path installer/dist-installer -ErrorAction SilentlyContinue | Format-Table Name, Length
+
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            installer/dist-installer/*.exe
-            installer/dist-installer/latest.yml
-            installer/dist-installer/*.blockmap
+          fail_on_unmatched_files: false
           generate_release_notes: true
+          files: |
+            dist-electron-build/latest.yml
+            dist-electron-build/*.exe
+            dist-electron-build/*.blockmap
+            installer/dist-installer/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
