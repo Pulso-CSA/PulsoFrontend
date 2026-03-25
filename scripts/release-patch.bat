@@ -56,9 +56,15 @@ if errorlevel 1 (
 echo [OK] Branch atualizada com origin/%BRANCH%.
 echo.
 
-for /f %%i in ('powershell -NoProfile -Command "$v=(Get-Content package.json -Raw | ConvertFrom-Json).version; if($v -notmatch ''^\d+\.\d+\.\d+$''){ throw ''Versao invalida'' }; $p=$v.Split(''.''); ''{0}.{1}.{2}'' -f $p[0],$p[1],([int]$p[2]+1)"') do set "NEW_VERSION=%%i"
+REM Calculo da versao via .ps1 ^(evita CMD corromper -Command com ^-f / caracteres especiais^)
+for /f "usebackq delims=" %%i in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bump-patch-version.ps1"`) do set "NEW_VERSION=%%i"
 if not defined NEW_VERSION (
-  echo [X] ERRO: Nao foi possivel calcular a proxima versao ^(package.json^).
+  echo [X] ERRO: Nao foi possivel calcular a proxima versao ^(package.json ou bump-patch-version.ps1^).
+  goto :FAIL
+)
+echo !NEW_VERSION!| findstr /r "^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$" >nul
+if errorlevel 1 (
+  echo [X] ERRO: Versao calculada invalida: "!NEW_VERSION!"
   goto :FAIL
 )
 set "NEW_TAG=v!NEW_VERSION!"
@@ -135,7 +141,7 @@ echo [OK] Tag !NEW_TAG! enviada para origin.
 echo.
 
 set "ACTIONS_URL="
-for /f "delims=" %%U in ('powershell -NoProfile -Command "$u=(git remote get-url origin).Trim(); if($u -match ''github\.com[:/]([^/]+)/(.+)''){ $r=$matches[2].TrimEnd(''.git'').TrimEnd(''/'') ; ''https://github.com/''+$matches[1]+''/''+$r+''/actions'' } else { '' }"') do set "ACTIONS_URL=%%U"
+for /f "usebackq delims=" %%U in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0github-actions-url.ps1"`) do set "ACTIONS_URL=%%U"
 
 echo ============================================================
 echo   SUCESSO - Release disparada
