@@ -1235,7 +1235,7 @@ const Dashboard = () => {
         </DialogContent>
       </Dialog>
       <LayoutA
-        className={cn(activeService === null && "pulso-layout-a--chat-scroll-lock")}
+        className="pulso-layout-a--chat-scroll-lock"
         activeService={activeService}
         onServiceChange={setActiveService}
       >
