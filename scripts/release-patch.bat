@@ -1,114 +1,199 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-REM Vai para a raiz do repositório (este arquivo fica em scripts\)
 cd /d "%~dp0\.."
 
-echo ==============================================
-echo   PulsoFrontend - Release Patch
-echo ==============================================
+echo.
+echo ============================================================
+echo   PulsoFrontend - Release patch ^(um unico passo^)
+echo   Bump de versao + push main + tag v* ^(dispara GitHub Actions^)
+echo ============================================================
 echo.
 
-where git >nul 2>nul
-if errorlevel 1 (
-  echo [ERRO] Git nao encontrado no PATH.
-  exit /b 1
-)
+REM Git/npm costumam nao estar no PATH do cmd.exe; tenta pastas padrao do Windows
+call :ENSURE_GIT_IN_PATH
+if errorlevel 1 goto :FAIL
 
-where npm >nul 2>nul
-if errorlevel 1 (
-  echo [ERRO] NPM nao encontrado no PATH.
-  exit /b 1
-)
+call :ENSURE_NPM_IN_PATH
+if errorlevel 1 goto :FAIL
 
 for /f %%i in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BRANCH=%%i"
 if not defined BRANCH (
-  echo [ERRO] Nao foi possivel identificar a branch atual.
-  exit /b 1
+  echo [X] ERRO: Nao foi possivel identificar a branch atual.
+  goto :FAIL
 )
 
-set "ON_MAIN=0"
-if /i "%BRANCH%"=="main" set "ON_MAIN=1"
-if /i "%BRANCH%"=="master" set "ON_MAIN=1"
-
-echo Branch atual: %BRANCH%
-if "%ON_MAIN%"=="1" (
-  echo Modo: main/master — apos o bump sera criada e enviada a tag ^(dispara o GitHub Release^).
-) else (
-  echo Modo: branch de trabalho — sobe apenas o commit; a tag fica para depois do merge na main.
+if /i not "%BRANCH%"=="main" if /i not "%BRANCH%"=="master" (
+  echo [X] ERRO: Execute na branch main ou master ^(atual: %BRANCH%^).
+  echo     git checkout main
+  echo     git pull origin main
+  goto :FAIL
 )
+
+echo [OK] Branch permitida: %BRANCH%
 echo.
 
-REM Calcula a proxima versao (patch) com base no package.json atual
-for /f %%i in ('powershell -NoProfile -Command "$v=(Get-Content package.json -Raw | ConvertFrom-Json).version; if($v -notmatch ''^\d+\.\d+\.\d+$''){ throw ''Versao invalida em package.json''}; $p=$v.Split(''.''); ''{0}.{1}.{2}'' -f $p[0],$p[1],([int]$p[2]+1)"') do set "NEW_VERSION=%%i"
-if not defined NEW_VERSION (
-  echo [ERRO] Nao foi possivel calcular a nova versao.
-  exit /b 1
+REM Working tree limpa (evita release com alteracoes nao commitadas)
+for /f "delims=" %%a in ('git status --porcelain 2^>nul') do (
+  echo [X] ERRO: Ha alteracoes nao commitadas. Faca commit ou descarte antes.
+  echo     git status
+  goto :FAIL
 )
-
-set "NEW_TAG=v%NEW_VERSION%"
-echo Nova versao: %NEW_VERSION%
-echo Nova tag: %NEW_TAG% ^(criada apenas na main/master ou via release-push-tag.bat^)
+echo [OK] Working tree limpa.
 echo.
 
-call npm version %NEW_VERSION% --no-git-tag-version
+echo ---------- PASSO 1/6: sincronizar com origin ----------
+git fetch origin
 if errorlevel 1 (
-  echo [ERRO] Falha ao atualizar versao via npm.
-  exit /b 1
+  echo [X] ERRO: git fetch falhou ^(rede ou remote origin^).
+  goto :FAIL
+)
+git pull --ff-only origin %BRANCH%
+if errorlevel 1 (
+  echo [X] ERRO: git pull --ff-only falhou. Resolva na mao ^(merge/rebase^) e tente de novo.
+  goto :FAIL
+)
+echo [OK] Branch atualizada com origin/%BRANCH%.
+echo.
+
+for /f %%i in ('powershell -NoProfile -Command "$v=(Get-Content package.json -Raw | ConvertFrom-Json).version; if($v -notmatch ''^\d+\.\d+\.\d+$''){ throw ''Versao invalida'' }; $p=$v.Split(''.''); ''{0}.{1}.{2}'' -f $p[0],$p[1],([int]$p[2]+1)"') do set "NEW_VERSION=%%i"
+if not defined NEW_VERSION (
+  echo [X] ERRO: Nao foi possivel calcular a proxima versao ^(package.json^).
+  goto :FAIL
+)
+set "NEW_TAG=v!NEW_VERSION!"
+
+set "REMOTE_TAG="
+for /f "delims=" %%a in ('git ls-remote origin "refs/tags/!NEW_TAG!" 2^>nul') do set "REMOTE_TAG=%%a"
+if defined REMOTE_TAG (
+  echo [X] ERRO: A tag !NEW_TAG! JA EXISTE no GitHub.
+  echo     Nada foi alterado. Possiveis causas:
+  echo     - Voce ja rodou o release antes; veja Actions e Releases no repositorio.
+  echo     - Se o workflow falhou, corrija-o e suba outra versao ^(o script fara bump automatico^).
+  goto :FAIL
 )
 
-git add package.json package-lock.json 2>nul
+echo Proxima versao: !NEW_VERSION!  ^|  Tag: !NEW_TAG!
+echo.
 
+echo ---------- PASSO 2/6: npm version ^(package.json + lock^) ----------
+call npm version !NEW_VERSION! --no-git-tag-version
+if errorlevel 1 (
+  echo [X] ERRO: npm version falhou.
+  goto :FAIL
+)
+echo [OK] Versao gravada em package.json / package-lock.json.
+echo.
+
+echo ---------- PASSO 3/6: commit ----------
+git add package.json package-lock.json 2>nul
 git diff --cached --quiet
 if not errorlevel 1 (
-  echo [ERRO] Nenhuma alteracao staged para commit.
-  exit /b 1
+  echo [X] ERRO: Nada para commitar ^(package.json nao mudou?^).
+  goto :FAIL
 )
-
-git commit -m "chore(release): %NEW_TAG%"
+git commit -m "chore(release): !NEW_TAG!"
 if errorlevel 1 (
-  echo [ERRO] Falha ao criar commit.
-  exit /b 1
+  echo [X] ERRO: git commit falhou.
+  goto :FAIL
 )
-
+echo [OK] Commit criado: chore^(release^): !NEW_TAG!
 echo.
-echo Enviando branch %BRANCH% para origin...
+
+echo ---------- PASSO 4/6: push da branch ----------
 git push origin %BRANCH%
 if errorlevel 1 (
-  echo [ERRO] Falha no push da branch %BRANCH%.
-  exit /b 1
+  echo [X] ERRO: git push origin %BRANCH% falhou ^(permissao, rede ou branch protegida^).
+  goto :FAIL
 )
+echo [OK] Push origin %BRANCH% concluido.
+echo.
 
-if "%ON_MAIN%"=="1" goto TAG_AND_PUSH
+echo ---------- PASSO 5/6: tag local ----------
+git rev-parse "!NEW_TAG!" >nul 2>nul
+if not errorlevel 1 (
+  echo [!] Tag local !NEW_TAG! ja existia; removendo para recriar no commit atual...
+  git tag -d "!NEW_TAG!"
+)
+git tag "!NEW_TAG!"
+if errorlevel 1 (
+  echo [X] ERRO: git tag falhou.
+  goto :FAIL
+)
+echo [OK] Tag local !NEW_TAG! aponta para o commit atual.
+echo.
 
+echo ---------- PASSO 6/6: push da tag ^(dispara o workflow Release^) ----------
+git push origin "!NEW_TAG!"
+if errorlevel 1 (
+  echo [X] ERRO: git push origin !NEW_TAG! falhou.
+  echo     Removendo tag local para nao confundir: git tag -d !NEW_TAG!
+  git tag -d "!NEW_TAG!" 2>nul
+  goto :FAIL
+)
+echo [OK] Tag !NEW_TAG! enviada para origin.
 echo.
-echo [OK] Bump %NEW_TAG% enviado na branch %BRANCH%.
+
+set "ACTIONS_URL="
+for /f "delims=" %%U in ('powershell -NoProfile -Command "$u=(git remote get-url origin).Trim(); if($u -match ''github\.com[:/]([^/]+)/(.+)''){ $r=$matches[2].TrimEnd(''.git'').TrimEnd(''/'') ; ''https://github.com/''+$matches[1]+''/''+$r+''/actions'' } else { '' }"') do set "ACTIONS_URL=%%U"
+
+echo ============================================================
+echo   SUCESSO - Release disparada
+echo ============================================================
+echo   Versao:  !NEW_VERSION!
+echo   Tag:     !NEW_TAG!
+echo   Branch:  %BRANCH%
 echo.
-echo Proximos passos ^(tag so apos codigo na main^):
-echo   1. Abra o PR desta branch para main e faca o merge.
-echo   2. git checkout main
-echo   3. git pull origin main
-echo   4. scripts\release-push-tag.bat
+if defined ACTIONS_URL (
+  echo   Acompanhe o build ^(pode levar varios minutos^):
+  echo   !ACTIONS_URL!
+  echo.
+  echo   Se nada aparecer, confira em GitHub:
+  echo   - Settings ^> Actions ^> permitido para este repo
+  echo   - Aba Actions com filtro workflow "Release"
+) else (
+  echo   Abra no GitHub: Repositorio ^> Actions ^(workflow "Release" ao receber tag v*^)
+)
+echo ============================================================
 echo.
-echo Isso cria e envia a tag %NEW_TAG% e dispara o workflow de release.
 exit /b 0
 
-:TAG_AND_PUSH
-git tag %NEW_TAG%
-if errorlevel 1 (
-  echo [ERRO] Falha ao criar tag. Ela pode ja existir localmente.
-  exit /b 1
-)
-
-echo Enviando tag %NEW_TAG%...
-git push origin %NEW_TAG%
-if errorlevel 1 (
-  echo [ERRO] Falha no push da tag %NEW_TAG%.
-  exit /b 1
-)
-
+:FAIL
 echo.
-echo [OK] Release publicada a partir da main/master.
-echo     Branch: %BRANCH%
-echo     Tag:    %NEW_TAG%
-exit /b 0
+echo ============================================================
+echo   FALHA - nenhuma tag nova foi enviada
+echo ============================================================
+echo.
+exit /b 1
+
+:ENSURE_GIT_IN_PATH
+where git >nul 2>nul
+if not errorlevel 1 exit /b 0
+set "GIT_CMD="
+if exist "%ProgramFiles%\Git\cmd\git.exe" set "GIT_CMD=%ProgramFiles%\Git\cmd"
+if not defined GIT_CMD if exist "%ProgramFiles(x86)%\Git\cmd\git.exe" set "GIT_CMD=%ProgramFiles(x86)%\Git\cmd"
+if not defined GIT_CMD if exist "%LocalAppData%\Programs\Git\cmd\git.exe" set "GIT_CMD=%LocalAppData%\Programs\Git\cmd"
+if not defined GIT_CMD if exist "%UserProfile%\scoop\apps\git\current\cmd\git.exe" set "GIT_CMD=%UserProfile%\scoop\apps\git\current\cmd"
+if defined GIT_CMD set "PATH=%GIT_CMD%;%PATH%"
+where git >nul 2>nul
+if not errorlevel 1 exit /b 0
+echo [X] ERRO: Git nao encontrado no PATH.
+echo     O Prompt de Comando nao enxerga o Git. Opcoes:
+echo     - Use o terminal integrado do Cursor/VS Code ^(geralmente ja inclui Git^); ou
+echo     - Instale Git for Windows: https://git-scm.com/download/win ; ou
+echo     - Em Variaveis de ambiente, adicione ao PATH: C:\Program Files\Git\cmd
+exit /b 1
+
+:ENSURE_NPM_IN_PATH
+where npm >nul 2>nul
+if not errorlevel 1 exit /b 0
+set "NODE_DIR="
+if exist "%ProgramFiles%\nodejs\npm.cmd" set "NODE_DIR=%ProgramFiles%\nodejs"
+if not defined NODE_DIR if exist "%LocalAppData%\Programs\nodejs\npm.cmd" set "NODE_DIR=%LocalAppData%\Programs\nodejs"
+if not defined NODE_DIR if exist "%ProgramFiles%\nodejs\node.exe" set "NODE_DIR=%ProgramFiles%\nodejs"
+if defined NODE_DIR set "PATH=%NODE_DIR%;%PATH%"
+where npm >nul 2>nul
+if not errorlevel 1 exit /b 0
+echo [X] ERRO: npm nao encontrado no PATH.
+echo     Instale Node.js LTS ^(https://nodejs.org^) ou adicione a pasta do Node ao PATH.
+exit /b 1
