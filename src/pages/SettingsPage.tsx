@@ -142,7 +142,8 @@ export default function SettingsPage() {
           <h2 className="text-lg font-semibold">Atualizações do aplicativo</h2>
           <p className="text-sm text-muted-foreground">
             Verifique manualmente se há uma nova versão disponível. Seus dados locais (incluindo localStorage) são preservados durante a atualização.
-            Como o repositório é privado, o computador precisa ter a variável de ambiente <strong>GH_TOKEN</strong> configurada com um token do GitHub (escopo <code>repo</code>) para conseguir buscar e baixar atualizações.
+            Com repositório <strong>público</strong> no GitHub, não é necessário configurar token. Se o repositório for <strong>privado</strong>, defina a variável de ambiente{" "}
+            <strong>GH_TOKEN</strong> ou <strong>GITHUB_TOKEN</strong> com um Personal Access Token (escopo <code>repo</code>) e reinicie o aplicativo.
           </p>
           <Button
             variant="pulso"

@@ -4,7 +4,7 @@ const fs = require("fs");
 
 let mainWindow;
 
-/** Repositório privado: o GitHub devolve 404 sem credencial válida (não revela se o repo existe). */
+/** Token opcional: útil para repo privado ou limites da API; público não exige. */
 function applyGithubTokenToAutoUpdater() {
   try {
     const { autoUpdater } = require("electron-updater");
@@ -18,6 +18,15 @@ function applyGithubTokenToAutoUpdater() {
   } catch (_) {
     /* electron-updater indisponível */
   }
+}
+
+/** Mensagem quando a API do GitHub não devolve feed de release (404, etc.). */
+function formatUpdateAccessHint() {
+  return (
+    "Não foi possível obter atualizações no GitHub (resposta 404 ou recurso ausente). " +
+    "Repositório público não exige token; pode ser rede instável, limite de requisições da API ou release sem os artefatos corretos — tente novamente mais tarde. " +
+    "Somente se o repositório for privado: configure GH_TOKEN ou GITHUB_TOKEN (PAT com escopo repo) e reinicie o aplicativo."
+  );
 }
 
 function setupAutoUpdater() {
@@ -43,9 +52,7 @@ function setupAutoUpdater() {
     autoUpdater.on("error", (err) => {
       let message = err?.message || "Erro desconhecido";
       if (String(message).includes("404") || String(message).toLowerCase().includes("not found")) {
-        message =
-          "Não foi possível acessar as atualizações (repositório não encontrado ou privado). " +
-          "Se for repositório privado, configure a variável de ambiente GH_TOKEN com um Personal Access Token do GitHub (escopo repo) e reinicie o aplicativo.";
+        message = formatUpdateAccessHint();
       } else if (message.length > 280) {
         message = message.slice(0, 260).trim() + "...";
       }
@@ -111,9 +118,7 @@ function createWindow() {
     } catch (e) {
       let message = e?.message || "Erro ao verificar atualizações";
       if (String(message).includes("404") || String(message).toLowerCase().includes("not found")) {
-        message =
-          "Não foi possível acessar as atualizações (404). " +
-          "Se o repositório for privado, configure a variável de ambiente GH_TOKEN com um Personal Access Token do GitHub (escopo repo) e reinicie o aplicativo.";
+        message = formatUpdateAccessHint();
       }
       mainWindow?.webContents?.send("update-error", message);
       return {

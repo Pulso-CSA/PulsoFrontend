@@ -127,11 +127,8 @@ export function UpdateAvailableScreen() {
               Erro na atualização
             </h2>
             <p className="text-muted-foreground text-sm">
-              {!errorMsg
-                ? "Não foi possível verificar atualizações no momento."
-                : errorMsg.includes("404") || errorMsg.toLowerCase().includes("not found")
-                  ? "Não foi possível acessar as atualizações (repositório não encontrado ou privado). Se o repositório for privado, configure a variável de ambiente GH_TOKEN com um token do GitHub com acesso ao repositório e abra o aplicativo novamente."
-                  : "Ocorreu um erro ao verificar ou baixar atualizações. Tente novamente mais tarde."}
+              {errorMsg ??
+                "Não foi possível verificar ou baixar atualizações. Tente novamente mais tarde."}
             </p>
             <div className="flex gap-2">
               <Button variant="pulso" onClick={handleDownload}>
