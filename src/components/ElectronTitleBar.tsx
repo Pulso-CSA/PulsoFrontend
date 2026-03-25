@@ -1,5 +1,7 @@
 import { Minus, Square, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 declare global {
   interface Window {
@@ -13,8 +15,17 @@ declare global {
   }
 }
 
+const AUTH_LIKE_PATHS = new Set([
+  "/auth",
+  "/auth/callback",
+  "/forgot-password",
+  "/reset-password",
+]);
+
 export function ElectronTitleBar() {
+  const location = useLocation();
   const [isMaximized, setIsMaximized] = useState(false);
+  const minimalChrome = AUTH_LIKE_PATHS.has(location.pathname);
 
   useEffect(() => {
     const api = window.electronAPI;
@@ -34,7 +45,12 @@ export function ElectronTitleBar() {
   return (
     <>
       <div
-        className="electron-drag fixed top-0 left-0 right-0 z-[100] flex h-10 shrink-0 items-center justify-between bg-[#0a0a0f] border-b border-white/5 px-2 select-none"
+        className={cn(
+          "electron-drag fixed top-0 left-0 right-0 z-[100] flex h-10 shrink-0 items-center justify-between px-2 select-none",
+          minimalChrome
+            ? "bg-transparent border-b-0"
+            : "bg-[#0a0a0f] border-b border-white/5"
+        )}
         style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
       >
         <div className="flex items-center gap-2 pl-2">
@@ -43,7 +59,12 @@ export function ElectronTitleBar() {
             alt="Pulso"
             className="h-5 w-5 object-contain shrink-0"
           />
-          <span className="text-sm font-semibold text-white/95 tracking-tight">
+          <span
+            className={cn(
+              "text-sm font-semibold tracking-tight",
+              minimalChrome ? "text-foreground drop-shadow-sm" : "text-white/95"
+            )}
+          >
             Pulso Tech
           </span>
         </div>
