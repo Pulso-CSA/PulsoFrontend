@@ -94,6 +94,20 @@ function createWindow() {
     show: false,
   });
 
+  // Links / window.open com _blank não abrem outra janela Electron (ícone do átomo);
+  // abrem no navegador por defeito — mesmo comportamento esperado para URLs externas.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const u = new URL(url);
+      if (u.protocol === "http:" || u.protocol === "https:") {
+        shell.openExternal(url);
+      }
+    } catch {
+      /* URL inválida — não criar janela */
+    }
+    return { action: "deny" };
+  });
+
   ipcMain.on("window-minimize", () => mainWindow?.minimize());
   ipcMain.on("window-maximize", () => {
     if (mainWindow?.isMaximized()) mainWindow.unmaximize();
@@ -184,9 +198,25 @@ function createWindow() {
   mainWindow.on("closed", () => { mainWindow = null; });
 }
 
-app.whenReady().then(() => {
-  createWindow();
-  setupAutoUpdater();
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(() => {
+    createWindow();
+    setupAutoUpdater();
+  });
+}
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
-app.on("window-all-closed", () => { if (process.platform !== "darwin") app.quit(); });
-app.on("activate", () => { if (mainWindow === null) createWindow(); });
+app.on("activate", () => {
+  if (mainWindow === null) createWindow();
+});
