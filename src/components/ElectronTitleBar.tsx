@@ -1,6 +1,8 @@
 import { Minus, Square, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useLayoutContext } from "@/contexts/LayoutContext";
 
 declare global {
   interface Window {
@@ -14,17 +16,21 @@ declare global {
   }
 }
 
-const AUTH_LIKE_PATHS = new Set([
+/** Rotas sem barra escura de título: login, recuperação e escolha de perfil */
+const MINIMAL_TITLEBAR_PATHS = new Set([
   "/auth",
   "/auth/callback",
   "/forgot-password",
   "/reset-password",
+  "/profile-selection",
 ]);
 
 export function ElectronTitleBar() {
   const location = useLocation();
+  const { themeMode } = useLayoutContext();
+  const isLight = themeMode === "light";
   const [isMaximized, setIsMaximized] = useState(false);
-  const minimalChrome = AUTH_LIKE_PATHS.has(location.pathname);
+  const minimalChrome = MINIMAL_TITLEBAR_PATHS.has(location.pathname);
 
   useEffect(() => {
     const api = window.electronAPI;
@@ -46,7 +52,12 @@ export function ElectronTitleBar() {
       <button
         type="button"
         onClick={() => api.minimize()}
-        className={`${btnBase} text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]`}
+        className={cn(
+          btnBase,
+          isLight
+            ? "text-muted-foreground hover:text-foreground hover:bg-muted"
+            : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]"
+        )}
         aria-label="Minimizar"
       >
         <Minus className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -54,17 +65,30 @@ export function ElectronTitleBar() {
       <button
         type="button"
         onClick={() => api.maximize()}
-        className={`${btnBase} text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]`}
+        className={cn(
+          btnBase,
+          isLight
+            ? "text-muted-foreground hover:text-foreground hover:bg-muted"
+            : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]"
+        )}
         aria-label={isMaximized ? "Restaurar" : "Maximizar"}
       >
         <Square
-          className={`h-3 w-3 stroke-[2.5] ${isMaximized ? "fill-cyan-300/30" : ""}`}
+          className={cn(
+            "h-3 w-3 stroke-[2.5]",
+            isMaximized && (isLight ? "fill-foreground/25" : "fill-cyan-300/30")
+          )}
         />
       </button>
       <button
         type="button"
         onClick={() => api.close()}
-        className={`${btnBase} text-violet-300/80 hover:text-white hover:bg-gradient-to-r hover:from-violet-500/40 hover:to-fuchsia-500/40 hover:shadow-[0_0_14px_rgba(139,92,246,0.4)]`}
+        className={cn(
+          btnBase,
+          isLight
+            ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            : "text-violet-300/80 hover:text-white hover:bg-gradient-to-r hover:from-violet-500/40 hover:to-fuchsia-500/40 hover:shadow-[0_0_14px_rgba(139,92,246,0.4)]"
+        )}
         aria-label="Fechar"
       >
         <X className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -82,7 +106,12 @@ export function ElectronTitleBar() {
           aria-hidden
         />
         <div
-          className="fixed top-2 right-2 z-[100] flex items-stretch rounded-lg overflow-hidden border border-white/10 bg-background/40 backdrop-blur-md shadow-lg pointer-events-auto"
+          className={cn(
+            "fixed top-2 right-2 z-[100] flex items-stretch rounded-lg overflow-hidden backdrop-blur-md shadow-lg pointer-events-auto",
+            isLight
+              ? "border border-border bg-background/85"
+              : "border border-white/10 bg-background/40"
+          )}
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
           {threeButtons}
@@ -94,7 +123,10 @@ export function ElectronTitleBar() {
   return (
     <>
       <div
-        className="electron-drag fixed top-0 left-0 right-0 z-[100] flex h-10 shrink-0 items-center justify-between px-2 select-none bg-[#0a0a0f] border-b border-white/5"
+        className={cn(
+          "electron-drag fixed top-0 left-0 right-0 z-[100] flex h-10 shrink-0 items-center justify-between px-2 select-none border-b",
+          isLight ? "bg-background border-border" : "bg-[#0a0a0f] border-white/5"
+        )}
         style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
       >
         <div className="flex items-center gap-2 pl-2">
@@ -103,7 +135,14 @@ export function ElectronTitleBar() {
             alt="Pulso"
             className="h-5 w-5 object-contain shrink-0"
           />
-          <span className="text-sm font-semibold tracking-tight text-white/95">Pulso Tech</span>
+          <span
+            className={cn(
+              "text-sm font-semibold tracking-tight",
+              isLight ? "text-foreground" : "text-white/95"
+            )}
+          >
+            Pulso Tech
+          </span>
         </div>
         <div
           className="flex items-stretch"

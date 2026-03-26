@@ -734,7 +734,7 @@ const Dashboard = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-foreground"
                     onClick={() => setShowLogs(!showLogs)}
                   >
                     <Terminal className="h-3.5 w-3.5" />
@@ -744,7 +744,7 @@ const Dashboard = () => {
                     variant="outline"
                     size="sm"
                     disabled={!previewFrontendUrl || !rootPathForPreview?.trim() || previewStartLoading}
-                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-foreground"
                     onClick={handleTestarPreview}
                     title={!rootPathForPreview?.trim() ? "Configure o caminho da pasta na seção Configuração" : "Inicia o servidor de desenvolvimento (npm run dev)"}
                   >
@@ -759,7 +759,7 @@ const Dashboard = () => {
                     variant="outline"
                     size="sm"
                     disabled={!previewFrontendUrl}
-                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-white"
+                    className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-foreground"
                     onClick={() => setShowPreview((p) => !p)}
                   >
                     <Monitor className="h-3.5 w-3.5" />
@@ -796,7 +796,7 @@ const Dashboard = () => {
               type="button"
               onClick={() => setInsightsFilter(key)}
               className={cn(
-                "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1.5 px-3 h-9 min-w-[36px] text-xs",
+                "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 h-9 min-w-[36px] text-xs",
                 insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
               )}
               title={label}
@@ -810,7 +810,7 @@ const Dashboard = () => {
           <button
             type="button"
             onClick={handleExportInsights}
-            className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
+            className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
             title="Baixar relatório"
             aria-label="Baixar relatório do dashboard"
           >

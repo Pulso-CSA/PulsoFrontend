@@ -14,7 +14,7 @@ function LayoutWrapper() {
   const location = useLocation();
   const { layoutMode } = useLayoutContext();
   const path = location.pathname;
-  const skipWrap = path === "/dashboard" || path === "/";
+  const skipWrap = path === "/dashboard" || path === "/" || path === "/profile-selection";
   if (skipWrap) return <Outlet />;
 
   const isFuturistic = layoutMode === "A";
@@ -38,7 +38,15 @@ export function AppShell() {
   const isPublicPage = ["/", "/auth", "/auth/callback", "/forgot-password", "/reset-password", "/error"].some(
     (p) => location.pathname === p || location.hash.includes(p)
   );
-  const hideHeader = location.pathname === "/" || location.pathname === "/profile-selection" || location.pathname === "/dashboard";
+  /** Sem header nas telas que já têm layout próprio (login, início, dashboard, etc.) — evita faixa glass vazia no Electron em /auth */
+  const hideHeader =
+    location.pathname === "/" ||
+    location.pathname === "/profile-selection" ||
+    location.pathname === "/dashboard" ||
+    location.pathname === "/auth" ||
+    location.pathname === "/auth/callback" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/reset-password";
 
   return (
     <div className="min-h-screen flex flex-col bg-space-if-dark text-foreground relative overflow-hidden">

@@ -538,6 +538,30 @@ html[data-electron="true"] .pulso-layout-a-body {
     inset 0 0 16px hsl(var(--primary) / 0.06);
 }
 
+/* Tema claro: rótulos dos serviços / filtros legíveis (evita branco sobre vidro claro) */
+.theme-pulso-light .pulso-layout-a-btn {
+  color: hsl(var(--foreground));
+}
+.theme-pulso-light .pulso-layout-a-btn:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  box-shadow: 0 0 0 1px hsl(var(--border));
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn.pulso-active {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.12);
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow:
+    0 0 0 2px hsl(var(--primary) / 0.25),
+    0 4px 14px hsl(var(--primary) / 0.12);
+}
+.theme-pulso-light .pulso-insights-navbar .pulso-insights-navbar-btn-filter-active {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.14);
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.35);
+}
+
 .pulso-layout-a-main {
   flex: 1;
   overflow: auto;
@@ -733,7 +757,7 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   border: 1px solid hsl(var(--primary) / 0.6) !important;
   border-radius: 10px !important;
   box-shadow: 0 0 0 1px hsl(var(--primary) / 0.14) !important;
-  color: #fff !important;
+  color: hsl(var(--foreground)) !important;
 }
 .pulso-suggestion-btn:hover:not(:disabled) {
   background: hsl(var(--card) / 0.95) !important;

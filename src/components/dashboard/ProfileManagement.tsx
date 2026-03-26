@@ -19,7 +19,7 @@ import {
 import { useProfiles } from "@/hooks/useProfiles";
 import { useAuth } from "@/contexts/AuthContext";
 import { Profile } from "@/types";
-import { formatarData } from "@/lib/utils";
+import { formatarData, cn } from "@/lib/utils";
 
 const profileSchema = z.object({
   name: z.string()
@@ -34,10 +34,13 @@ const profileSchema = z.object({
 
 interface ProfileManagementProps {
   maxProfiles?: number;
+  /** Tela de entrada: um único bloco — clique no cartão para selecionar o perfil ativo. */
+  selectionMode?: boolean;
 }
 
-const ProfileManagement = ({ 
-  maxProfiles = 5 
+const ProfileManagement = ({
+  maxProfiles = 5,
+  selectionMode = false,
 }: ProfileManagementProps) => {
   const { toast } = useToast();
   const { profiles, isLoading, createProfile, updateProfile, deleteProfile } = useProfiles();
@@ -177,22 +180,31 @@ const ProfileManagement = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold text-primary">Meus Perfis</h3>
-          <span className="text-sm text-muted-foreground">
-            ({profiles.length}/{maxProfiles})
-          </span>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Users className="h-5 w-5 text-primary shrink-0" />
+            <h3 className="text-lg font-semibold text-foreground">
+              {selectionMode ? "Seus perfis" : "Meus Perfis"}
+            </h3>
+            <span className="text-sm text-muted-foreground tabular-nums">
+              ({profiles.length}/{maxProfiles})
+            </span>
+          </div>
+          {selectionMode ? (
+            <p className="text-sm text-muted-foreground pl-0 sm:pl-7">
+              Toque num perfil para selecioná-lo. Pode criar até {maxProfiles} perfis.
+            </p>
+          ) : null}
         </div>
         {!isCreating && profiles.length < maxProfiles && (
           <Button
             onClick={() => setIsCreating(true)}
             size="sm"
-            className="gap-2 bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 text-primary hover:border-primary"
+            className="gap-2 shrink-0 bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 text-primary hover:border-primary w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
-            Novo Perfil
+            Novo perfil
           </Button>
         )}
       </div>
@@ -261,7 +273,34 @@ const ProfileManagement = ({
         {profiles.map((profile) => (
           <Card
             key={profile.id}
-            className="glass border border-primary/20 p-4 hover:border-primary/40 transition-all"
+            role={selectionMode && editingId !== profile.id ? "button" : undefined}
+            tabIndex={selectionMode && editingId !== profile.id ? 0 : undefined}
+            onClick={
+              selectionMode && editingId !== profile.id
+                ? () => setCurrentProfile(profile)
+                : undefined
+            }
+            onKeyDown={
+              selectionMode && editingId !== profile.id
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setCurrentProfile(profile);
+                    }
+                  }
+                : undefined
+            }
+            className={cn(
+              "glass border border-primary/20 p-4 transition-all",
+              selectionMode &&
+                editingId !== profile.id &&
+                "cursor-pointer hover:border-primary/45 hover:bg-primary/[0.06]",
+              selectionMode &&
+                currentProfile?.id === profile.id &&
+                editingId !== profile.id &&
+                "border-2 border-primary bg-primary/10 ring-2 ring-primary/20 shadow-[0_0_28px_-6px_hsl(var(--primary)/0.45)]",
+              !selectionMode && "hover:border-primary/40"
+            )}
           >
             {editingId === profile.id ? (
               <div className="space-y-3">
@@ -317,19 +356,40 @@ const ProfileManagement = ({
               </div>
             ) : (
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-foreground truncate">{profile.name}</h4>
-                  {profile.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{profile.description}</p>
+                <div className="flex-1 min-w-0 flex items-start gap-3">
+                  {selectionMode && (
+                    <div
+                      className={cn(
+                        "mt-0.5 h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors",
+                        currentProfile?.id === profile.id
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-muted-foreground/40"
+                      )}
+                      aria-hidden
+                    >
+                      {currentProfile?.id === profile.id ? (
+                        <Check className="h-3 w-3 stroke-[3]" />
+                      ) : null}
+                    </div>
                   )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Criado em: {formatarData(profile.createdAt)}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-semibold text-foreground truncate">{profile.name}</h4>
+                    {profile.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{profile.description}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Criado em {formatarData(profile.createdAt)}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0">
                   <Button
-                    onClick={() => startEdit(profile)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEdit(profile);
+                    }}
                     size="sm"
                     variant="pulso"
                     className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/10"
@@ -338,7 +398,11 @@ const ProfileManagement = ({
                     <Edit2 className="h-3.5 w-3.5" />
                   </Button>
                   <Button
-                    onClick={() => setDeletingId(profile.id)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletingId(profile.id);
+                    }}
                     size="sm"
                     variant="outline"
                     className="gap-2 border-destructive/30 hover:border-destructive hover:bg-destructive/10 text-destructive"

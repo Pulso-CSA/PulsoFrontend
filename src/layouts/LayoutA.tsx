@@ -171,7 +171,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     type="button"
                     onClick={() => onServiceChange(isActive ? null : key)}
                     className={cn(
-                      "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white",
+                      "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground",
                       isActive && "pulso-active"
                     )}
                     title={label}
@@ -248,8 +248,8 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
             <div className="relative flex items-center justify-center">
               <Avatar
                 className={cn(
-                  "h-11 w-11 shrink-0 rounded-full ring-2 ring-white/20 transition-all duration-300",
-                  avatarHover && "ring-primary/50 ring-offset-2 ring-offset-transparent scale-105",
+                  "h-11 w-11 shrink-0 rounded-full ring-2 ring-border/80 transition-all duration-300",
+                  avatarHover && "ring-primary/50 ring-offset-2 ring-offset-background scale-105",
                   avatarHover && "shadow-[0_0_20px_hsl(var(--primary)/0.35)]"
                 )}
                 aria-label="Perfil"
@@ -378,7 +378,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   <button
                     type="button"
                     onClick={() => onServiceChange(isActive ? null : key)}
-                    className={cn("pulso-layout-a-btn pulso-layout-a-btn-horizontal text-white", isActive && "pulso-active")}
+                    className={cn("pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground", isActive && "pulso-active")}
                     title={label}
                     aria-pressed={isActive}
                     aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}

@@ -40,7 +40,10 @@ export function UpdateAvailableScreen() {
       setState("ready");
     });
     const unsubProgress = api.onUpdateProgress?.((percent) => {
-      setProgress(percent);
+      const n = Number(percent);
+      if (Number.isFinite(n)) {
+        setProgress(Math.round(Math.min(100, Math.max(0, n))));
+      }
     });
     const unsubError = api.onUpdateError?.((msg) => {
       setErrorMsg(msg);
@@ -102,7 +105,7 @@ export function UpdateAvailableScreen() {
               Baixando atualização…
             </h2>
             <Progress value={progress} className="h-2" />
-            <p className="text-sm text-muted-foreground">{progress}%</p>
+            <p className="text-sm text-muted-foreground tabular-nums">{progress}%</p>
           </>
         )}
 

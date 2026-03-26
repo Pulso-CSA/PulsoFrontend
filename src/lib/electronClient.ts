@@ -7,3 +7,10 @@ export function isElectronClient(): boolean {
 export function themeSelectorPositionClass(): string {
   return isElectronClient() ? "absolute top-4 right-[7.5rem] z-20" : "absolute top-4 right-4 z-20";
 }
+
+/** Toolbar fixa (tema + ações): mesmo recuo que `themeSelectorPositionClass`. */
+export function electronFloatingToolbarClass(): string {
+  return isElectronClient()
+    ? "fixed top-4 right-[7.5rem] z-50 flex items-center gap-2"
+    : "fixed top-4 right-4 z-50 flex items-center gap-2";
+}

@@ -1,24 +1,12 @@
 /**
- * UserSidebar — Avatar do usuário que, ao hover, revela painel glass com tema e layout
+ * UserSidebar — Avatar do usuário que, ao hover, revela painel glass com alternância de tema
  */
-import { LogOut, User, Users, Settings, Sun, Moon, DollarSign } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSfapAllowed } from "@/hooks/useSfapAllowed";
-import { useToast } from "@/hooks/use-toast";
-import ProfileDialog from "@/components/dashboard/ProfileDialog";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 function getInitial(name: string | undefined): string {
@@ -36,12 +24,8 @@ interface UserSidebarProps {
 }
 
 export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
-  const navigate = useNavigate();
   const { themeMode, toggleTheme } = useLayoutContext();
-  const { user, currentProfile, setCurrentProfile, logout } = useAuth();
-  const sfapAllowed = useSfapAllowed();
-  const { toast } = useToast();
-  const [profileOpen, setProfileOpen] = useState(false);
+  const { user, currentProfile } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
 
   const displayName = currentProfile?.name || user?.name || "";
@@ -49,84 +33,21 @@ export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
   const initial = getInitial(displayName || user?.name);
   const isTopRight = position === "top-right";
 
-  const handleLogout = async () => {
-    await logout();
-    toast({ title: "Sessão encerrada", description: "Até logo!" });
-    navigate("/auth");
-  };
-
-  const handleSwitchProfile = () => {
-    setCurrentProfile(null);
-    toast({ title: "Trocar de perfil", description: "Selecione outro perfil" });
-    navigate("/profile-selection");
-  };
-
   const panelContent = (
-    <>
-          {/* Tema claro/escuro */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1.5 px-2 text-white text-xs font-medium"
-            onClick={toggleTheme}
-            aria-label={themeMode === "dark" ? "Modo claro" : "Modo escuro"}
-          >
-            {themeMode === "dark" ? (
-              <Sun className="h-4 w-4 shrink-0" />
-            ) : (
-              <Moon className="h-4 w-4 shrink-0" />
-            )}
-            <span>Tema</span>
-          </Button>
-
-          {/* Menu usuário — escondido no dashboard (top-right); perfil fica na navbar */}
-          {!isTopRight && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-white text-xs font-medium" aria-label="Menu do usuário">
-                  <User className="h-4 w-4 shrink-0" />
-                  <span>Perfil</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" side="bottom" className="pulso-dropdown-menu-glass">
-                {currentProfile && (
-                  <>
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">Perfil Atual</span>
-                        <span className="text-xs text-muted-foreground font-normal">{currentProfile.name}</span>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                {sfapAllowed && (
-                  <DropdownMenuItem onClick={() => navigate("/sfap")} title="Sistema Financeiro Administrativo Pulso">
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    SFAP
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => setProfileOpen(true)}>
-                  <User className="mr-2 h-4 w-4" />
-                  Minha Conta
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSwitchProfile}>
-                  <Users className="mr-2 h-4 w-4" />
-                  Trocar de Perfil
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Configurações
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sair
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-8 gap-1.5 px-2 text-white text-xs font-medium"
+      onClick={toggleTheme}
+      aria-label={themeMode === "dark" ? "Modo claro" : "Modo escuro"}
+    >
+      {themeMode === "dark" ? (
+        <Sun className="h-4 w-4 shrink-0" />
+      ) : (
+        <Moon className="h-4 w-4 shrink-0" />
+      )}
+      <span>Tema</span>
+    </Button>
   );
 
   return (
@@ -134,7 +55,7 @@ export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
       <div
         className={cn(
           "relative group",
-          isTopRight ? "flex flex-col items-center" : "pr-48"
+          isTopRight ? "flex flex-col items-center" : "pr-28"
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -153,7 +74,7 @@ export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
         <div
           className={cn(
             "flex items-center gap-1.5 rounded-full glass border border-border/50 p-2",
-            isTopRight ? "flex-row mt-3" : "absolute left-full bottom-1/2 translate-y-1/2 -ml-1 flex-row pr-3",
+            isTopRight ? "flex-row mt-3" : "absolute left-full bottom-1/2 translate-y-1/2 -ml-1 flex-row px-2.5",
             isTopRight
               ? cn("pulso-user-panel-below", isHovered ? "opacity-100" : "opacity-0 pointer-events-none")
               : "pulso-user-panel-diagonal",
@@ -164,8 +85,6 @@ export function UserSidebar({ position = "bottom-left" }: UserSidebarProps) {
           {panelContent}
         </div>
       </div>
-
-      <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
     </>
   );
 }
