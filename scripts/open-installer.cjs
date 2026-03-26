@@ -11,8 +11,14 @@ const rootDir = path.join(__dirname, "..");
 const pkgPath = path.join(rootDir, "package.json");
 const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
 const version = pkg.version || "0.0.0";
-const productName = (pkg.build && pkg.build.productName) || "Pulso";
-const installerName = `${productName} Setup ${version}.exe`;
+const winArtifact =
+  pkg.build && pkg.build.win && typeof pkg.build.win.artifactName === "string"
+    ? pkg.build.win.artifactName
+    : "${productName} Setup ${version}.${ext}";
+const installerName = winArtifact
+  .replace(/\$\{productName\}/g, (pkg.build && pkg.build.productName) || "Pulso")
+  .replace(/\$\{version\}/g, version)
+  .replace(/\$\{ext\}/g, "exe");
 const installerPath = path.join(rootDir, "dist-electron-build", installerName);
 
 if (process.platform !== "win32") {

@@ -1,7 +1,8 @@
 # Disparado por tag v* (ex.: release-patch.bat).
-# O electron-updater do app Pulso usa latest.yml + Setup + blockmap gerados pelo
-# build RAIZ (dist-electron-build), NAO os artefatos só do subprojeto installer
-# (o installer costuma nao gerar latest.yml sem publish).
+# O electron-updater usa latest.yml + .exe + .blockmap em dist-electron-build.
+# O nome do .exe DEVE ser o de package.json build.win.artifactName (ex.: Pulso-Setup-x.y.z.exe);
+# se latest.yml apontar para outro ficheiro, o download no cliente devolve 404.
+# NAO substituir só pelo instalador do subprojeto installer (sem latest.yml alinhado).
 name: Release
 
 on:

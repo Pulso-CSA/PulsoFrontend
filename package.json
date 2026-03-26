@@ -123,7 +123,8 @@
         "nsis"
       ],
       "icon": "build/icon.ico",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "artifactName": "Pulso-Setup-${version}.${ext}"
     },
     "mac": {
       "target": [
