@@ -585,10 +585,11 @@ All colors MUST be HSL.
     --border: 214 32% 91%;
     --input: 214 32% 96%;
     --ring: 222 47% 11%;
-    --chat-user: 222 47% 11%;
-    --chat-system: 215 16% 40%;
-    --chat-user-foreground: 0 0% 100%;
-    --chat-system-foreground: 0 0% 100%;
+    /* Chat: bolhas claras com texto escuro (evita branco sobre azul claro) */
+    --chat-user: 214 95% 96%;
+    --chat-system: 210 40% 94%;
+    --chat-user-foreground: 222 47% 11%;
+    --chat-system-foreground: 222 47% 11%;
     --glow-primary: 160 72% 45%;
     --glow-finops: 160 84% 39%;
     --radius: 0.75rem;

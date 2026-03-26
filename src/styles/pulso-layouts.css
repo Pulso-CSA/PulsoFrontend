@@ -421,6 +421,16 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   border-color: rgba(79, 159, 243, 0.25) !important;
 }
 
+.theme-pulso-light .pulso-chat-user-bubble {
+  background: linear-gradient(
+    135deg,
+    hsl(199 89% 94%) 0%,
+    hsl(210 40% 96%) 50%,
+    hsl(262 40% 95%) 100%
+  ) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
 /* Mensagens de chat padronizadas (legado) */
 .pulso-chat-msg-user {
   background: linear-gradient(
@@ -623,6 +633,49 @@ html[data-electron="true"] .pulso-layout-a-body {
 .theme-pulso-light .pulso-csa-config-scroll::-webkit-scrollbar-thumb:hover,
 .theme-pulso-light .pulso-chat-sidebar-docs::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Painel Documentos (ChatSidebar em todos os chats): fundo, cartões e hovers no escuro */
+.pulso-chat-docs-panel {
+  background: hsl(var(--muted) / 0.38);
+}
+.theme-pulso-light .pulso-chat-docs-panel {
+  background: hsl(var(--muted) / 0.6);
+}
+.theme-pulso-dark .pulso-chat-docs-panel,
+.theme-pulso-medium .pulso-chat-docs-panel {
+  background: hsl(var(--card) / 0.48);
+}
+
+.pulso-chat-docs-panel .pulso-chat-docs-card {
+  border-radius: 12px;
+  border: 1px solid hsl(var(--border) / 0.88);
+}
+.theme-pulso-light .pulso-chat-docs-panel .pulso-chat-docs-card {
+  box-shadow:
+    0 1px 3px hsl(222 47% 11% / 0.08),
+    0 1px 2px hsl(222 47% 11% / 0.04);
+  background-image: none;
+  background-color: hsl(var(--card));
+}
+.theme-pulso-dark .pulso-chat-docs-panel .pulso-chat-docs-card,
+.theme-pulso-medium .pulso-chat-docs-panel .pulso-chat-docs-card {
+  box-shadow: 0 4px 22px hsl(0 0% 0% / 0.34), inset 0 1px 0 hsl(0 0% 100% / 0.05);
+  background-image: linear-gradient(165deg, hsl(var(--card) / 0.98) 0%, hsl(230 22% 11% / 0.92) 100%);
+}
+
+.pulso-chat-docs-panel .pulso-chat-docs-input {
+  border-radius: 8px !important;
+  background: hsl(var(--background) / 0.7) !important;
+}
+.theme-pulso-light .pulso-chat-docs-panel .pulso-chat-docs-input {
+  background: hsl(var(--background)) !important;
+}
+
+.theme-pulso-dark .pulso-chat-docs-panel .showcase-menu-card .showcase-list .showcase-element:hover,
+.theme-pulso-medium .pulso-chat-docs-panel .showcase-menu-card .showcase-list .showcase-element:hover {
+  background-color: hsl(var(--primary) / 0.18);
+  color: hsl(var(--foreground));
 }
 
 .pulso-layout-a-main {
@@ -1203,6 +1256,47 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Scroll principal (#main-content): Billing, Settings, etc. */
+#main-content.pulso-app-main-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.35) transparent;
+}
+#main-content.pulso-app-main-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+#main-content.pulso-app-main-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+#main-content.pulso-app-main-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary) / 0.45) 0%,
+    hsl(var(--accent) / 0.35) 100%
+  );
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+#main-content.pulso-app-main-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary) / 0.65) 0%,
+    hsl(var(--accent) / 0.5) 100%
+  );
+  background-clip: padding-box;
+}
+.theme-pulso-light #main-content.pulso-app-main-scroll {
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
+}
+.theme-pulso-light #main-content.pulso-app-main-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.35);
+  border: 1px solid hsl(var(--border));
+}
+.theme-pulso-light #main-content.pulso-app-main-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.55);
 }
 
 /* ========== Scrollbar suave ========== */

@@ -8,18 +8,18 @@ const rootPath = path.join(rootDir, "App.png");
 const outputDir = path.join(rootDir, "build");
 const outputPath = path.join(outputDir, "icon.ico");
 
-// Usar public/App.png; se não existir, copiar de App.png na raiz
-let inputPath = publicPath;
-if (!fs.existsSync(inputPath)) {
-  if (fs.existsSync(rootPath)) {
-    fs.mkdirSync(path.join(rootDir, "public"), { recursive: true });
-    fs.copyFileSync(rootPath, publicPath);
-    inputPath = publicPath;
-    console.log("App.png copiado da raiz para public/");
-  } else {
-    console.error("App.png não encontrado em public/ nem na raiz do projeto.");
-    process.exit(1);
-  }
+// Fonte única: App.png na raiz (quando existir) → sincroniza public/ para o Vite/Electron servirem o mesmo ficheiro
+let inputPath;
+if (fs.existsSync(rootPath)) {
+  fs.mkdirSync(path.join(rootDir, "public"), { recursive: true });
+  fs.copyFileSync(rootPath, publicPath);
+  inputPath = publicPath;
+  console.log("App.png (raiz) → public/App.png");
+} else if (fs.existsSync(publicPath)) {
+  inputPath = publicPath;
+} else {
+  console.error("App.png não encontrado na raiz nem em public/.");
+  process.exit(1);
 }
 
 fs.mkdirSync(outputDir, { recursive: true });

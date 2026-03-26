@@ -126,15 +126,15 @@ const Billing = () => {
   };
 
   return (
-    <div className="pulso-page-container min-h-screen flex flex-col">
-      <div className="glass-strong border-b">
+    <div className="pulso-page-container flex min-h-0 flex-1 flex-col w-full">
+      <div className="glass-strong border-b border-border shrink-0 sticky top-0 z-20 supports-[backdrop-filter]:bg-background/75 backdrop-blur-md">
         <DashboardHeader />
       </div>
 
-      <main className="flex-1 container mx-auto p-4 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <main className="flex-1 min-h-0 container mx-auto px-4 py-6 sm:px-5 lg:px-8 lg:py-10 pb-12">
+        <div className="max-w-7xl mx-auto space-y-8 lg:space-y-10">
           {/* Header */}
-          <div className="flex items-center gap-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 animate-fade-in">
             <Button
               variant="pulso"
               size="sm"
@@ -208,7 +208,7 @@ const Billing = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
             {plans.map((plan, idx) => {
               const Icon = plan.icon;
               const price = billingCycle === "monthly"
@@ -222,7 +222,7 @@ const Billing = () => {
               return (
                 <Card
                   key={plan.name}
-                  className={`pulso-page-card glass-card relative p-6 border-2 hover:scale-[1.02] pulso-transition-premium animate-fade-in rounded-2xl ${
+                  className={`pulso-page-card glass-card relative flex flex-col h-full p-6 sm:p-7 border-2 hover:scale-[1.01] sm:hover:scale-[1.02] pulso-transition-premium animate-fade-in rounded-2xl ${
                     plan.popular 
                       ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)] card-bottom-glow' 
                       : 'border-primary/30 hover:border-primary/50'
@@ -237,7 +237,7 @@ const Billing = () => {
                     </div>
                   )}
 
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex flex-col flex-1 min-h-0">
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <Icon className={`h-8 w-8 ${plan.color} drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)]`} />
@@ -264,9 +264,9 @@ const Billing = () => {
 
                     <Separator />
 
-                    <ul className="space-y-2">
+                    <ul className="space-y-2.5 flex-1 min-h-[8rem]">
                       {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
+                        <li key={i} className="flex items-start gap-2 text-sm text-foreground/95">
                           <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                           <span>{feature}</span>
                         </li>
@@ -277,7 +277,7 @@ const Billing = () => {
                       type="button"
                       onClick={() => !isDisabled && !isLoading && handleSelectPlan(plan.id)}
                       disabled={isDisabled || isLoading}
-                      className="showcase-sparkle-btn w-full justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                      className="showcase-sparkle-btn w-full justify-center gap-2 shrink-0 mt-2 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground"
                     >
                       <span className="showcase-spark" aria-hidden />
                       <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
@@ -299,8 +299,8 @@ const Billing = () => {
           </div>
 
           {/* Stripe Badge */}
-          <div className="text-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <p className="text-xs text-muted-foreground">
+          <div className="text-center pt-2 pb-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
               Pagamentos processados de forma segura via{" "}
               <span className="font-semibold text-primary">Stripe</span>
             </p>

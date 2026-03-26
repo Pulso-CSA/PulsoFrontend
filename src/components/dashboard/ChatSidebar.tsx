@@ -3,7 +3,7 @@
  * Elemento 08 (Save) para novo chat | Elemento 10 (Delete) para excluir
  */
 import { useState, useMemo, useEffect } from "react";
-import { MessageSquare, Plus } from "lucide-react";
+import { FileText, FolderOpen, MessageSquare, Plus } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { cn } from "@/lib/utils";
 import { CosmicSearchInput } from "@/components/ui/CosmicSearchInput";
@@ -287,7 +287,11 @@ export function ChatSidebar({
         <button
           type="button"
           onClick={() => setShowDocuments((prev) => !prev)}
-          className="showcase-docs-btn pulso-docs-trigger-btn shrink-0"
+          className={cn(
+            "showcase-docs-btn pulso-docs-trigger-btn shrink-0",
+            showDocuments && "pulso-docs-trigger-btn--open"
+          )}
+          aria-expanded={showDocuments}
           aria-label="Documentos"
           title={showDocuments ? "Fechar documentos" : "Abrir documentos"}
         >
@@ -335,9 +339,14 @@ export function ChatSidebar({
       </div>
 
       {showDocuments && (
-        <div className="pulso-chat-sidebar-top pulso-chat-sidebar-docs p-3 border-b border-border space-y-3 bg-muted/40">
-          <div className="showcase-menu-card w-full">
-            <div className="px-3 text-xs font-semibold text-foreground">Relatórios</div>
+        <div className="pulso-chat-sidebar-top pulso-chat-sidebar-docs pulso-chat-docs-panel p-3 border-b border-border space-y-3">
+          <div className="showcase-menu-card pulso-chat-docs-card w-full">
+            <div className="px-3 flex items-center gap-2 min-w-0">
+              <FileText className="h-3.5 w-3.5 shrink-0 text-primary opacity-90" aria-hidden />
+              <span className="text-xs font-semibold text-foreground tracking-tight pulso-chat-docs-section-title">
+                Relatórios
+              </span>
+            </div>
             <div className="showcase-separator" />
             <ul className="showcase-list">
               {reports.length === 0 ? (
@@ -352,15 +361,20 @@ export function ChatSidebar({
                     onClick={() => openReportPreview(report)}
                     title={`Abrir relatório ${report.filename}`}
                   >
-                    <span className="text-xs truncate">{report.filename}</span>
+                    <span className="text-xs truncate text-foreground">{report.filename}</span>
                   </li>
                 ))
               )}
             </ul>
           </div>
 
-          <div className="showcase-menu-card w-full">
-            <div className="px-3 text-xs font-semibold text-foreground">Pastas de chats salvos</div>
+          <div className="showcase-menu-card pulso-chat-docs-card w-full">
+            <div className="px-3 flex items-center gap-2 min-w-0">
+              <FolderOpen className="h-3.5 w-3.5 shrink-0 text-primary opacity-90" aria-hidden />
+              <span className="text-xs font-semibold text-foreground tracking-tight pulso-chat-docs-section-title">
+                Pastas de chats salvos
+              </span>
+            </div>
             <div className="showcase-separator" />
             <div className="px-3 pb-2 flex items-center gap-2">
               <input
@@ -368,7 +382,7 @@ export function ChatSidebar({
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && createFolder()}
-                className="showcase-search-input showcase-search-input--compact !h-8 !text-xs !px-2 !w-full"
+                className="showcase-search-input showcase-search-input--compact showcase-search-input--no-lupa pulso-chat-docs-input !h-8 !text-xs !px-2.5 !w-full"
                 placeholder="Nova pasta"
               />
               <button

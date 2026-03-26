@@ -727,7 +727,7 @@ const DataChat = () => {
                     ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground shadow-md ml-auto border"
                     : message.retryPrompt
                       ? "rounded-xl border border-amber-500/30 bg-amber-500/5"
-                      : "bg-chat-system text-chat-system-foreground border border-white/5 shadow-md hover:border-white/10"
+                      : "bg-chat-system text-chat-system-foreground border border-border/60 shadow-md hover:border-border"
                 }`}
               >
                 {message.retryPrompt ? (
@@ -969,7 +969,7 @@ const DataChat = () => {
 
                 {/* Sugestão de próximo passo (quando sem conexão ou resposta mínima) */}
                 {message.sugestaoProximoPasso?.trim() && (
-                  <p className="text-sm text-muted-foreground mt-3 pt-3 border-t border-white/5 italic">
+                  <p className="text-sm text-muted-foreground mt-3 pt-3 border-t border-border italic">
                     💡 {message.sugestaoProximoPasso}
                   </p>
                 )}

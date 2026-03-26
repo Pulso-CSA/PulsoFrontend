@@ -18,9 +18,13 @@ function resolveWindowIcon() {
   }
   if (!app.isPackaged) {
     candidates.push(path.join(appRoot, "build", "icon.ico"));
+    /* PNG da marca antes do favicon: evita ícone genérico do Electron se o .ico ainda não foi gerado */
+    candidates.push(path.join(appRoot, "public", "App.png"));
   }
   candidates.push(path.join(appRoot, "public", "favicon.ico"));
-  candidates.push(path.join(appRoot, "public", "App.png"));
+  if (app.isPackaged) {
+    candidates.push(path.join(appRoot, "public", "App.png"));
+  }
   for (const p of candidates) {
     try {
       if (fs.existsSync(p)) return p;
@@ -116,7 +120,7 @@ function createWindow() {
     show: false,
   });
 
-  // Links / window.open com _blank não abrem outra janela Electron (ícone do átomo);
+  // Links / window.open com _blank não abrem outra janela Electron (ícone por defeito);
   // abrem no navegador por defeito — mesmo comportamento esperado para URLs externas.
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     try {

@@ -23,7 +23,7 @@ function LayoutWrapper() {
       data-pulso-layout={layoutMode}
       className={cn("min-h-[calc(100vh-3.5rem)] relative flex flex-col", isFuturistic && "pulso-layout", !isFuturistic && "pulso-layout-b")}
     >
-      <div className="relative z-10 flex-1 flex flex-col min-w-0">
+      <div className="relative z-10 flex-1 flex flex-col min-w-0 min-h-0">
         <Outlet />
       </div>
     </div>
@@ -57,7 +57,7 @@ export function AppShell() {
     location.pathname === "/reset-password";
 
   return (
-    <div className="min-h-screen flex flex-col bg-space-if-dark text-foreground relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-space-if-dark text-foreground relative overflow-x-hidden">
       {/* Fundo space + orbs (igual ProfileSelection) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
@@ -96,7 +96,11 @@ export function AppShell() {
         </header>
       )}
 
-      <main id="main-content" className="flex-1 flex flex-col min-w-0 relative z-10" tabIndex={-1}>
+      <main
+        id="main-content"
+        className="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 pulso-app-main-scroll"
+        tabIndex={-1}
+      >
         <LayoutWrapper />
       </main>
 
