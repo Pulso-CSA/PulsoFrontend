@@ -56,6 +56,20 @@ const defaultData = [
   { label: "6pm", value: 412 },
 ];
 
+/** Tooltip Recharts alinhado ao tema (evita texto padrão ilegível no claro) */
+const rechartsTooltipStyles = {
+  contentStyle: {
+    background: "hsl(var(--card))",
+    border: "1px solid hsl(var(--border))",
+    borderRadius: "0.5rem",
+    fontSize: "12px",
+    color: "hsl(var(--card-foreground))",
+    boxShadow: "0 8px 24px hsl(222 47% 11% / 0.08)",
+  } as const,
+  labelStyle: { color: "hsl(var(--muted-foreground))", fontWeight: 600 as const },
+  itemStyle: { color: "hsl(var(--card-foreground))" },
+};
+
 export function AnalyticsCard({
   title,
   value,
@@ -122,15 +136,17 @@ export function AnalyticsCard({
       {/* Tooltip glass: análise breve + conclusão técnica + insights — aparece ao passar o mouse */}
       {(insight?.length || analysisSummary || technicalConclusion) && isHovered && (
         <div className="pulso-insight-tooltip absolute inset-0 z-10 flex items-center justify-center p-4 rounded-2xl pointer-events-none">
-          <div className="pulso-insight-glass w-full max-w-[90%] p-4 rounded-xl text-left space-y-2">
+          <div className="pulso-insight-glass w-full max-w-[92%] max-h-[min(220px,70%)] overflow-y-auto p-4 rounded-xl text-left space-y-2.5">
             {analysisSummary && (
-              <p className="text-xs font-medium text-foreground/95">{analysisSummary}</p>
+              <p className="text-xs font-semibold text-foreground leading-snug">{analysisSummary}</p>
             )}
             {technicalConclusion && (
-              <p className="text-xs text-primary/90 border-l-2 border-primary/50 pl-2">{technicalConclusion}</p>
+              <p className="text-xs text-foreground/90 border-l-[3px] border-primary/55 pl-2.5 leading-relaxed">
+                {technicalConclusion}
+              </p>
             )}
             {insight && insight.length > 0 && insight.slice(0, 5).map((line, i) => (
-              <p key={i} className="text-xs text-foreground/95 leading-relaxed">
+              <p key={i} className="text-xs text-muted-foreground leading-relaxed">
                 {line}
               </p>
             ))}
@@ -152,12 +168,7 @@ export function AnalyticsCard({
             {isPie ? (
               <PieChart margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
                 <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                    fontSize: "12px",
-                  }}
+                  {...rechartsTooltipStyles}
                   formatter={(value: number, name: string) => [value.toLocaleString("pt-BR"), name]}
                 />
                 <Pie
@@ -183,11 +194,7 @@ export function AnalyticsCard({
                 <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground) / 0.6)" />
                 <YAxis hide domain={["auto", "auto"]} />
                 <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                  }}
+                  {...rechartsTooltipStyles}
                   formatter={(value: number) => [value.toLocaleString("pt-BR"), "valor"]}
                   cursor={{ stroke: "hsl(var(--primary) / 0.5)", strokeWidth: 1 }}
                 />
@@ -199,11 +206,7 @@ export function AnalyticsCard({
                 <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground) / 0.6)" />
                 <YAxis hide domain={["auto", "auto"]} />
                 <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                  }}
+                  {...rechartsTooltipStyles}
                   formatter={(value: number) => [value.toLocaleString("pt-BR"), "valor"]}
                   cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
                 />
@@ -221,11 +224,7 @@ export function AnalyticsCard({
                 <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground) / 0.6)" />
                 <YAxis hide domain={["auto", "auto"]} />
                 <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                  }}
+                  {...rechartsTooltipStyles}
                   formatter={(value: number) => [value.toLocaleString("pt-BR"), "valor"]}
                   cursor={{ stroke: "hsl(var(--primary) / 0.5)", strokeWidth: 1 }}
                 />

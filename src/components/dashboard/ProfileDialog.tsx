@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Camera, Mail, Save, Lock, Eye, EyeOff, CreditCard, Crown, Key } from "lucide-react";
+import { User, Camera, Mail, Save, Lock, Eye, EyeOff, CreditCard, Crown, Key, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,19 @@ import ProfileManagement from "./ProfileManagement";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi } from "@/lib/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getStoredUiLanguage,
+  setStoredUiLanguage,
+  UI_LANGUAGE_OPTIONS,
+  uiLanguageLabel,
+} from "@/lib/uiLanguages";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -45,7 +58,16 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     confirmPassword: "",
   });
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
-  const [accountCategory, setAccountCategory] = useState<"perfil" | "api" | "plano" | "seguranca">("perfil");
+  const [accountCategory, setAccountCategory] = useState<
+    "perfil" | "api" | "plano" | "seguranca" | "idiomas"
+  >("perfil");
+  const [uiLang, setUiLang] = useState(() => getStoredUiLanguage());
+
+  useEffect(() => {
+    if (open) {
+      setUiLang(getStoredUiLanguage());
+    }
+  }, [open]);
 
   useEffect(() => {
     if (open && user) {
@@ -73,6 +95,9 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (accountCategory === "idiomas" || accountCategory === "plano") {
+      return;
+    }
     setLoading(true);
 
     // Validar email
@@ -178,21 +203,31 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
         className="w-[min(92vw,960px)] max-w-[92vw] max-h-[78vh] overflow-y-auto overflow-x-hidden glass-strong border border-primary/20 rounded-2xl shadow-[0_0_40px_hsl(var(--primary)/0.12)] p-6 gap-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-300"
       >
         <DialogHeader className="space-y-2 pb-6">
-          <DialogTitle className="text-2xl font-bold flex items-center gap-3" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+          <DialogTitle className="text-2xl font-bold flex items-center gap-3 text-foreground">
             <div className="p-2 rounded-xl bg-primary/10">
               <User className="h-6 w-6 text-primary" />
             </div>
             Minha Conta
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground text-sm">
+          <DialogDescription className="text-sm text-foreground/75">
             Gerencie sua conta, perfis e configurações de segurança
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="account" className="mt-2">
-          <TabsList className="grid w-full grid-cols-2 h-11 border border-primary/20 bg-muted/20">
-            <TabsTrigger value="account" className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:border-primary/30">Conta</TabsTrigger>
-            <TabsTrigger value="profiles" className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:border-primary/30">Perfis</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 h-11 border border-border bg-muted/30">
+            <TabsTrigger
+              value="account"
+              className="text-foreground/80 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border data-[state=active]:border-primary/30"
+            >
+              Conta
+            </TabsTrigger>
+            <TabsTrigger
+              value="profiles"
+              className="text-foreground/80 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border data-[state=active]:border-primary/30"
+            >
+              Perfis
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="account" className="mt-6">
@@ -205,7 +240,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   accountCategory === "perfil"
                     ? "bg-primary/20 text-primary border border-primary/40"
-                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                    : "border border-border bg-card/90 text-foreground/90 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <User className="h-4 w-4" />
@@ -217,7 +252,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   accountCategory === "api"
                     ? "bg-primary/20 text-primary border border-primary/40"
-                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                    : "border border-border bg-card/90 text-foreground/90 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Key className="h-4 w-4" />
@@ -229,7 +264,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   accountCategory === "plano"
                     ? "bg-primary/20 text-primary border border-primary/40"
-                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                    : "border border-border bg-card/90 text-foreground/90 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Crown className="h-4 w-4" />
@@ -241,11 +276,23 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   accountCategory === "seguranca"
                     ? "bg-primary/20 text-primary border border-primary/40"
-                    : "bg-muted/30 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent"
+                    : "border border-border bg-card/90 text-foreground/90 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Lock className="h-4 w-4" />
                 Segurança
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountCategory("idiomas")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  accountCategory === "idiomas"
+                    ? "bg-primary/20 text-primary border border-primary/40"
+                    : "border border-border bg-card/90 text-foreground/90 hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Globe className="h-4 w-4" />
+                Idiomas
               </button>
             </div>
 
@@ -276,10 +323,10 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                     />
                     <Button
                       type="button"
-                      variant="pulso"
+                      variant="outline"
                       size="sm"
                       onClick={() => document.getElementById("avatar-upload")?.click()}
-                      className="gap-2"
+                      className="gap-2 border-border text-foreground hover:bg-muted"
                     >
                       <Camera className="h-4 w-4" />
                       Alterar Foto
@@ -507,28 +554,86 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               </>
               )}
 
+              {/* Categoria: Idiomas */}
+              {accountCategory === "idiomas" && (
+                <div className="glass rounded-xl p-5 space-y-4 border border-primary/15">
+                  <div className="flex items-center gap-2 pb-1">
+                    <Globe className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-primary">Idioma da interface</h3>
+                  </div>
+                  <p className="text-xs text-foreground/75">
+                    Escolha o idioma preferido. A preferência fica salva neste dispositivo; a tradução completa da
+                    aplicação será aplicada quando o suporte i18n estiver disponível.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="ui-language" className="text-sm font-medium text-foreground">
+                      Idioma
+                    </Label>
+                    <Select
+                      value={uiLang}
+                      onValueChange={(value) => {
+                        setUiLang(value);
+                        setStoredUiLanguage(value);
+                        toast({
+                          title: "Idioma salvo",
+                          description: `Preferência definida para ${uiLanguageLabel(value)}.`,
+                        });
+                      }}
+                    >
+                      <SelectTrigger id="ui-language" className="border-primary/20">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[min(60vh,320px)]">
+                        {UI_LANGUAGE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.code} value={opt.code}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
               {/* Submit Button - visível em Perfil, API e Segurança */}
               {(accountCategory === "perfil" || accountCategory === "api" || accountCategory === "seguranca") && (
               <div className="flex gap-3 pt-2">
                 <Button
                   type="button"
-                  variant="pulso"
-                  className="flex-1"
+                  variant="outline"
+                  className="flex-1 border-border text-foreground bg-background hover:bg-muted"
                   onClick={() => onOpenChange(false)}
                 >
                   Cancelar
                 </Button>
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="showcase-sparkle-btn flex-1 justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <span className="showcase-spark" aria-hidden />
-                  <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
-                  <Save className="w-5 h-5 relative z-10" />
-                  <span className="relative z-10">{loading ? "Salvando..." : "Salvar Alterações"}</span>
-                </button>
+                  <Save className="w-5 h-5" />
+                  {loading ? "Salvando..." : "Salvar Alterações"}
+                </Button>
               </div>
+              )}
+              {accountCategory === "idiomas" && (
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 border-border text-foreground bg-background hover:bg-muted"
+                    onClick={() => setAccountCategory("perfil")}
+                  >
+                    Voltar
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    Fechar
+                  </Button>
+                </div>
               )}
             </div>
             </form>

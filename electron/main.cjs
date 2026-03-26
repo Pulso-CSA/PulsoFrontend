@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, shell, nativeImage } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -9,27 +9,42 @@ if (process.platform === "win32") {
 
 let mainWindow;
 
-/** Caminho do ícone Pulso: build gerado, recursos empacotados ou public/. */
-function resolveWindowIcon() {
+/** Caminhos candidatos ao ícone (Windows: preferir .ico — PNG na barra de tarefas costuma falhar). */
+function resolveWindowIconPaths() {
   const appRoot = path.join(__dirname, "..");
   const candidates = [];
   if (process.platform === "win32" && app.isPackaged) {
     candidates.push(path.join(process.resourcesPath, "pulso-icon.ico"));
+    candidates.push(path.join(path.dirname(process.execPath), "resources", "pulso-icon.ico"));
   }
+  candidates.push(path.join(appRoot, "build", "icon.ico"));
   if (!app.isPackaged) {
-    candidates.push(path.join(appRoot, "build", "icon.ico"));
-    /* PNG da marca antes do favicon: evita ícone genérico do Electron se o .ico ainda não foi gerado */
+    candidates.push(path.join(appRoot, "public", "favicon.ico"));
     candidates.push(path.join(appRoot, "public", "App.png"));
   }
-  candidates.push(path.join(appRoot, "public", "favicon.ico"));
   if (app.isPackaged) {
     candidates.push(path.join(appRoot, "public", "App.png"));
+    candidates.push(path.join(appRoot, "public", "favicon.ico"));
   }
+  const seen = new Set();
+  const out = [];
   for (const p of candidates) {
+    if (!p || seen.has(p)) continue;
+    seen.add(p);
+    out.push(p);
+  }
+  return out;
+}
+
+/** nativeImage para BrowserWindow (obrigatório no Windows para o ícone da janela/overlay). */
+function resolveWindowIcon() {
+  for (const p of resolveWindowIconPaths()) {
     try {
-      if (fs.existsSync(p)) return p;
+      if (!fs.existsSync(p)) continue;
+      const img = nativeImage.createFromPath(p);
+      if (!img.isEmpty()) return img;
     } catch {
-      /* ignorar */
+      /* próximo */
     }
   }
   return undefined;
@@ -220,7 +235,11 @@ function createWindow() {
     });
   }
 
-  mainWindow.once("ready-to-show", () => mainWindow.show());
+  mainWindow.once("ready-to-show", () => {
+    const icon = resolveWindowIcon();
+    if (icon) mainWindow.setIcon(icon);
+    mainWindow.show();
+  });
   mainWindow.on("closed", () => { mainWindow = null; });
 }
 

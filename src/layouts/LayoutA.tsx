@@ -169,6 +169,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                 <div className="relative flex items-center justify-center">
                   <button
                     type="button"
+                    data-pulso-tab={key}
                     onClick={() => onServiceChange(isActive ? null : key)}
                     className={cn(
                       "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground",
@@ -178,7 +179,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     aria-pressed={isActive}
                     aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
                   >
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                    <Icon className="h-5 w-5 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
                     <span className="text-xs font-medium truncate">{label}</span>
                   </button>
                   {/* Efeito hover embaixo do botão com submenu de cloud */}
@@ -377,13 +378,14 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                 <div className="relative">
                   <button
                     type="button"
+                    data-pulso-tab={key}
                     onClick={() => onServiceChange(isActive ? null : key)}
                     className={cn("pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground", isActive && "pulso-active")}
                     title={label}
                     aria-pressed={isActive}
                     aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
                   >
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                    <Icon className="h-5 w-5 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
                     <span className="text-xs font-medium truncate">{label}</span>
                   </button>
                   {supportsCloudMenu && serviceHover === key && (

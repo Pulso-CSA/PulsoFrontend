@@ -26,15 +26,16 @@ fs.mkdirSync(outputDir, { recursive: true });
 
 const pngBuffer = fs.readFileSync(inputPath);
 
-toIco([pngBuffer], { resize: true, sizes: [16, 32, 48, 64, 128, 256] })
-  .then((buf) => {
-    fs.writeFileSync(outputPath, buf);
-    const publicFavicon = path.join(rootDir, "public", "favicon.ico");
-    fs.copyFileSync(outputPath, publicFavicon);
-    console.log("Ícone gerado:", outputPath);
-    console.log("Favicon atualizado:", publicFavicon);
-  })
-  .catch((err) => {
-    console.error("Erro ao gerar ícone:", err);
-    process.exit(1);
-  });
+async function writeIcons() {
+  const buf = await toIco([pngBuffer], { resize: true, sizes: [16, 32, 48, 64, 128, 256] });
+  fs.writeFileSync(outputPath, buf);
+  const publicFavicon = path.join(rootDir, "public", "favicon.ico");
+  fs.copyFileSync(outputPath, publicFavicon);
+  console.log("Ícone gerado:", outputPath);
+  console.log("Favicon atualizado:", publicFavicon);
+}
+
+writeIcons().catch((err) => {
+  console.error("Erro ao gerar ícone:", err);
+  process.exit(1);
+});

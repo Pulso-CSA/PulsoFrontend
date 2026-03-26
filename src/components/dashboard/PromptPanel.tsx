@@ -751,7 +751,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                 <Workflow className="h-4 w-4 shrink-0 text-primary" />
                 Pulso CSA
               </h2>
-              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              <p className="text-xs text-foreground/70 mt-0.5 truncate">
                 Blueprint e estrutura de projetos · Alt+P
               </p>
             </div>
@@ -780,11 +780,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
         {/* Config — colapsável */}
         <Collapsible defaultOpen={false}>
           <CollapsibleTrigger className="pulso-chat-main-fixed-section w-full p-3 flex items-center justify-between shrink-0 hover:bg-primary/5 transition-colors">
-            <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <FolderOpen className="h-4 w-4" />
+            <span className="text-sm font-medium text-foreground/85 flex items-center gap-2">
+              <FolderOpen className="h-4 w-4 text-primary" />
               Configuração (pasta, .env)
             </span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <ChevronDown className="h-4 w-4 text-foreground/65" />
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="pulso-csa-config-scroll shrink-0 border-t border-primary/10">
@@ -833,7 +833,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   </Button>
                 </div>
                 <div onDragOver={handleDragOver} onDrop={handleDrop} className="border-2 border-dashed border-primary/30 rounded-lg p-3 text-center bg-background/30 hover:border-primary/50 transition-colors">
-                  <p className="text-xs text-muted-foreground">Arraste um .env aqui ou use o botão acima</p>
+                  <p className="text-xs text-foreground/72">Arraste um .env aqui ou use o botão acima</p>
                 </div>
                 {envVars.length > 0 && (
                   <div className="border border-primary/30 rounded-lg overflow-hidden bg-background/50">
@@ -850,7 +850,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                           {envVars.map((envVar, index) => (
                             <tr key={index} className="border-b border-primary/10 hover:bg-primary/5">
                               <td className="px-3 py-2 text-sm font-mono truncate max-w-[120px]">{envVar.name}</td>
-                              <td className="px-3 py-2 text-sm font-mono text-muted-foreground truncate max-w-[140px]">{envVar.value}</td>
+                              <td className="px-3 py-2 text-sm font-mono text-foreground/78 truncate max-w-[140px]">{envVar.value}</td>
                               <td className="px-3 py-2">
                                 <Button variant="ghost" size="sm" onClick={() => removeEnvVariable(index)} className="h-7 gap-1 text-xs text-destructive hover:bg-destructive/10">
                                   <X className="h-4 w-4 shrink-0" />
@@ -865,8 +865,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   </div>
                 )}
                 <div className="grid grid-cols-[1fr,1fr,auto] gap-2">
-                  <Input placeholder="Nome (ex: API_KEY)" value={newVarName} onChange={(e) => setNewVarName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50" />
-                  <Input placeholder="Valor" value={newVarValue} onChange={(e) => setNewVarValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50" />
+                  <Input placeholder="Nome (ex: API_KEY)" value={newVarName} onChange={(e) => setNewVarName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50 placeholder:text-foreground/55" />
+                  <Input placeholder="Valor" value={newVarValue} onChange={(e) => setNewVarValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50 placeholder:text-foreground/55" />
                   <Button onClick={addEnvVariable} size="sm" className="h-10 gap-1.5 px-3" variant="pulso">
                     <Plus className="h-4 w-4 shrink-0" />
                     <span>Adicionar</span>

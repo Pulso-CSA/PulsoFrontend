@@ -789,11 +789,12 @@ const Dashboard = () => {
       <div className="pulso-insights-screen flex-1 min-h-0 flex flex-col overflow-hidden relative">
         {/* Conteúdo rolável (cards + zoom) */}
         <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
-        <div className="flex flex-wrap items-center gap-2 py-3">
+        <div className="pulso-insights-filter-row flex flex-wrap items-center gap-2 py-3">
           {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
             <button
               key={key}
               type="button"
+              data-pulso-tab={key}
               onClick={() => setInsightsFilter(key)}
               className={cn(
                 "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 h-9 min-w-[36px] text-xs",
@@ -803,18 +804,19 @@ const Dashboard = () => {
               aria-label={`Filtrar: ${label}`}
               aria-pressed={insightsFilter === key}
             >
-              <Icon className="shrink-0 h-4 w-4" strokeWidth={1.5} />
+              <Icon className="shrink-0 h-4 w-4 pulso-service-tab-icon" strokeWidth={1.5} />
               <span className="font-medium whitespace-nowrap text-xs">{label}</span>
             </button>
           ))}
           <button
             type="button"
+            data-pulso-tab="export"
             onClick={handleExportInsights}
             className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
             title="Baixar relatório"
             aria-label="Baixar relatório do dashboard"
           >
-            <Download className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <Download className="h-4 w-4 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
             <span className="font-medium whitespace-nowrap">Exportar</span>
           </button>
         </div>
@@ -1068,30 +1070,32 @@ const Dashboard = () => {
               </ul>
             </div>
             <Dialog open={insightsChatOpen} onOpenChange={setInsightsChatOpen}>
-              <DialogContent className="sm:max-w-2xl pulso-insights-chat-dialog">
+              <DialogContent className="sm:max-w-2xl pulso-insights-chat-dialog text-card-foreground">
                 <DialogHeader>
-                  <DialogTitle>Criar gráfico por chat</DialogTitle>
+                  <DialogTitle className="text-xl font-semibold text-foreground">
+                    Criar gráfico por chat
+                  </DialogTitle>
                 </DialogHeader>
                 <div className="pulso-insights-chat-history">
                   {insightsChatHistory.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-foreground/75 leading-relaxed pulso-insights-chat-empty">
                       Histórico da sessão aparecerá aqui. Envie um prompt para gerar seu primeiro gráfico.
                     </p>
                   ) : (
                     insightsChatHistory.map((item) => (
                       <div key={item.id} className="space-y-1">
                         <div className="pulso-insights-chat-user-bubble">
-                          <p className="text-sm text-foreground">{item.prompt}</p>
+                          <p className="text-sm text-foreground font-medium">{item.prompt}</p>
                         </div>
                         <div className="pulso-insights-chat-assistant-bubble">
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-foreground/70 pulso-insights-chat-assistant-status">
                             {item.status === "gerando" && "Gerando insight no backend..."}
                             {item.status === "criado" && `Gráfico criado: ${item.chartTitle ?? "Novo gráfico"}`}
                             {item.status === "fallback" && `Fallback local aplicado: ${item.chartTitle ?? "Novo gráfico"}`}
                             {item.status === "orientacao" && "Detalhes necessários para criação autônoma."}
                           </p>
                           {item.assistantMessage && (
-                            <p className="text-xs text-foreground/90 mt-2 whitespace-pre-line leading-relaxed">
+                            <p className="text-sm text-foreground mt-2 whitespace-pre-line leading-relaxed">
                               {item.assistantMessage}
                             </p>
                           )}
@@ -1111,7 +1115,7 @@ const Dashboard = () => {
                             </div>
                           )}
                         </div>
-                        <p className="text-[10px] text-muted-foreground px-1">
+                        <p className="text-[10px] text-foreground/55 px-1 tabular-nums">
                           {new Date(item.createdAt).toLocaleTimeString("pt-BR")}
                         </p>
                       </div>

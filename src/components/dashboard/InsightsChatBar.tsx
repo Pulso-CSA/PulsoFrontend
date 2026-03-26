@@ -44,9 +44,9 @@ export function InsightsChatBar({
   return (
     <div className={cn("pulso-insights-chat-bar", className)}>
       <div className="w-full space-y-2">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Sparkles className="h-4 w-4 shrink-0 text-primary/80" />
-          <span className="text-xs font-medium">Criar por chat</span>
+        <div className="flex items-center gap-2 pulso-insights-chat-bar-label">
+          <Sparkles className="h-4 w-4 shrink-0 pulso-insights-chat-bar-label-icon" />
+          <span className="text-xs font-semibold tracking-tight">Criar por chat</span>
         </div>
         <PromptSearchTextarea
           placeholder={placeholder}
@@ -56,14 +56,14 @@ export function InsightsChatBar({
           disabled={disabled}
           aria-label="Descreva o gráfico que deseja criar"
         />
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 pulso-insights-chat-suggestions">
           {SUGGESTIONS.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => handleSuggestion(s)}
               disabled={disabled}
-              className="text-xs px-2.5 py-1 rounded-full border border-border/60 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground hover:border-border transition-colors"
+              className="pulso-insights-chat-suggestion-chip text-xs px-2.5 py-1.5 rounded-full border transition-colors font-medium"
             >
               {s}
             </button>

@@ -676,7 +676,7 @@ const DataChat = () => {
           <Button
             variant="pulso"
             size="sm"
-            className="w-full text-white font-medium"
+            className="w-full font-medium"
             onClick={handleApplyConnection}
           >
             <span className="whitespace-nowrap">Aplicar Conexão</span>

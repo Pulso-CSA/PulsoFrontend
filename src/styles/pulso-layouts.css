@@ -584,10 +584,248 @@ html[data-electron="true"] .pulso-layout-a-body {
     0 0 0 2px hsl(var(--primary) / 0.25),
     0 4px 14px hsl(var(--primary) / 0.12);
 }
-.theme-pulso-light .pulso-insights-navbar .pulso-insights-navbar-btn-filter-active {
-  color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.14);
-  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.35);
+
+/* —— Navbar serviços + filtros Insights: mais cor no tema claro (acentos por área) —— */
+.theme-pulso-light .pulso-layout-a-services-bar > .pulso-layout-a-services-inner {
+  background: linear-gradient(
+    125deg,
+    hsl(0 0% 100% / 0.97) 0%,
+    hsl(200 45% 97% / 0.96) 32%,
+    hsl(265 38% 98% / 0.97) 66%,
+    hsl(155 35% 97% / 0.96) 100%
+  );
+  border: 1px solid hsl(214 28% 86%);
+  box-shadow:
+    0 6px 28px hsl(262 40% 50% / 0.09),
+    0 2px 10px hsl(190 50% 45% / 0.06),
+    inset 0 1px 0 hsl(0 0% 100% / 0.9);
+}
+
+.theme-pulso-light .pulso-insights-filter-row {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.4rem 0.65rem;
+  margin-bottom: 0.25rem;
+  border-radius: 9999px;
+  background: linear-gradient(
+    118deg,
+    hsl(210 40% 98% / 0.98) 0%,
+    hsl(200 42% 96% / 0.96) 40%,
+    hsl(270 32% 97% / 0.97) 100%
+  );
+  border: 1px solid hsl(214 26% 87%);
+  box-shadow: 0 4px 20px hsl(222 40% 40% / 0.06);
+}
+
+.theme-pulso-light .pulso-insights-navbar-inner {
+  background: linear-gradient(
+    120deg,
+    hsl(0 0% 100% / 0.96) 0%,
+    hsl(200 38% 97% / 0.95) 45%,
+    hsl(265 30% 98% / 0.96) 100%
+  );
+  border: 1px solid hsl(214 28% 86%);
+  box-shadow: 0 4px 18px hsl(262 35% 50% / 0.07);
+}
+
+.theme-pulso-light .pulso-layout-a-btn.pulso-layout-a-btn-horizontal {
+  border: 1px solid transparent;
+}
+
+/* Inativo: pastilha por serviço */
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="pulso"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(265 42% 95% / 0.95);
+  color: hsl(265 32% 28%);
+  border-color: hsl(265 34% 86%);
+}
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="pulso"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active)
+  .pulso-service-tab-icon {
+  color: hsl(265 52% 44%);
+}
+
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="cloud"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(199 55% 94% / 0.95);
+  color: hsl(201 45% 26%);
+  border-color: hsl(199 48% 84%);
+}
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="cloud"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active)
+  .pulso-service-tab-icon {
+  color: hsl(200 70% 38%);
+}
+
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="finops"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(152 38% 93% / 0.95);
+  color: hsl(155 40% 24%);
+  border-color: hsl(152 35% 82%);
+}
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="finops"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active)
+  .pulso-service-tab-icon {
+  color: hsl(158 72% 32%);
+}
+
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="data"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(262 36% 95% / 0.95);
+  color: hsl(262 34% 28%);
+  border-color: hsl(262 32% 86%);
+}
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="data"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active)
+  .pulso-service-tab-icon {
+  color: hsl(262 50% 42%);
+}
+
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="all"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(220 20% 94% / 0.95);
+  color: hsl(222 28% 30%);
+  border-color: hsl(220 18% 86%);
+}
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="all"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active)
+  .pulso-service-tab-icon {
+  color: hsl(222 35% 40%);
+}
+
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="custom"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(38 52% 94% / 0.95);
+  color: hsl(32 40% 28%);
+  border-color: hsl(36 42% 85%);
+}
+.theme-pulso-light
+  .pulso-layout-a-btn[data-pulso-tab="custom"]:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active)
+  .pulso-service-tab-icon {
+  color: hsl(32 78% 42%);
+}
+
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="export"]:not(.pulso-active) {
+  background: hsl(215 30% 94% / 0.95);
+  color: hsl(222 28% 30%);
+  border-color: hsl(215 25% 85%);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="export"]:not(.pulso-active) .pulso-service-tab-icon {
+  color: hsl(205 62% 38%);
+}
+
+/* Hover (tema claro): reforço suave por tab */
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="pulso"]:hover:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(265 48% 91%);
+  box-shadow: 0 4px 14px hsl(265 50% 50% / 0.12);
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="cloud"]:hover:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(199 58% 91%);
+  box-shadow: 0 4px 14px hsl(199 65% 45% / 0.14);
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="finops"]:hover:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(152 42% 90%);
+  box-shadow: 0 4px 14px hsl(158 60% 38% / 0.14);
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="data"]:hover:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(262 40% 92%);
+  box-shadow: 0 4px 14px hsl(262 45% 48% / 0.12);
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="all"]:hover:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(220 22% 91%);
+  box-shadow: 0 3px 12px hsl(222 25% 40% / 0.1);
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="custom"]:hover:not(.pulso-active):not(.pulso-insights-navbar-btn-filter-active) {
+  background: hsl(38 55% 91%);
+  box-shadow: 0 4px 12px hsl(36 70% 45% / 0.12);
+  transform: translateY(-1px);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="export"]:hover {
+  background: hsl(215 35% 91%);
+  box-shadow: 0 3px 12px hsl(205 50% 45% / 0.12);
+  transform: translateY(-1px);
+}
+
+/* Ativo: gradiente por área (barra superior + filtros Insights) */
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="pulso"].pulso-active,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="pulso"].pulso-insights-navbar-btn-filter-active {
+  color: #fff !important;
+  border-color: hsl(265 48% 42%);
+  background: linear-gradient(135deg, hsl(265 58% 48%) 0%, hsl(286 52% 46%) 100%);
+  box-shadow:
+    0 4px 20px hsl(265 55% 45% / 0.38),
+    0 0 0 1px hsl(265 60% 62% / 0.35);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="pulso"].pulso-active .pulso-service-tab-icon,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="pulso"].pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: #fff !important;
+}
+
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="cloud"].pulso-active,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="cloud"].pulso-insights-navbar-btn-filter-active {
+  color: #fff !important;
+  border-color: hsl(201 62% 38%);
+  background: linear-gradient(135deg, hsl(199 72% 42%) 0%, hsl(210 75% 48%) 100%);
+  box-shadow:
+    0 4px 20px hsl(200 70% 42% / 0.35),
+    0 0 0 1px hsl(198 80% 65% / 0.3);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="cloud"].pulso-active .pulso-service-tab-icon,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="cloud"].pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: #fff !important;
+}
+
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="finops"].pulso-active,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="finops"].pulso-insights-navbar-btn-filter-active {
+  color: #fff !important;
+  border-color: hsl(158 65% 32%);
+  background: linear-gradient(135deg, hsl(158 72% 34%) 0%, hsl(168 65% 36%) 100%);
+  box-shadow:
+    0 4px 20px hsl(160 70% 32% / 0.35),
+    0 0 0 1px hsl(155 55% 55% / 0.35);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="finops"].pulso-active .pulso-service-tab-icon,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="finops"].pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: #fff !important;
+}
+
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="data"].pulso-active,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="data"].pulso-insights-navbar-btn-filter-active {
+  color: #fff !important;
+  border-color: hsl(262 48% 40%);
+  background: linear-gradient(135deg, hsl(262 55% 46%) 0%, hsl(280 48% 48%) 100%);
+  box-shadow:
+    0 4px 20px hsl(262 50% 42% / 0.36),
+    0 0 0 1px hsl(270 55% 62% / 0.32);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="data"].pulso-active .pulso-service-tab-icon,
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="data"].pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: #fff !important;
+}
+
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="all"].pulso-insights-navbar-btn-filter-active {
+  color: #fff !important;
+  border-color: hsl(222 35% 32%);
+  background: linear-gradient(135deg, hsl(222 42% 36%) 0%, hsl(215 35% 38%) 100%);
+  box-shadow: 0 4px 18px hsl(222 40% 30% / 0.3);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="all"].pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: #fff !important;
+}
+
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="custom"].pulso-insights-navbar-btn-filter-active {
+  color: #fff !important;
+  border-color: hsl(32 85% 38%);
+  background: linear-gradient(135deg, hsl(32 90% 46%) 0%, hsl(24 88% 48%) 100%);
+  box-shadow: 0 4px 18px hsl(32 85% 42% / 0.35);
+}
+.theme-pulso-light .pulso-layout-a-btn[data-pulso-tab="custom"].pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: #fff !important;
 }
 
 /* Tema claro: sidebar de chat + painel Documentos (legível, bordas slate, sem ciano pesado) */
@@ -1143,6 +1381,113 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   background: linear-gradient(135deg, rgba(79, 159, 243, 0.2), rgba(144, 93, 237, 0.2)) !important;
 }
 
+/* Rótulo + chips de sugestão (todas as variantes de tema) */
+.pulso-insights-chat-bar-label {
+  color: hsl(var(--muted-foreground));
+}
+.pulso-insights-chat-bar-label-icon {
+  color: hsl(var(--primary) / 0.9);
+}
+.pulso-insights-chat-suggestion-chip {
+  border-color: hsl(var(--border) / 0.65);
+  background: hsl(var(--muted) / 0.35);
+  color: hsl(var(--foreground) / 0.88);
+}
+.pulso-insights-chat-suggestion-chip:hover:not(:disabled) {
+  background: hsl(var(--muted) / 0.65);
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+/* Modal “Criar gráfico por chat” — tema claro: fundo claro, texto legível, input sem glow magenta */
+.theme-pulso-light .pulso-insights-chat-dialog {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow:
+    0 22px 56px hsl(222 47% 11% / 0.14),
+    0 0 0 1px hsl(var(--border) / 0.45);
+}
+
+.theme-pulso-light .pulso-insights-chat-dialog .pulso-insights-chat-empty,
+.theme-pulso-light .pulso-insights-chat-dialog .text-muted-foreground {
+  color: hsl(222 22% 40%) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-history {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.5);
+  color: hsl(var(--foreground));
+}
+
+.theme-pulso-light .pulso-insights-chat-user-bubble {
+  border: 1px solid hsl(199 48% 82%);
+  background: linear-gradient(135deg, hsl(214 95% 97% / 0.98), hsl(200 55% 96% / 0.95));
+}
+
+.theme-pulso-light .pulso-insights-chat-assistant-bubble {
+  border: 1px solid hsl(265 32% 88%);
+  background: hsl(0 0% 100% / 0.92);
+}
+
+.theme-pulso-light .pulso-insights-chat-assistant-status {
+  color: hsl(222 22% 38%) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-repeat-btn {
+  border-color: hsl(var(--border)) !important;
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-repeat-btn:hover:not(:disabled) {
+  border-color: hsl(var(--primary) / 0.45) !important;
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-bar-label {
+  color: hsl(222 28% 36%);
+}
+
+.theme-pulso-light .pulso-insights-chat-bar-label-icon {
+  color: hsl(199 62% 36%);
+}
+
+.theme-pulso-light .pulso-insights-chat-suggestion-chip {
+  border-color: hsl(214 28% 84%) !important;
+  background: hsl(0 0% 100%) !important;
+  color: hsl(222 30% 30%) !important;
+  box-shadow: 0 1px 2px hsl(222 47% 11% / 0.04);
+}
+
+.theme-pulso-light .pulso-insights-chat-suggestion-chip:hover:not(:disabled) {
+  border-color: hsl(199 55% 58%) !important;
+  background: hsl(200 45% 97%) !important;
+  color: hsl(201 58% 28%) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-dialog .showcase-pink-mask {
+  display: none !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-dialog .showcase-search-poda--prompt .showcase-search-input--prompt {
+  box-shadow: inset 0 0 0 1px hsl(var(--border)), 0 1px 0 hsl(160 72% 36% / 0.12) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-dialog .showcase-search-glow::before {
+  opacity: 0.22 !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-dialog .showcase-search-input--prompt::placeholder {
+  color: hsl(222 22% 38%) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-bar-inner {
+  background: hsl(var(--muted) / 0.35);
+  border-color: hsl(var(--border));
+}
+
 @media (max-width: 1024px) {
   .pulso-insights-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1173,6 +1518,19 @@ html[data-electron="true"] .pulso-layout-b-carousel {
 
 .pulso-insight-glass p + p {
   margin-top: 0.35rem;
+}
+
+/* Tema claro: painel de insight legível (antes: fundo escuro + texto escuro) */
+.theme-pulso-light .pulso-insight-tooltip {
+  background: hsl(var(--foreground) / 0.04);
+}
+
+.theme-pulso-light .pulso-insight-glass {
+  background: hsl(var(--card) / 0.96);
+  border: 1px solid hsl(var(--border));
+  box-shadow:
+    0 10px 40px hsl(222 47% 11% / 0.1),
+    0 0 0 1px hsl(var(--border) / 0.45);
 }
 
 /* ========== Estado vazio centralizado ========== */
@@ -1332,4 +1690,66 @@ html[data-electron="true"] .pulso-layout-b-carousel {
 .pulso-layout-a-main::-webkit-scrollbar-thumb:hover,
 .pulso-layout-b-main::-webkit-scrollbar-thumb:hover {
   background: rgba(165, 75, 206, 0.5);
+}
+
+/* ========== Pulso CSA — tema claro: texto secundário e estados disabled legíveis ========== */
+.theme-pulso-light .pulso-csa-config-scroll input::placeholder,
+.theme-pulso-light .pulso-csa-config-scroll textarea::placeholder {
+  color: hsl(222 22% 34%) !important;
+}
+
+.theme-pulso-light .pulso-csa-config-scroll .text-muted-foreground {
+  color: hsl(222 22% 40%) !important;
+}
+
+.theme-pulso-light .pulso-chat-main-header .pulso-suggestion-btn:disabled {
+  opacity: 1 !important;
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(222 25% 38%) !important;
+  border-color: hsl(var(--border)) !important;
+  box-shadow: inset 0 1px 0 hsl(var(--background) / 0.6) !important;
+}
+
+.theme-pulso-light .pulso-chat-main-header .pulso-suggestion-btn:disabled svg {
+  color: hsl(222 25% 36%) !important;
+  stroke: hsl(222 25% 36%) !important;
+  opacity: 1 !important;
+}
+
+.theme-pulso-light .pulso-chat-main-header .showcase-download-report-btn:disabled {
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+
+.theme-pulso-light .pulso-chat-main-header .showcase-download-report-btn:disabled .showcase-docs,
+.theme-pulso-light .pulso-chat-main-header .showcase-download-report-btn:disabled .showcase-download {
+  background: hsl(var(--muted)) !important;
+  box-shadow: inset 0 1px 0 hsl(var(--border) / 0.35) !important;
+}
+
+.theme-pulso-light .pulso-chat-main-header .showcase-download-report-btn:disabled .showcase-docs span,
+.theme-pulso-light .pulso-chat-main-header .showcase-download-report-btn:disabled .showcase-docs svg {
+  color: hsl(222 25% 40%) !important;
+}
+
+.theme-pulso-light .pulso-chat-main-header .showcase-delete-btn:disabled {
+  opacity: 1 !important;
+}
+
+.theme-pulso-light .pulso-chat-main-header .showcase-delete-btn:disabled .showcase-delete-svg path {
+  fill: hsl(222 25% 42%) !important;
+}
+
+/* Botões pulso (Carregar .env / Adicionar): garantir contraste no tema claro dentro da config */
+.theme-pulso-light .pulso-csa-config-scroll .btn-padrao-gradient:not(:disabled) {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-color: hsl(var(--primary) / 0.88) !important;
+}
+
+.theme-pulso-light .pulso-csa-config-scroll .btn-padrao-gradient:not(:disabled) svg,
+.theme-pulso-light .pulso-csa-config-scroll .btn-padrao-gradient:not(:disabled) span {
+  color: hsl(var(--primary-foreground)) !important;
+  fill: hsl(var(--primary-foreground)) !important;
+  stroke: hsl(var(--primary-foreground)) !important;
 }
