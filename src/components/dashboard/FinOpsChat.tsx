@@ -319,7 +319,7 @@ const FinOpsChat = () => {
             toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
           }}
           disabled={messages.length === 0}
-          className="showcase-download-report-btn--compact text-white shrink-0"
+          className="showcase-download-report-btn--compact shrink-0"
         />
       </div>
 
@@ -421,12 +421,12 @@ const FinOpsChat = () => {
                   </div>
                 )}
 
-                <p className="text-xs opacity-70 mt-2">
+                <span className="pulso-chat-msg-timestamp mt-2">
                   {message.timestamp.toLocaleTimeString('pt-BR', {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
-                </p>
+                </span>
               </div>
             </div>
           ))

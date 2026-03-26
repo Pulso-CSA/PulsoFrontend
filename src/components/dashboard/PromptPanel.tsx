@@ -771,7 +771,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                 toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Download iniciado" });
               }}
               disabled={messages.length === 0}
-              className="showcase-download-report-btn--compact text-white"
+              className="showcase-download-report-btn--compact"
             />
             <Elemento10DeleteButton onClick={handleClear} disabled={messages.length === 0 && !requestId} compact />
           </div>
@@ -1099,7 +1099,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                           {msg.frontend_suggestion}
                         </p>
                       )}
-                      <p className="text-xs opacity-70 mt-1">{msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
+                      <span className="pulso-chat-msg-timestamp mt-1">{msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                     </div>
                   </div>
                 ))}

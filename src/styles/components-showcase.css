@@ -852,9 +852,28 @@
   border-color: hsl(var(--border));
   box-shadow: 0 4px 14px hsl(222 47% 11% / 0.08);
 }
+/* Pastas do botão Documentos: gradiente verde (SVG) em vez de roxo */
 .theme-pulso-light .pulso-docs-trigger-btn .showcase-folder-container {
-  filter: saturate(0.75) brightness(0.92);
-  opacity: 0.95;
+  filter: none;
+  opacity: 1;
+}
+.theme-pulso-light .showcase-docs-btn .showcase-file-back stop:nth-of-type(1) {
+  stop-color: hsl(152 55% 44%);
+}
+.theme-pulso-light .showcase-docs-btn .showcase-file-back stop:nth-of-type(2) {
+  stop-color: hsl(152 72% 28%);
+}
+.theme-pulso-light .showcase-docs-btn .showcase-file-front stop:nth-of-type(1) {
+  stop-color: hsl(149 58% 68%);
+}
+.theme-pulso-light .showcase-docs-btn .showcase-file-front stop:nth-of-type(2) {
+  stop-color: hsl(152 65% 32%);
+}
+/* Ícones de pasta (Lucide) no painel, chat e árvore de ficheiros */
+.theme-pulso-light svg.lucide-folder-open,
+.theme-pulso-light svg.lucide-folder {
+  color: hsl(var(--success)) !important;
+  stroke: hsl(var(--success)) !important;
 }
 .theme-pulso-light .pulso-docs-trigger-btn--open {
   box-shadow:
@@ -1534,6 +1553,30 @@
 
 .pulso-folder-file-upload--inline-path .pulso-folder-file-upload-label:hover {
   background: transparent;
+}
+
+/* Tema claro: pastas 3D (toolbar / caminho do projeto) em verde */
+.theme-pulso-light .pulso-folder-file-upload--toolbar {
+  background: linear-gradient(135deg, hsl(152 45% 38%) 0%, hsl(158 50% 34%) 45%, hsl(165 55% 32%) 100%);
+  box-shadow: 0 6px 14px hsl(152 72% 28% / 0.2);
+}
+.theme-pulso-light .pulso-folder-file-upload--toolbar .pulso-folder-file-upload-tip {
+  background: linear-gradient(135deg, hsl(149 55% 48%), hsl(158 60% 36%));
+}
+.theme-pulso-light .pulso-folder-file-upload--toolbar .pulso-folder-file-upload-cover {
+  background: linear-gradient(135deg, hsl(147 52% 58%), hsl(158 55% 42%));
+}
+.theme-pulso-light .pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-tip {
+  background: linear-gradient(135deg, hsl(152 50% 45%) 0%, hsl(158 55% 36%) 100%);
+}
+.theme-pulso-light .pulso-folder-file-upload--toolbar-icon-only .pulso-folder-file-upload-cover {
+  background: linear-gradient(135deg, hsl(145 48% 52%) 0%, hsl(155 52% 40%) 55%, hsl(165 48% 38%) 100%);
+}
+.theme-pulso-light .pulso-folder-file-upload--inline-path .pulso-folder-file-upload-tip {
+  background: linear-gradient(135deg, hsl(152 50% 45%) 0%, hsl(158 55% 36%) 100%);
+}
+.theme-pulso-light .pulso-folder-file-upload--inline-path .pulso-folder-file-upload-cover {
+  background: linear-gradient(135deg, hsl(145 48% 52%) 0%, hsl(155 52% 40%) 55%, hsl(165 48% 38%) 100%);
 }
 
 /* ========== DELETE BUTTON ========== */
@@ -2342,13 +2385,21 @@
 
 /* Padronização visual global: botões escuros com borda ciano */
 .btn-padrao-gradient,
-.pulso-suggestion-btn,
 .showcase-toolbar-btn {
   background: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--primary) / 0.6) !important;
   border-radius: 10px !important;
   box-shadow: 0 0 0 1px hsl(var(--primary) / 0.14) !important;
   color: #fff !important;
+}
+
+/* Sugestões: texto segue o cartão (preto no claro, claro no escuro) — não forçar #fff */
+.pulso-suggestion-btn {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--primary) / 0.6) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.14) !important;
+  color: hsl(var(--card-foreground)) !important;
 }
 
 .btn-padrao-gradient::before,
@@ -2366,6 +2417,11 @@
   background: hsl(var(--card) / 0.95) !important;
   border-color: hsl(var(--primary) / 0.85) !important;
   box-shadow: 0 0 0 1px hsl(var(--primary) / 0.28), 0 0 16px hsl(var(--primary) / 0.18) !important;
+}
+
+.pulso-suggestion-btn:hover:not(:disabled),
+.pulso-suggestion-btn:focus-visible {
+  color: hsl(var(--card-foreground)) !important;
 }
 
 /* Toolbar: herda a padronização global */

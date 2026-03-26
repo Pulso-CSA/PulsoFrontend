@@ -431,6 +431,19 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   border-color: hsl(var(--border)) !important;
 }
 
+/* Hora sob a mensagem: herda a cor do texto da bolha (evita branco apagado no tema claro) */
+.pulso-chat-msg-timestamp {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  opacity: 0.82;
+}
+.theme-pulso-light .pulso-chat-msg-timestamp {
+  opacity: 0.92;
+}
+
 /* Mensagens de chat padronizadas (legado) */
 .pulso-chat-msg-user {
   background: linear-gradient(

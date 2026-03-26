@@ -568,7 +568,7 @@ const DataChat = () => {
               <Database className="h-4 w-4 shrink-0 text-primary" />
               Inteligência de Dados
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            <p className="text-xs text-foreground/70 mt-0.5 truncate">
               Explore estrutura, estatísticas e modelos · Alt+D
             </p>
           </div>
@@ -580,12 +580,12 @@ const DataChat = () => {
                 toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
               }}
               disabled={messages.length === 0}
-              className="showcase-download-report-btn--compact text-white shrink-0"
+              className="showcase-download-report-btn--compact shrink-0"
             />
             <button
               type="button"
               onClick={() => setShowConnection(!showConnection)}
-              className="pulso-suggestion-btn inline-flex items-center px-3 py-1.5 text-xs gap-1 shrink-0 min-w-[98px] justify-center rounded-md"
+              className="pulso-suggestion-btn inline-flex items-center px-3 py-1.5 text-xs gap-1 shrink-0 min-w-[98px] justify-center rounded-md text-card-foreground [&_svg]:text-card-foreground"
               aria-expanded={showConnection}
               aria-label={showConnection ? "Fechar painel de conexão" : "Abrir painel de conexão"}
             >
@@ -602,7 +602,7 @@ const DataChat = () => {
           <h3 className="text-sm font-semibold text-foreground">Conexão de Dados (Opcional)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="db-type" className="text-xs">Tipo de Base</Label>
+              <Label htmlFor="db-type" className="text-xs text-foreground">Tipo de Base</Label>
               <Select value={connectionData.type} onValueChange={(value) => setConnectionData({ ...connectionData, type: value })}>
                 <SelectTrigger id="db-type" aria-label="Tipo de base de dados">
                   <SelectValue placeholder="Tipo de base" />
@@ -615,7 +615,7 @@ const DataChat = () => {
             </div>
 
             <div>
-              <Label htmlFor="host" className="text-xs">Host/URI</Label>
+              <Label htmlFor="host" className="text-xs text-foreground">Host/URI</Label>
               <Input
                 id="host"
                 placeholder={connectionData.type === "nosql" ? "mongodb://localhost:27017" : "localhost:5432"}
@@ -625,7 +625,7 @@ const DataChat = () => {
             </div>
 
             <div>
-              <Label htmlFor="database" className="text-xs">Base</Label>
+              <Label htmlFor="database" className="text-xs text-foreground">Base</Label>
               <Input
                 id="database"
                 placeholder="meu_banco"
@@ -635,7 +635,7 @@ const DataChat = () => {
             </div>
 
             <div>
-              <Label htmlFor="user" className="text-xs">
+              <Label htmlFor="user" className="text-xs text-foreground">
                 Usuário{connectionData.type === "nosql" && " (opcional)"}
               </Label>
               <Input
@@ -647,7 +647,7 @@ const DataChat = () => {
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="password" className="text-xs">
+              <Label htmlFor="password" className="text-xs text-foreground">
                 Senha{connectionData.type === "nosql" && " (opcional)"}
               </Label>
               <div className="relative">
@@ -661,12 +661,12 @@ const DataChat = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/80 hover:text-foreground text-xs font-medium"
                 >
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
               </div>
-              <p className="flex items-center gap-1.5 text-xs text-amber-200/90 mt-1.5">
+              <p className="flex items-center gap-1.5 text-xs mt-1.5 rounded-md border border-amber-200/90 bg-amber-50 px-2 py-1.5 text-amber-950 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-100/95">
                 <span className="shrink-0" aria-hidden>⚠️</span>
                 <span>Nunca compartilhe segredos nesta conversa</span>
               </p>
@@ -735,7 +735,7 @@ const DataChat = () => {
                     <div className="flex items-start gap-3">
                       <span className="text-amber-400 text-xl flex-shrink-0">⚠</span>
                       <div>
-                        <p className="font-semibold text-amber-200">Não foi possível concluir</p>
+                        <p className="font-semibold text-amber-900 dark:text-amber-200">Não foi possível concluir</p>
                         <p className="text-[15px] text-muted-foreground mt-1 leading-relaxed">
                           {message.errorType === "connection"
                             ? "Verifique sua conexão com o banco de dados."
@@ -760,7 +760,7 @@ const DataChat = () => {
                         </Button>
                       </div>
                     </div>
-                    <span className="text-xs text-amber-200/80 mt-2 block">
+                    <span className="text-xs mt-2 block tabular-nums text-amber-900/90 dark:text-amber-200/85">
                       {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </>
@@ -945,7 +945,7 @@ const DataChat = () => {
                       <div className="space-y-1">
                         {model.insights.map((insight, idx) => (
                           <div key={idx} className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                            <Badge className="text-xs bg-amber-500/20 text-amber-200 shrink-0">!</Badge>
+                            <Badge className="text-xs bg-amber-500/20 text-amber-900 dark:text-amber-200 shrink-0">!</Badge>
                             <span className="text-[15px] leading-relaxed">{insight}</span>
                           </div>
                         ))}
@@ -974,7 +974,7 @@ const DataChat = () => {
                   </p>
                 )}
 
-                    <span className="text-xs text-white/80 mt-2 block">
+                    <span className="pulso-chat-msg-timestamp mt-2">
                       {message.timestamp.toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit'

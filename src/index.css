@@ -567,7 +567,8 @@ All colors MUST be HSL.
     --secondary: 215 16% 47%;
     --secondary-foreground: 0 0% 100%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Secundário mais escuro para leitura em cartões brancos (subtítulos, placeholders) */
+    --muted-foreground: 215 18% 38%;
     --accent: 210 40% 96%;
     --accent-foreground: 222 47% 11%;
     --success: 160 84% 39%;
@@ -596,6 +597,12 @@ All colors MUST be HSL.
     --glass-bg: hsl(0 0% 100% / 0.92);
     --glass-shadow-dark: rgba(15, 23, 42, 0.06);
     --glass-shadow-light: rgba(255, 255, 255, 0.85);
+  }
+
+  /* Placeholders explícitos: alguns browsers reduzem opacidade extra */
+  .theme-pulso-light input::placeholder,
+  .theme-pulso-light textarea::placeholder {
+    color: hsl(222 22% 36%);
   }
 
   .theme-pulso-medium {
