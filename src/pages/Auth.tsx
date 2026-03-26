@@ -15,10 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { z } from "zod";
-import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfiles } from "@/hooks/useProfiles";
-import { themeSelectorPositionClass } from "@/lib/electronClient";
 
 const profileSchema = z.object({
   name: z.string()
@@ -214,10 +212,6 @@ const Auth = () => {
 
   return (
     <div className="pulso-page-container min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      <div className={themeSelectorPositionClass()}>
-        <ThemeSelector />
-      </div>
-
       {/* Background — semiesferas PULSO (gradiente roxo→ciano conforme App.png) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />

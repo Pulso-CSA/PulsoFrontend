@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { setStoredTokens } from "@/lib/api";
 import { Loader2, XCircle } from "lucide-react";
-import ThemeSelector from "@/components/ThemeSelector";
 import { Button } from "@/components/ui/button";
-import { themeSelectorPositionClass } from "@/lib/electronClient";
 
 /**
  * Rota de callback para OAuth (ex.: Google).
@@ -31,9 +29,6 @@ const AuthCallback = () => {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-        <div className={themeSelectorPositionClass()}>
-          <ThemeSelector />
-        </div>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
           <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
@@ -55,9 +50,6 @@ const AuthCallback = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-      <div className={themeSelectorPositionClass()}>
-        <ThemeSelector />
-      </div>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
         <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />

@@ -282,7 +282,7 @@ export function ChatSidebar({
 
   return (
     <div className="pulso-chat-sidebar-inner flex h-full min-h-0 flex-col min-w-0">
-      <div className="pulso-chat-sidebar-top p-3 border-b border-primary/20 flex items-center justify-between gap-2">
+      <div className="pulso-chat-sidebar-top p-3 border-b border-border flex items-center justify-between gap-2">
         {/* Botão 3 — Documentos (estilo exato da página inicial) */}
         <button
           type="button"
@@ -335,14 +335,14 @@ export function ChatSidebar({
       </div>
 
       {showDocuments && (
-        <div className="pulso-chat-sidebar-top pulso-chat-sidebar-docs p-3 border-b border-primary/10 space-y-3 bg-card/40">
+        <div className="pulso-chat-sidebar-top pulso-chat-sidebar-docs p-3 border-b border-border space-y-3 bg-muted/40">
           <div className="showcase-menu-card w-full">
             <div className="px-3 text-xs font-semibold text-foreground">Relatórios</div>
             <div className="showcase-separator" />
             <ul className="showcase-list">
               {reports.length === 0 ? (
                 <li className="showcase-element !cursor-default hover:!transform-none hover:!bg-transparent">
-                  <span className="text-xs">Sem relatórios neste chat</span>
+                  <span className="text-xs text-muted-foreground">Sem relatórios neste chat</span>
                 </li>
               ) : (
                 reports.slice(0, 6).map((report) => (
@@ -383,7 +383,7 @@ export function ChatSidebar({
             <ul className="showcase-list">
               {folders.length === 0 ? (
                 <li className="showcase-element !cursor-default hover:!transform-none hover:!bg-transparent">
-                  <span className="text-xs">Crie sua primeira pasta</span>
+                  <span className="text-xs text-muted-foreground">Crie sua primeira pasta</span>
                 </li>
               ) : (
                 folders.map((folder) => {
@@ -392,7 +392,7 @@ export function ChatSidebar({
                   return (
                     <li key={folder.id} className="showcase-element !cursor-default hover:!transform-none hover:!bg-transparent !items-start !justify-between overflow-visible">
                       <div className="min-w-0">
-                        <p className="text-xs font-medium truncate">{folder.name}</p>
+                        <p className="text-xs font-medium truncate text-foreground">{folder.name}</p>
                         <p className="text-[10px] text-muted-foreground">{folder.chatIds.length} chat(s)</p>
                         <button
                           type="button"
@@ -445,7 +445,7 @@ export function ChatSidebar({
       )}
 
       {/* Barra de busca cosmic (somente lupa à direita) */}
-      <div className="pulso-chat-sidebar-top p-2 border-b border-primary/10">
+      <div className="pulso-chat-sidebar-top p-2 border-b border-border">
         <CosmicSearchInput
           placeholder="Buscar chats..."
           value={searchQuery}

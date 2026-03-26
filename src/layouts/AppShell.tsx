@@ -38,6 +38,14 @@ export function AppShell() {
   const isPublicPage = ["/", "/auth", "/auth/callback", "/forgot-password", "/reset-password", "/error"].some(
     (p) => location.pathname === p || location.hash.includes(p)
   );
+  /** Login, recuperação e escolha de perfil: sem avatar/tema flutuante (UserSidebar) */
+  const hideUserSidebar = [
+    "/auth",
+    "/auth/callback",
+    "/forgot-password",
+    "/reset-password",
+    "/profile-selection",
+  ].some((p) => location.pathname === p || location.hash.includes(p));
   /** Sem header nas telas que já têm layout próprio (login, início, dashboard, etc.) — evita faixa glass vazia no Electron em /auth */
   const hideHeader =
     location.pathname === "/" ||
@@ -92,8 +100,8 @@ export function AppShell() {
         <LayoutWrapper />
       </main>
 
-      {/* Perfil: apenas em páginas com header escondido exceto dashboard (no dashboard o perfil fica só na navbar) */}
-      {!isPublicPage && hideHeader && location.pathname !== "/dashboard" && (
+      {/* Avatar + tema: páginas autenticadas com header escondido, exceto dashboard e fluxo de login/seleção de perfil */}
+      {!isPublicPage && hideHeader && location.pathname !== "/dashboard" && !hideUserSidebar && (
         <aside
           className={cn(
             "fixed z-40 flex flex-col pointer-events-none",

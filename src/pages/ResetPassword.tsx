@@ -5,9 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import ThemeSelector from "@/components/ThemeSelector";
 import { authApi } from "@/lib/api";
-import { themeSelectorPositionClass } from "@/lib/electronClient";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -96,10 +94,6 @@ const ResetPassword = () => {
   if (invalidToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-        <div className={themeSelectorPositionClass()}>
-          <ThemeSelector />
-        </div>
-
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
           <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
@@ -131,10 +125,6 @@ const ResetPassword = () => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-        <div className={themeSelectorPositionClass()}>
-          <ThemeSelector />
-        </div>
-
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
           <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />
@@ -165,10 +155,6 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      <div className={themeSelectorPositionClass()}>
-        <ThemeSelector />
-      </div>
-
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
         <div className="absolute bottom-20 right-20 w-96 h-96 pulso-orb animate-pulse" style={{ animationDelay: "1s" }} />

@@ -827,6 +827,51 @@
   border-color: rgba(146, 196, 255, 0.4);
 }
 
+/* Documentos — tema claro: cartão claro + texto escuro (ícone pasta mantém contraste suave) */
+.theme-pulso-light .pulso-docs-trigger-btn {
+  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 55%, hsl(210 40% 96%) 100%);
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 2px 10px hsl(222 47% 11% / 0.06);
+}
+.theme-pulso-light .pulso-docs-trigger-btn p {
+  color: hsl(var(--foreground));
+}
+.theme-pulso-light .pulso-docs-trigger-btn:hover {
+  background: linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(210 40% 94%) 100%) !important;
+  border-color: hsl(var(--border));
+  box-shadow: 0 4px 14px hsl(222 47% 11% / 0.08);
+}
+.theme-pulso-light .pulso-docs-trigger-btn .showcase-folder-container {
+  filter: saturate(0.75) brightness(0.92);
+  opacity: 0.95;
+}
+
+.theme-pulso-light .pulso-new-chat-btn {
+  --plus-border: hsl(var(--border));
+  --plus-bg: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+  --plus-corner: hsl(160 84% 39%);
+  --plus-icon: hsl(var(--foreground));
+  --plus-icon-hover: hsl(var(--card));
+  box-shadow: 0 1px 3px hsl(222 47% 11% / 0.08);
+}
+.theme-pulso-light .pulso-new-chat-btn:hover > .pulso-new-chat-btn__icon,
+.theme-pulso-light .pulso-new-chat-btn:focus-visible > .pulso-new-chat-btn__icon {
+  color: var(--plus-icon-hover);
+}
+
+.theme-pulso-light .showcase-menu-card .showcase-list .showcase-element:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+.theme-pulso-light .showcase-menu-card .showcase-list .showcase-element.delete:hover {
+  background-color: hsl(var(--destructive) / 0.12);
+  color: hsl(var(--destructive));
+}
+
+.theme-pulso-light .showcase-search-input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
 /* Baixar Relatório — mantém animação original com paleta dos botões de sugestão */
 .showcase-download-report-btn {
   position: relative;

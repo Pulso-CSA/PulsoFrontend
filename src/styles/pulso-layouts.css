@@ -359,29 +359,33 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   scrollbar-gutter: stable;
 }
 
-/* Scrollbar neon dedicada para áreas internas do chat */
+/* Scrollbar neon dedicada para áreas internas do chat (+ painel Documentos) */
 .pulso-chat-scroll-area,
 .pulso-chat-sidebar-scroll-area,
-.pulso-csa-config-scroll {
+.pulso-csa-config-scroll,
+.pulso-chat-sidebar-docs {
   scrollbar-width: thin;
   scrollbar-color: rgba(79, 159, 243, 0.55) transparent;
 }
 
 .pulso-chat-scroll-area::-webkit-scrollbar,
 .pulso-chat-sidebar-scroll-area::-webkit-scrollbar,
-.pulso-csa-config-scroll::-webkit-scrollbar {
+.pulso-csa-config-scroll::-webkit-scrollbar,
+.pulso-chat-sidebar-docs::-webkit-scrollbar {
   width: 8px;
 }
 
 .pulso-chat-scroll-area::-webkit-scrollbar-track,
 .pulso-chat-sidebar-scroll-area::-webkit-scrollbar-track,
-.pulso-csa-config-scroll::-webkit-scrollbar-track {
+.pulso-csa-config-scroll::-webkit-scrollbar-track,
+.pulso-chat-sidebar-docs::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .pulso-chat-scroll-area::-webkit-scrollbar-thumb,
 .pulso-chat-sidebar-scroll-area::-webkit-scrollbar-thumb,
-.pulso-csa-config-scroll::-webkit-scrollbar-thumb {
+.pulso-csa-config-scroll::-webkit-scrollbar-thumb,
+.pulso-chat-sidebar-docs::-webkit-scrollbar-thumb {
   background: linear-gradient(
     180deg,
     rgba(79, 159, 243, 0.9) 0%,
@@ -395,7 +399,8 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
 
 .pulso-chat-scroll-area::-webkit-scrollbar-thumb:hover,
 .pulso-chat-sidebar-scroll-area::-webkit-scrollbar-thumb:hover,
-.pulso-csa-config-scroll::-webkit-scrollbar-thumb:hover {
+.pulso-csa-config-scroll::-webkit-scrollbar-thumb:hover,
+.pulso-chat-sidebar-docs::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(
     180deg,
     rgba(79, 159, 243, 1) 0%,
@@ -560,6 +565,64 @@ html[data-electron="true"] .pulso-layout-a-body {
   color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.14);
   box-shadow: 0 0 0 1px hsl(var(--primary) / 0.35);
+}
+
+/* Tema claro: sidebar de chat + painel Documentos (legível, bordas slate, sem ciano pesado) */
+.theme-pulso-light .pulso-chat-sidebar {
+  border-color: hsl(var(--border));
+  box-shadow: 0 1px 3px hsl(222 47% 11% / 0.06);
+}
+.theme-pulso-light .pulso-chat-sidebar::before {
+  background: linear-gradient(
+    165deg,
+    hsl(222 47% 11% / 0.03) 0%,
+    hsl(160 84% 39% / 0.05) 50%,
+    hsl(222 47% 11% / 0.02) 100%
+  );
+}
+.theme-pulso-light .pulso-chat-sidebar-top {
+  background: hsl(var(--card) / 0.98);
+}
+
+.theme-pulso-light .pulso-chat-item-inactive {
+  background: hsl(var(--muted) / 0.5);
+  border-color: transparent;
+}
+.theme-pulso-light .pulso-chat-item-inactive:hover {
+  background: hsl(var(--accent));
+  border-color: hsl(var(--border));
+}
+.theme-pulso-light .pulso-chat-item-active {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.06) 0%,
+    hsl(160 84% 39% / 0.12) 50%,
+    hsl(var(--primary) / 0.05) 100%
+  ) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 1px 4px hsl(222 47% 11% / 0.06);
+}
+
+/* Scrollbar: inclui área rolável de Documentos */
+.theme-pulso-light .pulso-chat-scroll-area,
+.theme-pulso-light .pulso-chat-sidebar-scroll-area,
+.theme-pulso-light .pulso-csa-config-scroll,
+.theme-pulso-light .pulso-chat-sidebar-docs {
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
+}
+.theme-pulso-light .pulso-chat-scroll-area::-webkit-scrollbar-thumb,
+.theme-pulso-light .pulso-chat-sidebar-scroll-area::-webkit-scrollbar-thumb,
+.theme-pulso-light .pulso-csa-config-scroll::-webkit-scrollbar-thumb,
+.theme-pulso-light .pulso-chat-sidebar-docs::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border: 1px solid hsl(var(--border));
+  box-shadow: none;
+}
+.theme-pulso-light .pulso-chat-scroll-area::-webkit-scrollbar-thumb:hover,
+.theme-pulso-light .pulso-chat-sidebar-scroll-area::-webkit-scrollbar-thumb:hover,
+.theme-pulso-light .pulso-csa-config-scroll::-webkit-scrollbar-thumb:hover,
+.theme-pulso-light .pulso-chat-sidebar-docs::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
 
 .pulso-layout-a-main {

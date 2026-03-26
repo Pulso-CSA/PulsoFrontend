@@ -111,6 +111,12 @@
       "public/**/*",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "pulso-icon.ico"
+      }
+    ],
     "publish": {
       "provider": "github",
       "owner": "Pulso-CSA",

@@ -2,7 +2,34 @@ const { app, BrowserWindow, Menu, ipcMain, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
+/** Windows: obrigatório para o ícone correto na barra de tarefas / atalhos (evita logo genérico do Electron). */
+if (process.platform === "win32") {
+  app.setAppUserModelId("com.pulso.app");
+}
+
 let mainWindow;
+
+/** Caminho do ícone Pulso: build gerado, recursos empacotados ou public/. */
+function resolveWindowIcon() {
+  const appRoot = path.join(__dirname, "..");
+  const candidates = [];
+  if (process.platform === "win32" && app.isPackaged) {
+    candidates.push(path.join(process.resourcesPath, "pulso-icon.ico"));
+  }
+  if (!app.isPackaged) {
+    candidates.push(path.join(appRoot, "build", "icon.ico"));
+  }
+  candidates.push(path.join(appRoot, "public", "favicon.ico"));
+  candidates.push(path.join(appRoot, "public", "App.png"));
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {
+      /* ignorar */
+    }
+  }
+  return undefined;
+}
 
 /** Token opcional: útil para repo privado ou limites da API; público não exige. */
 function applyGithubTokenToAutoUpdater() {
@@ -85,12 +112,7 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.cjs"),
     },
-    icon: (() => {
-      const base = app.isPackaged ? app.getAppPath() : path.join(__dirname, "..");
-      const icoPath = path.join(base, "public", "favicon.ico");
-      const pngPath = path.join(base, "public", "App.png");
-      return (fs.existsSync(icoPath) ? icoPath : pngPath);
-    })(),
+    icon: resolveWindowIcon(),
     show: false,
   });
 

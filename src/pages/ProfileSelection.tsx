@@ -3,7 +3,6 @@ import { ArrowRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import { useToast } from "@/hooks/use-toast";
-import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { electronFloatingToolbarClass } from "@/lib/electronClient";
 
@@ -32,7 +31,6 @@ const ProfileSelection = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 pb-10 relative overflow-hidden">
       <div className={electronFloatingToolbarClass()}>
-        <ThemeSelector />
         <Button
           type="button"
           onClick={handleLogout}

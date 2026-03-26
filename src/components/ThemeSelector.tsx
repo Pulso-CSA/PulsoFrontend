@@ -12,7 +12,7 @@ import { useLayoutContext } from "@/contexts/LayoutContext";
 import { cn } from "@/lib/utils";
 
 const themeOptions: { id: "light" | "dark"; name: string; colors: [string, string, string] }[] = [
-  { id: "light", name: "Claro", colors: ["#e8eef4", "#0d9488", "#5b21b6"] },
+  { id: "light", name: "Claro", colors: ["#f8fafc", "#0f172a", "#10b981"] },
   { id: "dark", name: "Escuro", colors: ["#0c0e14", "#2dd4bf", "#6d28d9"] },
 ];
 

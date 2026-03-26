@@ -5,9 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
-import ThemeSelector from "@/components/ThemeSelector";
 import { authApi } from "@/lib/api";
-import { themeSelectorPositionClass } from "@/lib/electronClient";
 import { z } from "zod";
 
 const emailSchema = z.string().email("E-mail inválido");
@@ -56,10 +54,6 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      <div className={themeSelectorPositionClass()}>
-        <ThemeSelector />
-      </div>
-
       {/* Background pulso-orb (identidade visual) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
