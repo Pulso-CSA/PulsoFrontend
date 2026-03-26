@@ -787,7 +787,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="p-4 space-y-4 border-t border-primary/10">
+            <div className="pulso-csa-config-scroll shrink-0 border-t border-primary/10">
+            <div className="p-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="folder-path" className="text-sm font-medium">Caminho da pasta raiz</Label>
                 <div className="relative w-full overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
@@ -1030,6 +1031,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           </CollapsibleContent>
         </Collapsible>
