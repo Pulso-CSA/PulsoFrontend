@@ -18,6 +18,7 @@ import { z } from "zod";
 import ThemeSelector from "@/components/ThemeSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfiles } from "@/hooks/useProfiles";
+import { themeSelectorPositionClass } from "@/lib/electronClient";
 
 const profileSchema = z.object({
   name: z.string()
@@ -213,8 +214,7 @@ const Auth = () => {
 
   return (
     <div className="pulso-page-container min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Theme Selector */}
-      <div className="absolute top-4 right-4 z-20">
+      <div className={themeSelectorPositionClass()}>
         <ThemeSelector />
       </div>
 

@@ -4,6 +4,7 @@ import { setStoredTokens } from "@/lib/api";
 import { Loader2, XCircle } from "lucide-react";
 import ThemeSelector from "@/components/ThemeSelector";
 import { Button } from "@/components/ui/button";
+import { themeSelectorPositionClass } from "@/lib/electronClient";
 
 /**
  * Rota de callback para OAuth (ex.: Google).
@@ -30,7 +31,7 @@ const AuthCallback = () => {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-        <div className="absolute top-4 right-4 z-20">
+        <div className={themeSelectorPositionClass()}>
           <ThemeSelector />
         </div>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -54,7 +55,7 @@ const AuthCallback = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-      <div className="absolute top-4 right-4 z-20">
+      <div className={themeSelectorPositionClass()}>
         <ThemeSelector />
       </div>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

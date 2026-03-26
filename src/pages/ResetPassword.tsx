@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import ThemeSelector from "@/components/ThemeSelector";
 import { authApi } from "@/lib/api";
+import { themeSelectorPositionClass } from "@/lib/electronClient";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -95,7 +96,7 @@ const ResetPassword = () => {
   if (invalidToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-        <div className="absolute top-4 right-4 z-20">
+        <div className={themeSelectorPositionClass()}>
           <ThemeSelector />
         </div>
 
@@ -130,7 +131,7 @@ const ResetPassword = () => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-        <div className="absolute top-4 right-4 z-20">
+        <div className={themeSelectorPositionClass()}>
           <ThemeSelector />
         </div>
 
@@ -164,7 +165,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      <div className="absolute top-4 right-4 z-20">
+      <div className={themeSelectorPositionClass()}>
         <ThemeSelector />
       </div>
 
