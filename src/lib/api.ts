@@ -230,12 +230,22 @@ export async function apiRequest<T>(
     const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
     LOG("apiRequest", "ERRO", response.status, endpoint, "body:", error);
     const msg = error?.detail ?? error?.message ?? error?.msg ?? 'Erro na requisição';
-    const errorMessage =
+    let errorMessage =
       typeof msg === 'string'
         ? msg
         : msg && typeof msg === 'object'
           ? String((msg as Record<string, unknown>).message ?? (msg as Record<string, unknown>).msg ?? JSON.stringify(msg))
           : 'Erro na requisição';
+
+    // Railway devolve 404 JSON com "Application not found" quando o domínio não tem app a escutar (URL antiga, serviço parado, etc.)
+    if (
+      response.status === 404 &&
+      typeof errorMessage === 'string' &&
+      /application not found/i.test(errorMessage)
+    ) {
+      errorMessage = `${errorMessage} — A URL da API não está alcançando o backend (comum no Railway: serviço parado, domínio antigo ou URL errada). Verifique VITE_API_URL e o deploy no painel do Railway. Em desenvolvimento: npm run dev e API em 127.0.0.1:8000.`;
+    }
+
     throw new Error(errorMessage);
   }
 

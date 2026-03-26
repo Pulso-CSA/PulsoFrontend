@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Profile } from '@/types';
-import { authApi, profilesApi, onSessionExpired, getRememberMe } from '@/lib/api';
+import { authApi, profilesApi, onSessionExpired, getRememberMe, getApiBaseUrl } from '@/lib/api';
 import { transformProfile } from '@/lib/profileUtils';
 
 interface AuthState {
@@ -134,8 +134,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
-    // Redirect to backend OAuth endpoint (GET /auth/login/google)
-    const apiUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').toString().trim();
+    // Mesma base que /auth/login (proxy em dev em localhost; VITE_API_URL em build prod/Electron)
+    const apiUrl = getApiBaseUrl();
     window.location.href = `${apiUrl}/auth/login/google`;
   };
 
