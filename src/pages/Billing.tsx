@@ -126,35 +126,33 @@ const Billing = () => {
   };
 
   return (
-    <div className="pulso-page-container flex min-h-0 flex-1 flex-col w-full">
+    <div className="pulso-page-container flex min-h-0 flex-1 flex-col w-full max-h-[100dvh] overflow-hidden">
       <div className="glass-strong border-b border-border shrink-0 sticky top-0 z-20 supports-[backdrop-filter]:bg-background/75 backdrop-blur-md">
         <DashboardHeader />
       </div>
 
-      <main className="flex-1 min-h-0 container mx-auto px-4 py-6 sm:px-5 lg:px-8 lg:py-10 pb-12">
-        <div className="max-w-7xl mx-auto space-y-8 lg:space-y-10">
+      <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-y-contain [scrollbar-gutter:stable]">
+        <div className="container mx-auto px-4 py-6 sm:px-5 lg:px-8 lg:py-10 pb-16 max-w-7xl">
+        <div className="space-y-8 lg:space-y-10">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 animate-fade-in">
             <Button
-              variant="pulso"
+              variant="outline"
               size="sm"
               onClick={() => navigate("/dashboard")}
-              className="h-11 gap-2 shrink-0"
+              className="h-11 gap-2 shrink-0 border-border text-foreground bg-background hover:bg-muted w-fit"
               aria-label="Voltar"
             >
               <ArrowLeft className="h-5 w-5 shrink-0" />
               <span>Voltar</span>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold" style={{ 
-                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">
                 Upgrade de Conta
               </h1>
-              <p className="text-muted-foreground">Escolha o plano ideal para seu negócio</p>
+              <p className="text-sm sm:text-base text-foreground/80 mt-1">
+                Escolha o plano ideal para seu negócio
+              </p>
             </div>
           </div>
 
@@ -166,8 +164,8 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("monthly")}
                 className={billingCycle === "monthly" 
-                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200" 
-                  : "rounded-full transition-all duration-200"}
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-primary-deep/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200 text-primary-foreground" 
+                  : "rounded-full transition-all duration-200 text-foreground/90 hover:text-foreground"}
               >
                 Mensal
               </Button>
@@ -176,11 +174,11 @@ const Billing = () => {
                 size="sm"
                 onClick={() => setBillingCycle("yearly")}
                 className={billingCycle === "yearly" 
-                  ? "rounded-full bg-gradient-to-r from-primary/80 to-accent/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200" 
-                  : "rounded-full transition-all duration-200"}
+                  ? "rounded-full bg-gradient-to-r from-primary/80 to-accent/60 shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-200 text-primary-foreground" 
+                  : "rounded-full transition-all duration-200 text-foreground/90 hover:text-foreground"}
               >
                 Anual
-                <Badge variant="secondary" className="ml-2 text-xs">-15%</Badge>
+                <Badge variant="secondary" className="ml-2 text-xs text-foreground">-15%</Badge>
               </Button>
             </div>
 
@@ -189,26 +187,30 @@ const Billing = () => {
               variant="outline"
               size="sm"
               onClick={() => setHasOpenAIKey(!hasOpenAIKey)}
-              className={`glass glass-hover border-2 gap-2 transition-all duration-300 ${
+              className={`glass glass-hover border-2 gap-2 transition-all duration-300 text-foreground ${
                 hasOpenAIKey 
                   ? 'border-primary bg-gradient-to-r from-primary/30 to-accent/20 shadow-[0_0_20px_hsl(var(--primary)/0.4)] scale-105' 
                   : 'border-primary/30 hover:border-primary/50 hover:scale-105'
               }`}
             >
-              <Sparkles className={`h-5 w-5 transition-all duration-300 ${hasOpenAIKey ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
-              <span className="font-semibold">
+              <Sparkles className={`h-5 w-5 transition-all duration-300 shrink-0 ${hasOpenAIKey ? 'text-primary animate-pulse' : 'text-foreground/70'}`} />
+              <span className="font-semibold text-left">
                 {hasOpenAIKey ? '✓ Desconto OpenAI Ativo (15%)' : 'Tenho Chave API OpenAI'}
               </span>
             </Button>
 
             {billingCycle === "yearly" && (
-              <p className="text-sm text-muted-foreground text-center animate-fade-in">
+              <p className="text-sm text-foreground/75 text-center max-w-md animate-fade-in">
                 ⚠️ Planos anuais Pro e Elite serão disponibilizados em breve.
               </p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
+          {/* Planos: scroll horizontal em tablets; grid em lg+; scroll vertical na página cobre altura total */}
+          <div
+            className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch overflow-x-auto md:overflow-x-visible pb-2 -mx-1 px-1 snap-x snap-mandatory md:snap-none [scrollbar-width:thin]"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {plans.map((plan, idx) => {
               const Icon = plan.icon;
               const price = billingCycle === "monthly"
@@ -222,7 +224,7 @@ const Billing = () => {
               return (
                 <Card
                   key={plan.name}
-                  className={`pulso-page-card glass-card relative flex flex-col h-full p-6 sm:p-7 border-2 hover:scale-[1.01] sm:hover:scale-[1.02] pulso-transition-premium animate-fade-in rounded-2xl ${
+                  className={`pulso-page-card glass-card relative flex flex-col min-h-[min(100%,520px)] w-[min(100%,300px)] shrink-0 snap-center md:w-auto md:min-w-0 md:shrink p-6 sm:p-7 border-2 hover:scale-[1.01] sm:hover:scale-[1.02] pulso-transition-premium animate-fade-in rounded-2xl ${
                     plan.popular 
                       ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.3)] card-bottom-glow' 
                       : 'border-primary/30 hover:border-primary/50'
@@ -231,7 +233,7 @@ const Billing = () => {
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-primary/80 to-primary-deep/60 border-0 shadow-[0_0_15px_hsl(var(--primary)/0.5)]">
+                      <Badge className="bg-gradient-to-r from-primary/80 to-primary-deep/60 border-0 shadow-[0_0_15px_hsl(var(--primary)/0.5)] text-primary-foreground">
                         Mais Popular
                       </Badge>
                     </div>
@@ -243,55 +245,53 @@ const Billing = () => {
                         <Icon className={`h-8 w-8 ${plan.color} drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)]`} />
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg" />
                       </div>
-                      <h3 className="text-xl font-bold">{plan.name}</h3>
+                      <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
                     </div>
 
                     <div>
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-3xl font-bold transition-all duration-500 ${hasOpenAIKey ? 'animate-fade-in' : ''}`}>
+                        <span className={`text-3xl font-bold text-foreground tabular-nums transition-all duration-500 ${hasOpenAIKey ? 'animate-fade-in' : ''}`}>
                           USD$ {price.toFixed(2)}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-foreground/75 font-medium mt-0.5">
                         {billingCycle === "monthly" ? "por mês" : "por ano"}
                       </p>
                       {(billingCycle === "yearly" || hasOpenAIKey) && (
-                        <p className="text-xs text-primary font-semibold animate-fade-in">
+                        <p className="text-xs text-primary font-semibold animate-fade-in mt-1">
                           15% de desconto {hasOpenAIKey && '(OpenAI API)'}
                         </p>
                       )}
                     </div>
 
-                    <Separator />
+                    <Separator className="bg-border" />
 
-                    <ul className="space-y-2.5 flex-1 min-h-[8rem]">
+                    <ul className="space-y-2.5 flex-1 min-h-0 py-1">
                       {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-foreground/95">
-                          <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <li key={i} className="flex items-start gap-2 text-sm text-foreground leading-snug">
+                          <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" aria-hidden />
                           <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <button
+                    <Button
                       type="button"
                       onClick={() => !isDisabled && !isLoading && handleSelectPlan(plan.id)}
                       disabled={isDisabled || isLoading}
-                      className="showcase-sparkle-btn w-full justify-center gap-2 shrink-0 mt-2 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground"
+                      className="w-full gap-2 shrink-0 mt-auto bg-primary text-primary-foreground hover:bg-primary/90 h-11 rounded-xl font-semibold"
                     >
-                      <span className="showcase-spark" aria-hidden />
-                      <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
                       {isDisabled ? (
-                        <span className="relative z-10">Em Breve</span>
+                        <span>Em Breve</span>
                       ) : isLoading ? (
-                        "Redirecionando..."
+                        <span>Redirecionando...</span>
                       ) : (
                         <>
-                          <ExternalLink className="w-5 h-5 relative z-10" />
-                          <span className="relative z-10">Assinar Plano</span>
+                          <ExternalLink className="w-5 h-5 shrink-0" />
+                          <span>Assinar Plano</span>
                         </>
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </Card>
               );
@@ -299,12 +299,13 @@ const Billing = () => {
           </div>
 
           {/* Stripe Badge */}
-          <div className="text-center pt-2 pb-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+          <div className="text-center pt-4 pb-2 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <p className="text-xs sm:text-sm text-foreground/70 max-w-md mx-auto leading-relaxed">
               Pagamentos processados de forma segura via{" "}
               <span className="font-semibold text-primary">Stripe</span>
             </p>
           </div>
+        </div>
         </div>
       </main>
     </div>

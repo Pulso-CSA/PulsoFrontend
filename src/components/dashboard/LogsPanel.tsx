@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Terminal, Info, AlertTriangle, XCircle, Filter, Trash2, Play, RotateCw, Power, FileText, Download } from "lucide-react";
+import { Terminal, Filter, Trash2, Play, RotateCw, Power, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -55,29 +55,29 @@ const LogsPanel = () => {
   const [testEnvironment, setTestEnvironment] = useState<"docker" | "venv">("docker");
   const [isLoading, setIsLoading] = useState(false);
 
-  const getLevelIcon = (level: string) => {
+  const levelTagClass = (level: LogEntry["level"]) => {
     switch (level) {
       case "info":
-        return <Info className="h-5 w-5 text-primary" />;
+        return "text-emerald-400";
       case "warning":
-        return <AlertTriangle className="h-5 w-5 text-warning" />;
+        return "text-amber-400";
       case "error":
-        return <XCircle className="h-5 w-5 text-destructive" />;
+        return "text-red-400";
       default:
-        return <Terminal className="h-5 w-5 text-muted-foreground" />;
+        return "text-emerald-400/80";
     }
   };
 
-  const getLevelColor = (level: string) => {
+  const levelTagLabel = (level: LogEntry["level"]) => {
     switch (level) {
       case "info":
-        return "border-l-primary bg-primary/5";
+        return "[INF]";
       case "warning":
-        return "border-l-warning bg-warning/5";
+        return "[WRN]";
       case "error":
-        return "border-l-destructive bg-destructive/5";
+        return "[ERR]";
       default:
-        return "border-l-muted bg-muted/5";
+        return "[LOG]";
     }
   };
 
@@ -88,6 +88,11 @@ const LogsPanel = () => {
     const matchesLevel = levelFilter === "all" || log.level === levelFilter;
     return matchesText && matchesLevel;
   });
+
+  /** Ordem cronológica (terminal: mais antigo no topo). */
+  const terminalLogs = [...filteredLogs].sort(
+    (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+  );
 
   const addLog = (level: LogEntry["level"], message: string, source?: string) => {
     const newLog: LogEntry = {
@@ -441,41 +446,39 @@ const LogsPanel = () => {
           </div>
         </div>
 
-        {/* Lista de Logs */}
-        <div className="space-y-2 max-h-[600px] overflow-y-auto">
-          {filteredLogs.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Terminal className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Nenhum log encontrado</p>
+        {/* Terminal (estilo sessão ativa — fundo escuro, mono, timestamps em verde) */}
+        <div
+          className="rounded-xl border border-white/10 bg-[#080c12] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden"
+          aria-label="Saída de logs"
+        >
+          {terminalLogs.length === 0 ? (
+            <div className="text-center py-14 px-4">
+              <Terminal className="h-10 w-10 mx-auto mb-3 text-emerald-500/40" />
+              <p className="text-sm font-mono text-slate-500">Nenhum log encontrado</p>
             </div>
           ) : (
-            filteredLogs.map((log) => (
-              <div
-                key={log.id}
-                className={`border-l-4 rounded-lg p-4 ${getLevelColor(
-                  log.level
-                )}`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5">{getLevelIcon(log.level)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline justify-between gap-2 mb-1.5">
-                      <span className="text-sm font-mono text-muted-foreground">
-                        {log.timestamp.toLocaleTimeString("pt-BR")}
-                      </span>
-                      {log.source && (
-                        <span className="text-sm px-2.5 py-1 rounded-full bg-primary/10 text-primary font-mono">
-                          {log.source}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-base text-foreground font-mono break-words">
-                      {log.message}
-                    </p>
+            <div className="p-4 sm:p-5 font-mono text-[13px] sm:text-sm leading-relaxed space-y-2 text-left [font-feature-settings:'tnum']">
+              {terminalLogs.map((log) => {
+                const timeStr = log.timestamp.toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                });
+                return (
+                  <div key={log.id} className="break-words">
+                    <span className="text-emerald-400 tabular-nums">{timeStr}</span>
+                    <span className={`${levelTagClass(log.level)}`}>
+                      {" "}
+                      {levelTagLabel(log.level)}
+                    </span>
+                    {log.source ? (
+                      <span className="text-emerald-500/70"> [{log.source}]</span>
+                    ) : null}
+                    <span className="text-slate-100"> {log.message}</span>
                   </div>
-                </div>
-              </div>
-            ))
+                );
+              })}
+            </div>
           )}
         </div>
 

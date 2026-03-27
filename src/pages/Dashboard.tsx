@@ -676,8 +676,12 @@ const Dashboard = () => {
   const renderServiceContent = () => {
     if (activeService === "pulso") {
       return (
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden animate-slide-up">
-          {showLogs && <LogsPanel />}
+        <div className="pulso-csa-global-scroll flex-1 min-h-0 flex flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain [scrollbar-gutter:stable] animate-slide-up">
+          {showLogs && (
+            <div className="shrink-0 w-full">
+              <LogsPanel />
+            </div>
+          )}
           {showPreview && previewFrontendUrl && (
             <div className="rounded-lg border border-border bg-card p-4 shrink-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
@@ -719,7 +723,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="shrink-0 w-full min-h-[min(360px,45dvh)] h-[min(72dvh,820px)] max-h-[85dvh]">
             <PromptPanel
               onComprehensionResult={(r) => {
                 setPreviewFrontendUrl(r.preview_frontend_url ?? null);
