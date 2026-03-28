@@ -14,10 +14,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:icon": "node scripts/build-icon.cjs",
-    "build:electron": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win --publish never && node scripts/embed-exe-icon.cjs",
+    "build:electron": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win --publish never",
     "build:electron:open": "npm run build:electron && node scripts/open-installer.cjs",
     "open:installer": "node scripts/open-installer.cjs",
-    "build:electron:publish": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win --publish always && node scripts/embed-exe-icon.cjs",
+    "build:electron:publish": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win --publish always",
     "electron:dev": "wait-on http://localhost:8080 && electron .",
     "installer:dev": "cd installer && npm run installer:dev",
     "dev:app": "concurrently -k \"npm run dev\" \"npm run electron:dev\""
@@ -104,6 +104,7 @@
   },
   "main": "electron/main.cjs",
   "build": {
+    "afterPack": "./scripts/after-pack.cjs",
     "appId": "com.pulso.app",
     "productName": "Pulso",
     "directories": {

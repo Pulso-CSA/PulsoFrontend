@@ -1,13 +1,14 @@
 /**
- * Incorpora o ícone no Pulso.exe após o build (workaround para signAndEditExecutable: false).
- * Usa o pacote rcedit que tem binário próprio, evitando o winCodeSign 7z problemático.
+ * Incorpora o ícone em win-unpacked/Pulso.exe (uso manual ou CI legado).
+ * O build normal aplica o ícone em after-pack.cjs, antes do NSIS.
  */
 const path = require("path");
 const fs = require("fs");
+const { rceditPulsoExe, getDefaultIconPath } = require("./rcedit-pulso-icon.cjs");
 
 const rootDir = path.join(__dirname, "..");
 const exePath = path.join(rootDir, "dist-electron-build", "win-unpacked", "Pulso.exe");
-const iconPath = path.join(rootDir, "build", "icon.ico");
+const iconPath = getDefaultIconPath(rootDir);
 
 if (process.platform !== "win32") {
   console.log("embed-exe-icon: apenas Windows. Ignorando.");
@@ -26,15 +27,7 @@ if (!fs.existsSync(iconPath)) {
 
 async function main() {
   try {
-    const { rcedit } = await import("rcedit");
-    await rcedit(exePath, {
-      icon: iconPath,
-      "version-string": {
-        FileDescription: "Pulso - Dashboard Operacional Inteligente",
-        ProductName: "Pulso",
-        CompanyName: "Pulso Tech",
-      },
-    });
+    await rceditPulsoExe(exePath, iconPath);
     console.log("Ícone incorporado em Pulso.exe com sucesso.");
   } catch (err) {
     console.error("embed-exe-icon:", err?.message || err);
