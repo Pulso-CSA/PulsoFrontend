@@ -693,7 +693,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
     }
   };
 
-  const apiBase = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").toString().trim();
+  const apiBase = (import.meta.env.VITE_API_URL || "https://pulsoapi-production-f227.up.railway.app").toString().trim();
   const comprehensionPayload = input.trim()
     ? JSON.stringify({
         usuario: user?.id ?? "USER_ID",

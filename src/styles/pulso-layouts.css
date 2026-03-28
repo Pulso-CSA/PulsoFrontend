@@ -1472,11 +1472,20 @@ html[data-electron="true"] .pulso-layout-b-carousel {
 }
 
 .theme-pulso-light .pulso-insights-chat-dialog .showcase-search-poda--prompt .showcase-search-input--prompt {
-  box-shadow: inset 0 0 0 1px hsl(var(--border)), 0 1px 0 hsl(160 72% 36% / 0.12) !important;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--border)),
+    0 1px 0 hsl(172 55% 38% / 0.08),
+    0 0 5px hsl(188 70% 45% / 0.05) !important;
+}
+
+.theme-pulso-light .pulso-insights-chat-dialog .showcase-search-poda--prompt .showcase-search-glow {
+  filter: blur(7px) !important;
+  opacity: 0.18 !important;
+  max-height: 72px !important;
 }
 
 .theme-pulso-light .pulso-insights-chat-dialog .showcase-search-glow::before {
-  opacity: 0.22 !important;
+  opacity: 0.2 !important;
 }
 
 .theme-pulso-light .pulso-insights-chat-dialog .showcase-search-input--prompt::placeholder {
@@ -1627,6 +1636,94 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ========== Auth (/auth) — tema claro: cartão claro, bordas finas, botões legíveis ========== */
+.theme-pulso-light .pulso-auth-page .pulso-orb {
+  opacity: 0.85;
+  filter: blur(56px);
+}
+.theme-pulso-light .pulso-auth-card.pulso-page-card,
+.theme-pulso-light .pulso-auth-card.glass-card,
+.theme-pulso-light .pulso-auth-card.glass-strong {
+  background: hsl(0 0% 100% / 0.96) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(214 24% 90%) !important;
+  box-shadow:
+    0 1px 2px hsl(222 47% 11% / 0.04),
+    0 12px 48px hsl(222 28% 55% / 0.08) !important;
+}
+.theme-pulso-light [data-pulso-layout="A"] .pulso-auth-card.pulso-page-card {
+  background: hsl(0 0% 100% / 0.97) !important;
+  border: 1px solid hsl(214 22% 88%) !important;
+}
+.theme-pulso-light .pulso-auth-card label,
+.theme-pulso-light .pulso-auth-card .text-foreground {
+  color: hsl(222 35% 26%);
+}
+.theme-pulso-light .pulso-auth-card h1.text-primary {
+  color: hsl(222 42% 22%) !important;
+}
+.theme-pulso-light .pulso-auth-card input[type="email"],
+.theme-pulso-light .pulso-auth-card input[type="password"],
+.theme-pulso-light .pulso-auth-card input[type="text"] {
+  border-width: 1px !important;
+  border-color: hsl(214 18% 86%) !important;
+  background-color: hsl(0 0% 100%) !important;
+  color: hsl(222 47% 14%) !important;
+  box-shadow: none !important;
+}
+.theme-pulso-light .pulso-auth-card input::placeholder {
+  color: hsl(222 16% 52%) !important;
+}
+.theme-pulso-light .pulso-auth-card input:focus-visible {
+  outline: none !important;
+  --tw-ring-offset-width: 0px !important;
+  --tw-ring-width: 0 !important;
+  border-color: hsl(172 42% 38%) !important;
+  box-shadow: 0 0 0 3px hsl(172 48% 42% / 0.14) !important;
+}
+.theme-pulso-light .pulso-auth-card .showcase-sparkle-btn {
+  --active: 0;
+  background: hsl(0 0% 100%) !important;
+  color: hsl(222 42% 20%) !important;
+  border: 1px solid hsl(214 20% 84%) !important;
+  box-shadow: 0 1px 2px hsl(222 47% 11% / 0.05) !important;
+  scale: 1 !important;
+}
+.theme-pulso-light .pulso-auth-card .showcase-sparkle-btn:hover,
+.theme-pulso-light .pulso-auth-card .showcase-sparkle-btn:focus-visible {
+  --active: 0;
+  border-color: hsl(172 38% 42% / 0.55) !important;
+  box-shadow:
+    0 1px 2px hsl(222 47% 11% / 0.06),
+    0 0 0 3px hsl(172 45% 45% / 0.1) !important;
+  background: hsl(172 40% 98%) !important;
+}
+.theme-pulso-light .pulso-auth-card .showcase-sparkle-btn .showcase-spark {
+  opacity: 0.35;
+}
+.theme-pulso-light .pulso-auth-card .pulso-auth-sparkle-inner {
+  background-color: hsl(0 0% 100% / 0.92) !important;
+}
+.theme-pulso-light .pulso-auth-link-muted {
+  color: hsl(222 28% 38%) !important;
+  font-weight: 500;
+}
+.theme-pulso-light .pulso-auth-link-muted:hover {
+  color: hsl(199 58% 32%) !important;
+}
+.theme-pulso-light .pulso-auth-card button.text-primary {
+  color: hsl(222 42% 28%) !important;
+}
+.theme-pulso-light .pulso-auth-card button.text-primary:hover {
+  color: hsl(199 55% 30%) !important;
+}
+
+.theme-pulso-dark .pulso-auth-card,
+.theme-pulso-medium .pulso-auth-card {
+  border: 1px solid hsl(var(--primary) / 0.22) !important;
 }
 
 /* Scroll principal (#main-content): Billing, Settings, etc. */

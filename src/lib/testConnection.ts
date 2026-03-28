@@ -72,7 +72,7 @@ export async function testBackendConnection(): Promise<ConnectionTestResult> {
  * Testa múltiplas URLs possíveis do backend
  */
 export async function testMultipleBackendUrls(): Promise<ConnectionTestResult[]> {
-  const possibleUrls = [getApiBaseUrl(), 'http://127.0.0.1:8000'];
+  const possibleUrls = [getApiBaseUrl(), "https://pulsoapi-production-f227.up.railway.app", "http://127.0.0.1:8000"];
   
   const results: ConnectionTestResult[] = [];
   

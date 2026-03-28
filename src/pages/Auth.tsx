@@ -211,7 +211,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="pulso-page-container min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="pulso-page-container pulso-auth-page min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background — semiesferas PULSO (gradiente roxo→ciano conforme App.png) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 pulso-orb animate-pulse" />
@@ -231,7 +231,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <div className="pulso-page-card glass-card glass-strong border-2 border-primary/20 rounded-2xl p-8">
+        <div className="pulso-page-card pulso-auth-card glass-card glass-strong rounded-2xl p-8 border border-transparent">
           {/* Google Login Button */}
           <button
             type="button"
@@ -240,14 +240,14 @@ const Auth = () => {
             disabled={loading}
           >
             <span className="showcase-spark" aria-hidden />
-            <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+            <span className="pulso-auth-sparkle-inner absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
             <Chrome className="w-5 h-5 relative z-10" />
             <span className="relative z-10">Continuar com Google</span>
           </button>
 
           <div className="relative my-6">
             <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-xs text-muted-foreground rounded-md border border-border/60">
               ou continue com e-mail
             </span>
           </div>
@@ -385,7 +385,7 @@ const Auth = () => {
               className="showcase-sparkle-btn w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="showcase-spark" aria-hidden />
-              <span className="absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
+              <span className="pulso-auth-sparkle-inner absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
               <span className="relative z-10">{loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}</span>
             </button>
           </form>
@@ -403,7 +403,7 @@ const Auth = () => {
               <div>
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+                  className="text-sm pulso-auth-link-muted hover:underline"
                 >
                   Esqueci minha senha
                 </Link>

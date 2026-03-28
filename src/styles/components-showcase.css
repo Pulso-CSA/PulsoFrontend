@@ -2214,6 +2214,31 @@
   background-color: transparent;
 }
 
+/* Iluminação fina nas áreas de mensagem (tema claro/escuro): halo discreto + traço inferior leve */
+.showcase-search-poda--prompt .showcase-search-glow {
+  filter: blur(8px) !important;
+  opacity: 0.22 !important;
+  max-height: 82px !important;
+}
+.showcase-search-poda--prompt .showcase-search-darkBorderBg,
+.showcase-search-poda--prompt .showcase-search-white {
+  filter: blur(1px) !important;
+}
+.showcase-search-poda--prompt .showcase-search-border {
+  filter: blur(0.35px) !important;
+}
+.showcase-search-poda--prompt .showcase-pink-mask {
+  filter: blur(8px) !important;
+  opacity: 0.32 !important;
+  width: 20px !important;
+  height: 12px !important;
+}
+.showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-glow {
+  max-height: 52px !important;
+  filter: blur(5px) !important;
+  opacity: 0.2 !important;
+}
+
 /* Variante toolbar: mesma proporção do botão Baixar Relatório (compact) — altura ~32px */
 .showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-glow,
 .showcase-search-poda--toolbar.showcase-search-poda--prompt .showcase-search-darkBorderBg,
@@ -2228,20 +2253,21 @@
   font-size: 0.9rem !important;
 }
 .showcase-search-poda--toolbar .showcase-prompt-gradient-bar {
-  margin-top: 4px;
-  height: 4px;
+  margin-top: 3px;
+  min-height: 2px;
+  height: 2px;
 }
 
-/* Barra de gradiente abaixo da barra de mensagem (roxo → magenta → azul) — chat de dados e todos os chats */
+/* Barra inferior: traço fino verde-água → ciano (elegante, pouca altura) */
 .showcase-prompt-gradient-bar {
-  background: linear-gradient(90deg, #402fb5 0%, #763e7e 25%, #cf30aa 50%, #905DED 75%, #4F9FF3 100%) !important;
-  opacity: 0.9;
-  min-height: 6px;
-  transition: opacity 0.3s ease;
+  background: linear-gradient(90deg, #14b8a6 0%, #2dd4bf 38%, #22d3ee 72%, #7dd3fc 100%) !important;
+  opacity: 0.7;
+  min-height: 2px;
+  transition: opacity 0.25s ease;
 }
 .showcase-search-poda--prompt:hover .showcase-prompt-gradient-bar,
 .showcase-search-poda--prompt:focus-within .showcase-prompt-gradient-bar {
-  opacity: 1;
+  opacity: 0.88;
 }
 
 /* Tema claro: barras de escrita do chat — duas cores verde + ciano (auréolas + barra inferior) */
@@ -2294,8 +2320,8 @@
   color: hsl(var(--foreground)) !important;
   box-shadow:
     inset 0 0 0 1px hsl(var(--border)),
-    0 0 0 1px hsl(160 72% 36% / 0.22),
-    0 0 14px hsl(188 75% 42% / 0.12);
+    0 1px 0 hsl(172 55% 38% / 0.09),
+    0 0 5px hsl(188 70% 45% / 0.06);
 }
 .theme-pulso-light .showcase-search-input--prompt::placeholder {
   color: hsl(222 22% 34%) !important;
@@ -2306,15 +2332,87 @@
   box-shadow: inset 0 0 0 1px hsl(var(--border)) !important;
 }
 .theme-pulso-light .showcase-search-poda--toolbar .showcase-search-glow::before {
-  opacity: 0.38 !important;
+  opacity: 0.28 !important;
+}
+.theme-pulso-light .showcase-search-poda--prompt .showcase-search-glow {
+  filter: blur(7px) !important;
+  opacity: 0.18 !important;
+  max-height: 76px !important;
 }
 .theme-pulso-light .showcase-prompt-gradient-bar {
-  opacity: 0.88;
-  background: linear-gradient(90deg, #059669 0%, #14b8a6 38%, #06b6d4 72%, #22d3ee 100%) !important;
+  opacity: 0.72;
+  min-height: 2px;
+  background: linear-gradient(90deg, #059669 0%, #14b8a6 35%, #06b6d4 68%, #67e8f9 100%) !important;
 }
 .theme-pulso-light .showcase-search-poda--prompt:hover .showcase-prompt-gradient-bar,
 .theme-pulso-light .showcase-search-poda--prompt:focus-within .showcase-prompt-gradient-bar {
-  opacity: 1;
+  opacity: 0.9;
+}
+
+/* Temas escuro / médio: mesma paleta verde-água → ciano, mais contida que o roxo original */
+.theme-pulso-dark .showcase-search-poda--prompt .showcase-search-white::before,
+.theme-pulso-medium .showcase-search-poda--prompt .showcase-search-white::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0) 0%,
+    #2dd4bf,
+    rgba(0, 0, 0, 0) 8%,
+    rgba(0, 0, 0, 0) 50%,
+    #34d399,
+    rgba(0, 0, 0, 0) 58%
+  ) !important;
+  filter: brightness(1.08);
+}
+.theme-pulso-dark .showcase-search-poda--prompt .showcase-search-border::before,
+.theme-pulso-medium .showcase-search-poda--prompt .showcase-search-border::before {
+  background-image: conic-gradient(
+    #0f1419,
+    #0d9488 5%,
+    #0f1419 14%,
+    #0f1419 50%,
+    #059669 60%,
+    #0f1419 64%
+  ) !important;
+  filter: brightness(1.05);
+}
+.theme-pulso-dark .showcase-search-poda--prompt .showcase-search-darkBorderBg::before,
+.theme-pulso-medium .showcase-search-poda--prompt .showcase-search-darkBorderBg::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0),
+    #0e7490,
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 0) 50%,
+    #047857,
+    rgba(0, 0, 0, 0) 60%
+  ) !important;
+}
+.theme-pulso-dark .showcase-search-poda--prompt .showcase-search-glow::before,
+.theme-pulso-medium .showcase-search-poda--prompt .showcase-search-glow::before {
+  background-image: conic-gradient(
+    hsl(var(--background)),
+    #14b8a6 5%,
+    hsl(var(--background)) 38%,
+    hsl(var(--background)) 50%,
+    #10b981 60%,
+    hsl(var(--background)) 87%
+  ) !important;
+}
+.theme-pulso-dark .showcase-search-poda--prompt .showcase-search-glow,
+.theme-pulso-medium .showcase-search-poda--prompt .showcase-search-glow {
+  filter: blur(8px) !important;
+  opacity: 0.2 !important;
+  max-height: 80px !important;
+}
+.theme-pulso-dark .showcase-prompt-gradient-bar,
+.theme-pulso-medium .showcase-prompt-gradient-bar {
+  background: linear-gradient(90deg, #0f766e 0%, #14b8a6 40%, #0891b2 75%, #22d3ee 100%) !important;
+  opacity: 0.58;
+  min-height: 2px;
+}
+.theme-pulso-dark .showcase-search-poda--prompt:hover .showcase-prompt-gradient-bar,
+.theme-pulso-dark .showcase-search-poda--prompt:focus-within .showcase-prompt-gradient-bar,
+.theme-pulso-medium .showcase-search-poda--prompt:hover .showcase-prompt-gradient-bar,
+.theme-pulso-medium .showcase-search-poda--prompt:focus-within .showcase-prompt-gradient-bar {
+  opacity: 0.78;
 }
 
 .theme-pulso-light .showcase-download-report-btn {

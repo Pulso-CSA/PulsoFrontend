@@ -215,7 +215,7 @@ export function BackendConnectionTest() {
               Para configurar, crie um arquivo <code>.env</code> na raiz do projeto com:
             </p>
             <pre className="mt-2 p-2 bg-background rounded text-xs overflow-x-auto">
-              VITE_API_URL=http://127.0.0.1:8000
+              VITE_API_URL=https://pulsoapi-production-f227.up.railway.app
             </pre>
           </div>
         )}

@@ -50,7 +50,32 @@ function resolveWindowIconPaths() {
   return out;
 }
 
-/** nativeImage para BrowserWindow (Windows: ícone da barra de tarefas segue a janela em apps sem frame). */
+/**
+ * Windows: createFromPath/caminho em string para BrowserWindow falham frequentemente na barra de tarefas
+ * (ficheiros dentro do .asar ou limitações do shell). readFileSync + createFromBuffer é o padrão fiável.
+ */
+function loadNativeImageFromFile(filePath) {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) return undefined;
+    const buf = fs.readFileSync(filePath);
+    if (!buf?.length) return undefined;
+    const img = nativeImage.createFromBuffer(buf);
+    return img.isEmpty() ? undefined : img;
+  } catch {
+    return undefined;
+  }
+}
+
+/** nativeImage (buffer) — preferir no Windows para barra de tarefas / janela sem moldura. */
+function resolveWindowIconNativeImage() {
+  for (const p of resolveWindowIconPaths()) {
+    const img = loadNativeImageFromFile(p);
+    if (img) return img;
+  }
+  return undefined;
+}
+
+/** Fallback createFromPath (macOS/Linux ou último recurso). */
 function resolveWindowIcon() {
   for (const p of resolveWindowIconPaths()) {
     try {
@@ -144,8 +169,18 @@ app.commandLine.appendSwitch("disable-logging");
 
 function createWindow() {
   Menu.setApplicationMenu(null);
-  const iconPathStr = resolveWindowIconPathString();
-  const iconImage = resolveWindowIcon();
+  /** No Windows usar só NativeImage vinda de buffer — evita logo do Electron na barra de tarefas. */
+  const windowIcon =
+    process.platform === "win32"
+      ? resolveWindowIconNativeImage() ?? resolveWindowIcon()
+      : resolveWindowIconPathString() ?? resolveWindowIcon();
+
+  if (process.platform === "win32" && app.isPackaged && !windowIcon) {
+    console.warn(
+      "Pulso: ícone da janela não carregado (verifique extraResources pulso-icon.ico em resources/)."
+    );
+  }
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -158,10 +193,22 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.cjs"),
     },
-    // Windows aceita caminho absoluto .ico; fallback para NativeImage
-    icon: iconPathStr ?? iconImage,
+    ...(windowIcon ? { icon: windowIcon } : {}),
     show: false,
   });
+
+  if (process.platform === "win32" && windowIcon && !windowIcon.isEmpty()) {
+    const applyTaskbarIcon = () => {
+      try {
+        mainWindow.setIcon(windowIcon);
+      } catch {
+        /* ignora */
+      }
+    };
+    applyTaskbarIcon();
+    mainWindow.once("ready-to-show", applyTaskbarIcon);
+    mainWindow.once("show", applyTaskbarIcon);
+  }
 
   // Links / window.open com _blank não abrem outra janela Electron (ícone por defeito);
   // abrem no navegador por defeito — mesmo comportamento esperado para URLs externas.

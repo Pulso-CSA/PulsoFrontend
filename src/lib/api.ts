@@ -1,7 +1,7 @@
 // Centralized API client with Bearer token handling and auto-refresh
 
 // Em dev (Vite localhost): usa mesma origem para o proxy. Electron (file://) ou prod: usa VITE_API_URL.
-const _defaultBackend = "http://127.0.0.1:8000";
+const _defaultBackend = "https://pulsoapi-production-f227.up.railway.app";
 
 export function getApiBaseUrl(): string {
   if (import.meta.env.DEV && typeof window !== "undefined") {
