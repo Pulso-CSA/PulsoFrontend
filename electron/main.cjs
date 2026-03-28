@@ -15,18 +15,17 @@ function resolveWindowIconPaths() {
   const candidates = [];
   if (process.platform === "win32") {
     if (app.isPackaged) {
+      // extraResources (package.json): fora do asar — mais fiável para barra de tarefas / overlay
+      candidates.push(path.join(process.resourcesPath, "pulso-icon.ico"));
+      candidates.push(path.join(path.dirname(process.execPath), "resources", "pulso-icon.ico"));
       try {
         candidates.push(path.join(app.getAppPath(), "public", "pulso-icon.ico"));
       } catch {
         /* ignora */
       }
     }
-    // Empacotado: ficheiro dentro do app.asar (public/** entra em files)
+    // Dev e empacotado: cópia em public/ (mesmo conteúdo que build/icon.ico)
     candidates.push(path.join(appRoot, "public", "pulso-icon.ico"));
-    if (app.isPackaged) {
-      candidates.push(path.join(process.resourcesPath, "pulso-icon.ico"));
-      candidates.push(path.join(path.dirname(process.execPath), "resources", "pulso-icon.ico"));
-    }
   }
   candidates.push(path.join(appRoot, "build", "icon.ico"));
   if (!app.isPackaged) {

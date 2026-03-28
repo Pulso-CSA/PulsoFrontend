@@ -44,7 +44,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { previewApi, insightsApi, type InsightsWidgetResponse } from "@/lib/api";
+import { previewApi, type InsightsWidgetResponse } from "@/lib/api";
+import {
+  insightsV1Api,
+  mapInsightV1ResponseToWidget,
+  artifactRecordToQueryResponse,
+  type InsightQueryResponse,
+  type InsightSessionDetail,
+} from "@/lib/insightsV1Api";
 
 export type InsightsFilterKey = "all" | ServiceKey | "custom";
 
@@ -67,6 +74,8 @@ type InsightsWidget = {
   technicalConclusion?: string;
   /** Dados customizados para o gráfico (opcional) */
   data?: Array<{ label: string; value: number }>;
+  backendInsightId?: string;
+  backendSessionId?: string;
 };
 
 type InsightsChatHistoryItem = {
@@ -112,26 +121,44 @@ const INSIGHTS_CHART_LABELS: Record<AnalyticsChartType, string> = {
   progress: "Progresso",
 };
 
+const INSIGHTS_V1_SESSION_STORAGE_KEY = "pulso_insights_v1_session_id";
+
 const buildInsightsRequestId = () =>
   (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function")
     ? crypto.randomUUID()
     : `ins-${Date.now()}`;
 
-const mapApiWidgetToDashboard = (widget: InsightsWidgetResponse): InsightsWidget => ({
-  id: widget.id,
-  title: widget.title,
-  value: widget.value,
-  trend: widget.trend,
-  period: widget.period,
-  chartType: widget.chart_type,
-  progressPercent: widget.progress_percent,
-  insights: widget.insights ?? [],
-  serviceFilter: widget.service_filter ?? "data",
-  customPrompt: widget.custom_prompt,
-  analysisSummary: widget.analysis_summary,
-  technicalConclusion: widget.technical_conclusion,
-  data: widget.data,
-});
+function unwrapInsightSessionList(raw: unknown): InsightSessionDetail[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === "object" && "sessions" in raw && Array.isArray((raw as { sessions: unknown }).sessions)) {
+    return (raw as { sessions: InsightSessionDetail[] }).sessions;
+  }
+  return [];
+}
+
+const mapApiWidgetToDashboard = (widget: InsightsWidgetResponse): InsightsWidget => {
+  const ext = widget as InsightsWidgetResponse & {
+    backendInsightId?: string;
+    backendSessionId?: string;
+  };
+  return {
+    id: widget.id,
+    title: widget.title,
+    value: widget.value,
+    trend: widget.trend,
+    period: widget.period,
+    chartType: widget.chart_type,
+    progressPercent: widget.progress_percent,
+    insights: widget.insights ?? [],
+    serviceFilter: widget.service_filter ?? "data",
+    customPrompt: widget.custom_prompt,
+    analysisSummary: widget.analysis_summary,
+    technicalConclusion: widget.technical_conclusion,
+    data: widget.data,
+    backendInsightId: ext.backendInsightId,
+    backendSessionId: ext.backendSessionId,
+  };
+};
 
 const isGenericCreateChartPrompt = (prompt: string) => {
   const p = prompt.trim().toLowerCase();
@@ -166,6 +193,14 @@ const Dashboard = () => {
   const [insightsPan, setInsightsPan] = useState({ x: 0, y: 0 });
   const [insightsPanning, setInsightsPanning] = useState<{ startX: number; startY: number; startPanX: number; startPanY: number } | null>(null);
   const [insightsConnections, setInsightsConnections] = useState<{ id: string; from: string; to: string; summary?: string }[]>([]);
+  const [insightsV1SessionId, setInsightsV1SessionId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(INSIGHTS_V1_SESSION_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  });
+  const [insightsCatalogSuggestions, setInsightsCatalogSuggestions] = useState<string[]>([]);
   const [connectionHoverId, setConnectionHoverId] = useState<string | null>(null);
   const [customizeWidgetId, setCustomizeWidgetId] = useState<string | null>(null);
   const [customizeForm, setCustomizeForm] = useState<{ service: ServiceKey | "custom"; prompt: string }>({ service: "data", prompt: "" });
@@ -302,29 +337,100 @@ const Dashboard = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const persistInsightsV1Session = useCallback((sid: string | undefined) => {
+    if (!sid) return;
+    setInsightsV1SessionId(sid);
+    try {
+      localStorage.setItem(INSIGHTS_V1_SESSION_STORAGE_KEY, sid);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-    const loadInsightsWidgets = async () => {
+    const loadInsightsFromV1 = async () => {
       setInsightsLoading(true);
       try {
-        const res = await insightsApi.listWidgets();
-        if (cancelled || !res.widgets?.length) return;
-        setInsightsWidgets(res.widgets.map(mapApiWidgetToDashboard));
-      } catch (err) {
+        const catalog = await insightsV1Api.getCatalog();
+        if (!cancelled && catalog.example_prompts?.length) {
+          setInsightsCatalogSuggestions(catalog.example_prompts);
+        }
+
+        let sessionId: string | undefined;
+        try {
+          sessionId = localStorage.getItem(INSIGHTS_V1_SESSION_STORAGE_KEY) ?? undefined;
+        } catch {
+          sessionId = undefined;
+        }
+
+        if (!sessionId) {
+          try {
+            const rawSessions = await insightsV1Api.listSessions(5);
+            const list = unwrapInsightSessionList(rawSessions);
+            const first = list[0];
+            const sid = first?.session_id ?? (typeof first?.id === "string" ? first.id : undefined);
+            if (typeof sid === "string") sessionId = sid;
+          } catch {
+            /* sem sessões ou não autenticado */
+          }
+        }
+
+        if (!sessionId) {
+          if (!cancelled) setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
+          return;
+        }
+
+        const artifacts = await insightsV1Api.getArtifacts(sessionId, 50);
         if (cancelled) return;
-        toast({
-          title: "Insights com dados locais",
-          description: err instanceof Error ? err.message : "Não foi possível carregar os widgets do backend.",
+
+        const rows = Array.isArray(artifacts) ? artifacts : [];
+        const parsed = rows
+          .map((row) => artifactRecordToQueryResponse(row as Record<string, unknown>))
+          .filter((p): p is InsightQueryResponse => p != null);
+
+        persistInsightsV1Session(sessionId);
+
+        if (!parsed.length) {
+          if (!cancelled) setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
+          return;
+        }
+
+        const widgets = parsed.map((res, i) => {
+          const wid = res.insight_id ?? `v1-loaded-${i}-${Date.now()}`;
+          const payload = mapInsightV1ResponseToWidget(res, { widgetId: wid });
+          return mapApiWidgetToDashboard(payload);
         });
+
+        if (!cancelled) {
+          setInsightsWidgets(widgets);
+          setInsightsPositions((pos) => {
+            const next = { ...pos };
+            widgets.forEach((w, i) => {
+              if (!next[w.id]) next[w.id] = { x: 20 + (i % 3) * 280, y: 20 + Math.floor(i / 3) * 200 };
+            });
+            return next;
+          });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          toast({
+            title: "Insights v1",
+            description:
+              err instanceof Error ? err.message : "Não foi possível sincronizar; usando dados de demonstração.",
+          });
+          setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
+        }
       } finally {
         if (!cancelled) setInsightsLoading(false);
       }
     };
-    loadInsightsWidgets();
+
+    void loadInsightsFromV1();
     return () => {
       cancelled = true;
     };
-  }, [toast]);
+  }, [toast, persistInsightsV1Session]);
 
   const ZOOM_MIN = 0.5;
   const ZOOM_MAX = 2;
@@ -423,16 +529,36 @@ const Dashboard = () => {
     }
     setInsightsGenerating(true);
     try {
-      const refreshed = await Promise.all(
-        widgetsToRefresh.map(async (widget) => {
-          const res = await insightsApi.generateWidget({
-            prompt: widget.customPrompt!,
-            id_requisicao: buildInsightsRequestId(),
-            service_filter: (widget.serviceFilter ?? "data") as "pulso" | "cloud" | "finops" | "data" | "custom",
+      let runningSession = insightsV1SessionId ?? undefined;
+      const refreshed: { previousId: string; next: InsightsWidget }[] = [];
+      for (const widget of widgetsToRefresh) {
+        const res = await insightsV1Api.query({
+          prompt: widget.customPrompt!,
+          session_id: runningSession,
+          id_requisicao: buildInsightsRequestId(),
+          locale: "pt-BR",
+        });
+        if (res.session_id) {
+          runningSession = res.session_id;
+          persistInsightsV1Session(res.session_id);
+        }
+        if (res.status === "ambiguity") {
+          toast({
+            title: "Prompt ambíguo",
+            description: res.ambiguity?.message ?? "Refine a pergunta ou use uma sugestão do catálogo.",
           });
-          return { previousId: widget.id, next: mapApiWidgetToDashboard(res.widget) };
-        })
-      );
+        } else if (res.status === "degraded") {
+          toast({
+            title: "Insight parcial",
+            description: "Confiança baixa; os dados podem ser aproximados.",
+          });
+        }
+        const payload = mapInsightV1ResponseToWidget(res, {
+          widgetId: widget.id,
+          customPrompt: widget.customPrompt,
+        });
+        refreshed.push({ previousId: widget.id, next: mapApiWidgetToDashboard(payload) });
+      }
       setInsightsWidgets((prev) =>
         prev.map((item) => {
           const found = refreshed.find((f) => f.previousId === item.id);
@@ -532,12 +658,26 @@ const Dashboard = () => {
     const newIndex = insightsWidgets.length;
     setInsightsGenerating(true);
     try {
-      const res = await insightsApi.generateWidget({
+      const res = await insightsV1Api.query({
         prompt,
+        session_id: insightsV1SessionId ?? undefined,
         id_requisicao: buildInsightsRequestId(),
-        service_filter: defaultService,
+        locale: "pt-BR",
       });
-      const mapped = mapApiWidgetToDashboard(res.widget);
+      persistInsightsV1Session(res.session_id);
+      if (res.status === "ambiguity") {
+        toast({
+          title: "Prompt ambíguo",
+          description: res.ambiguity?.message ?? "Refine a pergunta ou escolha uma das sugestões abaixo.",
+        });
+      } else if (res.status === "degraded") {
+        toast({
+          title: "Insight parcial",
+          description: "Confiança baixa; refine o prompt se precisar de precisão.",
+        });
+      }
+      const payload = mapInsightV1ResponseToWidget(res, { widgetId: id, customPrompt: prompt });
+      const mapped = mapApiWidgetToDashboard(payload);
       setInsightsWidgets((prev) => [...prev, { ...mapped, id }]);
       if (insightsLayoutMode === "free") {
         setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
@@ -1127,6 +1267,7 @@ const Dashboard = () => {
                   )}
                 </div>
                 <InsightsChatBar
+                  catalogSuggestions={insightsCatalogSuggestions}
                   onSubmit={(prompt) => {
                     void submitInsightsPromptWithHistory(prompt);
                   }}

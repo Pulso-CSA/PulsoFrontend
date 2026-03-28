@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
       "/subscription": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/profiles": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/inteligencia-dados": { target: "http://127.0.0.1:8000", changeOrigin: true },
+      "/insights": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/finops": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/infra": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/deploy": { target: "http://127.0.0.1:8000", changeOrigin: true },

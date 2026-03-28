@@ -20,6 +20,8 @@ export interface InsightsChatBarProps {
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  /** Ex.: `example_prompts` de GET /insights/v1/catalog */
+  catalogSuggestions?: string[];
 }
 
 export function InsightsChatBar({
@@ -27,8 +29,13 @@ export function InsightsChatBar({
   disabled = false,
   placeholder = "Crie um gráfico em linguagem natural...",
   className,
+  catalogSuggestions,
 }: InsightsChatBarProps) {
   const [value, setValue] = useState("");
+  const chips =
+    catalogSuggestions?.filter((s) => s.trim()).length ?
+      [...new Set(catalogSuggestions.map((s) => s.trim()).filter(Boolean))].slice(0, 12)
+    : SUGGESTIONS;
 
   const handleSubmit = () => {
     const trimmed = value.trim();
@@ -57,7 +64,7 @@ export function InsightsChatBar({
           aria-label="Descreva o gráfico que deseja criar"
         />
         <div className="flex flex-wrap gap-1.5 pulso-insights-chat-suggestions">
-          {SUGGESTIONS.map((s) => (
+          {chips.map((s) => (
             <button
               key={s}
               type="button"

@@ -15,8 +15,26 @@ if (fs.existsSync(rootPath)) {
   fs.copyFileSync(rootPath, publicPath);
   inputPath = publicPath;
   console.log("App.png (raiz) → public/App.png");
+  const installerPublicDir = path.join(rootDir, "installer", "public");
+  const installerAppPng = path.join(installerPublicDir, "App.png");
+  try {
+    fs.mkdirSync(installerPublicDir, { recursive: true });
+    fs.copyFileSync(rootPath, installerAppPng);
+    console.log("App.png (raiz) → installer/public/App.png");
+  } catch (e) {
+    console.warn("Não foi possível copiar App.png para installer/public:", e?.message || e);
+  }
 } else if (fs.existsSync(publicPath)) {
   inputPath = publicPath;
+  const installerPublicDir = path.join(rootDir, "installer", "public");
+  const installerAppPng = path.join(installerPublicDir, "App.png");
+  try {
+    fs.mkdirSync(installerPublicDir, { recursive: true });
+    fs.copyFileSync(publicPath, installerAppPng);
+    console.log("public/App.png → installer/public/App.png");
+  } catch (e) {
+    console.warn("Não foi possível copiar para installer/public:", e?.message || e);
+  }
 } else {
   console.error("App.png não encontrado na raiz nem em public/.");
   process.exit(1);

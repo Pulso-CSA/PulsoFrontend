@@ -4,7 +4,28 @@ const fs = require("fs");
 const ofs = require("original-fs");
 const { execFileSync, spawn } = require("child_process");
 
+if (process.platform === "win32") {
+  app.setAppUserModelId("com.pulso.installer");
+}
+
 let mainWindow;
+
+/** Mesmo logotipo do app (App.png em public/ ou no dist após vite build). */
+function resolveInstallerWindowIcon() {
+  const up = path.join(__dirname, "..");
+  const candidates = [
+    path.join(up, "dist", "App.png"),
+    path.join(up, "public", "App.png"),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {
+      /* próximo */
+    }
+  }
+  return undefined;
+}
 
 function getAppSourceDir() {
   if (app.isPackaged) {
@@ -204,6 +225,7 @@ ipcMain.handle("select-install-dir", async () => {
 
 function createWindow() {
   Menu.setApplicationMenu(null);
+  const iconPath = resolveInstallerWindowIcon();
   mainWindow = new BrowserWindow({
     width: 720,
     height: 560,
@@ -212,6 +234,7 @@ function createWindow() {
     frame: false,
     autoHideMenuBar: true,
     backgroundColor: "#0a0a0f",
+    ...(iconPath ? { icon: iconPath } : {}),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
