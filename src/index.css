@@ -1243,17 +1243,22 @@ All colors MUST be HSL.
     inset 12px -12px 24px var(--glass-shadow-dark),
     inset -12px 12px 24px var(--glass-shadow-light),
     0 10px 40px rgba(0, 0, 0, 0.25);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
+/* w-full + margin horizontal estourava o painel; largura compensa as margens */
 .pulso-dropdown-menu-glass [role="menuitem"] {
   margin: 0 6px;
+  width: calc(100% - 12px);
+  max-width: calc(100% - 12px);
+  box-sizing: border-box;
   border-radius: 6px;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 .pulso-dropdown-menu-glass [role="menuitem"]:hover,
 .pulso-dropdown-menu-glass [role="menuitem"][data-highlighted] {
   background-color: hsl(var(--primary) / 0.2) !important;
   color: hsl(var(--primary-foreground)) !important;
-  transform: translate(1px, -1px);
 }
 .pulso-dropdown-menu-glass [role="menuitem"]:hover {
   outline: none;
@@ -1284,7 +1289,6 @@ All colors MUST be HSL.
 .theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"]:not(.text-destructive)[data-state="open"] {
   background-color: hsl(var(--muted)) !important;
   color: hsl(var(--foreground)) !important;
-  transform: translate(1px, -1px);
 }
 .theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"].text-destructive:hover,
 .theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"].text-destructive[data-highlighted] {

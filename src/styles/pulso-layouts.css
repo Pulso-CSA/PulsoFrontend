@@ -114,7 +114,8 @@
   box-shadow: none;
   border-radius: 2px;
   border: 1px solid hsl(var(--border) / 0.4);
-  padding: 0.5rem 1rem;
+  /* 1em acima e abaixo do conteúdo (ícones / abas) */
+  padding: 1em 1rem;
   width: fit-content;
   max-width: calc(100vw - 2rem);
 }
@@ -129,7 +130,6 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   gap: 0.5rem;
   flex-wrap: wrap;
   overflow: visible;
-  padding: 2px 0;
 }
 
 .pulso-layout-a-btn-horizontal {
@@ -508,15 +508,15 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
 }
 
 /* Corpo: main (sidebar conta/tema/layout fica no AppShell) */
-/* Espaço para a navbar fixa não cobrir o conteúdo */
+/* Espaço para a navbar fixa não cobrir o conteúdo — altura = bar externa + inner (1em+1em) + botões 44px */
 .pulso-layout-a-body {
   display: flex;
   flex-direction: row;
   min-height: 0;
-  padding-top: 4rem;
+  padding-top: calc(1.5rem + 2em + 44px + 0.25rem);
 }
 html[data-electron="true"] .pulso-layout-a-body {
-  padding-top: 6.5rem;
+  padding-top: calc(2.5rem + 1.5rem + 2em + 44px + 0.25rem);
 }
 
 .pulso-layout-a-btn {
@@ -1155,14 +1155,60 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   max-width: calc(100vw - 2rem);
   width: min(75vw, calc(100vw - 2rem));
   pointer-events: none;
-  /* Fim da faixa da navbar: paddings verticais (0.75+0.5+0.5+0.75 rem) + altura do botão 44px */
-  top: calc(2.5rem + 44px);
+  /* Fim da faixa da navbar (bar 0.75×2 + inner 1em×2 + botão 44px) + 3em de distância */
+  top: calc(1.5rem + 2em + 44px + 3em);
 }
 html[data-electron="true"] .pulso-insights-filter-bar-dock {
-  top: calc(2.5rem + 2.5rem + 44px);
+  top: calc(2.5rem + 1.5rem + 2em + 44px + 3em);
 }
 .pulso-insights-filter-bar-dock .pulso-insights-filter-row {
   pointer-events: auto;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  /* Fundo cinza claro (referência ~gray-300); legível nos dois temas */
+  background: #d1d5db !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(71, 85, 105, 0.35);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+}
+
+.theme-pulso-light .pulso-insights-filter-bar-dock .pulso-insights-filter-row {
+  background: #d1d5db !important;
+  border: 1px solid rgba(71, 85, 105, 0.35);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+}
+
+/* Tema escuro (classe no <html>): botões legíveis sobre #d1d5db */
+html:not(.theme-pulso-light) .pulso-insights-filter-bar-dock .pulso-layout-a-btn:not(.pulso-insights-navbar-btn-filter-active):not(.pulso-active) {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(71, 85, 105, 0.22);
+  box-shadow: none;
+}
+html:not(.theme-pulso-light) .pulso-insights-filter-bar-dock .pulso-layout-a-btn:not(.pulso-insights-navbar-btn-filter-active):not(.pulso-active):hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(71, 85, 105, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+html:not(.theme-pulso-light) .pulso-insights-filter-bar-dock .pulso-layout-a-btn.pulso-insights-navbar-btn-filter-active {
+  color: #fff;
+  border-color: hsl(var(--primary) / 0.45);
+}
+html:not(.theme-pulso-light) .pulso-insights-filter-bar-dock .pulso-layout-a-btn:not(.pulso-insights-navbar-btn-filter-active) .pulso-service-tab-icon {
+  color: #334155;
+}
+html:not(.theme-pulso-light) .pulso-insights-filter-bar-dock .pulso-layout-a-btn.pulso-insights-navbar-btn-filter-active .pulso-service-tab-icon {
+  color: inherit;
 }
 
 /* Container dos botões de filtro (tema escuro / base) */

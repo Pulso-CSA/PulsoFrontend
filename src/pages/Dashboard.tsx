@@ -202,6 +202,8 @@ const Dashboard = () => {
   });
   const [insightsCatalogSuggestions, setInsightsCatalogSuggestions] = useState<string[]>([]);
   const [connectionHoverId, setConnectionHoverId] = useState<string | null>(null);
+  /** Aba de gráfico ativa (lista horizontal acima do canvas Insights) */
+  const [insightsActiveChartTab, setInsightsActiveChartTab] = useState<string | null>(null);
   const [customizeWidgetId, setCustomizeWidgetId] = useState<string | null>(null);
   const [customizeForm, setCustomizeForm] = useState<{ service: ServiceKey | "custom"; prompt: string }>({ service: "data", prompt: "" });
   const INSIGHTS_ZOOM_MIN = 0.5;
@@ -645,6 +647,37 @@ const Dashboard = () => {
     ? insightsWidgets
     : insightsWidgets.filter((w) => (w.serviceFilter ?? "data") === insightsFilter);
 
+  useEffect(() => {
+    const filtered =
+      insightsFilter === "all"
+        ? insightsWidgets
+        : insightsWidgets.filter((w) => (w.serviceFilter ?? "data") === insightsFilter);
+    const ids = filtered.map((w) => w.id);
+    if (ids.length === 0) {
+      setInsightsActiveChartTab(null);
+      return;
+    }
+    setInsightsActiveChartTab((cur) => (cur && ids.includes(cur) ? cur : ids[0]));
+  }, [insightsFilter, insightsWidgets]);
+
+  const INSIGHTS_CARD_FOCUS_W = 320;
+  const INSIGHTS_CARD_FOCUS_H = 220;
+
+  const focusInsightsWidgetIntoView = useCallback((id: string) => {
+    const container = insightsZoomContainerRef.current;
+    if (!container) return;
+    const pos = insightsPositions[id] ?? { x: 0, y: 0 };
+    const z = insightsZoom;
+    const W = container.clientWidth;
+    const H = container.clientHeight;
+    const cx = pos.x + INSIGHTS_CARD_FOCUS_W / 2;
+    const cy = pos.y + INSIGHTS_CARD_FOCUS_H / 2;
+    setInsightsPan({
+      x: W / 2 - cx * z,
+      y: H / 2 - cy * z,
+    });
+  }, [insightsPositions, insightsZoom]);
+
   const handleCustomizeSubmit = () => {
     if (!customizeWidgetId) return;
     const prompt = customizeForm.prompt.trim();
@@ -970,7 +1003,7 @@ const Dashboard = () => {
               : undefined
           }
         >
-          <div className="pulso-insights-filter-row flex flex-wrap items-center justify-center gap-2 py-3">
+          <div className="pulso-insights-filter-row py-2 sm:py-2.5">
             {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
               <button
                 key={key}
@@ -978,7 +1011,7 @@ const Dashboard = () => {
                 data-pulso-tab={key}
                 onClick={() => setInsightsFilter(key)}
                 className={cn(
-                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 h-9 min-w-[36px] text-xs",
+                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal shrink-0 text-foreground gap-1.5 px-2.5 sm:px-3 h-9 min-w-[36px] text-xs",
                   insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
                 )}
                 title={label}
@@ -993,7 +1026,7 @@ const Dashboard = () => {
               type="button"
               data-pulso-tab="export"
               onClick={handleExportInsights}
-              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
+              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal shrink-0 text-foreground gap-1.5 px-2.5 sm:px-3 min-w-[36px] h-9 w-auto text-xs"
               title="Baixar relatório"
               aria-label="Baixar relatório do dashboard"
             >
@@ -1006,9 +1039,38 @@ const Dashboard = () => {
         <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
           <div
             className="shrink-0 w-full"
-            style={{ height: insightsFilterSpacerPx }}
+            style={{ height: `calc(3em + ${insightsFilterSpacerPx}px)` }}
             aria-hidden
           />
+        {insightsFilteredWidgets.length > 0 && (
+          <div
+            className="shrink-0 flex flex-nowrap items-stretch gap-1.5 overflow-x-auto overscroll-x-contain pb-2 mb-1 border-b border-border/50 [scrollbar-width:thin]"
+            role="tablist"
+            aria-label="Gráficos do dashboard"
+          >
+            {insightsFilteredWidgets.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                role="tab"
+                aria-selected={insightsActiveChartTab === w.id}
+                onClick={() => {
+                  setInsightsActiveChartTab(w.id);
+                  focusInsightsWidgetIntoView(w.id);
+                }}
+                className={cn(
+                  "shrink-0 max-w-[200px] truncate rounded-md border px-3 py-2 text-left text-xs font-medium transition-colors",
+                  insightsActiveChartTab === w.id
+                    ? "border-primary bg-primary/15 text-primary shadow-sm"
+                    : "border-border/60 bg-card/80 text-foreground hover:bg-muted/80"
+                )}
+                title={w.title}
+              >
+                {w.title}
+              </button>
+            ))}
+          </div>
+        )}
         <div
           ref={insightsZoomContainerRef}
           className={cn(
@@ -1159,13 +1221,20 @@ const Dashboard = () => {
                 })()}
                 {insightsFilteredWidgets.map((w) => {
                   const pos = insightsPositions[w.id] ?? { x: 0, y: 0 };
+                  const zTab =
+                    insightsDragging?.id === w.id ? 20 : insightsActiveChartTab === w.id ? 12 : 1;
                   return (
                     <div
                       key={w.id}
-                      className="absolute cursor-grab active:cursor-grabbing"
-                      style={{ left: pos.x, top: pos.y, width: 320, zIndex: insightsDragging?.id === w.id ? 10 : 1 }}
+                      className={cn(
+                        "absolute cursor-grab active:cursor-grabbing rounded-md transition-shadow duration-150",
+                        insightsActiveChartTab === w.id &&
+                          "ring-2 ring-primary/55 ring-offset-2 ring-offset-background/0"
+                      )}
+                      style={{ left: pos.x, top: pos.y, width: 320, zIndex: zTab }}
                       onMouseDown={(e) => {
                         if (e.button !== 0) return;
+                        setInsightsActiveChartTab(w.id);
                         setInsightsDragging({ id: w.id, startX: e.clientX, startY: e.clientY, posX: pos.x, posY: pos.y });
                       }}
                     >
