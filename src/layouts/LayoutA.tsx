@@ -155,7 +155,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
     <div className={cn("pulso-layout pulso-layout-a", className)}>
       {/* Barra de serviços fixa no topo (navbar glass) */}
       <div className="pulso-layout-a-services-bar flex-shrink-0" aria-label="Serviços">
-        <div className="pulso-layout-a-services-inner">
+        <div className="pulso-layout-a-services-inner" data-pulso-main-services-inner>
           {SERVICES.slice(0, 2).map(({ key, label, icon: Icon }) => {
             const isActive = activeService === key;
             const supportsCloudMenu = key === "cloud" || key === "finops";

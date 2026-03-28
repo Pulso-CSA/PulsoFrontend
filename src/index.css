@@ -1267,3 +1267,31 @@ All colors MUST be HSL.
   height: 1px;
   background: hsl(var(--border) / 0.6);
 }
+
+/* Tema claro: hover/highlight usava primary-foreground (branco) sobre primary/20% — texto sumia em “Criar gráfico” (SubTrigger) */
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"] {
+  color: hsl(var(--foreground));
+}
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"].text-destructive {
+  color: hsl(var(--destructive));
+}
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"] svg {
+  color: currentColor;
+  opacity: 0.92;
+}
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"]:not(.text-destructive):hover,
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"]:not(.text-destructive)[data-highlighted],
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"]:not(.text-destructive)[data-state="open"] {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  transform: translate(1px, -1px);
+}
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"].text-destructive:hover,
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"].text-destructive[data-highlighted] {
+  background-color: hsl(var(--destructive) / 0.1) !important;
+  color: hsl(var(--destructive)) !important;
+}
+.theme-pulso-light .pulso-dropdown-menu-glass [role="menuitem"][data-disabled] {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.55;
+}

@@ -112,7 +112,7 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow: none;
-  border-radius: 62px;
+  border-radius: 2px;
   border: 1px solid hsl(var(--border) / 0.4);
   padding: 0.5rem 1rem;
   width: fit-content;
@@ -143,7 +143,7 @@ html[data-electron="true"] .pulso-layout-a-services-bar {
   gap: 0.5rem;
   transform: none !important;
   writing-mode: horizontal-tb !important;
-  border-radius: 9999px !important;
+  border-radius: 2px !important;
   transition: transform 0.28s ease, background 0.28s ease, box-shadow 0.28s ease;
 }
 .pulso-layout-a-btn-horizontal:hover {
@@ -529,7 +529,7 @@ html[data-electron="true"] .pulso-layout-a-body {
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  border-radius: 9999px;
+  border-radius: 2px;
   border: 1px solid transparent;
   background: transparent;
   color: #fff;
@@ -602,11 +602,11 @@ html[data-electron="true"] .pulso-layout-a-body {
 }
 
 .theme-pulso-light .pulso-insights-filter-row {
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   padding: 0.4rem 0.65rem;
-  margin-bottom: 0.25rem;
-  border-radius: 9999px;
+  margin-bottom: 0;
+  border-radius: 2px;
   background: linear-gradient(
     118deg,
     hsl(210 40% 98% / 0.98) 0%,
@@ -1145,6 +1145,38 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   margin-top: 0;
 }
 
+/* Fila de filtros Insights: fixa logo abaixo da navbar de serviços, centralizada; largura base ~75vw até medir 75% da navbar (inline no Dashboard) */
+.pulso-insights-filter-bar-dock {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 28;
+  box-sizing: border-box;
+  max-width: calc(100vw - 2rem);
+  width: min(75vw, calc(100vw - 2rem));
+  pointer-events: none;
+  /* Fim da faixa da navbar: paddings verticais (0.75+0.5+0.5+0.75 rem) + altura do botão 44px */
+  top: calc(2.5rem + 44px);
+}
+html[data-electron="true"] .pulso-insights-filter-bar-dock {
+  top: calc(2.5rem + 2.5rem + 44px);
+}
+.pulso-insights-filter-bar-dock .pulso-insights-filter-row {
+  pointer-events: auto;
+}
+
+/* Container dos botões de filtro (tema escuro / base) */
+.pulso-insights-filter-row {
+  border-radius: 2px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
 /* Navbar da área Insights — compacta, glass, pill; botões funcionam como filtro */
 .pulso-insights-navbar {
   flex-shrink: 0;
@@ -1165,7 +1197,7 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow: none;
-  border-radius: 9999px;
+  border-radius: 2px;
   border: 1px solid hsl(var(--border) / 0.4);
   width: fit-content;
   max-width: calc(100% - 1.5rem);

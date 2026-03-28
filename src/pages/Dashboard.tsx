@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, Play, Loader2, Activity, BarChart3, TrendingUp, Circle, Percent, MessageCircle, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -207,6 +207,34 @@ const Dashboard = () => {
   const INSIGHTS_ZOOM_MIN = 0.5;
   const INSIGHTS_ZOOM_MAX = 2;
   const insightsZoomContainerRef = useRef<HTMLDivElement>(null);
+  const insightsFilterDockRef = useRef<HTMLDivElement>(null);
+  const [insightsMainNavWidth, setInsightsMainNavWidth] = useState<number | null>(null);
+  const [insightsFilterDockHeight, setInsightsFilterDockHeight] = useState(0);
+
+  useEffect(() => {
+    const el = document.querySelector("[data-pulso-main-services-inner]");
+    if (!el || !(el instanceof HTMLElement)) return;
+    const ro = new ResizeObserver(() => {
+      setInsightsMainNavWidth(el.getBoundingClientRect().width);
+    });
+    ro.observe(el);
+    setInsightsMainNavWidth(el.getBoundingClientRect().width);
+    return () => ro.disconnect();
+  }, []);
+
+  useLayoutEffect(() => {
+    if (activeService !== null) {
+      setInsightsFilterDockHeight(0);
+      return;
+    }
+    const el = insightsFilterDockRef.current;
+    if (!el) return;
+    const measure = () => setInsightsFilterDockHeight(el.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [activeService, insightsMainNavWidth, insightsFilter]);
   const handleInsightsWheel = useCallback((e: WheelEvent) => {
     const el = insightsZoomContainerRef.current;
     if (!el) return;
@@ -929,41 +957,58 @@ const Dashboard = () => {
       { key: "custom", icon: SlidersHorizontal, label: "Personalizado" },
     ];
 
+    const insightsFilterSpacerPx = insightsFilterDockHeight > 0 ? insightsFilterDockHeight : 72;
+
     return (
       <div className="pulso-insights-screen flex-1 min-h-0 flex flex-col overflow-hidden relative">
-        {/* Conteúdo rolável (cards + zoom) */}
-        <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
-        <div className="pulso-insights-filter-row flex flex-wrap items-center gap-2 py-3">
-          {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
+        <div
+          ref={insightsFilterDockRef}
+          className="pulso-insights-filter-bar-dock"
+          style={
+            insightsMainNavWidth != null
+              ? { width: `${Math.round(insightsMainNavWidth * 0.75)}px` }
+              : undefined
+          }
+        >
+          <div className="pulso-insights-filter-row flex flex-wrap items-center justify-center gap-2 py-3">
+            {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
+              <button
+                key={key}
+                type="button"
+                data-pulso-tab={key}
+                onClick={() => setInsightsFilter(key)}
+                className={cn(
+                  "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 h-9 min-w-[36px] text-xs",
+                  insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
+                )}
+                title={label}
+                aria-label={`Filtrar: ${label}`}
+                aria-pressed={insightsFilter === key}
+              >
+                <Icon className="shrink-0 h-4 w-4 pulso-service-tab-icon" strokeWidth={1.5} />
+                <span className="font-medium whitespace-nowrap text-xs">{label}</span>
+              </button>
+            ))}
             <button
-              key={key}
               type="button"
-              data-pulso-tab={key}
-              onClick={() => setInsightsFilter(key)}
-              className={cn(
-                "pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 h-9 min-w-[36px] text-xs",
-                insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
-              )}
-              title={label}
-              aria-label={`Filtrar: ${label}`}
-              aria-pressed={insightsFilter === key}
+              data-pulso-tab="export"
+              onClick={handleExportInsights}
+              className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
+              title="Baixar relatório"
+              aria-label="Baixar relatório do dashboard"
             >
-              <Icon className="shrink-0 h-4 w-4 pulso-service-tab-icon" strokeWidth={1.5} />
-              <span className="font-medium whitespace-nowrap text-xs">{label}</span>
+              <Download className="h-4 w-4 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
+              <span className="font-medium whitespace-nowrap">Exportar</span>
             </button>
-          ))}
-          <button
-            type="button"
-            data-pulso-tab="export"
-            onClick={handleExportInsights}
-            className="pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground gap-1.5 px-3 min-w-[36px] h-9 w-auto text-xs"
-            title="Baixar relatório"
-            aria-label="Baixar relatório do dashboard"
-          >
-            <Download className="h-4 w-4 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
-            <span className="font-medium whitespace-nowrap">Exportar</span>
-          </button>
+          </div>
         </div>
+        {/* Conteúdo rolável (cards + zoom); espaçador alinha com a barra fixa de filtros */}
+        <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
+          <div
+            className="shrink-0 w-full"
+            style={{ height: insightsFilterSpacerPx }}
+            aria-hidden
+          />
         <div
           ref={insightsZoomContainerRef}
           className={cn(

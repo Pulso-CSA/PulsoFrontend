@@ -56,17 +56,17 @@ const LogsPanel = () => {
   const [testEnvironment, setTestEnvironment] = useState<"docker" | "venv">("docker");
   const [isLoading, setIsLoading] = useState(false);
 
-  /** Paleta tipo consola: INF ciano, WRN âmbar, ERR vermelho. */
+  /** Paleta legível sobre fundo cinza claro (#D1D5DB): tons mais escuros. */
   const levelTagClass = (level: LogEntry["level"]) => {
     switch (level) {
       case "info":
-        return "text-cyan-400 font-semibold";
+        return "text-cyan-800 font-semibold";
       case "warning":
-        return "text-amber-400 font-semibold";
+        return "text-amber-800 font-semibold";
       case "error":
-        return "text-red-500 font-semibold";
+        return "text-red-700 font-semibold";
       default:
-        return "text-cyan-400/90 font-semibold";
+        return "text-cyan-800/90 font-semibold";
     }
   };
 
@@ -450,22 +450,22 @@ const LogsPanel = () => {
         </div>
 
         <div
-          className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_32px_rgba(0,0,0,0.35)]"
+          className="overflow-hidden rounded-2xl border border-slate-400/50 bg-[#D1D5DB] shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_6px_24px_rgba(15,23,42,0.08)]"
           aria-label="Saída de logs"
         >
-          <div className="border-b border-white/5 bg-white/[0.03] px-4 py-2">
-            <span className="font-mono text-[10px] font-medium uppercase tracking-widest text-white/35">
+          <div className="border-b border-slate-500/25 bg-slate-400/35 px-4 py-2">
+            <span className="font-mono text-[10px] font-medium uppercase tracking-widest text-slate-700">
               Console
             </span>
           </div>
           {terminalLogs.length === 0 ? (
             <div className="px-4 py-16 text-center">
-              <Terminal className="mx-auto mb-3 h-10 w-10 text-white/20" />
-              <p className="font-mono text-sm text-white/40">Nenhum log encontrado</p>
+              <Terminal className="mx-auto mb-3 h-10 w-10 text-slate-500/70" />
+              <p className="font-mono text-sm text-slate-600">Nenhum log encontrado</p>
             </div>
           ) : (
-            <div className="max-h-[min(420px,50vh)] overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 [scrollbar-color:rgba(255,255,255,0.2)_transparent] [scrollbar-width:thin]">
-              <div className="space-y-2.5 font-mono text-[13px] leading-relaxed tracking-normal sm:text-sm [font-feature-settings:'tnum'] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar]:w-1.5">
+            <div className="max-h-[min(420px,50vh)] overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 [scrollbar-color:rgba(71,85,105,0.45)_transparent] [scrollbar-width:thin]">
+              <div className="space-y-2.5 font-mono text-[13px] leading-relaxed tracking-normal sm:text-sm text-slate-900 [font-feature-settings:'tnum'] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-500/35 [&::-webkit-scrollbar]:w-1.5">
                 {terminalLogs.map((log) => {
                   const timeStr = log.timestamp.toLocaleTimeString("pt-BR", {
                     hour: "2-digit",
@@ -475,17 +475,17 @@ const LogsPanel = () => {
                   return (
                     <div
                       key={log.id}
-                      className="break-words rounded-md px-0.5 py-0.5 hover:bg-white/[0.04]"
+                      className="break-words rounded-md px-0.5 py-0.5 hover:bg-slate-500/15"
                     >
-                      <span className="tabular-nums text-[#dce775]">{timeStr}</span>
+                      <span className="tabular-nums text-amber-900">{timeStr}</span>
                       <span className={levelTagClass(log.level)}>
                         {" "}
                         {levelTagLabel(log.level)}
                       </span>
                       {log.source ? (
-                        <span className="text-teal-500/85"> [{log.source}]</span>
+                        <span className="text-teal-800"> [{log.source}]</span>
                       ) : null}
-                      <span className="text-white"> {log.message}</span>
+                      <span className="text-slate-900"> {log.message}</span>
                     </div>
                   );
                 })}
