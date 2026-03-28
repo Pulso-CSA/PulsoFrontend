@@ -9,13 +9,24 @@ if (process.platform === "win32") {
 
 let mainWindow;
 
-/** Caminhos candidatos ao ícone (Windows: preferir .ico — PNG na barra de tarefas costuma falhar). */
+/** Caminhos candidatos ao ícone (Windows: .ico com vários tamanhos; PNG na barra costuma falhar). */
 function resolveWindowIconPaths() {
   const appRoot = path.join(__dirname, "..");
   const candidates = [];
-  if (process.platform === "win32" && app.isPackaged) {
-    candidates.push(path.join(process.resourcesPath, "pulso-icon.ico"));
-    candidates.push(path.join(path.dirname(process.execPath), "resources", "pulso-icon.ico"));
+  if (process.platform === "win32") {
+    if (app.isPackaged) {
+      try {
+        candidates.push(path.join(app.getAppPath(), "public", "pulso-icon.ico"));
+      } catch {
+        /* ignora */
+      }
+    }
+    // Empacotado: ficheiro dentro do app.asar (public/** entra em files)
+    candidates.push(path.join(appRoot, "public", "pulso-icon.ico"));
+    if (app.isPackaged) {
+      candidates.push(path.join(process.resourcesPath, "pulso-icon.ico"));
+      candidates.push(path.join(path.dirname(process.execPath), "resources", "pulso-icon.ico"));
+    }
   }
   candidates.push(path.join(appRoot, "build", "icon.ico"));
   if (!app.isPackaged) {
@@ -23,26 +34,41 @@ function resolveWindowIconPaths() {
     candidates.push(path.join(appRoot, "public", "App.png"));
   }
   if (app.isPackaged) {
-    candidates.push(path.join(appRoot, "public", "App.png"));
     candidates.push(path.join(appRoot, "public", "favicon.ico"));
+    candidates.push(path.join(appRoot, "public", "App.png"));
   }
   const seen = new Set();
   const out = [];
   for (const p of candidates) {
     if (!p || seen.has(p)) continue;
     seen.add(p);
-    out.push(p);
+    try {
+      out.push(path.resolve(p));
+    } catch {
+      out.push(p);
+    }
   }
   return out;
 }
 
-/** nativeImage para BrowserWindow (obrigatório no Windows para o ícone da janela/overlay). */
+/** nativeImage para BrowserWindow (Windows: ícone da barra de tarefas segue a janela em apps sem frame). */
 function resolveWindowIcon() {
   for (const p of resolveWindowIconPaths()) {
     try {
       if (!fs.existsSync(p)) continue;
       const img = nativeImage.createFromPath(p);
       if (!img.isEmpty()) return img;
+    } catch {
+      /* próximo */
+    }
+  }
+  return undefined;
+}
+
+function resolveWindowIconPathString() {
+  for (const p of resolveWindowIconPaths()) {
+    try {
+      if (fs.existsSync(p)) return p;
     } catch {
       /* próximo */
     }
@@ -119,6 +145,8 @@ app.commandLine.appendSwitch("disable-logging");
 
 function createWindow() {
   Menu.setApplicationMenu(null);
+  const iconPathStr = resolveWindowIconPathString();
+  const iconImage = resolveWindowIcon();
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -131,7 +159,8 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.cjs"),
     },
-    icon: resolveWindowIcon(),
+    // Windows aceita caminho absoluto .ico; fallback para NativeImage
+    icon: iconPathStr ?? iconImage,
     show: false,
   });
 
@@ -236,8 +265,14 @@ function createWindow() {
   }
 
   mainWindow.once("ready-to-show", () => {
-    const icon = resolveWindowIcon();
-    if (icon) mainWindow.setIcon(icon);
+    const p = resolveWindowIconPathString();
+    const img = resolveWindowIcon();
+    if (process.platform === "win32") {
+      if (p) mainWindow.setIcon(p);
+      else if (img) mainWindow.setIcon(img);
+    } else if (img) {
+      mainWindow.setIcon(img);
+    }
     mainWindow.show();
   });
   mainWindow.on("closed", () => { mainWindow = null; });

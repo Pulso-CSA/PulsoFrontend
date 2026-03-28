@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { deployApi } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 interface LogEntry {
   id: string;
@@ -55,16 +56,17 @@ const LogsPanel = () => {
   const [testEnvironment, setTestEnvironment] = useState<"docker" | "venv">("docker");
   const [isLoading, setIsLoading] = useState(false);
 
+  /** Paleta tipo consola: INF ciano, WRN âmbar, ERR vermelho. */
   const levelTagClass = (level: LogEntry["level"]) => {
     switch (level) {
       case "info":
-        return "text-emerald-400";
+        return "text-cyan-400 font-semibold";
       case "warning":
-        return "text-amber-400";
+        return "text-amber-400 font-semibold";
       case "error":
-        return "text-red-400";
+        return "text-red-500 font-semibold";
       default:
-        return "text-emerald-400/80";
+        return "text-cyan-400/90 font-semibold";
     }
   };
 
@@ -273,19 +275,38 @@ const LogsPanel = () => {
     });
   };
 
+  const toolbarBtnClass = (enabled: boolean, extra?: string) =>
+    cn(
+      "h-[52px] w-[52px] sm:h-14 sm:w-14 shrink-0 rounded-xl border-0 shadow-md transition-all",
+      "flex items-center justify-center text-white",
+      enabled
+        ? "bg-slate-900 hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]"
+        : "cursor-not-allowed bg-slate-400/50 text-white/70 opacity-70 dark:bg-muted dark:text-muted-foreground",
+      extra
+    );
+
+  const LEVEL_FILTERS: { key: string; label: string }[] = [
+    { key: "all", label: "Todos" },
+    { key: "info", label: "Info" },
+    { key: "warning", label: "Warning" },
+    { key: "error", label: "Error" },
+  ];
+
   return (
     <div className="space-y-5">
-      <div className="glass-strong pulso-card rounded-2xl p-6 border-primary/20">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Terminal className="h-6 w-6 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">
-              Controle de Logs
-            </h2>
+      <div className="glass-strong pulso-card rounded-2xl border-primary/20 p-5 shadow-sm sm:p-7">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 font-mono text-lg font-bold tracking-tight text-foreground">
+              <span className="text-primary" aria-hidden>
+                &gt;_
+              </span>
+              <Terminal className="h-6 w-6 shrink-0 text-primary" aria-hidden />
+              <h2 className="text-xl font-bold text-foreground sm:text-[1.35rem]">Controle de Logs</h2>
+            </div>
             {environmentStatus === "running" && environmentType && (
-              <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary border border-primary/30">
-                {environmentType === "docker" ? "Docker" : "venv"} • rodando
+              <span className="rounded-full border border-primary/30 bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary">
+                {environmentType === "docker" ? "Docker" : "venv"} · rodando
               </span>
             )}
           </div>
@@ -294,214 +315,206 @@ const LogsPanel = () => {
             size="default"
             onClick={clearLogs}
             disabled={isLoading}
-            className="border-destructive/40 hover:border-destructive hover:bg-destructive/10 text-destructive disabled:opacity-50 min-h-[40px] gap-2"
+            className="w-full shrink-0 gap-2 border-destructive/45 bg-background/80 text-destructive hover:bg-destructive/10 hover:text-destructive sm:w-auto"
           >
             <Trash2 className="h-4 w-4" />
             Limpar Logs
           </Button>
         </div>
 
-        {/* Switch Docker/venv */}
-        <div className="mb-6 flex items-center gap-4 p-5 glass border border-primary/20 rounded-xl">
-          <Label className="text-base font-medium text-foreground">
-            Ambiente de teste:
-          </Label>
-          <div className="flex items-center gap-3">
-            <span className={`text-sm font-medium transition-colors ${
-              testEnvironment === "docker" ? "text-blue-500" : "text-muted-foreground"
-            }`}>
-              Docker
-            </span>
-            <Switch
-              checked={testEnvironment === "venv"}
-              onCheckedChange={(checked) => setTestEnvironment(checked ? "venv" : "docker")}
-              className={
-                testEnvironment === "venv"
-                  ? "data-[state=checked]:bg-emerald-500"
-                  : "data-[state=unchecked]:bg-blue-500"
-              }
-            />
-            <span className={`text-sm font-medium transition-colors ${
-              testEnvironment === "venv" ? "text-emerald-500" : "text-muted-foreground"
-            }`}>
-              venv
-            </span>
+        <div className="mb-6 rounded-xl border border-border/60 bg-muted/40 px-4 py-4 sm:px-5">
+          <div className="flex flex-wrap items-center gap-4">
+            <Label className="text-sm font-medium text-foreground sm:text-base">Ambiente de teste:</Label>
+            <div className="flex flex-1 items-center justify-center gap-3 sm:justify-start">
+              <span
+                className={cn(
+                  "text-sm font-semibold transition-colors",
+                  testEnvironment === "docker" ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"
+                )}
+              >
+                Docker
+              </span>
+              <Switch
+                checked={testEnvironment === "venv"}
+                onCheckedChange={(checked) => setTestEnvironment(checked ? "venv" : "docker")}
+                className={
+                  testEnvironment === "venv"
+                    ? "data-[state=checked]:bg-emerald-500"
+                    : "data-[state=unchecked]:bg-blue-500"
+                }
+              />
+              <span
+                className={cn(
+                  "text-sm font-semibold transition-colors",
+                  testEnvironment === "venv" ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                )}
+              >
+                venv
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Controles de Ambiente */}
-        <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-          <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="pulso"
-              size="default"
-              onClick={fetchLogs}
-              disabled={isLoading}
-              className="min-h-[42px] gap-2"
-            >
-              <Download className="h-4 w-4 shrink-0" />
-              <span className="sr-only">Buscar Logs</span>
-            </Button>
-            <span className="text-[11px] leading-tight text-muted-foreground">
-              Buscar Logs
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="pulso"
-              size="default"
-              onClick={toggleAppLogs}
-              className={`min-h-[42px] gap-2 ${showAppLogs ? "bg-primary/20 border-primary" : ""}`}
-            >
-              <FileText className="h-4 w-4 shrink-0" />
-              <span className="sr-only">Logs da App</span>
-            </Button>
-            <span className="text-[11px] leading-tight text-muted-foreground">
-              Logs da App
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="pulso"
-              size="default"
-              onClick={handleStartEnvironment}
-              disabled={environmentStatus === "running" || isLoading}
-              className="min-h-[42px] gap-2"
-            >
-              <Play className="h-4 w-4 shrink-0" />
-              <span className="sr-only">Subir ambiente</span>
-            </Button>
-            <span className="text-[11px] leading-tight text-muted-foreground">
-              Subir
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="pulso"
-              size="default"
-              onClick={handleRestartEnvironment}
-              disabled={environmentStatus === "stopped" || isLoading}
-              className="min-h-[42px] gap-2"
-            >
-              <RotateCw className="h-4 w-4 shrink-0" />
-              <span className="sr-only">Reiniciar ambiente</span>
-            </Button>
-            <span className="text-[11px] leading-tight text-muted-foreground">
-              Reiniciar
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="pulso"
-              size="default"
-              onClick={handleStopEnvironment}
-              disabled={environmentStatus === "stopped" || isLoading}
-              className="min-h-[42px] gap-2"
-            >
-              <Power className="h-4 w-4 shrink-0" />
-              <span className="sr-only">Desligar ambiente</span>
-            </Button>
-            <span className="text-[11px] leading-tight text-muted-foreground">
-              Desligar
-            </span>
-          </div>
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5 sm:gap-3">
+          {[
+            {
+              key: "fetch",
+              label: "Buscar Logs",
+              icon: Download,
+              onClick: fetchLogs,
+              enabled: !isLoading,
+            },
+            {
+              key: "app",
+              label: "Logs da App",
+              icon: FileText,
+              onClick: toggleAppLogs,
+              enabled: true,
+              active: showAppLogs,
+            },
+            {
+              key: "start",
+              label: "Subir",
+              icon: Play,
+              onClick: handleStartEnvironment,
+              enabled: environmentStatus !== "running" && !isLoading,
+            },
+            {
+              key: "restart",
+              label: "Reiniciar",
+              icon: RotateCw,
+              onClick: handleRestartEnvironment,
+              enabled: environmentStatus !== "stopped" && !isLoading,
+            },
+            {
+              key: "stop",
+              label: "Desligar",
+              icon: Power,
+              onClick: handleStopEnvironment,
+              enabled: environmentStatus !== "stopped" && !isLoading,
+            },
+          ].map(({ key, label, icon: Icon, onClick, enabled, active }) => (
+            <div key={key} className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={onClick}
+                disabled={!enabled}
+                className={toolbarBtnClass(
+                  !!enabled,
+                  active ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
+                )}
+              >
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                <span className="sr-only">{label}</span>
+              </button>
+              <span className="text-center text-[11px] font-medium leading-tight text-muted-foreground sm:text-xs">
+                {label}
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div className="relative">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="relative min-w-0 flex-1">
+            <Filter className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Filtrar logs..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="pl-12 h-11 text-base border-primary/30 bg-background/50 focus-visible:ring-primary"
+              className="h-11 rounded-xl border-border/80 bg-background/80 pl-11 text-base shadow-sm focus-visible:ring-primary"
             />
           </div>
-          <div className="flex gap-3 flex-wrap">
-            {["all", "info", "warning", "error"].map((level) => {
-              const label = level === "all" ? "Todos" : level;
-              const isActive = levelFilter === level;
+          <div className="flex flex-wrap gap-2">
+            {LEVEL_FILTERS.map(({ key, label }) => {
+              const isActive = levelFilter === key;
               return (
-                <div key={level} className="flex flex-col items-center gap-1">
-                  <Button
-                    variant="pulso"
-                    size="default"
-                    onClick={() => setLevelFilter(level)}
-                    className={`shrink-0 min-h-[36px] px-3 ${isActive ? "bg-primary/20 border-primary" : ""}`}
-                    aria-pressed={isActive}
-                  >
-                    <span className="sr-only">{label}</span>
-                  </Button>
-                  <span className="text-[11px] leading-tight text-muted-foreground capitalize">
-                    {label}
-                  </span>
-                </div>
+                <Button
+                  key={key}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLevelFilter(key)}
+                  aria-pressed={isActive}
+                  className={cn(
+                    "h-9 min-w-[4.25rem] rounded-lg border-slate-800 bg-slate-900 px-3 text-xs font-medium text-white shadow-sm hover:bg-slate-800 hover:text-white",
+                    "dark:border-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700",
+                    isActive &&
+                      "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground dark:border-primary"
+                  )}
+                >
+                  {label}
+                </Button>
               );
             })}
           </div>
         </div>
 
-        {/* Terminal (estilo sessão ativa — fundo escuro, mono, timestamps em verde) */}
         <div
-          className="rounded-xl border border-white/10 bg-[#080c12] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden"
+          className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_32px_rgba(0,0,0,0.35)]"
           aria-label="Saída de logs"
         >
+          <div className="border-b border-white/5 bg-white/[0.03] px-4 py-2">
+            <span className="font-mono text-[10px] font-medium uppercase tracking-widest text-white/35">
+              Console
+            </span>
+          </div>
           {terminalLogs.length === 0 ? (
-            <div className="text-center py-14 px-4">
-              <Terminal className="h-10 w-10 mx-auto mb-3 text-emerald-500/40" />
-              <p className="text-sm font-mono text-slate-500">Nenhum log encontrado</p>
+            <div className="px-4 py-16 text-center">
+              <Terminal className="mx-auto mb-3 h-10 w-10 text-white/20" />
+              <p className="font-mono text-sm text-white/40">Nenhum log encontrado</p>
             </div>
           ) : (
-            <div className="p-4 sm:p-5 font-mono text-[13px] sm:text-sm leading-relaxed space-y-2 text-left [font-feature-settings:'tnum']">
-              {terminalLogs.map((log) => {
-                const timeStr = log.timestamp.toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                });
-                return (
-                  <div key={log.id} className="break-words">
-                    <span className="text-emerald-400 tabular-nums">{timeStr}</span>
-                    <span className={`${levelTagClass(log.level)}`}>
-                      {" "}
-                      {levelTagLabel(log.level)}
-                    </span>
-                    {log.source ? (
-                      <span className="text-emerald-500/70"> [{log.source}]</span>
-                    ) : null}
-                    <span className="text-slate-100"> {log.message}</span>
-                  </div>
-                );
-              })}
+            <div className="max-h-[min(420px,50vh)] overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-5 sm:py-5 [scrollbar-color:rgba(255,255,255,0.2)_transparent] [scrollbar-width:thin]">
+              <div className="space-y-2.5 font-mono text-[13px] leading-relaxed tracking-normal sm:text-sm [font-feature-settings:'tnum'] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar]:w-1.5">
+                {terminalLogs.map((log) => {
+                  const timeStr = log.timestamp.toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  });
+                  return (
+                    <div
+                      key={log.id}
+                      className="break-words rounded-md px-0.5 py-0.5 hover:bg-white/[0.04]"
+                    >
+                      <span className="tabular-nums text-[#dce775]">{timeStr}</span>
+                      <span className={levelTagClass(log.level)}>
+                        {" "}
+                        {levelTagLabel(log.level)}
+                      </span>
+                      {log.source ? (
+                        <span className="text-teal-500/85"> [{log.source}]</span>
+                      ) : null}
+                      <span className="text-white"> {log.message}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Footer com stats */}
-        <div className="mt-4 pt-4 border-t border-primary/20 flex justify-between text-sm text-muted-foreground">
-          <span>Total: {filteredLogs.length} logs</span>
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-primary"></div>
+        <div className="mt-5 flex flex-col gap-3 border-t border-border/60 pt-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <span className="font-medium text-foreground/80">
+            Total: <span className="tabular-nums">{filteredLogs.length}</span>{" "}
+            {filteredLogs.length === 1 ? "log" : "logs"}
+          </span>
+          <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs sm:text-sm">
+            <span className="flex items-center gap-2">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-cyan-400" />
               {logs.filter((l) => l.level === "info").length} info
             </span>
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-warning"></div>
+            <span className="flex items-center gap-2">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" />
               {logs.filter((l) => l.level === "warning").length} warning
             </span>
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-destructive"></div>
+            <span className="flex items-center gap-2">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
               {logs.filter((l) => l.level === "error").length} error
             </span>
           </div>
         </div>
       </div>
-
     </div>
   );
 };

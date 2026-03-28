@@ -31,8 +31,11 @@ async function writeIcons() {
   fs.writeFileSync(outputPath, buf);
   const publicFavicon = path.join(rootDir, "public", "favicon.ico");
   fs.copyFileSync(outputPath, publicFavicon);
+  const publicPulsoIco = path.join(rootDir, "public", "pulso-icon.ico");
+  fs.copyFileSync(outputPath, publicPulsoIco);
   console.log("Ícone gerado:", outputPath);
   console.log("Favicon atualizado:", publicFavicon);
+  console.log("public/pulso-icon.ico (Electron barra de tarefas):", publicPulsoIco);
 }
 
 writeIcons().catch((err) => {

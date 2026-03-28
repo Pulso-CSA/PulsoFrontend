@@ -1,6 +1,6 @@
 /**
- * Hook afterPack: aplica rcedit no Pulso.exe ANTES do NSIS/portable empacotarem.
- * Sem isto, o instalador leva o .exe com ícone padrão do Electron (signAndEditExecutable: false).
+ * Hook afterPack: aplica rcedit (pacote npm) no Pulso.exe ANTES do NSIS empacotar.
+ * signAndEditExecutable: true obriga extrair winCodeSign.7z (symlinks falham sem admin).
  */
 const path = require("path");
 const fs = require("fs");
