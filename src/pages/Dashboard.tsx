@@ -88,12 +88,6 @@ type InsightsChatHistoryItem = {
   assistantMessage?: string;
 };
 
-const INSIGHTS_WIDGETS_INITIAL: InsightsWidget[] = [
-  { id: "post-views", title: "Post Views", value: "2,012", trend: "+12.3%", period: "Últimas 24h", chartType: "area", insights: ["O pico de visualizações ocorre entre 12h e 14h.", "Considere agendar posts nesse horário para maximizar alcance."], serviceFilter: "pulso", analysisSummary: "Visualizações de posts ao longo do dia.", technicalConclusion: "Pico entre 12h–14h; recomendado agendar publicações nesse intervalo." },
-  { id: "conversoes", title: "Conversões", value: "1,245", trend: "+8.1%", period: "Últimos 7 dias", chartType: "bar", insights: ["Taxa de conversão está acima da média do setor.", "O funil sugere que o checkout pode ser simplificado."], serviceFilter: "data", analysisSummary: "Conversões por período.", technicalConclusion: "Taxa acima da média; oportunidade de simplificar checkout." },
-  { id: "sales", title: "Sales", value: "39,500", trend: "+20%", period: "Este mês", chartType: "progress", progressPercent: 76, insights: ["Volume de conversas está estável nesta semana.", "Tempo médio de resposta pode ser reduzido com automação."], serviceFilter: "finops", analysisSummary: "Progresso de vendas no mês.", technicalConclusion: "Volume estável; automação pode reduzir tempo de resposta." },
-];
-
 const INSIGHTS_V1_SESSION_STORAGE_KEY = "pulso_insights_v1_session_id";
 
 const buildInsightsRequestId = () =>
@@ -202,7 +196,7 @@ const Dashboard = () => {
   const [rootPathForPreview, setRootPathForPreview] = useState<string | null>(null);
   const [previewStartLoading, setPreviewStartLoading] = useState(false);
 
-  const [insightsWidgets, setInsightsWidgets] = useState<InsightsWidget[]>(() => INSIGHTS_WIDGETS_INITIAL);
+  const [insightsWidgets, setInsightsWidgets] = useState<InsightsWidget[]>(() => []);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insightsGenerating, setInsightsGenerating] = useState(false);
   const [insightsZoom, setInsightsZoom] = useState(1);
@@ -418,7 +412,7 @@ const Dashboard = () => {
         }
 
         if (!sessionId) {
-          if (!cancelled) setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
+          if (!cancelled) setInsightsWidgets([]);
           return;
         }
 
@@ -433,7 +427,7 @@ const Dashboard = () => {
         persistInsightsV1Session(sessionId);
 
         if (!parsed.length) {
-          if (!cancelled) setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
+          if (!cancelled) setInsightsWidgets([]);
           return;
         }
 
@@ -459,7 +453,7 @@ const Dashboard = () => {
             title: t("dashboard.insightsV1"),
             description: err instanceof Error ? err.message : t("dashboard.insightsV1SyncFail"),
           });
-          setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
+          setInsightsWidgets([]);
         }
       } finally {
         if (!cancelled) setInsightsLoading(false);
@@ -1058,7 +1052,7 @@ const Dashboard = () => {
         <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
           <div
             className="shrink-0 w-full"
-            style={{ height: `calc(0.5rem + ${insightsFilterSpacerPx}px)` }}
+            style={{ height: `calc(10px + ${insightsFilterSpacerPx}px)` }}
             aria-hidden
           />
         {insightsFilteredWidgets.length > 0 && (

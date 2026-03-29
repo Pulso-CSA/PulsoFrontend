@@ -34,6 +34,7 @@ import {
 } from "@/lib/uiLanguages";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
+import { resolveInitialI18nLng } from "@/lib/i18nLanguages";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -67,8 +68,12 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const [uiLang, setUiLang] = useState(() => getStoredUiLanguage());
 
   useEffect(() => {
-    if (open) {
-      setUiLang(getStoredUiLanguage());
+    if (!open) return;
+    const stored = getStoredUiLanguage();
+    setUiLang(stored);
+    const lng = resolveInitialI18nLng(stored);
+    if (i18n.language !== lng) {
+      void i18n.changeLanguage(lng);
     }
   }, [open]);
 

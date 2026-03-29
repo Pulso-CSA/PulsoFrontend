@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Send, Database, ChevronDown, ChevronUp, BarChart3, Brain, RefreshCw, Trash2, Plus, MessageSquare } from "lucide-react";
 import { DataChatCharts } from "./DataChatCharts";
 import { DataChatML, stripMarkdown } from "./DataChatML";
@@ -273,6 +274,7 @@ function formatarEstrutura(
 const DataChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<DataChatSession[]>(() => loadDataChatSessions());
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -577,11 +579,18 @@ const DataChat = () => {
               onClick={async () => {
                 const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
                 const result = await exportReport({ serviceId: "dados-ia", messages: msgs, format: "md" });
-                toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+                toast({
+                  title: result === "saved" ? t("pulsoCsa.reportSaved") : t("pulsoCsa.reportDownloaded"),
+                  description: result === "saved" ? t("pulsoCsa.reportSavedDesc") : t("pulsoCsa.reportDownloadStarted"),
+                });
               }}
               disabled={messages.length === 0}
               className="showcase-download-report-btn--compact shrink-0"
-            />
+              aria-label={t("dashboard.exportReportAria")}
+              title={t("dashboard.exportReportTitle")}
+            >
+              {t("dashboard.exportReportTitle")}
+            </DownloadReportButton>
             <button
               type="button"
               onClick={() => setShowConnection(!showConnection)}

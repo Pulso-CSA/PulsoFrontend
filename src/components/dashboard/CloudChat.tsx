@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Copy, FolderOpen, FileCode, CloudCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
@@ -33,6 +34,7 @@ function restoreMessages(messages: (Omit<Message, "timestamp"> & { timestamp: st
 const CloudChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<CloudSession[]>(() => getCloudChatSessions());
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -323,11 +325,18 @@ const CloudChat = () => {
             onClick={async () => {
               const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
               const result = await exportReport({ serviceId: "cloud", messages: msgs, format: "md" });
-              toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Arquivo baixado" });
+              toast({
+                title: result === "saved" ? t("pulsoCsa.reportSaved") : t("pulsoCsa.reportDownloaded"),
+                description: result === "saved" ? t("pulsoCsa.reportSavedDesc") : t("pulsoCsa.reportDownloadStarted"),
+              });
             }}
             disabled={messages.length === 0}
             className="showcase-download-report-btn--compact shrink-0"
-          />
+            aria-label={t("dashboard.exportReportAria")}
+            title={t("dashboard.exportReportTitle")}
+          >
+            {t("dashboard.exportReportTitle")}
+          </DownloadReportButton>
         </div>
       </div>
 

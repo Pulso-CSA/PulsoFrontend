@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Send, Copy, FolderOpen, FileCode, Plus, X, Upload, TestTube, Play, Workflow, ChevronDown, Loader2 } from "lucide-react";
 import { Elemento10DeleteButton } from "@/components/ui/Elemento10DeleteButton";
 import { Button } from "@/components/ui/button";
@@ -250,6 +251,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const timeLocale = i18n.language?.replace(/_/g, "-") || "pt-BR";
 
   // Scroll apenas na lista de mensagens (sem afetar header/sidebar/layout)
   useEffect(() => {
@@ -313,8 +316,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const addEnvVariable = () => {
     if (!newVarName.trim() || !newVarValue.trim()) {
       toast({
-        title: "Campos vazios",
-        description: "Preencha o nome e o valor da variável",
+        title: t("pulsoCsa.emptyEnvTitle"),
+        description: t("pulsoCsa.emptyEnvDesc"),
         variant: "destructive",
       });
       return;
@@ -322,8 +325,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
 
     if (envVars.some(v => v.name === newVarName)) {
       toast({
-        title: "Variável duplicada",
-        description: "Uma variável com este nome já existe",
+        title: t("pulsoCsa.dupEnvTitle"),
+        description: t("pulsoCsa.dupEnvDesc"),
         variant: "destructive",
       });
       return;
@@ -359,7 +362,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                 useAngular,
               },
               updatedAt: new Date().toISOString(),
-              title: s.title || msgs.find((m) => m.role === "user")?.content?.slice(0, 50) || "Novo chat",
+              title: s.title || msgs.find((m) => m.role === "user")?.content?.slice(0, 50) || t("pulsoCsa.newChat"),
             }
           : s
       )
@@ -369,7 +372,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const handleNewChat = () => {
     if (messages.length > 0 && !currentSessionId) {
       const id = `csa-${Date.now()}`;
-      const title = messages[0]?.content?.slice(0, 50) || "Novo chat";
+      const title = messages[0]?.content?.slice(0, 50) || t("pulsoCsa.newChat");
       setSessions((prev) => [
         ...prev,
         {
@@ -444,8 +447,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
     if (!promptText) return;
     if (!user?.id) {
       toast({
-        title: "Usuário não autenticado",
-        description: "Faça login para enviar o prompt",
+        title: t("pulsoCsa.notAuthTitle"),
+        description: t("pulsoCsa.notAuthDesc"),
         variant: "destructive",
       });
       return;
@@ -553,23 +556,27 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
       setHistory((prev) => [newEntry, ...prev.slice(0, 4)]);
 
       toast({
-        title: res.intent === "EXECUTAR" && res.should_execute ? "Executado" : "Resposta recebida",
+        title: res.intent === "EXECUTAR" && res.should_execute ? t("pulsoCsa.executedTitle") : t("pulsoCsa.responseReceivedTitle"),
         description: res.next_action || undefined,
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Tente novamente";
-      const is400 = msg.includes("400") || msg.toLowerCase().includes("vazio") || msg.toLowerCase().includes("obrigatório");
+      const msg = err instanceof Error ? err.message : t("pulsoCsa.tryAgain");
+      const is400 =
+        msg.includes("400") ||
+        msg.toLowerCase().includes("vazio") ||
+        msg.toLowerCase().includes("obrigatório") ||
+        msg.toLowerCase().includes("required");
       const errMsg: ChatMessage = {
         id: `s-${Date.now()}`,
         role: "system",
-        content: is400 ? `Validação: ${msg}` : `Erro: ${msg}`,
+        content: is400 ? `${t("pulsoCsa.validationPrefix")} ${msg}` : `${t("pulsoCsa.errorPrefix")} ${msg}`,
         timestamp: new Date(),
       };
       const allMessages = [...nextMessages, errMsg];
       setMessages(allMessages);
       syncToSession(allMessages, fileStructure, rawFileTree);
       toast({
-        title: is400 ? "Dados inválidos" : "Erro ao enviar prompt",
+        title: is400 ? t("pulsoCsa.invalidDataTitle") : t("pulsoCsa.sendErrorTitle"),
         description: msg,
         variant: "destructive",
       });
@@ -586,8 +593,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
     if (requestId) {
       navigator.clipboard.writeText(requestId);
       toast({
-        title: "ID copiado",
-        description: "ID da requisição copiado para a área de transferência",
+        title: t("pulsoCsa.idCopiedTitle"),
+        description: t("pulsoCsa.idCopiedDesc"),
       });
     }
   };
@@ -625,8 +632,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           return Array.from(existing.values());
         });
         toast({
-          title: "Arquivo carregado",
-          description: `${newVars.length} variável(eis) importada(s)`,
+          title: t("pulsoCsa.envLoadedTitle"),
+          description: t("pulsoCsa.envLoadedDesc", { count: newVars.length }),
         });
       }
     };
@@ -650,8 +657,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
       handleEnvFileUpload(fakeEvent);
     } else {
       toast({
-        title: "Arquivo inválido",
-        description: "Por favor, envie um arquivo .env",
+        title: t("pulsoCsa.badFileTitle"),
+        description: t("pulsoCsa.badFileDesc"),
         variant: "destructive",
       });
     }
@@ -660,8 +667,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const handleCopyCurl = (curl: string) => {
     navigator.clipboard.writeText(curl);
     toast({
-      title: "cURL copiado",
-      description: "Comando copiado para a área de transferência",
+      title: t("pulsoCsa.curlCopiedTitle"),
+      description: t("pulsoCsa.curlCopiedDesc"),
     });
   };
 
@@ -671,21 +678,23 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
     try {
       const result = await executeCurl(curl);
       if (result.ok) {
+        const snippet = `${result.body.slice(0, 100)}${result.body.length > 100 ? "..." : ""}`;
         toast({
-          title: "cURL executado",
-          description: `Status ${result.status}. Resposta: ${result.body.slice(0, 100)}${result.body.length > 100 ? "..." : ""}`,
+          title: t("pulsoCsa.curlOkTitle"),
+          description: t("pulsoCsa.curlOkDesc", { status: result.status, snippet }),
         });
       } else {
+        const snippet = result.body.slice(0, 150);
         toast({
-          title: "cURL retornou erro",
-          description: `Status ${result.status}: ${result.body.slice(0, 150)}`,
+          title: t("pulsoCsa.curlErrTitle"),
+          description: t("pulsoCsa.curlErrDesc", { status: result.status, snippet }),
           variant: "destructive",
         });
       }
     } catch (err) {
       toast({
-        title: "Erro ao executar cURL",
-        description: err instanceof Error ? err.message : "Falha na execução",
+        title: t("pulsoCsa.curlExecFailTitle"),
+        description: err instanceof Error ? err.message : t("pulsoCsa.curlExecFailDesc"),
         variant: "destructive",
       });
     } finally {
@@ -705,20 +714,25 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
     ? `curl -X POST "${apiBase}/comprehension/run" -H "Content-Type: application/json" -d '${comprehensionPayload.replace(/'/g, "'\\''")}'`
     : null;
 
-  const fallbackCurls = [
-    ...(comprehensionCurl
-      ? [{ name: "Comprehension Run (atual)", curl: comprehensionCurl }]
-      : []),
-    { name: "Health Check", curl: `curl -X GET ${apiBase}/health` },
-    { name: "API Status", curl: `curl -X GET ${apiBase}/api/status` },
-    { name: "List Users", curl: `curl -X GET ${apiBase}/api/users` },
-    { name: "Create User", curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'` },
-    { name: "Upload File", curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"` },
-  ];
+  const fallbackCurls = useMemo(
+    () => [
+      ...(comprehensionCurl ? [{ name: t("pulsoCsa.curlComprehensionCurrent"), curl: comprehensionCurl }] : []),
+      { name: t("pulsoCsa.curlHealth"), curl: `curl -X GET ${apiBase}/health` },
+      { name: t("pulsoCsa.curlApiStatus"), curl: `curl -X GET ${apiBase}/api/status` },
+      { name: t("pulsoCsa.curlListUsers"), curl: `curl -X GET ${apiBase}/api/users` },
+      {
+        name: t("pulsoCsa.curlCreateUser"),
+        curl: `curl -X POST ${apiBase}/api/users -H "Content-Type: application/json" -d '{"name": "John Doe", "email": "john@example.com"}'`,
+      },
+      { name: t("pulsoCsa.curlUploadFile"), curl: `curl -X POST ${apiBase}/api/upload -F "file=@/path/to/file.pdf"` },
+    ],
+    [apiBase, comprehensionCurl, t]
+  );
 
-  const displayCurls = curlCommands.length > 0
-    ? curlCommands.map((curl, i) => ({ name: `Comando ${i + 1}`, curl }))
-    : fallbackCurls;
+  const displayCurls =
+    curlCommands.length > 0
+      ? curlCommands.map((curl, i) => ({ name: t("pulsoCsa.commandN", { n: i + 1 }), curl }))
+      : fallbackCurls;
 
   const sessionItems = sessions.map((s) => ({
     id: s.id,
@@ -738,7 +752,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           onDelete={handleDeleteSession}
           onNewChat={handleNewChat}
           onRename={handleRenameSession}
-          emptyMessage="Nenhum chat ainda"
+          emptyMessage={t("pulsoCsa.emptyChats")}
         />
       </div>
 
@@ -749,10 +763,10 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
             <div className="min-w-0 flex-1">
               <h2 className="text-base font-semibold flex items-center gap-1.5 text-primary truncate">
                 <Workflow className="h-4 w-4 shrink-0 text-primary" />
-                Pulso CSA
+                {t("dashboard.services.pulso")}
               </h2>
               <p className="text-xs text-foreground/70 mt-0.5 truncate">
-                Blueprint e estrutura de projetos · Alt+P
+                {t("pulsoCsa.subtitle")}
               </p>
             </div>
             {(fileStructure?.length || rawFileTree?.trim()) ? (
@@ -768,12 +782,24 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                 if (messages.length === 0) return;
                 const msgs = messages.map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp }));
                 const result = await exportReport({ serviceId: "pulso-csa", messages: msgs, format: "md" });
-                toast({ title: result === "saved" ? "Relatório salvo" : "Relatório baixado", description: result === "saved" ? "Salvo em C:\\Users\\pytho\\Desktop\\Study\\docs" : "Download iniciado" });
+                toast({
+                  title: result === "saved" ? t("pulsoCsa.reportSaved") : t("pulsoCsa.reportDownloaded"),
+                  description: result === "saved" ? t("pulsoCsa.reportSavedDesc") : t("pulsoCsa.reportDownloadStarted"),
+                });
               }}
               disabled={messages.length === 0}
               className="showcase-download-report-btn--compact"
+              aria-label={t("dashboard.exportReportAria")}
+              title={t("dashboard.exportReportTitle")}
+            >
+              {t("dashboard.exportReportTitle")}
+            </DownloadReportButton>
+            <Elemento10DeleteButton
+              onClick={handleClear}
+              disabled={messages.length === 0 && !requestId}
+              compact
+              aria-label={t("pulsoCsa.clearChatAria")}
             />
-            <Elemento10DeleteButton onClick={handleClear} disabled={messages.length === 0 && !requestId} compact />
           </div>
         </div>
 
@@ -782,7 +808,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           <CollapsibleTrigger className="pulso-chat-main-fixed-section w-full p-3 flex items-center justify-between shrink-0 hover:bg-primary/5 transition-colors">
             <span className="text-sm font-medium text-foreground/85 flex items-center gap-2">
               <FolderOpen className="h-4 w-4 text-primary" />
-              Configuração (pasta, .env)
+              {t("pulsoCsa.configCollapsible")}
             </span>
             <ChevronDown className="h-4 w-4 text-foreground/65" />
           </CollapsibleTrigger>
@@ -790,7 +816,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
             <div className="pulso-csa-config-scroll shrink-0 border-t border-primary/10">
             <div className="p-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="folder-path" className="text-sm font-medium">Caminho da pasta raiz</Label>
+                <Label htmlFor="folder-path" className="text-sm font-medium">{t("pulsoCsa.rootFolderLabel")}</Label>
                 <div className="relative w-full overflow-visible showcase-search-poda--prompt showcase-search-poda--toolbar">
                   <div className="showcase-search-poda w-full">
                     <div className="showcase-search-glow" aria-hidden />
@@ -803,11 +829,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                       <input
                         id="folder-path"
                         type="text"
-                        placeholder="Ex.: C:\Users\pytho\Desktop\Study\Github Repos\PulsoAPI"
+                        placeholder={t("pulsoCsa.rootFolderPlaceholder")}
                         value={folderPath}
                         onChange={(e) => setFolderPath(e.target.value)}
                         className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
-                        aria-label="Caminho da pasta raiz"
+                        aria-label={t("pulsoCsa.rootFolderAria")}
                       />
                       <FolderFileUpload
                         compact
@@ -825,15 +851,15 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Variáveis de Ambiente</Label>
+                  <Label className="text-sm font-medium">{t("pulsoCsa.envVarsLabel")}</Label>
                   <input ref={fileInputRef} type="file" accept=".env,text/plain" onChange={handleEnvFileUpload} className="hidden" />
                   <Button variant="pulso" size="sm" onClick={() => fileInputRef.current?.click()} className="h-8 text-xs">
                     <Upload className="h-3 w-3 mr-1" />
-                    Carregar .env
+                    {t("pulsoCsa.loadEnv")}
                   </Button>
                 </div>
                 <div onDragOver={handleDragOver} onDrop={handleDrop} className="border-2 border-dashed border-primary/30 rounded-lg p-3 text-center bg-background/30 hover:border-primary/50 transition-colors">
-                  <p className="text-xs text-foreground/72">Arraste um .env aqui ou use o botão acima</p>
+                  <p className="text-xs text-foreground/72">{t("pulsoCsa.dragEnvHint")}</p>
                 </div>
                 {envVars.length > 0 && (
                   <div className="border border-primary/30 rounded-lg overflow-hidden bg-background/50">
@@ -841,8 +867,8 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                       <table className="w-full">
                         <thead className="bg-primary/10 sticky top-0">
                           <tr>
-                            <th className="text-left text-xs font-semibold px-3 py-2 border-b border-primary/20">Nome</th>
-                            <th className="text-left text-xs font-semibold px-3 py-2 border-b border-primary/20">Valor</th>
+                            <th className="text-left text-xs font-semibold px-3 py-2 border-b border-primary/20">{t("pulsoCsa.tableName")}</th>
+                            <th className="text-left text-xs font-semibold px-3 py-2 border-b border-primary/20">{t("pulsoCsa.tableValue")}</th>
                             <th className="w-12 border-b border-primary/20"></th>
                           </tr>
                         </thead>
@@ -854,7 +880,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                               <td className="px-3 py-2">
                                 <Button variant="ghost" size="sm" onClick={() => removeEnvVariable(index)} className="h-7 gap-1 text-xs text-destructive hover:bg-destructive/10">
                                   <X className="h-4 w-4 shrink-0" />
-                                  <span>Remover</span>
+                                  <span>{t("pulsoCsa.remove")}</span>
                                 </Button>
                               </td>
                             </tr>
@@ -865,11 +891,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   </div>
                 )}
                 <div className="grid grid-cols-[1fr,1fr,auto] gap-2">
-                  <Input placeholder="Nome (ex: API_KEY)" value={newVarName} onChange={(e) => setNewVarName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50 placeholder:text-foreground/55" />
-                  <Input placeholder="Valor" value={newVarValue} onChange={(e) => setNewVarValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50 placeholder:text-foreground/55" />
+                  <Input placeholder={t("pulsoCsa.placeholderEnvName")} value={newVarName} onChange={(e) => setNewVarName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50 placeholder:text-foreground/55" />
+                  <Input placeholder={t("pulsoCsa.placeholderValue")} value={newVarValue} onChange={(e) => setNewVarValue(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addEnvVariable()} className="border-primary/30 bg-background/50 placeholder:text-foreground/55" />
                   <Button onClick={addEnvVariable} size="sm" className="h-10 gap-1.5 px-3" variant="pulso">
                     <Plus className="h-4 w-4 shrink-0" />
-                    <span>Adicionar</span>
+                    <span>{t("pulsoCsa.add")}</span>
                   </Button>
                 </div>
               </div>
@@ -877,10 +903,10 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
               {/* Seção de Linguagens */}
               <div className="space-y-3 pt-3 border-t border-primary/10">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-foreground">Linguagens e Frameworks</Label>
+                  <Label className="text-sm font-medium text-foreground">{t("pulsoCsa.languagesFrameworks")}</Label>
                   {(usePython || useJavaScript) && (
                     <span className="text-xs text-muted-foreground px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
-                      {usePython && useJavaScript ? "Python + JavaScript" : usePython ? "Python" : "JavaScript"}
+                      {usePython && useJavaScript ? t("pulsoCsa.stackPythonJs") : usePython ? "Python" : "JavaScript"}
                       {useJavaScript && (useTypeScript || useReact || useVue || useAngular) && (
                         <span className="ml-1">
                           ({[
@@ -1043,14 +1069,14 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Workflow className="h-12 w-12 text-primary/50" />
                 <div>
-                  <p className="text-sm text-foreground font-medium">Descreva o projeto que deseja gerar</p>
-                  <p className="text-xs text-muted-foreground mt-1">Ex.: Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos</p>
+                  <p className="text-sm text-foreground font-medium">{t("pulsoCsa.emptyStateTitle")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("pulsoCsa.emptyStateHint")}</p>
                 </div>
                 <div className="pt-4 w-full max-w-md space-y-4">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2">Sugestões:</p>
+                    <p className="text-xs text-muted-foreground mb-2">{t("pulsoCsa.suggestions")}</p>
                     <div className="flex flex-wrap gap-2 justify-center">
-                      {["Gerar blueprint de pastas e endpoints", "Criar estrutura de API REST", "Sistema de gestão de pedidos"].map((s, i) => (
+                      {[t("pulsoCsa.suggestionBlueprint"), t("pulsoCsa.suggestionRest"), t("pulsoCsa.suggestionOrders")].map((s, i) => (
                         <Button key={i} variant="outline" size="sm" onClick={() => setInput(s)} className="text-xs pulso-suggestion-btn">
                           {s}
                         </Button>
@@ -1059,7 +1085,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   </div>
                   {history.length > 0 && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-2">Conversas recentes:</p>
+                      <p className="text-xs text-muted-foreground mb-2">{t("pulsoCsa.recentChats")}</p>
                       <div className="flex flex-wrap gap-2 justify-center">
                         {history.slice(0, 3).map((item) => (
                           <Button key={item.id} variant="outline" size="sm" onClick={() => handleReusePrompt(item.text)} className="text-xs max-w-[200px] truncate">
@@ -1077,7 +1103,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   <div key={msg.id} className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     {msg.role === "system" && (
                       <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden ring-2 ring-primary/40 ring-offset-2 ring-offset-background/80 flex items-center justify-center">
-                        <img src={import.meta.env.BASE_URL + "App.png"} alt="Pulso CSA" className="w-7 h-7 object-contain" />
+                        <img src={import.meta.env.BASE_URL + "App.png"} alt={t("pulsoCsa.assistantAlt")} className="w-7 h-7 object-contain" />
                       </div>
                     )}
                     <div className={`max-w-[85%] rounded-lg p-3 text-sm ${msg.role === "user" ? "bg-chat-user pulso-chat-user-bubble text-chat-user-foreground border" : "bg-chat-system text-chat-system-foreground border border-border/50"}`}>
@@ -1090,7 +1116,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                             rel="noopener noreferrer"
                             className="text-primary underline font-medium hover:underline"
                           >
-                            Acessar preview: {msg.preview_frontend_url}
+                            {t("pulsoCsa.previewLink", { url: msg.preview_frontend_url })}
                           </a>
                         </p>
                       )}
@@ -1099,7 +1125,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                           {msg.frontend_suggestion}
                         </p>
                       )}
-                      <span className="pulso-chat-msg-timestamp mt-1">{msg.timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                      <span className="pulso-chat-msg-timestamp mt-1">{msg.timestamp.toLocaleTimeString(timeLocale, { hour: "2-digit", minute: "2-digit" })}</span>
                     </div>
                   </div>
                 ))}
@@ -1118,7 +1144,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
               <div className="flex-1 min-w-0">
                 <PromptSearchTextarea
                   id="prompt-input"
-                  placeholder={loading ? "Aguardando resposta..." : "Ex.: Gerar blueprint de pastas e endpoints para um sistema de gestão de pedidos..."}
+                  placeholder={loading ? t("pulsoCsa.placeholderWaiting") : t("pulsoCsa.placeholderPrompt")}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onSend={handleSubmit}
@@ -1128,9 +1154,9 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                       type="button"
                       onClick={() => setShowTestDialog(true)}
                       disabled={curlCommands.length === 0}
-                      title={curlCommands.length === 0 ? "Aguarde a resposta do backend" : "Testar aplicação"}
+                      title={curlCommands.length === 0 ? t("pulsoCsa.testWaitBackend") : t("pulsoCsa.testApp")}
                       className="showcase-filter-icon showcase-send-icon cursor-pointer border-0 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Testar aplicação"
+                      aria-label={t("pulsoCsa.testAppAria")}
                     >
                       <TestTube className="h-5 w-5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                     </button>
@@ -1146,7 +1172,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
             <span className="text-sm font-mono text-primary flex-1">ID: {requestId}</span>
             <Button variant="ghost" size="sm" onClick={handleCopyId} className="h-8 gap-1.5 text-xs">
               <Copy className="h-4 w-4 shrink-0" />
-              <span>Copiar ID</span>
+              <span>{t("pulsoCsa.copyId")}</span>
             </Button>
           </div>
         )}
@@ -1156,17 +1182,17 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
       <Dialog open={showRenameDialog} onOpenChange={(open) => !open && (setShowRenameDialog(false), setRenameSessionId(null), setRenameValue(""))}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Renomear chat</DialogTitle>
-            <DialogDescription>Digite o novo nome para esta conversa.</DialogDescription>
+            <DialogTitle>{t("pulsoCsa.renameTitle")}</DialogTitle>
+            <DialogDescription>{t("pulsoCsa.renameDesc")}</DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 py-4">
             <Input
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
-              placeholder="Nome do chat"
+              placeholder={t("pulsoCsa.renamePlaceholder")}
               onKeyDown={(e) => e.key === "Enter" && confirmRename()}
             />
-            <Button variant="pulso" onClick={confirmRename}>Salvar</Button>
+            <Button variant="pulso" onClick={confirmRename}>{t("pulsoCsa.save")}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1177,10 +1203,10 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
               <TestTube className="h-5 w-5 text-primary" />
-              Exemplos de Testes cURL
+              {t("pulsoCsa.curlDialogTitle")}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Comandos de teste para seu backend
+              {t("pulsoCsa.curlDialogDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -1201,11 +1227,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                       className="h-8 text-xs"
                     >
                       {executingCurl === index ? (
-                        <span className="animate-pulse">Executando...</span>
+                        <span className="animate-pulse">{t("pulsoCsa.executing")}</span>
                       ) : (
                         <>
                           <Play className="h-3.5 w-3.5 mr-1.5" />
-                          Executar
+                          {t("pulsoCsa.run")}
                         </>
                       )}
                     </Button>
@@ -1216,7 +1242,7 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                       className="h-8 text-xs"
                     >
                       <Copy className="h-3.5 w-3.5 mr-1.5" />
-                      Copiar
+                      {t("pulsoCsa.copy")}
                     </Button>
                   </div>
                 </div>
