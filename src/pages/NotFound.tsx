@@ -1,26 +1,22 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Home, ArrowLeft, Rocket, Coffee, Bug, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeSelector from "@/components/ThemeSelector";
 
+const MESSAGE_KEYS = ["m1", "m2", "m3", "m4", "m5", "m6"] as const;
+
 const NotFound = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [message, setMessage] = useState("");
 
-  const funMessages = [
-    "Ops! Essa página saiu para um café ☕",
-    "Houston, temos um problema! 🚀",
-    "Esta página está de férias 🏖️",
-    "404: Página brincando de esconde-esconde",
-    "Parece que você encontrou um bug... ou não? 🐛",
-    "Esta rota não consta no mapa 🗺️",
-  ];
-
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-    setMessage(funMessages[Math.floor(Math.random() * funMessages.length)]);
-  }, [location.pathname]);
+    const k = MESSAGE_KEYS[Math.floor(Math.random() * MESSAGE_KEYS.length)];
+    setMessage(t(`pages.notFound.${k}`));
+  }, [location.pathname, t]);
 
   const icons = [Rocket, Coffee, Bug, Compass];
   const RandomIcon = icons[Math.floor(Math.random() * icons.length)];
@@ -53,7 +49,7 @@ const NotFound = () => {
             {message}
           </p>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
-            Parece que você navegou para uma dimensão paralela. Não se preocupe, podemos te trazer de volta!
+            {t("pages.notFound.subtitle")}
           </p>
         </div>
 
@@ -62,7 +58,7 @@ const NotFound = () => {
             <Link to="/">
               <span className="showcase-spark" aria-hidden />
               <Home className="w-5 h-5" />
-              Ir para o Início
+              {t("pages.notFound.home")}
             </Link>
           </Button>
           
@@ -73,13 +69,13 @@ const NotFound = () => {
             className="glass hover:glass-strong hover-scale"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Voltar
+            {t("pages.notFound.back")}
           </Button>
         </div>
 
         <div className="pt-6 space-y-2">
           <p className="text-sm text-muted-foreground">
-            Rota não encontrada:
+            {t("pages.notFound.routeLabel")}
           </p>
           <code className="glass px-4 py-2 rounded-lg text-primary inline-block break-all">
             {location.pathname}

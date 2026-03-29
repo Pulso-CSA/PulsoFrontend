@@ -9,6 +9,7 @@ import { UserSidebar } from "@/components/dashboard/UserSidebar";
 import { HeaderControls } from "@/components/dashboard/HeaderControls";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function LayoutWrapper() {
 }
 
 export function AppShell() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isElectron = typeof window !== "undefined" && !!window.electronAPI;
@@ -79,7 +81,7 @@ export function AppShell() {
                 type="button"
                 onClick={() => navigate("/")}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
-                aria-label="Ir para início"
+                aria-label={t("appshell.homeAria")}
               >
                 <img
                   src={import.meta.env.BASE_URL + "App.png"}
@@ -87,7 +89,7 @@ export function AppShell() {
                   className="h-8 w-8 object-contain"
                 />
                 <span className="text-lg font-semibold tracking-tight text-foreground hidden sm:inline">
-                  Pulso Tech
+                  {t("appshell.brand")}
                 </span>
               </button>
             )}
@@ -111,7 +113,7 @@ export function AppShell() {
             "fixed z-40 flex flex-col pointer-events-none",
             "bottom-0 left-0 items-center justify-end pb-4 pl-4"
           )}
-          aria-label="Área do usuário"
+          aria-label={t("appshell.userArea")}
         >
           <div className="pointer-events-auto">
             <UserSidebar position="bottom-left" />

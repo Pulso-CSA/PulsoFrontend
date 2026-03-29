@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, CheckCircle2, XCircle, Chrome, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,18 +19,16 @@ import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfiles } from "@/hooks/useProfiles";
 
-const profileSchema = z.object({
-  name: z.string()
-    .trim()
-    .min(1, "Nome é obrigatório")
-    .max(50, "Nome deve ter no máximo 50 caracteres"),
-  description: z.string()
-    .trim()
-    .max(200, "Descrição deve ter no máximo 200 caracteres")
-    .optional(),
-});
-
 const Auth = () => {
+  const { t, i18n } = useTranslation();
+  const profileSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().trim().min(1, t("validation.nameRequired")).max(50, t("validation.nameMax")),
+        description: z.string().trim().max(200, t("validation.descMax")).optional(),
+      }),
+    [t, i18n.language]
+  );
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(() => searchParams.get("mode") !== "signup");
   const { isAuthenticated, isLoading: authLoading, login, loginWithGoogle, signup, profiles } = useAuth();
@@ -74,18 +73,21 @@ const Auth = () => {
     if (/[A-Z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
     if (/[^A-Za-z0-9]/.test(password)) strength++;
-    
-    if (strength <= 1) return { level: "Fraca", color: "text-destructive" };
-    if (strength <= 2) return { level: "Ok", color: "text-warning" };
-    return { level: "Forte", color: "text-success" };
+
+    if (strength <= 1) return { level: t("auth.strengthWeak"), color: "text-destructive" };
+    if (strength <= 2) return { level: t("auth.strengthOk"), color: "text-warning" };
+    return { level: t("auth.strengthStrong"), color: "text-success" };
   };
 
-  const passwordChecklist = [
-    { label: "8+ caracteres", valid: formData.password.length >= 8 },
-    { label: "Letra maiúscula", valid: /[A-Z]/.test(formData.password) },
-    { label: "Número", valid: /[0-9]/.test(formData.password) },
-    { label: "Símbolo", valid: /[^A-Za-z0-9]/.test(formData.password) },
-  ];
+  const passwordChecklist = useMemo(
+    () => [
+      { label: t("auth.checkLen"), valid: formData.password.length >= 8 },
+      { label: t("auth.checkUpper"), valid: /[A-Z]/.test(formData.password) },
+      { label: t("auth.checkNum"), valid: /[0-9]/.test(formData.password) },
+      { label: t("auth.checkSymbol"), valid: /[^A-Za-z0-9]/.test(formData.password) },
+    ],
+    [t, i18n.language, formData.password]
+  );
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -122,14 +124,14 @@ const Auth = () => {
 
       setShowProfileDialog(false);
       toast({
-        title: "Conta criada com sucesso",
-        description: `Perfil "${profileData.name}" criado. Bem-vindo!`,
+        title: t("auth.toastProfileCreated"),
+        description: t("auth.toastProfileCreatedDesc", { name: profileData.name }),
       });
       navigate("/profile-selection");
     } catch (error) {
       toast({
-        title: "Erro ao criar perfil",
-        description: error instanceof Error ? error.message : "Tente novamente",
+        title: t("auth.toastProfileError"),
+        description: error instanceof Error ? error.message : t("auth.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -144,8 +146,8 @@ const Auth = () => {
     // Validações
     if (!validateEmail(formData.email)) {
       toast({
-        title: "E-mail inválido",
-        description: "Informe um e-mail válido",
+        title: t("auth.toastInvalidEmail"),
+        description: t("auth.toastInvalidEmailDesc"),
         variant: "destructive",
       });
       setLoading(false);
@@ -155,8 +157,8 @@ const Auth = () => {
     if (!isLogin) {
       if (formData.password !== formData.confirmPassword) {
         toast({
-          title: "Senhas não coincidem",
-          description: "As senhas devem ser iguais",
+          title: t("auth.toastPasswordMismatch"),
+          description: t("auth.toastPasswordMismatchDesc"),
           variant: "destructive",
         });
         setLoading(false);
@@ -165,8 +167,8 @@ const Auth = () => {
 
       if (!formData.acceptTerms) {
         toast({
-          title: "Aceite os termos",
-          description: "É necessário concordar com a política de uso",
+          title: t("auth.toastAcceptTerms"),
+          description: t("auth.toastAcceptTermsDesc"),
           variant: "destructive",
         });
         setLoading(false);
@@ -178,8 +180,8 @@ const Auth = () => {
       if (isLogin) {
         await login(formData.email, formData.password, formData.rememberMe);
         toast({
-          title: "Login realizado",
-          description: "Bem-vindo de volta!",
+          title: t("auth.toastLoginOk"),
+          description: t("auth.toastWelcomeBack"),
         });
         // Navigation handled by useEffect
       } else {
@@ -190,8 +192,8 @@ const Auth = () => {
     } catch (error) {
       console.error("[Auth] erro no submit", isLogin ? "login" : "signup", error);
       toast({
-        title: isLogin ? "Erro no login" : "Erro no cadastro",
-        description: error instanceof Error ? error.message : "Tente novamente",
+        title: isLogin ? t("auth.toastLoginError") : t("auth.toastSignupError"),
+        description: error instanceof Error ? error.message : t("auth.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -227,7 +229,7 @@ const Auth = () => {
           />
           <h1 className="text-4xl font-bold mb-2 text-primary">Pulso</h1>
           <p className="text-foreground/80">
-            {isLogin ? "Acesse sua conta" : "Crie sua conta"}
+            {isLogin ? t("auth.taglineLogin") : t("auth.taglineSignup")}
           </p>
         </div>
 
@@ -242,24 +244,24 @@ const Auth = () => {
             <span className="showcase-spark" aria-hidden />
             <span className="pulso-auth-sparkle-inner absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
             <Chrome className="w-5 h-5 relative z-10" />
-            <span className="relative z-10">Continuar com Google</span>
+            <span className="relative z-10">{t("auth.google")}</span>
           </button>
 
           <div className="relative my-6">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-xs text-muted-foreground rounded-md border border-border/60">
-              ou continue com e-mail
+              {t("auth.orEmail")}
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
-                <Label htmlFor="name">Nome</Label>
+                <Label htmlFor="name">{t("auth.name")}</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Seu nome completo"
+                  placeholder={t("auth.namePlaceholder")}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required={!isLogin}
@@ -268,11 +270,11 @@ const Auth = () => {
             )}
 
             <div>
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="nome@empresa.com"
+                placeholder={t("auth.emailPlaceholder")}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
@@ -280,7 +282,7 @@ const Auth = () => {
             </div>
 
             <div>
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -294,7 +296,7 @@ const Auth = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -303,7 +305,7 @@ const Auth = () => {
               {!isLogin && formData.password && (
                 <div className="mt-2 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Força:</span>
+                    <span className="text-sm text-muted-foreground">{t("auth.strength")}</span>
                     <span className={`text-sm font-medium ${passwordStrength(formData.password).color}`}>
                       {passwordStrength(formData.password).level}
                     </span>
@@ -328,7 +330,7 @@ const Auth = () => {
 
             {!isLogin && (
               <div>
-                <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                <Label htmlFor="confirmPassword">{t("auth.confirmPassword")}</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -342,7 +344,7 @@ const Auth = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                    aria-label={showConfirmPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -360,7 +362,7 @@ const Auth = () => {
                 }
               />
               <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
-                Lembrar-me neste dispositivo
+                {t("auth.rememberMe")}
               </Label>
             </div>
 
@@ -374,7 +376,7 @@ const Auth = () => {
                   }
                 />
                 <Label htmlFor="terms" className="text-sm font-normal cursor-pointer">
-                  Li e concordo com a política de uso
+                  {t("auth.acceptTerms")}
                 </Label>
               </div>
             )}
@@ -386,7 +388,7 @@ const Auth = () => {
             >
               <span className="showcase-spark" aria-hidden />
               <span className="pulso-auth-sparkle-inner absolute inset-[0.1em] rounded-[100px] bg-background/80 pointer-events-none" />
-              <span className="relative z-10">{loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}</span>
+              <span className="relative z-10">{loading ? t("auth.submitLoading") : isLogin ? t("auth.login") : t("auth.signup")}</span>
             </button>
           </form>
 
@@ -396,7 +398,7 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-primary hover:underline"
             >
-              {isLogin ? "Criar conta" : "Já tenho conta"}
+              {isLogin ? t("auth.toggleSignup") : t("auth.toggleLogin")}
             </button>
             
             {isLogin && (
@@ -405,7 +407,7 @@ const Auth = () => {
                   to="/forgot-password"
                   className="text-sm pulso-auth-link-muted hover:underline"
                 >
-                  Esqueci minha senha
+                  {t("auth.forgotPassword")}
                 </Link>
               </div>
             )}
@@ -413,7 +415,7 @@ const Auth = () => {
 
           {!isLogin && (
             <p className="mt-4 text-xs text-muted-foreground text-center">
-              Use uma senha única e nunca a compartilhe
+              {t("auth.passwordHint")}
             </p>
           )}
         </div>
@@ -425,19 +427,19 @@ const Auth = () => {
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-primary">
               <UserPlus className="h-6 w-6" />
-              Crie seu Primeiro Perfil
+              {t("auth.dialogFirstProfile")}
             </DialogTitle>
             <DialogDescription className="text-base">
-              Para começar a usar a plataforma, você precisa criar pelo menos um perfil de trabalho.
+              {t("auth.dialogFirstProfileDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="profile-name">Nome do Perfil*</Label>
+              <Label htmlFor="profile-name">{t("auth.profileName")}</Label>
               <Input
                 id="profile-name"
-                placeholder="Ex: Produção, Desenvolvimento"
+                placeholder={t("auth.profileNamePlaceholder")}
                 value={profileData.name}
                 onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                 className={profileErrors.name ? "border-destructive" : "border-primary/20 focus:border-primary"}
@@ -448,10 +450,10 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="profile-description">Descrição</Label>
+              <Label htmlFor="profile-description">{t("auth.profileDesc")}</Label>
               <Input
                 id="profile-description"
-                placeholder="Breve descrição do perfil"
+                placeholder={t("auth.profileDescPlaceholder")}
                 value={profileData.description}
                 onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
                 className={profileErrors.description ? "border-destructive" : "border-primary/20 focus:border-primary"}
@@ -460,7 +462,7 @@ const Auth = () => {
                 <p className="text-xs text-destructive">{profileErrors.description}</p>
               )}
               <p className="text-xs text-muted-foreground">
-                Você poderá criar até 5 perfis no total
+                {t("auth.profilesLimitHint")}
               </p>
             </div>
 
@@ -470,7 +472,7 @@ const Auth = () => {
               className="w-full gap-2 bg-primary hover:bg-primary/90 pulso-glow-cta transition-all duration-300 hover:scale-105 mt-6"
             >
               <UserPlus className="h-4 w-4" />
-              {loading ? "Criando..." : "Criar Perfil e Começar"}
+              {loading ? t("auth.creating") : t("auth.createProfileStart")}
             </Button>
           </div>
         </DialogContent>

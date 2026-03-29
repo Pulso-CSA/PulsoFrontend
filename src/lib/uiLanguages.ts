@@ -1,4 +1,4 @@
-/** Preferência de idioma da interface (armazenada localmente até haver i18n completo). */
+/** Preferência de idioma da interface (localStorage + i18next em `src/i18n`). */
 export const PULSO_UI_LANGUAGE_KEY = "pulso_ui_language";
 
 export interface UiLanguageOption {

@@ -1,6 +1,7 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, Play, Loader2, Activity, BarChart3, TrendingUp, Circle, Percent, MessageCircle, type LucideIcon } from "lucide-react";
+import { Monitor, Terminal, RefreshCw, Download, Workflow, CloudCog, TrendingDown, Brain, SlidersHorizontal, LayoutGrid, Plus, Trash2, Link2, Play, Loader2, Activity, BarChart3, TrendingUp, Circle, Percent, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -93,34 +94,6 @@ const INSIGHTS_WIDGETS_INITIAL: InsightsWidget[] = [
   { id: "sales", title: "Sales", value: "39,500", trend: "+20%", period: "Este mês", chartType: "progress", progressPercent: 76, insights: ["Volume de conversas está estável nesta semana.", "Tempo médio de resposta pode ser reduzido com automação."], serviceFilter: "finops", analysisSummary: "Progresso de vendas no mês.", technicalConclusion: "Volume estável; automação pode reduzir tempo de resposta." },
 ];
 
-const INSIGHTS_CHART_TYPE_OPTIONS: {
-  type: AnalyticsChartType;
-  label: string;
-  icon: LucideIcon;
-}[] = [
-  { type: "area", label: "Gráfico de área", icon: Activity },
-  { type: "bar", label: "Gráfico de barras", icon: BarChart3 },
-  { type: "line", label: "Gráfico de linha", icon: TrendingUp },
-  { type: "pie", label: "Gráfico de pizza", icon: Circle },
-  { type: "progress", label: "Gráfico de progresso", icon: Percent },
-];
-
-const INSIGHTS_SERVICE_LABELS: Record<ServiceKey | "custom", string> = {
-  pulso: "Pulso CSA",
-  cloud: "Cloud IaC",
-  finops: "FinOps",
-  data: "Dados & IA",
-  custom: "Personalizado",
-};
-
-const INSIGHTS_CHART_LABELS: Record<AnalyticsChartType, string> = {
-  area: "Área",
-  bar: "Barras",
-  line: "Linha",
-  pie: "Pizza",
-  progress: "Progresso",
-};
-
 const INSIGHTS_V1_SESSION_STORAGE_KEY = "pulso_insights_v1_session_id";
 
 const buildInsightsRequestId = () =>
@@ -169,6 +142,56 @@ const isGenericCreateChartPrompt = (prompt: string) => {
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const insightsApiLocale = useMemo(
+    () => (i18n.language?.toLowerCase().replace(/_/g, "-").startsWith("pt") ? "pt-BR" : "en"),
+    [i18n.language]
+  );
+  const insightsServiceLabels = useMemo(
+    () =>
+      ({
+        pulso: t("dashboard.services.pulso"),
+        cloud: t("dashboard.services.cloud"),
+        finops: t("dashboard.services.finops"),
+        data: t("dashboard.services.data"),
+        custom: t("dashboard.services.custom"),
+      }) satisfies Record<ServiceKey | "custom", string>,
+    [t, i18n.language]
+  );
+  const insightsChartLabels = useMemo(
+    () =>
+      ({
+        area: t("dashboard.chartTypes.area"),
+        bar: t("dashboard.chartTypes.bar"),
+        line: t("dashboard.chartTypes.line"),
+        pie: t("dashboard.chartTypes.pie"),
+        progress: t("dashboard.chartTypes.progress"),
+      }) satisfies Record<AnalyticsChartType, string>,
+    [t, i18n.language]
+  );
+  const insightsChartTypeOptions = useMemo(
+    () =>
+      [
+        { type: "area" as const, label: t("dashboard.chartTypes.areaFull"), icon: Activity },
+        { type: "bar" as const, label: t("dashboard.chartTypes.barFull"), icon: BarChart3 },
+        { type: "line" as const, label: t("dashboard.chartTypes.lineFull"), icon: TrendingUp },
+        { type: "pie" as const, label: t("dashboard.chartTypes.pieFull"), icon: Circle },
+        { type: "progress" as const, label: t("dashboard.chartTypes.progressFull"), icon: Percent },
+      ] as const,
+    [t, i18n.language]
+  );
+  const insightsFilterButtons = useMemo(
+    () =>
+      [
+        { key: "all" as const, icon: LayoutGrid, label: t("dashboard.filterAll") },
+        { key: "pulso" as const, icon: Workflow, label: t("dashboard.services.pulso") },
+        { key: "cloud" as const, icon: CloudCog, label: t("dashboard.services.cloud") },
+        { key: "finops" as const, icon: TrendingDown, label: t("dashboard.services.finops") },
+        { key: "data" as const, icon: Brain, label: t("dashboard.services.data") },
+        { key: "custom" as const, icon: SlidersHorizontal, label: t("dashboard.services.custom") },
+      ] as const,
+    [t, i18n.language]
+  );
   const [activeService, setActiveService] = useState<ServiceKey | null>(null);
   const [showLogs, setShowLogs] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -210,19 +233,7 @@ const Dashboard = () => {
   const INSIGHTS_ZOOM_MAX = 2;
   const insightsZoomContainerRef = useRef<HTMLDivElement>(null);
   const insightsFilterDockRef = useRef<HTMLDivElement>(null);
-  const [insightsMainNavWidth, setInsightsMainNavWidth] = useState<number | null>(null);
   const [insightsFilterDockHeight, setInsightsFilterDockHeight] = useState(0);
-
-  useEffect(() => {
-    const el = document.querySelector("[data-pulso-main-services-inner]");
-    if (!el || !(el instanceof HTMLElement)) return;
-    const ro = new ResizeObserver(() => {
-      setInsightsMainNavWidth(el.getBoundingClientRect().width);
-    });
-    ro.observe(el);
-    setInsightsMainNavWidth(el.getBoundingClientRect().width);
-    return () => ro.disconnect();
-  }, []);
 
   useLayoutEffect(() => {
     if (activeService !== null) {
@@ -236,7 +247,7 @@ const Dashboard = () => {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [activeService, insightsMainNavWidth, insightsFilter]);
+  }, [activeService, insightsFilter]);
   const handleInsightsWheel = useCallback((e: WheelEvent) => {
     const el = insightsZoomContainerRef.current;
     if (!el) return;
@@ -271,8 +282,8 @@ const Dashboard = () => {
     const rp = rootPathForPreview?.trim();
     if (!rp) {
       toast({
-        title: "Caminho da pasta necessário",
-        description: "Configure o caminho da pasta do projeto na seção Configuração antes de testar o preview.",
+        title: t("dashboard.pathRequiredTitle"),
+        description: t("dashboard.pathRequiredDesc"),
         variant: "destructive",
       });
       return;
@@ -286,9 +297,9 @@ const Dashboard = () => {
           setPreviewFrontendUrl(previewUrl);
           setShowPreview(true);
         }
-        const msg = res.message ?? "Servidor de desenvolvimento iniciado. O preview estará disponível em breve.";
+        const msg = res.message ?? t("dashboard.previewStartedDefault");
         toast({
-          title: "Preview iniciado",
+          title: t("dashboard.previewStarted"),
           description: (
             <>
               {msg}
@@ -296,7 +307,7 @@ const Dashboard = () => {
                 <>
                   {" "}
                   <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline font-medium hover:underline">
-                    Acessar preview
+                    {t("dashboard.openPreviewLink")}
                   </a>
                 </>
               )}
@@ -308,15 +319,15 @@ const Dashboard = () => {
         }
       } else {
         toast({
-          title: "Erro ao iniciar preview",
-          description: res.message ?? (res.details != null ? String(res.details) : "Tente novamente."),
+          title: t("dashboard.previewError"),
+          description: res.message ?? (res.details != null ? String(res.details) : t("dashboard.tryAgainShort")),
           variant: "destructive",
         });
       }
     } catch (err) {
       toast({
-        title: "Erro ao iniciar preview",
-        description: err instanceof Error ? err.message : "Falha ao conectar com o backend.",
+        title: t("dashboard.previewError"),
+        description: err instanceof Error ? err.message : t("dashboard.backendConnectFail"),
         variant: "destructive",
       });
     } finally {
@@ -328,19 +339,19 @@ const Dashboard = () => {
     const checkout = searchParams.get("checkout");
     if (checkout === "success") {
       toast({
-        title: "Checkout concluído",
-        description: "Sua assinatura foi ativada com sucesso!",
+        title: t("dashboard.checkoutSuccess"),
+        description: t("dashboard.checkoutSuccessDesc"),
       });
       setSearchParams({}, { replace: true });
     } else if (checkout === "cancel") {
       toast({
-        title: "Checkout cancelado",
-        description: "Você pode tentar novamente quando quiser.",
+        title: t("dashboard.checkoutCancel"),
+        description: t("dashboard.checkoutCancelDesc"),
         variant: "destructive",
       });
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams, toast]);
+  }, [searchParams, setSearchParams, toast, t]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -445,9 +456,8 @@ const Dashboard = () => {
       } catch (err) {
         if (!cancelled) {
           toast({
-            title: "Insights v1",
-            description:
-              err instanceof Error ? err.message : "Não foi possível sincronizar; usando dados de demonstração.",
+            title: t("dashboard.insightsV1"),
+            description: err instanceof Error ? err.message : t("dashboard.insightsV1SyncFail"),
           });
           setInsightsWidgets(INSIGHTS_WIDGETS_INITIAL);
         }
@@ -460,7 +470,7 @@ const Dashboard = () => {
     return () => {
       cancelled = true;
     };
-  }, [toast, persistInsightsV1Session]);
+  }, [toast, persistInsightsV1Session, t]);
 
   const ZOOM_MIN = 0.5;
   const ZOOM_MAX = 2;
@@ -469,13 +479,6 @@ const Dashboard = () => {
   const handleInsightsZoomIn = () => setInsightsZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
   const handleInsightsZoomOut = () => setInsightsZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
   const handleInsightsCreateChart = (chartType: AnalyticsChartType = "area") => {
-    const chartLabelMap: Record<AnalyticsChartType, string> = {
-      area: "Área",
-      bar: "Barras",
-      line: "Linha",
-      pie: "Pizza",
-      progress: "Progresso",
-    };
     const sampleDataByType: Record<"area" | "bar" | "line" | "pie", Array<{ label: string; value: number }>> = {
       area: [
         { label: "8h", value: 120 },
@@ -511,9 +514,10 @@ const Dashboard = () => {
     const chartData = !isProgressChart
       ? sampleDataByType[chartType as "area" | "bar" | "line" | "pie"]
       : [];
+    const numLocale = i18n.language?.replace(/_/g, "-") || "pt-BR";
     const value = isProgressChart
       ? "65%"
-      : String(chartData.reduce((acc, item) => acc + item.value, 0).toLocaleString("pt-BR"));
+      : String(chartData.reduce((acc, item) => acc + item.value, 0).toLocaleString(numLocale));
 
     const id = `widget-${Date.now()}`;
     const newIndex = insightsWidgets.length;
@@ -522,10 +526,10 @@ const Dashboard = () => {
       ...prev,
       {
         id,
-        title: `Novo gráfico (${chartLabelMap[chartType]})`,
+        title: t("dashboard.newChartTitle", { type: insightsChartLabels[chartType] }),
         value,
         trend: "+0%",
-        period: "Agora",
+        period: t("dashboard.periodNow"),
         chartType,
         progressPercent: isProgressChart ? 65 : undefined,
         insights: [],
@@ -536,7 +540,10 @@ const Dashboard = () => {
     if (insightsLayoutMode === "free") {
       setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
     }
-    toast({ title: "Gráfico criado", description: `Tipo selecionado: ${chartLabelMap[chartType]}.` });
+    toast({
+      title: t("dashboard.chartCreated"),
+      description: t("dashboard.chartCreatedDesc", { type: insightsChartLabels[chartType] }),
+    });
   };
   const handleInsightsDeleteChart = (id: string) => {
     setInsightsWidgets((prev) => prev.filter((w) => w.id !== id));
@@ -546,14 +553,14 @@ const Dashboard = () => {
       return next;
     });
     setInsightsConnections((prev) => prev.filter((c) => c.from !== id && c.to !== id));
-    toast({ title: "Gráfico excluído", variant: "destructive" });
+    toast({ title: t("dashboard.chartDeleted"), variant: "destructive" });
   };
   const handleInsightsUpdateChart = async () => {
     const widgetsToRefresh = insightsWidgets.filter((w) => !!w.customPrompt?.trim());
     if (!widgetsToRefresh.length) {
       toast({
-        title: "Sem gráficos para atualizar",
-        description: "Crie ao menos um gráfico via chat para atualizar com dados do backend.",
+        title: t("dashboard.noChartsToRefresh"),
+        description: t("dashboard.noChartsToRefreshDesc"),
       });
       return;
     }
@@ -566,7 +573,7 @@ const Dashboard = () => {
           prompt: widget.customPrompt!,
           session_id: runningSession,
           id_requisicao: buildInsightsRequestId(),
-          locale: "pt-BR",
+          locale: insightsApiLocale,
         });
         if (res.session_id) {
           runningSession = res.session_id;
@@ -574,13 +581,13 @@ const Dashboard = () => {
         }
         if (res.status === "ambiguity") {
           toast({
-            title: "Prompt ambíguo",
-            description: res.ambiguity?.message ?? "Refine a pergunta ou use uma sugestão do catálogo.",
+            title: t("dashboard.ambiguousPrompt"),
+            description: res.ambiguity?.message ?? t("dashboard.ambiguousCatalog"),
           });
         } else if (res.status === "degraded") {
           toast({
-            title: "Insight parcial",
-            description: "Confiança baixa; os dados podem ser aproximados.",
+            title: t("dashboard.partialInsight"),
+            description: t("dashboard.partialLowConfidence"),
           });
         }
         const payload = mapInsightV1ResponseToWidget(res, {
@@ -596,11 +603,14 @@ const Dashboard = () => {
           return { ...found.next, id: item.id };
         })
       );
-      toast({ title: "Atualização concluída", description: `${refreshed.length} gráfico(s) atualizado(s).` });
+      toast({
+        title: t("dashboard.updateDone"),
+        description: t("dashboard.updateDoneDesc", { count: refreshed.length }),
+      });
     } catch (err) {
       toast({
-        title: "Falha ao atualizar insights",
-        description: err instanceof Error ? err.message : "Tente novamente em instantes.",
+        title: t("dashboard.updateFail"),
+        description: err instanceof Error ? err.message : t("dashboard.updateFailDesc"),
         variant: "destructive",
       });
     } finally {
@@ -705,7 +715,10 @@ const Dashboard = () => {
       })
     );
     setCustomizeWidgetId(null);
-    toast({ title: "Gráfico atualizado", description: prompt ? "Análise gerada conforme sua descrição." : "Serviço e preferências salvos." });
+    toast({
+      title: t("dashboard.chartUpdated"),
+      description: prompt ? t("dashboard.chartUpdatedAnalysis") : t("dashboard.chartUpdatedPrefs"),
+    });
   };
 
   const handleInsightsCreateFromChat = async (prompt: string): Promise<{
@@ -723,18 +736,18 @@ const Dashboard = () => {
         prompt,
         session_id: insightsV1SessionId ?? undefined,
         id_requisicao: buildInsightsRequestId(),
-        locale: "pt-BR",
+        locale: insightsApiLocale,
       });
       persistInsightsV1Session(res.session_id);
       if (res.status === "ambiguity") {
         toast({
-          title: "Prompt ambíguo",
-          description: res.ambiguity?.message ?? "Refine a pergunta ou escolha uma das sugestões abaixo.",
+          title: t("dashboard.ambiguousPrompt"),
+          description: res.ambiguity?.message ?? t("dashboard.ambiguousSuggestions"),
         });
       } else if (res.status === "degraded") {
         toast({
-          title: "Insight parcial",
-          description: "Confiança baixa; refine o prompt se precisar de precisão.",
+          title: t("dashboard.partialInsight"),
+          description: t("dashboard.partialRefine"),
         });
       }
       const payload = mapInsightV1ResponseToWidget(res, { widgetId: id, customPrompt: prompt });
@@ -743,7 +756,7 @@ const Dashboard = () => {
       if (insightsLayoutMode === "free") {
         setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
       }
-      toast({ title: "Gráfico criado", description: `"${mapped.title}" adicionado ao dashboard.` });
+      toast({ title: t("dashboard.chartAdded"), description: t("dashboard.chartAddedDesc", { title: mapped.title }) });
       return {
         ok: true,
         chartTitle: mapped.title,
@@ -752,9 +765,10 @@ const Dashboard = () => {
       };
     } catch (err) {
       toast({
-        title: "Falha ao gerar insight no backend",
-        description: "Usando gráfico local de fallback para não interromper o fluxo.",
+        title: t("dashboard.backendInsightFail"),
+        description: t("dashboard.backendInsightFallback"),
       });
+      const fbLocale = i18n.language?.replace(/_/g, "-") || "pt-BR";
       const title = prompt.length > 36 ? prompt.slice(0, 36) + "…" : prompt;
       const fallbackData = [
         { label: "P1", value: 120 },
@@ -767,9 +781,9 @@ const Dashboard = () => {
         {
           id,
           title,
-          value: String(fallbackData.reduce((a, d) => a + d.value, 0).toLocaleString("pt-BR")),
+          value: String(fallbackData.reduce((a, d) => a + d.value, 0).toLocaleString(fbLocale)),
           trend: "+0%",
-          period: "Gerado por chat",
+          period: t("dashboard.periodChatGenerated"),
           chartType: "bar",
           insights: [err instanceof Error ? err.message : "Erro ao conectar com o backend de insights."],
           serviceFilter: defaultService,
@@ -795,16 +809,17 @@ const Dashboard = () => {
 
   const submitInsightsPromptWithHistory = async (prompt: string) => {
     if (isGenericCreateChartPrompt(prompt)) {
-      const serviceHint = insightsFilter === "all"
-        ? "Todos (ou selecione Pulso CSA, Cloud IaC, FinOps, Dados & IA)"
-        : insightsFilter === "custom"
-          ? "Personalizado"
-          : INSIGHTS_SERVICE_LABELS[insightsFilter];
+      const serviceHint =
+        insightsFilter === "all"
+          ? t("dashboard.serviceHintAll")
+          : insightsFilter === "custom"
+            ? insightsServiceLabels.custom
+            : insightsServiceLabels[insightsFilter];
       const guidance = [
-        "Para criar de forma autônoma, me diga:",
-        `1) Serviço: ${serviceHint}`,
-        "2) Tipo de gráfico: área, barras, linha, pizza ou progresso",
-        "3) Objetivo do gráfico: ex. comparar custo por cloud, monitorar churn, evolução de receita",
+        t("dashboard.guidanceIntro"),
+        t("dashboard.guidanceService", { hint: serviceHint }),
+        t("dashboard.guidanceChartType"),
+        t("dashboard.guidanceGoal"),
       ].join("\n");
       setInsightsChatHistory((prev) => [
         ...prev,
@@ -817,8 +832,8 @@ const Dashboard = () => {
         },
       ]);
       toast({
-        title: "Detalhes necessários para criar o gráfico",
-        description: "Informe serviço, tipo e objetivo para geração autônoma.",
+        title: t("dashboard.detailsNeededTitle"),
+        description: t("dashboard.detailsNeededDesc"),
       });
       return;
     }
@@ -829,10 +844,14 @@ const Dashboard = () => {
       { id: historyId, prompt, createdAt: Date.now(), status: "gerando" },
     ]);
     const result = await handleInsightsCreateFromChat(prompt);
-    const serviceLabel = INSIGHTS_SERVICE_LABELS[result.service];
-    const chartLabel = INSIGHTS_CHART_LABELS[result.chartType];
-    const outcome = result.ok ? "criado com sucesso" : "criado com fallback local";
-    const assistantMessage = `Serviço selecionado: ${serviceLabel}. Tipo definido: ${chartLabel}. Objetivo interpretado: ${prompt}. Resultado: ${outcome}.`;
+    const serviceLabel = insightsServiceLabels[result.service];
+    const chartLabel = insightsChartLabels[result.chartType];
+    const assistantMessage = t("dashboard.assistantOutcome", {
+      service: serviceLabel,
+      chart: chartLabel,
+      prompt,
+      result: result.ok ? t("dashboard.outcomeOk") : t("dashboard.outcomeFallback"),
+    });
     setInsightsChatHistory((prev) =>
       prev.map((item) =>
         item.id === historyId
@@ -850,16 +869,25 @@ const Dashboard = () => {
   const handleInsightsAddConnection = (fromId: string, toId: string) => {
     const id = [fromId, toId].sort().join("--");
     if (insightsConnections.some((c) => c.id === id || (c.from === fromId && c.to === toId))) return;
-    setInsightsConnections((prev) => [...prev, { id: `conn-${Date.now()}`, from: fromId, to: toId, summary: `Análise de correlação entre os gráficos.` }]);
-    toast({ title: "Conexão criada", description: "Os dois gráficos estão conectados para análise." });
+    setInsightsConnections((prev) => [
+      ...prev,
+      { id: `conn-${Date.now()}`, from: fromId, to: toId, summary: t("dashboard.connectionSummaryDefault") },
+    ]);
+    toast({ title: t("dashboard.connectionCreated"), description: t("dashboard.connectionCreatedDesc") });
   };
 
   const handleExportInsights = () => {
-    const lines: string[] = ["# Dashboard de Insights", "", `Exportado em: ${new Date().toLocaleString("pt-BR")}`, ""];
+    const expLocale = i18n.language?.replace(/_/g, "-") || "pt-BR";
+    const lines: string[] = [
+      t("dashboard.exportMdHeader"),
+      "",
+      `${t("dashboard.exportMdExportedAt")} ${new Date().toLocaleString(expLocale)}`,
+      "",
+    ];
     insightsWidgets.forEach((w) => {
       lines.push(`## ${w.title}`);
       lines.push(`- Valor: ${w.value} | Tendência: ${w.trend} | Período: ${w.period}`);
-      lines.push("### Insights");
+      lines.push(t("dashboard.exportMdInsights"));
       w.insights.forEach((i) => lines.push(`- ${i}`));
       lines.push("");
     });
@@ -871,7 +899,7 @@ const Dashboard = () => {
     a.download = `dashboard-insights-${new Date().toISOString().slice(0, 10)}.md`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Dashboard exportado", description: "Arquivo baixado com sucesso." });
+    toast({ title: t("dashboard.exportDone"), description: t("dashboard.exportDoneDesc") });
   };
 
   const renderServiceContent = () => {
@@ -888,7 +916,7 @@ const Dashboard = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-primary shrink-0" />
-                  <span className="truncate">Preview do Frontend</span>
+                  <span className="truncate">{t("dashboard.previewTitle")}</span>
                 </h3>
                 <div className="flex items-center gap-2 shrink-0">
                   <Button
@@ -896,21 +924,25 @@ const Dashboard = () => {
                     size="sm"
                     onClick={handleTestarPreview}
                     disabled={previewStartLoading || !rootPathForPreview?.trim()}
-                    title={!rootPathForPreview?.trim() ? "Configure o caminho da pasta na seção Configuração" : "Inicia npm run dev ou streamlit em background"}
+                    title={
+                      !rootPathForPreview?.trim()
+                        ? t("dashboard.previewTooltipNoPath")
+                        : t("dashboard.previewTooltipDev")
+                    }
                   >
                     {previewStartLoading ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                     ) : (
                       <Play className="h-3.5 w-3.5 mr-1.5" />
                     )}
-                    Testar Preview
+                    {t("dashboard.testPreview")}
                   </Button>
                   <Button
                     variant="pulso"
                     size="sm"
                     onClick={() => window.open(previewFrontendUrl, "_blank")}
                   >
-                    Abrir em nova aba
+                    {t("dashboard.openNewTab")}
                   </Button>
                 </div>
               </div>
@@ -918,7 +950,7 @@ const Dashboard = () => {
                 <iframe
                   src={previewFrontendUrl}
                   className="w-full h-full border-0"
-                  title="Preview do Frontend"
+                  title={t("dashboard.iframeTitle")}
                   sandbox="allow-scripts allow-same-origin"
                 />
               </div>
@@ -943,7 +975,7 @@ const Dashboard = () => {
                     onClick={() => setShowLogs(!showLogs)}
                   >
                     <Terminal className="h-3.5 w-3.5" />
-                    <span>Logs</span>
+                    <span>{t("dashboard.logs")}</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -951,14 +983,18 @@ const Dashboard = () => {
                     disabled={!previewFrontendUrl || !rootPathForPreview?.trim() || previewStartLoading}
                     className="pulso-suggestion-btn flex items-center gap-1.5 h-8 text-xs shrink-0 text-foreground"
                     onClick={handleTestarPreview}
-                    title={!rootPathForPreview?.trim() ? "Configure o caminho da pasta na seção Configuração" : "Inicia o servidor de desenvolvimento (npm run dev)"}
+                    title={
+                      !rootPathForPreview?.trim()
+                        ? t("dashboard.previewTooltipNoPath")
+                        : t("dashboard.previewTooltipDevShort")
+                    }
                   >
                     {previewStartLoading ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
                       <Play className="h-3.5 w-3.5" />
                     )}
-                    <span>Testar Preview</span>
+                    <span>{t("dashboard.testPreview")}</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -968,7 +1004,7 @@ const Dashboard = () => {
                     onClick={() => setShowPreview((p) => !p)}
                   >
                     <Monitor className="h-3.5 w-3.5" />
-                    <span>Preview</span>
+                    <span>{t("dashboard.preview")}</span>
                   </Button>
                 </>
               }
@@ -981,30 +1017,13 @@ const Dashboard = () => {
     if (activeService === "finops") return <div className="flex-1 h-full min-h-0 flex flex-col overflow-hidden"><FinOpsChat /></div>;
     if (activeService === "data") return <div className="flex-1 h-full min-h-0 flex flex-col overflow-hidden"><DataChat /></div>;
 
-    const INSIGHTS_FILTER_BUTTONS: { key: InsightsFilterKey; icon: LucideIcon; label: string }[] = [
-      { key: "all", icon: LayoutGrid, label: "Todos" },
-      { key: "pulso", icon: Workflow, label: "Pulso CSA" },
-      { key: "cloud", icon: CloudCog, label: "Cloud IaC" },
-      { key: "finops", icon: TrendingDown, label: "FinOps" },
-      { key: "data", icon: Brain, label: "Dados & IA" },
-      { key: "custom", icon: SlidersHorizontal, label: "Personalizado" },
-    ];
-
     const insightsFilterSpacerPx = insightsFilterDockHeight > 0 ? insightsFilterDockHeight : 72;
 
     return (
       <div className="pulso-insights-screen flex-1 min-h-0 flex flex-col overflow-hidden relative">
-        <div
-          ref={insightsFilterDockRef}
-          className="pulso-insights-filter-bar-dock"
-          style={
-            insightsMainNavWidth != null
-              ? { width: `${Math.round(insightsMainNavWidth * 0.75)}px` }
-              : undefined
-          }
-        >
+        <div ref={insightsFilterDockRef} className="pulso-insights-filter-bar-dock">
           <div className="pulso-insights-filter-row py-2 sm:py-2.5">
-            {INSIGHTS_FILTER_BUTTONS.map(({ key, icon: Icon, label }) => (
+            {insightsFilterButtons.map(({ key, icon: Icon, label }) => (
               <button
                 key={key}
                 type="button"
@@ -1015,7 +1034,7 @@ const Dashboard = () => {
                   insightsFilter === key && "pulso-insights-navbar-btn-filter-active"
                 )}
                 title={label}
-                aria-label={`Filtrar: ${label}`}
+                aria-label={t("dashboard.filterAria", { label })}
                 aria-pressed={insightsFilter === key}
               >
                 <Icon className="shrink-0 h-4 w-4 pulso-service-tab-icon" strokeWidth={1.5} />
@@ -1027,11 +1046,11 @@ const Dashboard = () => {
               data-pulso-tab="export"
               onClick={handleExportInsights}
               className="pulso-layout-a-btn pulso-layout-a-btn-horizontal shrink-0 text-foreground gap-1.5 px-2.5 sm:px-3 min-w-[36px] h-9 w-auto text-xs"
-              title="Baixar relatório"
-              aria-label="Baixar relatório do dashboard"
+              title={t("dashboard.exportReportTitle")}
+              aria-label={t("dashboard.exportReportAria")}
             >
               <Download className="h-4 w-4 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
-              <span className="font-medium whitespace-nowrap">Exportar</span>
+              <span className="font-medium whitespace-nowrap">{t("dashboard.export")}</span>
             </button>
           </div>
         </div>
@@ -1039,14 +1058,14 @@ const Dashboard = () => {
         <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 flex flex-col">
           <div
             className="shrink-0 w-full"
-            style={{ height: `calc(3em + ${insightsFilterSpacerPx}px)` }}
+            style={{ height: `calc(0.5rem + ${insightsFilterSpacerPx}px)` }}
             aria-hidden
           />
         {insightsFilteredWidgets.length > 0 && (
           <div
-            className="shrink-0 flex flex-nowrap items-stretch gap-1.5 overflow-x-auto overscroll-x-contain pb-2 mb-1 border-b border-border/50 [scrollbar-width:thin]"
+            className="shrink-0 flex flex-wrap items-stretch justify-center gap-1.5 pb-2 mb-1 border-b border-border/50"
             role="tablist"
-            aria-label="Gráficos do dashboard"
+            aria-label={t("dashboard.chartTabsAria")}
           >
             {insightsFilteredWidgets.map((w) => (
               <button
@@ -1121,10 +1140,10 @@ const Dashboard = () => {
                       <ContextMenuSub>
                         <ContextMenuSubTrigger>
                           <Plus className="mr-2 h-4 w-4" />
-                          Criar gráfico
+                          {t("dashboard.createChart")}
                         </ContextMenuSubTrigger>
                         <ContextMenuSubContent className="pulso-dropdown-menu-glass">
-                          {INSIGHTS_CHART_TYPE_OPTIONS.map(({ type, label, icon: Icon }) => (
+                          {insightsChartTypeOptions.map(({ type, label, icon: Icon }) => (
                             <ContextMenuItem key={type} onClick={() => { handleInsightsCreateChart(type); setInsightsMenuOpen(false); }}>
                               <Icon className="mr-2 h-4 w-4" />
                               {label}
@@ -1134,17 +1153,17 @@ const Dashboard = () => {
                       </ContextMenuSub>
                       <ContextMenuItem onClick={() => { setCustomizeWidgetId(w.id); setCustomizeForm({ service: (w.serviceFilter ?? "data") as ServiceKey | "custom", prompt: w.customPrompt ?? "" }); }}>
                         <SlidersHorizontal className="mr-2 h-4 w-4" />
-                        Customizar
+                        {t("dashboard.customize")}
                       </ContextMenuItem>
                       <ContextMenuItem onClick={() => { handleInsightsUpdateChart(); setInsightsMenuOpen(false); }}>
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        Atualizar
+                        {t("dashboard.refresh")}
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuSub>
                         <ContextMenuSubTrigger>
                           <Link2 className="mr-2 h-4 w-4" />
-                          Conectar a...
+                          {t("dashboard.connectTo")}
                         </ContextMenuSubTrigger>
                         <ContextMenuSubContent className="pulso-dropdown-menu-glass">
                           {insightsWidgets.filter((o) => o.id !== w.id).map((other) => (
@@ -1157,7 +1176,7 @@ const Dashboard = () => {
                       <ContextMenuSeparator />
                       <ContextMenuItem onClick={() => handleInsightsDeleteChart(w.id)} className="text-destructive focus:text-destructive">
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Excluir gráfico
+                        {t("dashboard.deleteChart")}
                       </ContextMenuItem>
                     </ContextMenuContent>
                   </ContextMenu>
@@ -1215,7 +1234,7 @@ const Dashboard = () => {
                       className="absolute z-20 px-3 py-2 rounded-lg bg-popover border border-border shadow-lg text-xs text-foreground max-w-[220px] pointer-events-none"
                       style={{ left: cx - 110, top: cy - 40 }}
                     >
-                      {c.summary ?? "Análise de correlação entre os dois gráficos."}
+                      {c.summary ?? t("dashboard.connectionSummaryDefault")}
                     </div>
                   );
                 })()}
@@ -1261,10 +1280,10 @@ const Dashboard = () => {
                           <ContextMenuSub>
                             <ContextMenuSubTrigger>
                               <Plus className="mr-2 h-4 w-4" />
-                              Criar gráfico
+                              {t("dashboard.createChart")}
                             </ContextMenuSubTrigger>
                             <ContextMenuSubContent className="pulso-dropdown-menu-glass">
-                              {INSIGHTS_CHART_TYPE_OPTIONS.map(({ type, label, icon: Icon }) => (
+                              {insightsChartTypeOptions.map(({ type, label, icon: Icon }) => (
                                 <ContextMenuItem key={type} onClick={() => { handleInsightsCreateChart(type); setInsightsMenuOpen(false); }}>
                                   <Icon className="mr-2 h-4 w-4" />
                                   {label}
@@ -1274,17 +1293,17 @@ const Dashboard = () => {
                           </ContextMenuSub>
                           <ContextMenuItem onClick={() => setCustomizeWidgetId(w.id)}>
                             <SlidersHorizontal className="mr-2 h-4 w-4" />
-                            Customizar
+                            {t("dashboard.customize")}
                           </ContextMenuItem>
                           <ContextMenuItem onClick={() => { handleInsightsUpdateChart(); setInsightsMenuOpen(false); }}>
                             <RefreshCw className="mr-2 h-4 w-4" />
-                            Atualizar
+                            {t("dashboard.refresh")}
                           </ContextMenuItem>
                           <ContextMenuSeparator />
                           <ContextMenuSub>
                             <ContextMenuSubTrigger>
                               <Link2 className="mr-2 h-4 w-4" />
-                              Conectar a...
+                              {t("dashboard.connectTo")}
                             </ContextMenuSubTrigger>
                             <ContextMenuSubContent className="pulso-dropdown-menu-glass">
                               {insightsWidgets.filter((o) => o.id !== w.id).map((other) => (
@@ -1297,7 +1316,7 @@ const Dashboard = () => {
                           <ContextMenuSeparator />
                           <ContextMenuItem onClick={() => handleInsightsDeleteChart(w.id)} className="text-destructive focus:text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir gráfico
+                            {t("dashboard.deleteChart")}
                           </ContextMenuItem>
                         </ContextMenuContent>
                       </ContextMenu>
@@ -1317,13 +1336,13 @@ const Dashboard = () => {
                 <li
                   style={{ ["--i" as string]: "#905DED", ["--j" as string]: "#4F9FF3" }}
                   onClick={() => setInsightsChatOpen(true)}
-                  aria-label="Abrir chatbot de insights"
-                  title="Criar gráfico por chat"
+                  aria-label={t("dashboard.chatLauncherAria")}
+                  title={t("dashboard.chatLauncherTitle")}
                 >
                   <span className="icon">
                     <MessageCircle className="h-6 w-6" />
                   </span>
-                  <span className="title">Messages</span>
+                  <span className="title">{t("dashboard.messages")}</span>
                 </li>
               </ul>
             </div>
@@ -1331,13 +1350,13 @@ const Dashboard = () => {
               <DialogContent className="sm:max-w-2xl pulso-insights-chat-dialog text-card-foreground">
                 <DialogHeader>
                   <DialogTitle className="text-xl font-semibold text-foreground">
-                    Criar gráfico por chat
+                    {t("dashboard.chatTitle")}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="pulso-insights-chat-history">
                   {insightsChatHistory.length === 0 ? (
                     <p className="text-sm text-foreground/75 leading-relaxed pulso-insights-chat-empty">
-                      Histórico da sessão aparecerá aqui. Envie um prompt para gerar seu primeiro gráfico.
+                      {t("dashboard.chatEmpty")}
                     </p>
                   ) : (
                     insightsChatHistory.map((item) => (
@@ -1347,10 +1366,12 @@ const Dashboard = () => {
                         </div>
                         <div className="pulso-insights-chat-assistant-bubble">
                           <p className="text-xs text-foreground/70 pulso-insights-chat-assistant-status">
-                            {item.status === "gerando" && "Gerando insight no backend..."}
-                            {item.status === "criado" && `Gráfico criado: ${item.chartTitle ?? "Novo gráfico"}`}
-                            {item.status === "fallback" && `Fallback local aplicado: ${item.chartTitle ?? "Novo gráfico"}`}
-                            {item.status === "orientacao" && "Detalhes necessários para criação autônoma."}
+                            {item.status === "gerando" && t("dashboard.statusGenerating")}
+                            {item.status === "criado" &&
+                              t("dashboard.statusCreated", { title: item.chartTitle ?? t("dashboard.newChartFallback") })}
+                            {item.status === "fallback" &&
+                              t("dashboard.statusFallback", { title: item.chartTitle ?? t("dashboard.newChartFallback") })}
+                            {item.status === "orientacao" && t("dashboard.statusGuidance")}
                           </p>
                           {item.assistantMessage && (
                             <p className="text-sm text-foreground mt-2 whitespace-pre-line leading-relaxed">
@@ -1368,13 +1389,13 @@ const Dashboard = () => {
                                 }}
                                 disabled={insightsGenerating}
                               >
-                                Usar novamente
+                                {t("dashboard.useAgain")}
                               </Button>
                             </div>
                           )}
                         </div>
                         <p className="text-[10px] text-foreground/55 px-1 tabular-nums">
-                          {new Date(item.createdAt).toLocaleTimeString("pt-BR")}
+                          {new Date(item.createdAt).toLocaleTimeString(i18n.language?.replace(/_/g, "-") || "pt-BR")}
                         </p>
                       </div>
                     ))
@@ -1386,7 +1407,9 @@ const Dashboard = () => {
                     void submitInsightsPromptWithHistory(prompt);
                   }}
                   disabled={insightsLoading || insightsGenerating}
-                  placeholder={insightsGenerating ? "Gerando insight no backend..." : "Ex: vendas por região, churn mensal, evolução de receita..."}
+                  placeholder={
+                    insightsGenerating ? t("dashboard.statusGenerating") : t("dashboard.chatPlaceholder")
+                  }
                 />
               </DialogContent>
             </Dialog>
@@ -1395,7 +1418,7 @@ const Dashboard = () => {
         {/* Barra de zoom: canto inferior central */}
         {activeService === null && (
           <div className="absolute bottom-[6.5rem] left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg min-w-[200px] max-w-[280px]">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">Zoom</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">{t("dashboard.zoom")}</span>
             <Slider
               value={[insightsZoom]}
               onValueChange={([v]) => setInsightsZoom(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, v)))}
@@ -1426,11 +1449,11 @@ const Dashboard = () => {
 
   const serviceErrorFallback = (
     <div className="pulso-empty-state">
-      <p className="pulso-empty-state-title">Erro ao carregar o serviço</p>
-      <p className="pulso-empty-state-desc mb-4">Ocorreu um problema. Tente recarregar ou selecione outro serviço.</p>
+      <p className="pulso-empty-state-title">{t("dashboard.serviceErrorTitle")}</p>
+      <p className="pulso-empty-state-desc mb-4">{t("dashboard.serviceErrorDesc")}</p>
       <Button variant="pulso" onClick={() => window.location.reload()} className="gap-2">
         <RefreshCw className="h-4 w-4" />
-        Recarregar página
+        {t("dashboard.reloadPage")}
       </Button>
     </div>
   );
@@ -1454,32 +1477,32 @@ const Dashboard = () => {
       <Dialog open={!!customizeWidgetId} onOpenChange={(open) => !open && setCustomizeWidgetId(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Customizar gráfico</DialogTitle>
+            <DialogTitle>{t("dashboard.customizeTitle")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="customize-service">Serviço ao qual conectar</Label>
+              <Label htmlFor="customize-service">{t("dashboard.connectService")}</Label>
               <Select
                 value={customizeForm.service}
                 onValueChange={(v) => setCustomizeForm((f) => ({ ...f, service: v as ServiceKey | "custom" }))}
               >
-                <SelectTrigger id="customize-service" aria-label="Serviço ao qual conectar">
-                  <SelectValue placeholder="Selecione o serviço" />
+                <SelectTrigger id="customize-service" aria-label={t("dashboard.connectServiceAria")}>
+                  <SelectValue placeholder={t("dashboard.selectService")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pulso">Pulso CSA</SelectItem>
-                  <SelectItem value="cloud">Cloud IaC</SelectItem>
-                  <SelectItem value="finops">FinOps</SelectItem>
-                  <SelectItem value="data">Dados & IA</SelectItem>
-                  <SelectItem value="custom">Personalizado</SelectItem>
+                  <SelectItem value="pulso">{insightsServiceLabels.pulso}</SelectItem>
+                  <SelectItem value="cloud">{insightsServiceLabels.cloud}</SelectItem>
+                  <SelectItem value="finops">{insightsServiceLabels.finops}</SelectItem>
+                  <SelectItem value="data">{insightsServiceLabels.data}</SelectItem>
+                  <SelectItem value="custom">{insightsServiceLabels.custom}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="customize-prompt">O que você quer que este gráfico seja?</Label>
+              <Label htmlFor="customize-prompt">{t("dashboard.customPromptLabel")}</Label>
               <Textarea
                 id="customize-prompt"
-                placeholder='Ex: "Correlacionar variável X e Y"; "Analisar se meus clientes estão se evadindo"; "Projeções de churn para o mês que vem"'
+                placeholder={t("dashboard.customPromptPlaceholder")}
                 value={customizeForm.prompt}
                 onChange={(e) => setCustomizeForm((f) => ({ ...f, prompt: e.target.value }))}
                 rows={4}
@@ -1489,10 +1512,10 @@ const Dashboard = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCustomizeWidgetId(null)}>
-              Cancelar
+              {t("profile.cancel")}
             </Button>
             <Button variant="pulso" onClick={handleCustomizeSubmit}>
-              Gerar gráfico
+              {t("dashboard.generateChart")}
             </Button>
           </DialogFooter>
         </DialogContent>

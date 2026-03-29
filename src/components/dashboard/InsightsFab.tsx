@@ -2,7 +2,8 @@
  * FAB da aba Insights: criar, excluir, atualizar, deletar gráficos e zoom.
  * Só deve ser exibido quando o usuário está na aba de Insights (activeService === null).
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LayoutGrid, Plus, Trash2, RefreshCw, ZoomIn, ZoomOut, Activity, BarChart3, TrendingUp, Circle, Percent, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AnalyticsChartType } from "@/components/dashboard/AnalyticsCard";
@@ -43,13 +44,18 @@ export function InsightsFab({
   onOpenChange: onOpenChangeProp,
   className,
 }: InsightsFabProps) {
-  const CHART_TYPES: { type: AnalyticsChartType; label: string; Icon: LucideIcon }[] = [
-    { type: "area", label: "Gráfico de área", Icon: Activity },
-    { type: "bar", label: "Gráfico de barras", Icon: BarChart3 },
-    { type: "line", label: "Gráfico de linha", Icon: TrendingUp },
-    { type: "pie", label: "Gráfico de pizza", Icon: Circle },
-    { type: "progress", label: "Gráfico de progresso", Icon: Percent },
-  ];
+  const { t, i18n } = useTranslation();
+  const chartTypes = useMemo(
+    () =>
+      [
+        { type: "area" as const, label: t("dashboard.chartTypes.areaFull"), Icon: Activity },
+        { type: "bar" as const, label: t("dashboard.chartTypes.barFull"), Icon: BarChart3 },
+        { type: "line" as const, label: t("dashboard.chartTypes.lineFull"), Icon: TrendingUp },
+        { type: "pie" as const, label: t("dashboard.chartTypes.pieFull"), Icon: Circle },
+        { type: "progress" as const, label: t("dashboard.chartTypes.progressFull"), Icon: Percent },
+      ] as const,
+    [t, i18n.language]
+  );
 
   const [openInternal, setOpenInternal] = useState(false);
   const isControlled = openProp !== undefined;
@@ -60,7 +66,7 @@ export function InsightsFab({
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={onOpenChange}>
+    <DropdownMenu key={i18n.language} open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
@@ -71,8 +77,8 @@ export function InsightsFab({
             "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
             className
           )}
-          aria-label="Opções do dashboard de Insights"
-          title="Opções do dashboard de Insights (gráficos, zoom)"
+          aria-label={t("dashboard.fabAria")}
+          title={t("dashboard.fabTitle")}
         >
           <LayoutGrid className="h-6 w-6" strokeWidth={2} />
         </button>
@@ -86,10 +92,10 @@ export function InsightsFab({
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Plus className="mr-2 h-4 w-4" />
-            Criar gráfico
+            {t("dashboard.createChart")}
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="pulso-dropdown-menu-glass">
-            {CHART_TYPES.map((option) => (
+            {chartTypes.map((option) => (
               <DropdownMenuItem
                 key={option.type}
                 onClick={() => { onCreateChart(option.type); onOpenChange(false); }}
@@ -102,7 +108,7 @@ export function InsightsFab({
         </DropdownMenuSub>
         <DropdownMenuItem onClick={() => { onUpdateChart(); onOpenChange(false); }}>
           <RefreshCw className="mr-2 h-4 w-4" />
-          Atualizar
+          {t("dashboard.refresh")}
         </DropdownMenuItem>
         {widgetIds.length > 0 && (
           <>
@@ -110,7 +116,7 @@ export function InsightsFab({
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Excluir gráfico
+                {t("dashboard.deleteChart")}
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="pulso-dropdown-menu-glass">
                 {widgetIds.map((w) => (
@@ -128,16 +134,16 @@ export function InsightsFab({
         )}
         <DropdownMenuSeparator />
         <div className="flex items-center justify-between px-2 py-1.5 text-xs text-muted-foreground">
-          <span>Zoom</span>
+          <span>{t("dashboard.zoom")}</span>
           <span className="font-mono">{Math.round(zoomLevel * 100)}%</span>
         </div>
         <DropdownMenuItem onClick={() => { onZoomIn(); onOpenChange(false); }}>
           <ZoomIn className="mr-2 h-4 w-4" />
-          Aumentar zoom
+          {t("dashboard.zoomIn")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => { onZoomOut(); onOpenChange(false); }}>
           <ZoomOut className="mr-2 h-4 w-4" />
-          Diminuir zoom
+          {t("dashboard.zoomOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

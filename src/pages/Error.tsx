@@ -1,26 +1,21 @@
-import { useLocation, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Home, ArrowLeft, Rocket, Coffee, Bug, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeSelector from "@/components/ThemeSelector";
 
-const Error = () => {
-  const location = useLocation();
-  const [message, setMessage] = useState("");
+const MESSAGE_KEYS = ["m1", "m2", "m3", "m4", "m5", "m6"] as const;
 
-  const funMessages = [
-    "Ops! Essa página saiu para um café ☕",
-    "Houston, temos um problema! 🚀",
-    "Esta página está de férias 🏖️",
-    "404: Página brincando de esconde-esconde",
-    "Parece que você encontrou um bug... ou não? 🐛",
-    "Esta rota não consta no mapa 🗺️",
-  ];
+const Error = () => {
+  const { t } = useTranslation();
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     console.error("404 Error: User attempted to access /error route");
-    setMessage(funMessages[Math.floor(Math.random() * funMessages.length)]);
-  }, []);
+    const k = MESSAGE_KEYS[Math.floor(Math.random() * MESSAGE_KEYS.length)];
+    setMessage(t(`pages.error.${k}`));
+  }, [t]);
 
   const icons = [Rocket, Coffee, Bug, Compass];
   const RandomIcon = icons[Math.floor(Math.random() * icons.length)];
@@ -53,7 +48,7 @@ const Error = () => {
             {message}
           </p>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
-            Parece que você navegou para uma dimensão paralela. Não se preocupe, podemos te trazer de volta!
+            {t("pages.error.subtitle")}
           </p>
         </div>
 
@@ -62,7 +57,7 @@ const Error = () => {
             <Link to="/">
               <span className="showcase-spark" aria-hidden />
               <Home className="w-5 h-5" />
-              Ir para o Início
+              {t("pages.error.home")}
             </Link>
           </Button>
           <Button
@@ -72,7 +67,7 @@ const Error = () => {
             className="glass hover:glass-strong hover-scale"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Voltar
+            {t("pages.error.back")}
           </Button>
         </div>
 

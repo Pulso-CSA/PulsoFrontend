@@ -1145,33 +1145,32 @@ html[data-electron="true"] .pulso-layout-b-carousel {
   margin-top: 0;
 }
 
-/* Fila de filtros Insights: fixa logo abaixo da navbar de serviços, centralizada; largura base ~75vw até medir 75% da navbar (inline no Dashboard) */
+/* Fila de filtros Insights: fixa logo abaixo da navbar; largura = conteúdo até o limite da viewport (sem scroll horizontal) */
 .pulso-insights-filter-bar-dock {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
   z-index: 28;
   box-sizing: border-box;
+  width: max-content;
   max-width: calc(100vw - 2rem);
-  width: min(75vw, calc(100vw - 2rem));
   pointer-events: none;
-  /* Fim da faixa da navbar (bar 0.75×2 + inner 1em×2 + botão 44px) + 3em de distância */
-  top: calc(1.5rem + 2em + 44px + 3em);
+  /* Imediatamente abaixo da navbar principal (fim da faixa + pequeno respiro) */
+  top: calc(1.5rem + 2em + 44px + 0.5rem);
 }
 html[data-electron="true"] .pulso-insights-filter-bar-dock {
-  top: calc(2.5rem + 1.5rem + 2em + 44px + 3em);
+  top: calc(2.5rem + 1.5rem + 2em + 44px + 0.5rem);
 }
 .pulso-insights-filter-bar-dock .pulso-insights-filter-row {
   pointer-events: auto;
+  width: auto;
+  max-width: 100%;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  overflow: visible;
   /* Fundo cinza claro (referência ~gray-300); legível nos dois temas */
   background: #d1d5db !important;
   backdrop-filter: none;

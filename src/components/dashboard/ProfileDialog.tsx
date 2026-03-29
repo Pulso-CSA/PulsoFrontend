@@ -32,6 +32,8 @@ import {
   UI_LANGUAGE_OPTIONS,
   uiLanguageLabel,
 } from "@/lib/uiLanguages";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -39,6 +41,7 @@ interface ProfileDialogProps {
 }
 
 const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -103,8 +106,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     // Validar email
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast({
-        title: "E-mail inválido",
-        description: "Informe um e-mail válido",
+        title: t("profile.invalidEmail"),
+        description: t("profile.invalidEmailDesc"),
         variant: "destructive",
       });
       setLoading(false);
@@ -115,8 +118,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     if (formData.newPassword || formData.confirmPassword || formData.currentPassword) {
       if (!formData.currentPassword) {
         toast({
-          title: "Senha atual necessária",
-          description: "Informe sua senha atual para alterar a senha",
+          title: t("profile.currentPasswordRequired"),
+          description: t("profile.currentPasswordRequiredDesc"),
           variant: "destructive",
         });
         setLoading(false);
@@ -125,8 +128,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
       if (formData.newPassword !== formData.confirmPassword) {
         toast({
-          title: "Senhas não coincidem",
-          description: "A nova senha e a confirmação devem ser iguais",
+          title: t("profile.passwordMismatch"),
+          description: t("profile.passwordMismatchDesc"),
           variant: "destructive",
         });
         setLoading(false);
@@ -135,8 +138,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
 
       if (formData.newPassword.length < 8) {
         toast({
-          title: "Senha muito curta",
-          description: "A senha deve ter pelo menos 8 caracteres",
+          title: t("profile.passwordTooShort"),
+          description: t("profile.passwordTooShortDesc"),
           variant: "destructive",
         });
         setLoading(false);
@@ -161,10 +164,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       queryClient.invalidateQueries({ queryKey: ["sfap-visibility"] });
 
       toast({
-        title: "Conta atualizada",
-        description: formData.newPassword
-          ? "Suas informações e senha foram atualizadas com sucesso"
-          : "Suas informações foram salvas com sucesso",
+        title: t("profile.updated"),
+        description: formData.newPassword ? t("profile.updatedWithPassword") : t("profile.updatedInfo"),
       });
 
       setFormData({
@@ -177,8 +178,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: "Erro ao atualizar",
-        description: error instanceof Error ? error.message : "Tente novamente",
+        title: t("profile.updateError"),
+        description: error instanceof Error ? error.message : t("profile.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -207,10 +208,10 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
             <div className="p-2 rounded-xl bg-primary/10">
               <User className="h-6 w-6 text-primary" />
             </div>
-            Minha Conta
+            {t("profile.title")}
           </DialogTitle>
           <DialogDescription className="text-sm text-foreground/75">
-            Gerencie sua conta, perfis e configurações de segurança
+            {t("profile.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -220,13 +221,13 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               value="account"
               className="text-foreground/80 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border data-[state=active]:border-primary/30"
             >
-              Conta
+              {t("profile.tabAccount")}
             </TabsTrigger>
             <TabsTrigger
               value="profiles"
               className="text-foreground/80 data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border data-[state=active]:border-primary/30"
             >
-              Perfis
+              {t("profile.tabProfiles")}
             </TabsTrigger>
           </TabsList>
 
@@ -244,7 +245,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 }`}
               >
                 <User className="h-4 w-4" />
-                Perfil
+                {t("profile.catProfile")}
               </button>
               <button
                 type="button"
@@ -256,7 +257,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 }`}
               >
                 <Key className="h-4 w-4" />
-                Chave de API
+                {t("profile.catApi")}
               </button>
               <button
                 type="button"
@@ -268,7 +269,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 }`}
               >
                 <Crown className="h-4 w-4" />
-                Plano & Pagamento
+                {t("profile.catPlan")}
               </button>
               <button
                 type="button"
@@ -280,7 +281,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 }`}
               >
                 <Lock className="h-4 w-4" />
-                Segurança
+                {t("profile.catSecurity")}
               </button>
               <button
                 type="button"
@@ -292,7 +293,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 }`}
               >
                 <Globe className="h-4 w-4" />
-                Idiomas
+                {t("profile.catLanguages")}
               </button>
             </div>
 
@@ -329,7 +330,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                       className="gap-2 border-border text-foreground hover:bg-muted"
                     >
                       <Camera className="h-4 w-4" />
-                      Alterar Foto
+                      {t("profile.changePhoto")}
                     </Button>
                     {formData.avatarUrl && (
                       <Button
@@ -339,7 +340,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                         onClick={() => setFormData({ ...formData, avatarUrl: "" })}
                         className="hover:text-destructive transition-colors"
                       >
-                        Remover
+                        {t("profile.remove")}
                       </Button>
                     )}
                   </div>
@@ -350,18 +351,18 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               <div className="glass rounded-xl p-5 space-y-4 border border-primary/15">
                 <h3 className="text-sm font-semibold text-primary flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  Informações da Conta
+                  {t("profile.accountInfo")}
                 </h3>
                 
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-sm font-medium">
-                      Nome Completo
+                      {t("profile.fullName")}
                     </Label>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Seu nome completo"
+                      placeholder={t("profile.namePlaceholder")}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
@@ -372,12 +373,12 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
                       <Mail className="h-3.5 w-3.5" />
-                      E-mail
+                      {t("profile.email")}
                     </Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="seu@email.com"
+                      placeholder={t("profile.emailPlaceholder")}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
@@ -396,15 +397,15 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               <div className="glass rounded-xl p-5 space-y-4 border border-primary/15">
                 <div className="flex items-center gap-2 pb-2">
                   <Key className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-primary">Chave de API OpenAI</h3>
+                  <h3 className="text-sm font-semibold text-primary">{t("profile.openaiKeyTitle")}</h3>
                 </div>
                 
                 <p className="text-xs text-muted-foreground pb-2">
-                  Configure sua chave de API da OpenAI para recursos de IA
+                  {t("profile.openaiKeyHint")}
                 </p>
 
                 <div className="space-y-2">
-                  <Label htmlFor="openaiApiKey" className="text-sm font-medium">API Key</Label>
+                  <Label htmlFor="openaiApiKey" className="text-sm font-medium">{t("profile.apiKeyLabel")}</Label>
                   <div className="relative">
                     <Input
                       id="openaiApiKey"
@@ -418,7 +419,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                       type="button"
                       onClick={() => setShowOpenaiKey(!showOpenaiKey)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-                      aria-label={showOpenaiKey ? "Ocultar chave" : "Mostrar chave"}
+                      aria-label={showOpenaiKey ? t("profile.hideKey") : t("profile.showKey")}
                     >
                       {showOpenaiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -437,8 +438,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   <div className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-primary drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
                     <div>
-                      <h3 className="text-sm font-semibold text-primary">Plano & Pagamento</h3>
-                      <p className="text-xs text-muted-foreground">Gerencie assinatura e métodos de pagamento</p>
+                      <h3 className="text-sm font-semibold text-primary">{t("profile.planTitle")}</h3>
+                      <p className="text-xs text-muted-foreground">{t("profile.planSubtitle")}</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -454,7 +455,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                         className="relative inline-flex items-center justify-center gap-2 text-base rounded-xl bg-gray-900 px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-gray-600/30"
                       >
                         <CreditCard className="w-5 h-5" />
-                        Upgrade
+                        {t("profile.upgrade")}
                         <svg aria-hidden viewBox="0 0 10 10" height="10" width="10" fill="none" className="mt-0.5 -mr-1 stroke-white stroke-2">
                           <path d="M0 5h7" className="transition opacity-0 group-hover:opacity-100" />
                           <path d="M1 1l4 4-4 4" className="transition group-hover:translate-x-[3px]" />
@@ -465,8 +466,8 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 </div>
                 <Separator className="bg-primary/20" />
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Plano Atual:</span>
-                  <span className="font-semibold text-foreground">Gratuito</span>
+                  <span className="text-muted-foreground">{t("profile.currentPlan")}</span>
+                  <span className="font-semibold text-foreground">{t("profile.planFree")}</span>
                 </div>
               </div>
               </>
@@ -479,21 +480,21 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
               <div className="glass rounded-lg p-5 space-y-4 border border-primary/10">
                 <div className="flex items-center gap-2 pb-2">
                   <Lock className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-primary">Segurança</h3>
+                  <h3 className="text-sm font-semibold text-primary">{t("profile.securityTitle")}</h3>
                 </div>
                 
                 <p className="text-xs text-muted-foreground pb-2">
-                  Preencha os campos abaixo apenas se deseja alterar sua senha
+                  {t("profile.securityHint")}
                 </p>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword" className="text-sm font-medium">Senha Atual</Label>
+                    <Label htmlFor="currentPassword" className="text-sm font-medium">{t("profile.currentPassword")}</Label>
                     <div className="relative">
                       <Input
                         id="currentPassword"
                         type={showCurrentPassword ? "text" : "password"}
-                        placeholder="••••••••"
+                        placeholder={t("profile.passwordPlaceholder")}
                         value={formData.currentPassword}
                         onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
                         className="border-primary/20 focus:border-primary transition-colors pr-10"
@@ -509,12 +510,12 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword" className="text-sm font-medium">Nova Senha</Label>
+                    <Label htmlFor="newPassword" className="text-sm font-medium">{t("profile.newPassword")}</Label>
                     <div className="relative">
                       <Input
                         id="newPassword"
                         type={showNewPassword ? "text" : "password"}
-                        placeholder="Mínimo 8 caracteres"
+                        placeholder={t("profile.newPasswordPlaceholder")}
                         value={formData.newPassword}
                         onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                         className="border-primary/20 focus:border-primary transition-colors pr-10"
@@ -530,7 +531,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirmar Nova Senha</Label>
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium">{t("profile.confirmPassword")}</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -559,29 +560,29 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                 <div className="glass rounded-xl p-5 space-y-4 border border-primary/15">
                   <div className="flex items-center gap-2 pb-1">
                     <Globe className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-semibold text-primary">Idioma da interface</h3>
+                    <h3 className="text-sm font-semibold text-primary">{t("profile.uiLanguageTitle")}</h3>
                   </div>
                   <p className="text-xs text-foreground/75">
-                    Escolha o idioma preferido. A preferência fica salva neste dispositivo; a tradução completa da
-                    aplicação será aplicada quando o suporte i18n estiver disponível.
+                    {t("profile.uiLanguageHint")}
                   </p>
                   <div className="space-y-2">
                     <Label htmlFor="ui-language" className="text-sm font-medium text-foreground">
-                      Idioma
+                      {t("profile.languageLabel")}
                     </Label>
                     <Select
                       value={uiLang}
                       onValueChange={(value) => {
                         setUiLang(value);
                         setStoredUiLanguage(value);
+                        void i18n.changeLanguage(value);
                         toast({
-                          title: "Idioma salvo",
-                          description: `Preferência definida para ${uiLanguageLabel(value)}.`,
+                          title: t("profile.toastLanguageSaved"),
+                          description: t("profile.toastLanguageSavedDesc", { label: uiLanguageLabel(value) }),
                         });
                       }}
                     >
                       <SelectTrigger id="ui-language" className="border-primary/20">
-                        <SelectValue placeholder="Selecione" />
+                        <SelectValue placeholder={t("profile.selectPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent className="max-h-[min(60vh,320px)]">
                         {UI_LANGUAGE_OPTIONS.map((opt) => (
@@ -604,7 +605,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   className="flex-1 border-border text-foreground bg-background hover:bg-muted"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancelar
+                  {t("profile.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -612,7 +613,7 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                   className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Save className="w-5 h-5" />
-                  {loading ? "Salvando..." : "Salvar Alterações"}
+                  {loading ? t("profile.saving") : t("profile.save")}
                 </Button>
               </div>
               )}
@@ -624,14 +625,14 @@ const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
                     className="flex-1 border-border text-foreground bg-background hover:bg-muted"
                     onClick={() => setAccountCategory("perfil")}
                   >
-                    Voltar
+                    {t("profile.back")}
                   </Button>
                   <Button
                     type="button"
                     className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                     onClick={() => onOpenChange(false)}
                   >
-                    Fechar
+                    {t("profile.close")}
                   </Button>
                 </div>
               )}

@@ -2,6 +2,7 @@ import { Minus, Square, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 
 declare global {
@@ -26,6 +27,7 @@ const MINIMAL_TITLEBAR_PATHS = new Set([
 ]);
 
 export function ElectronTitleBar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const { themeMode } = useLayoutContext();
   const isLight = themeMode === "light";
@@ -58,7 +60,7 @@ export function ElectronTitleBar() {
             ? "text-muted-foreground hover:text-foreground hover:bg-muted"
             : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]"
         )}
-        aria-label="Minimizar"
+        aria-label={t("electron.minimize")}
       >
         <Minus className="h-3.5 w-3.5 stroke-[2.5]" />
       </button>
@@ -71,7 +73,7 @@ export function ElectronTitleBar() {
             ? "text-muted-foreground hover:text-foreground hover:bg-muted"
             : "text-cyan-300/80 hover:text-cyan-300 hover:bg-cyan-500/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.3)]"
         )}
-        aria-label={isMaximized ? "Restaurar" : "Maximizar"}
+        aria-label={isMaximized ? t("electron.restore") : t("electron.maximize")}
       >
         <Square
           className={cn(
@@ -89,7 +91,7 @@ export function ElectronTitleBar() {
             ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             : "text-violet-300/80 hover:text-white hover:bg-gradient-to-r hover:from-violet-500/40 hover:to-fuchsia-500/40 hover:shadow-[0_0_14px_rgba(139,92,246,0.4)]"
         )}
-        aria-label="Fechar"
+        aria-label={t("electron.close")}
       >
         <X className="h-3.5 w-3.5 stroke-[2.5]" />
       </button>

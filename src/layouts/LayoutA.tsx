@@ -3,7 +3,8 @@
  * 4 serviços no topo, avatar de perfil no meio (hover: mini navbar Perfil + Tema)
  * Paleta Pulso: #222023, #420d95, #a54bce, #60bcd5, #1897a0
  */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Workflow, CloudCog, TrendingDown, Brain, User, LogOut, Users, Settings, Sun, Moon, Key, UserPlus, DollarSign, type LucideIcon } from "lucide-react";
@@ -28,13 +29,6 @@ function getInitial(name: string | undefined): string {
 
 export type ServiceKey = "pulso" | "cloud" | "finops" | "data";
 
-const SERVICES: { key: ServiceKey; label: string; icon: LucideIcon }[] = [
-  { key: "pulso", label: "Pulso CSA", icon: Workflow },
-  { key: "cloud", label: "Cloud IaC", icon: CloudCog },
-  { key: "finops", label: "FinOps", icon: TrendingDown },
-  { key: "data", label: "Dados & IA", icon: Brain },
-];
-
 const CLOUD_OPTIONS = [
   { id: "aws", label: "AWS", Icon: SiAmazonwebservices },
   { id: "azure", label: "Azure", Icon: TbBrandAzure },
@@ -49,6 +43,17 @@ interface LayoutAProps {
 }
 
 export function LayoutA({ activeService, onServiceChange, children, className }: LayoutAProps) {
+  const { t, i18n } = useTranslation();
+  const services = useMemo(
+    () =>
+      [
+        { key: "pulso" as const, label: t("layout.services.pulso"), icon: Workflow },
+        { key: "cloud" as const, label: t("layout.services.cloud"), icon: CloudCog },
+        { key: "finops" as const, label: t("layout.services.finops"), icon: TrendingDown },
+        { key: "data" as const, label: t("layout.services.data"), icon: Brain },
+      ] as const,
+    [t, i18n.language]
+  );
   const [serviceHover, setServiceHover] = useState<ServiceKey | null>(null);
   const [selectedProviderByService, setSelectedProviderByService] = useState<{
     cloud: "aws" | "azure" | "gcp";
@@ -124,18 +129,21 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
     const next = inviteCount + 1;
     localStorage.setItem(INVITES_KEY, String(next));
     setInviteCount(next);
-    toast({ title: "Convite enviado", description: `Convite ${next} de ${maxInvites}. Em produção, um e-mail seria enviado.` });
+    toast({
+      title: t("layout.toastInviteSent"),
+      description: t("layout.toastInviteDesc", { next, max: maxInvites }),
+    });
   };
 
   const handleLogout = async () => {
     await logout();
-    toast({ title: "Sessão encerrada", description: "Até logo!" });
+    toast({ title: t("layout.toastSessionClosed"), description: t("layout.toastSessionClosedDesc") });
     navigate("/auth");
   };
 
   const handleSwitchProfile = () => {
     setCurrentProfile(null);
-    toast({ title: "Trocar de perfil", description: "Selecione outro perfil" });
+    toast({ title: t("layout.toastSwitchProfile"), description: t("layout.toastSwitchProfileDesc") });
     navigate("/profile-selection");
   };
 
@@ -154,9 +162,9 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
   return (
     <div className={cn("pulso-layout pulso-layout-a", className)}>
       {/* Barra de serviços fixa no topo (navbar glass) */}
-      <div className="pulso-layout-a-services-bar flex-shrink-0" aria-label="Serviços">
+      <div className="pulso-layout-a-services-bar flex-shrink-0" aria-label={t("layout.servicesBarAria")}>
         <div className="pulso-layout-a-services-inner" data-pulso-main-services-inner>
-          {SERVICES.slice(0, 2).map(({ key, label, icon: Icon }) => {
+          {services.slice(0, 2).map(({ key, label, icon: Icon }) => {
             const isActive = activeService === key;
             const supportsCloudMenu = key === "cloud" || key === "finops";
             return (
@@ -177,7 +185,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     )}
                     title={label}
                     aria-pressed={isActive}
-                    aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
+                    aria-label={`${label} ${isActive ? t("layout.serviceActive") : t("layout.serviceInactive")}`}
                   >
                     <Icon className="h-5 w-5 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
                     <span className="text-xs font-medium truncate">{label}</span>
@@ -198,7 +206,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     onMouseLeave={() => setServiceHoverWithDelay(null)}
                   >
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">Provedores</span>
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">{t("layout.providers")}</span>
                       <div className="flex flex-wrap gap-1 justify-center">
                         {CLOUD_OPTIONS.map(({ id, label: optLabel, Icon: OptIcon }) => (
                           <button
@@ -229,10 +237,10 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                         setServiceHover(null);
                       }}
                       className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors"
-                      aria-label="Abrir credenciais de cloud"
+                      aria-label={t("layout.openCloudCredentials")}
                     >
                       <Key className="h-4 w-4 shrink-0" />
-                      Credenciais
+                      {t("layout.credentials")}
                     </button>
                   </div>
                 )}
@@ -253,7 +261,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   avatarHover && "ring-primary/50 ring-offset-2 ring-offset-background scale-105",
                   avatarHover && "shadow-[0_0_20px_hsl(var(--primary)/0.35)]"
                 )}
-                aria-label="Perfil"
+                aria-label={t("layout.profileAria")}
               >
                 <AvatarImage src={avatarSrc} alt={displayName} />
                 <AvatarFallback className="bg-primary/20 text-primary text-sm font-semibold">
@@ -288,7 +296,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                 {currentProfile && (
                   <>
                     <div className="px-3 py-1.5 mb-1">
-                      <p className="text-sm font-semibold text-foreground">Perfil Atual</p>
+                      <p className="text-sm font-semibold text-foreground">{t("layout.currentProfile")}</p>
                       <p className="text-xs text-muted-foreground font-normal">{currentProfile.name}</p>
                     </div>
                     <div className="h-px bg-border/60 my-2 mx-2" aria-hidden />
@@ -301,7 +309,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
                 >
                   {themeMode === "dark" ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
-                  Tema
+                  {t("layout.theme")}
                 </button>
                 {currentProfile && sfapAllowed && (
                   <button
@@ -309,10 +317,10 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     role="menuitem"
                     onClick={() => { setAvatarHover(false); navigate("/sfap"); }}
                     className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
-                    title="Sistema Financeiro Administrativo Pulso"
+                    title={t("layout.sfapTitle")}
                   >
                     <DollarSign className="h-4 w-4 shrink-0" />
-                    SFAP
+                    {t("layout.sfap")}
                   </button>
                 )}
                 <button
@@ -322,7 +330,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
                 >
                   <User className="h-4 w-4 shrink-0" />
-                  Conta
+                  {t("layout.account")}
                 </button>
                 <button
                   type="button"
@@ -331,7 +339,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
                 >
                   <Settings className="h-4 w-4 shrink-0" />
-                  Configurações
+                  {t("layout.settings")}
                 </button>
                 <button
                   type="button"
@@ -341,7 +349,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <UserPlus className="h-4 w-4 shrink-0" />
-                  Convidar usuário {inviteCount > 0 && `(${inviteCount}/${maxInvites})`}
+                  {t("layout.inviteUser")}{inviteCount > 0 && ` (${inviteCount}/${maxInvites})`}
                 </button>
                 <div className="h-px bg-border/60 my-2 mx-2" aria-hidden />
                 <button
@@ -351,7 +359,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
                 >
                   <Users className="h-4 w-4 shrink-0" />
-                  Trocar de Perfil
+                  {t("layout.switchProfile")}
                 </button>
                 <button
                   type="button"
@@ -360,12 +368,12 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                   className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-primary/20 hover:text-primary transition-colors text-left"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
-                  Sair
+                  {t("layout.logout")}
                 </button>
               </div>,
               document.body
             )}
-          {SERVICES.slice(2, 4).map(({ key, label, icon: Icon }) => {
+          {services.slice(2, 4).map(({ key, label, icon: Icon }) => {
             const isActive = activeService === key;
             const supportsCloudMenu = key === "finops";
             return (
@@ -383,7 +391,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     className={cn("pulso-layout-a-btn pulso-layout-a-btn-horizontal text-foreground", isActive && "pulso-active")}
                     title={label}
                     aria-pressed={isActive}
-                    aria-label={`${label} ${isActive ? "ativo" : "inativo"}`}
+                    aria-label={`${label} ${isActive ? t("layout.serviceActive") : t("layout.serviceInactive")}`}
                   >
                     <Icon className="h-5 w-5 shrink-0 pulso-service-tab-icon" strokeWidth={1.5} />
                     <span className="text-xs font-medium truncate">{label}</span>
@@ -402,7 +410,7 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                     onMouseLeave={() => setServiceHoverWithDelay(null)}
                   >
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">Provedores</span>
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 pb-1">{t("layout.providers")}</span>
                       <div className="flex flex-wrap gap-1 justify-center">
                         {CLOUD_OPTIONS.map(({ id, label: optLabel, Icon: OptIcon }) => (
                           <button
@@ -433,10 +441,10 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
                         setServiceHover(null);
                       }}
                       className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-primary/15 hover:text-primary transition-colors"
-                      aria-label="Abrir credenciais de cloud"
+                      aria-label={t("layout.openCloudCredentials")}
                     >
                       <Key className="h-4 w-4 shrink-0" />
-                      Credenciais
+                      {t("layout.credentials")}
                     </button>
                   </div>
                 )}

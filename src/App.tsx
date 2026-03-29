@@ -14,6 +14,7 @@ import { ElectronTitleBar } from "@/components/ElectronTitleBar";
 import { VersionGate } from "@/components/VersionGate";
 import { UpdateAvailableScreen } from "@/components/UpdateAvailableScreen";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Index = lazy(() => import("./pages/Index"));
 const DownloadPage = lazy(() => import("./pages/DownloadPage"));
@@ -38,14 +39,16 @@ const queryClient = new QueryClient({
 });
 
 function PageLoader() {
+  const { t } = useTranslation();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background" role="status" aria-live="polite" aria-label="Carregando">
+    <div className="min-h-screen flex items-center justify-center bg-background" role="status" aria-live="polite" aria-label={t("app.loading")}>
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 }
 
 const App = () => {
+  const { t } = useTranslation();
   useEffect(() => {
     if (typeof window !== "undefined") {
       document.documentElement.dataset.electron = window.electronAPI ? "true" : "";
@@ -64,7 +67,7 @@ const App = () => {
                   <ElectronTitleBar />
                   <UpdateAvailableScreen />
                   <a href="#main-content" className="skip-link">
-                    Pular para o conteúdo principal
+                    {t("app.skipToContent")}
                   </a>
                   <Toaster />
                   <Sonner />
