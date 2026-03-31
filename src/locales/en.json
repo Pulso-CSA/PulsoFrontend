@@ -312,7 +312,7 @@
     "assistantAlt": "Pulso CSA",
     "previewLink": "Open preview: {{url}}",
     "noLocalEngineTitle": "Local CSA engine not running",
-    "noLocalEngineDesc": "With a project folder set, the local engine is required (Electron with PulsoAPI on your machine). Without it, the cloud API writes files on the server — not in this folder. Use npm run electron:dev or ensure the local engine started (PulsoAPI/api, Python).",
+    "noLocalEngineDesc": "With a project folder set, the local engine is required (Electron with PulsoAPI on your machine). Without it, the cloud API writes files on the server — not in this folder. If you use the installed app, point to your PulsoAPI\\api folder (pulso-csa-pulsoapi-root.txt in app data or PULSO_API_ROOT). From source: npm run electron:dev and Python running.",
     "diagnosticsTitle": "Diagnostics — saving on your PC",
     "diagnosticsRefresh": "Refresh",
     "diagnosticsOnlyElectron": "This panel only appears in the Electron app. In the browser, requests go to the cloud API and files are not written to the folder you type.",
@@ -328,6 +328,7 @@
     "diagnosticsPathExists": "exists",
     "diagnosticsPathMissing": "missing",
     "diagnosticsFrontendRoot": "Frontend root (Electron):",
+    "diagnosticsPackagedNote": "Installed build (Program Files): sibling paths next to the executable usually do not contain your PulsoAPI clone. Set the real api folder on disk (file below or PULSO_API_ROOT on the shortcut).",
     "diagnosticsManualFileHint": "Alternative: create {{path}} with a single line — the absolute path to the api folder (e.g. C:\\…\\PulsoAPI\\api). Restart Electron.",
     "diagnosticsEnvUnset": "PULSO_API_ROOT is not set on the Electron process.",
     "diagnosticsEnvSet": "PULSO_API_ROOT={{path}} (path must exist on disk).",
@@ -339,7 +340,7 @@
     "diagnosticsDevRelax": "Dev mode: allowlist relaxed (PULSO_LOCAL_RELAX_ROOT_ALLOWLIST). Packaged builds use strict checks.",
     "diagnosticsLogFile": "Engine log:",
     "diagnosticsError": {
-      "PULSO_API_ROOT_MISSING": "PulsoAPI/api not found. Place PulsoAPI next to PulsoFrontend or set PULSO_API_ROOT when launching Electron.",
+      "PULSO_API_ROOT_MISSING": "PulsoAPI/api not found. From source: put PulsoAPI next to PulsoFrontend. Installed app: use the path file in app data (see below) or PULSO_API_ROOT.",
       "HEALTH_TIMEOUT": "Python started but /health did not respond. Check pip deps, API .env, and the [pulso-csa-local] console output.",
       "NO_PORT": "Could not bind a free TCP port on 127.0.0.1."
     },

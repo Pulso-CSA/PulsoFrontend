@@ -978,6 +978,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                         </ul>
                       </li>
                     ) : null}
+                    {localDiag.isPackaged && !localDiag.apiRoot ? (
+                      <li className="text-[11px] text-amber-900/95 dark:text-amber-200/90 leading-snug border-l border-amber-500/40 pl-2">
+                        {t("pulsoCsa.diagnosticsPackagedNote")}
+                      </li>
+                    ) : null}
                     {localDiag.frontendRoot ? (
                       <li>
                         <span className="text-foreground/55">{t("pulsoCsa.diagnosticsFrontendRoot")} </span>

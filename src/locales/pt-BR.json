@@ -312,7 +312,7 @@
     "assistantAlt": "Pulso CSA",
     "previewLink": "Acessar preview: {{url}}",
     "noLocalEngineTitle": "Motor CSA local inativo",
-    "noLocalEngineDesc": "Com uma pasta definida, é obrigatório o motor local (Electron com PulsoAPI no PC). Sem ele, a API na cloud cria ficheiros no servidor — não nesta pasta. Use npm run electron:dev ou confirme que o motor arrancou (PulsoAPI/api, Python).",
+    "noLocalEngineDesc": "Com uma pasta definida, é obrigatório o motor local (Electron com PulsoAPI no PC). Sem ele, a API na cloud cria ficheiros no servidor — não nesta pasta. Se usa a app instalada, indique onde está PulsoAPI\\api (ficheiro pulso-csa-pulsoapi-root.txt nos dados da app ou PULSO_API_ROOT). Em código-fonte: npm run electron:dev e Python a correr.",
     "diagnosticsTitle": "Diagnóstico — gravação no teu PC",
     "diagnosticsRefresh": "Atualizar",
     "diagnosticsOnlyElectron": "Este painel só existe na app Electron. No navegador, o pedido vai para a API na cloud e os ficheiros não são criados na pasta que indicar.",
@@ -328,6 +328,7 @@
     "diagnosticsPathExists": "existe",
     "diagnosticsPathMissing": "não existe",
     "diagnosticsFrontendRoot": "Raiz do frontend (Electron):",
+    "diagnosticsPackagedNote": "Versão instalada (Program Files): os caminhos verificados ao lado do executável quase nunca contêm o seu repositório PulsoAPI. Tem de apontar para a pasta real api no disco (ficheiro abaixo ou PULSO_API_ROOT no atalho).",
     "diagnosticsManualFileHint": "Alternativa: crie o ficheiro {{path}} com uma única linha — o caminho absoluto até à pasta api (ex.: C:\\…\\PulsoAPI\\api). Reinicie o Electron.",
     "diagnosticsEnvUnset": "PULSO_API_ROOT não está definido no processo Electron.",
     "diagnosticsEnvSet": "PULSO_API_ROOT={{path}} (tem de existir no disco).",
@@ -339,7 +340,7 @@
     "diagnosticsDevRelax": "Modo dev: allowlist relaxada (PULSO_LOCAL_RELAX_ROOT_ALLOWLIST). Em build empacotada a validação é estrita.",
     "diagnosticsLogFile": "Log do motor:",
     "diagnosticsError": {
-      "PULSO_API_ROOT_MISSING": "Não encontrámos PulsoAPI/api. Coloque PulsoAPI ao lado de PulsoFrontend ou defina PULSO_API_ROOT ao arrancar o Electron.",
+      "PULSO_API_ROOT_MISSING": "Não encontrámos PulsoAPI/api. Com código-fonte: pasta PulsoAPI ao lado de PulsoFrontend. Com app instalada: use o ficheiro de caminho nos dados da app (ver abaixo) ou PULSO_API_ROOT.",
       "HEALTH_TIMEOUT": "O Python arrancou mas /health não respondeu. Verifique dependências (pip), .env da API e a consola [pulso-csa-local].",
       "NO_PORT": "Não foi possível obter uma porta livre em 127.0.0.1."
     },
