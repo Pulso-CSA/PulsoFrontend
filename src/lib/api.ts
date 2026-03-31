@@ -724,6 +724,191 @@ export const infraApi = {
   },
 };
 
+/** Resposta final de POST /comprehension/run (síncrono ou após polling do job). */
+export type ComprehensionRunResponse = {
+  intent: string;
+  project_state: string;
+  should_execute: boolean;
+  target_endpoint: string | null;
+  explanation: string;
+  next_action: string;
+  message: string;
+  file_tree: string | null;
+  system_behavior: Record<string, unknown> | null;
+  frontend_suggestion: string | null;
+  curl_commands?: string[];
+  preview_frontend_url?: string | null;
+  language?: string;
+  framework?: string;
+};
+
+const COMPREHENSION_POLL_INTERVAL_MS = 2000;
+const COMPREHENSION_POLL_MAX_MS = 45 * 60 * 1000;
+
+/**
+ * fetch com Bearer + token local; em 401 tenta refresh uma vez (mesmo padrão de apiRequest).
+ */
+async function fetchWithAuthRetry(
+  fullUrl: string,
+  fetchOptions: RequestInit,
+  baseOverride: ApiRequestBaseOverride | null,
+): Promise<Response> {
+  const method = (fetchOptions.method || 'GET').toUpperCase();
+  const hasJsonBody =
+    fetchOptions.body != null && method !== 'GET' && method !== 'HEAD';
+  const requestHeaders: Record<string, string> = {
+    ...(hasJsonBody ? { 'Content-Type': 'application/json' } : {}),
+    ...(fetchOptions.headers as Record<string, string> | undefined),
+  };
+
+  const token = await getValidToken();
+  if (token) requestHeaders['Authorization'] = `Bearer ${token}`;
+  if (baseOverride?.localToken) {
+    requestHeaders['X-Pulso-Local-Token'] = baseOverride.localToken;
+  }
+
+  let response = await fetch(fullUrl, { ...fetchOptions, headers: requestHeaders });
+
+  if (response.status === 401) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = refreshAccessToken();
+    }
+    const newToken = await refreshPromise;
+    isRefreshing = false;
+    refreshPromise = null;
+
+    if (newToken) {
+      requestHeaders['Authorization'] = `Bearer ${newToken}`;
+      response = await fetch(fullUrl, { ...fetchOptions, headers: requestHeaders });
+    } else {
+      removeStoredTokens();
+      removeStoredProfileId();
+      dispatchSessionExpired();
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+  }
+
+  return response;
+}
+
+async function parseJsonErrorAndThrow(response: Response, endpoint: string): Promise<never> {
+  const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+  LOG('apiRequest', 'ERRO', response.status, endpoint, 'body:', error);
+  const msg = (error as { detail?: unknown; message?: unknown; msg?: unknown }).detail ??
+    (error as { message?: unknown }).message ??
+    (error as { msg?: unknown }).msg ??
+    'Erro na requisição';
+  let errorMessage =
+    typeof msg === 'string'
+      ? msg
+      : msg && typeof msg === 'object'
+        ? String(
+            (msg as Record<string, unknown>).message ??
+              (msg as Record<string, unknown>).msg ??
+              JSON.stringify(msg),
+          )
+        : 'Erro na requisição';
+  if (
+    response.status === 404 &&
+    typeof errorMessage === 'string' &&
+    /application not found/i.test(errorMessage)
+  ) {
+    errorMessage = `${errorMessage} — A URL da API não está alcançando o backend (comum no Railway: serviço parado, domínio antigo ou URL errada). Verifique VITE_API_URL e o deploy no painel do Railway. Em desenvolvimento: npm run dev e API em 127.0.0.1:8000.`;
+  }
+  throw new Error(errorMessage);
+}
+
+async function pollComprehensionJob(
+  base: string,
+  pollPath: string,
+  baseOverride: ApiRequestBaseOverride | null,
+): Promise<ComprehensionRunResponse> {
+  const deadline = Date.now() + COMPREHENSION_POLL_MAX_MS;
+  LOG('comprehensionPoll', 'polling', pollPath);
+
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, COMPREHENSION_POLL_INTERVAL_MS));
+    const url = `${base}${pollPath}`;
+    const res = await fetchWithAuthRetry(url, { method: 'GET' }, baseOverride);
+    if (!res.ok) {
+      await parseJsonErrorAndThrow(res, pollPath);
+    }
+    const data = (await res.json()) as {
+      status?: string;
+      response?: ComprehensionRunResponse | null;
+      error?: { code?: string; message?: string } | null;
+    };
+    if (data.status === 'completed') {
+      if (!data.response || typeof data.response !== 'object') {
+        throw new Error('Workflow concluído sem corpo de resposta.');
+      }
+      return data.response;
+    }
+    if (data.status === 'failed') {
+      const m = data.error?.message ?? data.error?.code ?? 'Workflow falhou.';
+      throw new Error(typeof m === 'string' ? m : JSON.stringify(m));
+    }
+  }
+  throw new Error(
+    'Tempo limite ao aguardar o workflow (compreensão). Tente de novo ou use um prompt mais curto.',
+  );
+}
+
+async function postComprehensionRun(
+  endpointPath: string,
+  body: string,
+  baseOverride: ApiRequestBaseOverride | null,
+): Promise<ComprehensionRunResponse> {
+  const base = (baseOverride?.baseUrl ?? API_BASE_URL).replace(/\/$/, '');
+  const fullUrl = `${base}${endpointPath}`;
+  LOG('comprehensionRun', 'POST', fullUrl);
+
+  let response = await fetchWithAuthRetry(
+    fullUrl,
+    { method: 'POST', body },
+    baseOverride,
+  );
+
+  if (response.status === 401) {
+    removeStoredTokens();
+    removeStoredProfileId();
+    dispatchSessionExpired();
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
+  if (response.status === 202) {
+    const accept = (await response.json()) as {
+      job_id?: string;
+      poll_path?: string;
+    };
+    const jobId = accept.job_id;
+    const defaultPoll = endpointPath.includes('comprehension-js')
+      ? `/comprehension-js/jobs/${jobId}`
+      : `/comprehension/jobs/${jobId}`;
+    const pollPath =
+      typeof accept.poll_path === 'string' && accept.poll_path.startsWith('/')
+        ? accept.poll_path
+        : jobId
+          ? defaultPoll
+          : '';
+    if (!pollPath || !jobId) {
+      throw new Error('Resposta 202 inválida: falta job_id ou poll_path.');
+    }
+    return pollComprehensionJob(base, pollPath, baseOverride);
+  }
+
+  if (!response.ok) {
+    await parseJsonErrorAndThrow(response, endpointPath);
+  }
+
+  const text = await response.text();
+  if (!text) {
+    return {} as ComprehensionRunResponse;
+  }
+  return JSON.parse(text) as ComprehensionRunResponse;
+}
+
 // Workflow API (legado; preferir comprehensionApi para o fluxo do chat)
 export const workflowApi = {
   runCorrect: async (payload: {
@@ -753,32 +938,15 @@ export const comprehensionApi = {
       use_vue?: boolean;
       use_angular?: boolean;
     },
-    endpoint: string = 'comprehension'
+    endpoint: string = 'comprehension',
   ) => {
-    const endpointPath = endpoint === 'comprehension-js' ? '/comprehension-js/run' : '/comprehension/run';
+    const endpointPath =
+      endpoint === 'comprehension-js' ? '/comprehension-js/run' : '/comprehension/run';
     const localCfg = await getLocalApiConfig();
     const baseOverride = localCfg
       ? { baseUrl: localCfg.baseUrl, localToken: localCfg.token }
       : null;
-    return apiRequest<{
-      intent: string;
-      project_state: string;
-      should_execute: boolean;
-      target_endpoint: string | null;
-      explanation: string;
-      next_action: string;
-      message: string;
-      file_tree: string | null;
-      system_behavior: Record<string, unknown> | null;
-      frontend_suggestion: string | null;
-      curl_commands?: string[];
-      preview_frontend_url?: string | null;
-      language?: string;
-      framework?: string;
-    }>(endpointPath, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }, baseOverride);
+    return postComprehensionRun(endpointPath, JSON.stringify(payload), baseOverride);
   },
 };
 
