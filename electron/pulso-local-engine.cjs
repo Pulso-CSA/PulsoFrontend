@@ -36,12 +36,44 @@ function getFreePort() {
   });
 }
 
-function resolveApiRoot(appRoot) {
-  if (process.env.PULSO_API_ROOT && fs.existsSync(process.env.PULSO_API_ROOT)) {
-    return process.env.PULSO_API_ROOT;
+/**
+ * Resolve pasta PulsoAPI/api (cwd do uvicorn). Ordem: env → ficheiro em userData → pastas irmãs.
+ * @param {string} appRoot Raiz do PulsoFrontend (pasta que contém electron/)
+ * @param {string} [userDataDir] AppData do Electron (ficheiro opcional pulso-csa-pulsoapi-root.txt)
+ */
+function resolveApiRoot(appRoot, userDataDir) {
+  const envRoot = (process.env.PULSO_API_ROOT || "").trim();
+  if (envRoot && fs.existsSync(envRoot)) {
+    return path.resolve(envRoot);
   }
-  const sibling = path.resolve(appRoot, "..", "PulsoAPI", "api");
-  if (fs.existsSync(sibling)) return sibling;
+
+  if (userDataDir) {
+    try {
+      const manualFile = path.join(userDataDir, "pulso-csa-pulsoapi-root.txt");
+      if (fs.existsSync(manualFile)) {
+        const raw = fs.readFileSync(manualFile, "utf-8");
+        const line = raw
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .find((l) => l && !l.startsWith("#"));
+        if (line) {
+          const cleaned = line.replace(/^["']|["']$/g, "").trim();
+          const resolved = path.resolve(cleaned);
+          if (fs.existsSync(resolved)) return resolved;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const candidates = [
+    path.resolve(appRoot, "..", "PulsoAPI", "api"),
+    path.resolve(appRoot, "..", "..", "PulsoAPI", "api"),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
   return null;
 }
 
@@ -124,7 +156,7 @@ async function startLocalEngine(app, appRoot, browserWindow) {
   const userData = app.getPath("userData");
   initPaths(userData);
 
-  const apiRoot = resolveApiRoot(appRoot);
+  const apiRoot = resolveApiRoot(appRoot, userData);
   lastResolvedApiRoot = apiRoot;
   if (!apiRoot) {
     lastStartError = "PULSO_API_ROOT_MISSING";
@@ -240,9 +272,14 @@ function getLocalConfig() {
 
 /**
  * Estado para o painel de diagnóstico no frontend (Electron).
- * @param {{ isPackaged?: boolean, folderPath?: string }} opts
+ * @param {{ isPackaged?: boolean, folderPath?: string, appRoot?: string, userDataDir?: string }} opts
  */
 function getLocalDiagnostics(opts = {}) {
+  const ud = opts.userDataDir || null;
+  if (ud && !allowRootsPath) {
+    initPaths(ud);
+  }
+
   const roots = readAllowRoots();
   const fp = (opts.folderPath || "").trim();
   const norm = (s) => s.replace(/[/\\]+$/g, "").toLowerCase();
@@ -254,6 +291,12 @@ function getLocalDiagnostics(opts = {}) {
           const rn = norm(String(r));
           return rn === fpNorm || fpNorm.startsWith(rn + "\\") || fpNorm.startsWith(rn + "/");
         });
+
+  const appRoot = (opts.appRoot || "").trim();
+  const expectedSibling = appRoot ? path.resolve(appRoot, "..", "PulsoAPI", "api") : null;
+  const expectedGrand = appRoot ? path.resolve(appRoot, "..", "..", "PulsoAPI", "api") : null;
+  const manualPulsoapiFile = ud ? path.join(ud, "pulso-csa-pulsoapi-root.txt") : null;
+  const envPulsoApiRoot = (process.env.PULSO_API_ROOT || "").trim() || null;
 
   return {
     engineRunning: Boolean(child && !child.killed && localPort > 0),
@@ -267,6 +310,13 @@ function getLocalDiagnostics(opts = {}) {
     folderInAllowlist,
     isPackaged: Boolean(opts.isPackaged),
     relaxAllowlistInDev: !opts.isPackaged,
+    pulsoApiCandidates: [
+      expectedSibling ? { path: expectedSibling, exists: fs.existsSync(expectedSibling) } : null,
+      expectedGrand ? { path: expectedGrand, exists: fs.existsSync(expectedGrand) } : null,
+    ].filter(Boolean),
+    manualPulsoapiFile,
+    envPulsoApiRoot,
+    frontendRoot: appRoot || null,
   };
 }
 

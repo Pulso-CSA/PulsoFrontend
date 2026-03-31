@@ -14,12 +14,16 @@ function registerPulsoLocalIpcOnce() {
   if (registerPulsoLocalIpcOnce.done) return;
   registerPulsoLocalIpcOnce.done = true;
   ipcMain.handle("pulso-local-get-config", () => pulsoLocal.getLocalConfig());
-  ipcMain.handle("pulso-local-get-diagnostics", (_, folderPath) =>
-    pulsoLocal.getLocalDiagnostics({
+  ipcMain.handle("pulso-local-get-diagnostics", (_, opts) => {
+    const folderPath =
+      typeof opts === "string" ? opts : (opts && typeof opts.folderPath === "string" ? opts.folderPath : "");
+    return pulsoLocal.getLocalDiagnostics({
       isPackaged: app.isPackaged,
       folderPath: folderPath || "",
-    }),
-  );
+      appRoot: path.join(__dirname, ".."),
+      userDataDir: app.getPath("userData"),
+    });
+  });
   ipcMain.handle("pulso-local-pick-folder", async () => {
     const w = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
     return pulsoLocal.pickProjectFolder(w);

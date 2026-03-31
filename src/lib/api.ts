@@ -188,6 +188,10 @@ export type LocalEngineDiagnostics = {
   folderInAllowlist: boolean | null;
   isPackaged: boolean;
   relaxAllowlistInDev: boolean;
+  pulsoApiCandidates?: { path: string; exists: boolean }[];
+  manualPulsoapiFile?: string | null;
+  envPulsoApiRoot?: string | null;
+  frontendRoot?: string | null;
 };
 
 let _localApiConfigCache: { value: LocalApiConfig | null; at: number } | null = null;

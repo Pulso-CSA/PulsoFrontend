@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveReport: (filePath, content) => ipcRenderer.invoke("save-report", filePath, content),
   getLocalApiConfig: () => ipcRenderer.invoke("pulso-local-get-config"),
   getLocalDiagnostics: (folderPath) =>
-    ipcRenderer.invoke("pulso-local-get-diagnostics", folderPath ?? ""),
+    ipcRenderer.invoke("pulso-local-get-diagnostics", { folderPath: folderPath ?? "" }),
   pickProjectFolder: () => ipcRenderer.invoke("pulso-local-pick-folder"),
   registerAllowedRoot: (rootPath) => ipcRenderer.invoke("pulso-local-register-root", rootPath),
 });

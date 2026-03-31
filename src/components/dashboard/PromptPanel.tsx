@@ -961,6 +961,42 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                         <code className="text-[11px] break-all">{localDiag.apiRoot}</code>
                       </li>
                     ) : null}
+                    {!localDiag.apiRoot &&
+                    localDiag.pulsoApiCandidates &&
+                    localDiag.pulsoApiCandidates.length > 0 ? (
+                      <li className="space-y-1">
+                        <span className="text-foreground/55">{t("pulsoCsa.diagnosticsCandidatesTitle")}</span>
+                        <ul className="pl-2 mt-1 space-y-1 border-l border-primary/20 list-none">
+                          {localDiag.pulsoApiCandidates.map((c) => (
+                            <li key={c.path} className="text-[11px]">
+                              <code className="break-all opacity-90">{c.path}</code>{" "}
+                              <span className={c.exists ? "text-emerald-600 dark:text-emerald-400" : "text-foreground/50"}>
+                                {c.exists ? t("pulsoCsa.diagnosticsPathExists") : t("pulsoCsa.diagnosticsPathMissing")}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ) : null}
+                    {localDiag.frontendRoot ? (
+                      <li>
+                        <span className="text-foreground/55">{t("pulsoCsa.diagnosticsFrontendRoot")} </span>
+                        <code className="text-[10px] break-all opacity-80">{localDiag.frontendRoot}</code>
+                      </li>
+                    ) : null}
+                    {!localDiag.apiRoot && localDiag.manualPulsoapiFile ? (
+                      <li className="text-[11px] text-foreground/75 leading-snug">
+                        {t("pulsoCsa.diagnosticsManualFileHint", { path: localDiag.manualPulsoapiFile })}
+                      </li>
+                    ) : null}
+                    {!localDiag.apiRoot && !localDiag.envPulsoApiRoot ? (
+                      <li className="text-[11px] text-foreground/60">{t("pulsoCsa.diagnosticsEnvUnset")}</li>
+                    ) : null}
+                    {!localDiag.apiRoot && localDiag.envPulsoApiRoot ? (
+                      <li className="text-[11px] text-foreground/60">
+                        {t("pulsoCsa.diagnosticsEnvSet", { path: localDiag.envPulsoApiRoot })}
+                      </li>
+                    ) : null}
                     <li>
                       <span className="text-foreground/55">{t("pulsoCsa.diagnosticsAllowlist")} </span>
                       {t("pulsoCsa.diagnosticsRootsCount", { count: localDiag.allowedRootCount })}
