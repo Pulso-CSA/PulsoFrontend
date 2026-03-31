@@ -11,10 +11,25 @@ export interface FolderFileUploadProps {
   className?: string;
   children?: React.ReactNode;
   compact?: boolean;
+  /** Desktop: abre dialog nativo de pasta em vez do input file. */
+  useElectronDirectoryPicker?: boolean;
+  onElectronDirectoryPicked?: (absolutePath: string) => void;
 }
 
 const FolderFileUpload = React.forwardRef<HTMLInputElement, FolderFileUploadProps>(
-  ({ onFileChange, accept, multiple, className, children, compact }, ref) => {
+  (
+    {
+      onFileChange,
+      accept,
+      multiple,
+      className,
+      children,
+      compact,
+      useElectronDirectoryPicker,
+      onElectronDirectoryPicked,
+    },
+    ref
+  ) => {
     const mergedRef = (el: HTMLInputElement | null) => {
       if (typeof ref === "function") ref(el);
       else if (ref) (ref as React.MutableRefObject<HTMLInputElement | null>).current = el;
@@ -29,7 +44,21 @@ const FolderFileUpload = React.forwardRef<HTMLInputElement, FolderFileUploadProp
           </div>
           <div className="pulso-folder-file-upload-back-side pulso-folder-file-upload-cover" />
         </div>
-        <label className="pulso-folder-file-upload-label">
+        <label
+          className="pulso-folder-file-upload-label"
+          onClick={async (e) => {
+            if (!useElectronDirectoryPicker || typeof window === "undefined") return;
+            const api = (
+              window as unknown as {
+                electronAPI?: { pickProjectFolder?: () => Promise<string | null> };
+              }
+            ).electronAPI;
+            if (!api?.pickProjectFolder) return;
+            e.preventDefault();
+            const picked = await api.pickProjectFolder();
+            if (picked) onElectronDirectoryPicked?.(picked);
+          }}
+        >
           <input
             ref={mergedRef}
             type="file"

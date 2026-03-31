@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain, shell, nativeImage } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const pulsoLocal = require("./pulso-local-engine.cjs");
 
 /** Windows: obrigatório para o ícone correto na barra de tarefas / atalhos (evita logo genérico do Electron). */
 if (process.platform === "win32") {
@@ -8,6 +9,18 @@ if (process.platform === "win32") {
 }
 
 let mainWindow;
+
+function registerPulsoLocalIpcOnce() {
+  if (registerPulsoLocalIpcOnce.done) return;
+  registerPulsoLocalIpcOnce.done = true;
+  ipcMain.handle("pulso-local-get-config", () => pulsoLocal.getLocalConfig());
+  ipcMain.handle("pulso-local-pick-folder", async () => {
+    const w = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
+    return pulsoLocal.pickProjectFolder(w);
+  });
+  ipcMain.handle("pulso-local-register-root", (_, rootPath) => pulsoLocal.registerAllowedRoot(rootPath));
+}
+registerPulsoLocalIpcOnce.done = false;
 
 /** Caminhos candidatos ao ícone (Windows: .ico com vários tamanhos; PNG na barra costuma falhar). */
 function resolveWindowIconPaths() {
@@ -322,6 +335,8 @@ function createWindow() {
     mainWindow.show();
   });
   mainWindow.on("closed", () => { mainWindow = null; });
+
+  registerPulsoLocalIpcOnce();
 }
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
@@ -335,9 +350,20 @@ if (!gotSingleInstanceLock) {
     }
   });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
+    pulsoLocal.initPaths(app.getPath("userData"));
+    const appRoot = path.join(__dirname, "..");
+    const started = await pulsoLocal.startLocalEngine(app, appRoot, null);
+    if (!started.ok) {
+      console.warn("pulso-csa-local não iniciou:", started.error);
+    }
+
     createWindow();
     setupAutoUpdater();
+  });
+
+  app.on("before-quit", () => {
+    pulsoLocal.stopLocalEngine();
   });
 }
 app.on("window-all-closed", () => {

@@ -29,4 +29,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   quitAndInstall: () => ipcRenderer.invoke("update-quit-and-install"),
   openUninstall: () => ipcRenderer.invoke("open-uninstall"),
   saveReport: (filePath, content) => ipcRenderer.invoke("save-report", filePath, content),
+  getLocalApiConfig: () => ipcRenderer.invoke("pulso-local-get-config"),
+  pickProjectFolder: () => ipcRenderer.invoke("pulso-local-pick-folder"),
+  registerAllowedRoot: (rootPath) => ipcRenderer.invoke("pulso-local-register-root", rootPath),
 });

@@ -151,9 +151,32 @@ interface RequestOptions extends Omit<RequestInit, 'headers'> {
   retryOnUnauthorized?: boolean;
 }
 
+/** Base URL alternativa (motor local CSA em Electron). */
+export type ApiRequestBaseOverride = { baseUrl: string; localToken?: string };
+
+export type LocalApiConfig = { baseUrl: string; token: string };
+
+let _localApiConfigCache: { value: LocalApiConfig | null; at: number } | null = null;
+const LOCAL_API_CONFIG_TTL_MS = 1500;
+
+/** Config do FastAPI local (127.0.0.1); null fora do Electron ou se o motor não subiu. */
+export async function getLocalApiConfig(): Promise<LocalApiConfig | null> {
+  if (typeof window === 'undefined') return null;
+  const api = (window as unknown as { electronAPI?: { getLocalApiConfig?: () => Promise<LocalApiConfig | null> } }).electronAPI;
+  if (!api?.getLocalApiConfig) return null;
+  const now = Date.now();
+  if (_localApiConfigCache && now - _localApiConfigCache.at < LOCAL_API_CONFIG_TTL_MS) {
+    return _localApiConfigCache.value;
+  }
+  const value = await api.getLocalApiConfig();
+  _localApiConfigCache = { value, at: now };
+  return value;
+}
+
 export async function apiRequest<T>(
   endpoint: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
+  baseOverride?: ApiRequestBaseOverride | null,
 ): Promise<T> {
   const { skipAuth = false, retryOnUnauthorized = true, headers = {}, ...fetchOptions } = options;
   
@@ -170,7 +193,12 @@ export async function apiRequest<T>(
     }
   }
 
-  const fullUrl = `${API_BASE_URL}${endpoint}`;
+  if (baseOverride?.localToken) {
+    requestHeaders['X-Pulso-Local-Token'] = baseOverride.localToken;
+  }
+
+  const base = (baseOverride?.baseUrl ?? API_BASE_URL).replace(/\/$/, '');
+  const fullUrl = `${base}${endpoint}`;
   LOG("apiRequest", "→", fetchOptions.method || "GET", fullUrl, {
     hasAuth: !!requestHeaders["Authorization"],
     body: fetchOptions.body ? "(presente)" : "(vazio)",
@@ -207,7 +235,7 @@ export async function apiRequest<T>(
     if (newToken) {
       // Retry the request with new token
       requestHeaders['Authorization'] = `Bearer ${newToken}`;
-      const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const retryResponse = await fetch(`${base}${endpoint}`, {
         ...fetchOptions,
         headers: requestHeaders,
       });
@@ -728,6 +756,10 @@ export const comprehensionApi = {
     endpoint: string = 'comprehension'
   ) => {
     const endpointPath = endpoint === 'comprehension-js' ? '/comprehension-js/run' : '/comprehension/run';
+    const localCfg = await getLocalApiConfig();
+    const baseOverride = localCfg
+      ? { baseUrl: localCfg.baseUrl, localToken: localCfg.token }
+      : null;
     return apiRequest<{
       intent: string;
       project_state: string;
@@ -746,14 +778,18 @@ export const comprehensionApi = {
     }>(endpointPath, {
       method: 'POST',
       body: JSON.stringify(payload),
-    });
+    }, baseOverride);
   },
 };
 
 // Preview API – inicia servidor de desenvolvimento (npm run dev / streamlit run)
 export const previewApi = {
-  start: async (payload: { root_path: string; project_type?: "auto" | "javascript" | "python" }) =>
-    apiRequest<{
+  start: async (payload: { root_path: string; project_type?: "auto" | "javascript" | "python" }) => {
+    const localCfg = await getLocalApiConfig();
+    const baseOverride = localCfg
+      ? { baseUrl: localCfg.baseUrl, localToken: localCfg.token }
+      : null;
+    return apiRequest<{
       success: boolean;
       preview_url?: string | null;
       /** URL do frontend (alternativa a preview_url). Backend pode retornar um ou outro. */
@@ -766,7 +802,8 @@ export const previewApi = {
     }>("/preview/start", {
       method: "POST",
       body: JSON.stringify({ ...payload, project_type: payload.project_type ?? "auto" }),
-    }),
+    }, baseOverride);
+  },
 };
 
 // Deploy / Logs API - Docker e Venv

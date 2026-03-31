@@ -30,6 +30,7 @@ import { ChatSidebar } from "./ChatSidebar";
 import { PromptSearchTextarea } from "@/components/ui/PromptSearchTextarea";
 import { ProjectStructureDropdown } from "./ProjectStructureDropdown";
 import { getPulsoCsaSessions, setPulsoCsaSessions, type ChatSession } from "@/lib/connectionStorage";
+import { isElectronClient } from "@/lib/electronClient";
 
 interface EnvVariable {
   name: string;
@@ -832,12 +833,23 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                         placeholder={t("pulsoCsa.rootFolderPlaceholder")}
                         value={folderPath}
                         onChange={(e) => setFolderPath(e.target.value)}
+                        onBlur={() => {
+                          if (!isElectronClient() || !folderPath.trim()) return;
+                          const api = (
+                            window as unknown as {
+                              electronAPI?: { registerAllowedRoot?: (p: string) => Promise<unknown> };
+                            }
+                          ).electronAPI;
+                          void api?.registerAllowedRoot?.(folderPath.trim());
+                        }}
                         className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
                         aria-label={t("pulsoCsa.rootFolderAria")}
                       />
                       <FolderFileUpload
                         compact
                         className="pulso-folder-file-upload--inline-path"
+                        useElectronDirectoryPicker={isElectronClient()}
+                        onElectronDirectoryPicked={(p) => setFolderPath(p)}
                         onFileChange={(files) => {
                           const f = files?.item(0);
                           if (f) setFolderPath((f as File & { path?: string }).path ?? f.name ?? "");
