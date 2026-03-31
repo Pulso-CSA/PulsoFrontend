@@ -14,6 +14,12 @@ function registerPulsoLocalIpcOnce() {
   if (registerPulsoLocalIpcOnce.done) return;
   registerPulsoLocalIpcOnce.done = true;
   ipcMain.handle("pulso-local-get-config", () => pulsoLocal.getLocalConfig());
+  ipcMain.handle("pulso-local-get-diagnostics", (_, folderPath) =>
+    pulsoLocal.getLocalDiagnostics({
+      isPackaged: app.isPackaged,
+      folderPath: folderPath || "",
+    }),
+  );
   ipcMain.handle("pulso-local-pick-folder", async () => {
     const w = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
     return pulsoLocal.pickProjectFolder(w);

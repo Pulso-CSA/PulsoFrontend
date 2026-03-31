@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Send, Copy, FolderOpen, FileCode, Plus, X, Upload, TestTube, Play, Workflow, ChevronDown, Loader2 } from "lucide-react";
 import { Elemento10DeleteButton } from "@/components/ui/Elemento10DeleteButton";
@@ -8,7 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { comprehensionApi } from "@/lib/api";
+import {
+  comprehensionApi,
+  getLocalApiConfig,
+  getLocalEngineDiagnostics,
+  type LocalEngineDiagnostics,
+} from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -248,12 +253,32 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [renameSessionId, setRenameSessionId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [localDiag, setLocalDiag] = useState<LocalEngineDiagnostics | null>(null);
+  const [localDiagLoading, setLocalDiagLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const timeLocale = i18n.language?.replace(/_/g, "-") || "pt-BR";
+
+  const refreshLocalDiagnostics = useCallback(async () => {
+    if (!isElectronClient()) {
+      setLocalDiag(null);
+      return;
+    }
+    setLocalDiagLoading(true);
+    try {
+      const d = await getLocalEngineDiagnostics(folderPath.trim());
+      setLocalDiag(d ?? null);
+    } finally {
+      setLocalDiagLoading(false);
+    }
+  }, [folderPath]);
+
+  useEffect(() => {
+    void refreshLocalDiagnostics();
+  }, [refreshLocalDiagnostics]);
 
   // Scroll apenas na lista de mensagens (sem afetar header/sidebar/layout)
   useEffect(() => {
@@ -453,6 +478,18 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
         variant: "destructive",
       });
       return;
+    }
+
+    if (folderPath.trim()) {
+      const localCfg = await getLocalApiConfig();
+      if (!localCfg) {
+        toast({
+          title: t("pulsoCsa.noLocalEngineTitle"),
+          description: t("pulsoCsa.noLocalEngineDesc"),
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     const userMsg: ChatMessage = {
@@ -805,7 +842,12 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
         </div>
 
         {/* Config — colapsável */}
-        <Collapsible defaultOpen={false}>
+        <Collapsible
+          defaultOpen={false}
+          onOpenChange={(open) => {
+            if (open) void refreshLocalDiagnostics();
+          }}
+        >
           <CollapsibleTrigger className="pulso-chat-main-fixed-section w-full p-3 flex items-center justify-between shrink-0 hover:bg-primary/5 transition-colors">
             <span className="text-sm font-medium text-foreground/85 flex items-center gap-2">
               <FolderOpen className="h-4 w-4 text-primary" />
@@ -840,7 +882,10 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                               electronAPI?: { registerAllowedRoot?: (p: string) => Promise<unknown> };
                             }
                           ).electronAPI;
-                          void api?.registerAllowedRoot?.(folderPath.trim());
+                          void (async () => {
+                            await api?.registerAllowedRoot?.(folderPath.trim());
+                            void refreshLocalDiagnostics();
+                          })();
                         }}
                         className="showcase-search-input showcase-search-input--prompt showcase-search-input--no-lupa w-full min-w-0 flex-1 !pl-3 !pr-12 border-0 focus:outline-none focus:ring-0"
                         aria-label={t("pulsoCsa.rootFolderAria")}
@@ -861,6 +906,102 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                   </div>
                 </div>
               </div>
+
+              <div className="rounded-lg border border-primary/20 bg-background/40 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs font-semibold text-foreground/90">{t("pulsoCsa.diagnosticsTitle")}</span>
+                  {isElectronClient() ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs gap-1.5"
+                      disabled={localDiagLoading}
+                      onClick={() => void refreshLocalDiagnostics()}
+                    >
+                      {localDiagLoading ? <Loader2 className="h-3 w-3 animate-spin shrink-0" aria-hidden /> : null}
+                      {t("pulsoCsa.diagnosticsRefresh")}
+                    </Button>
+                  ) : null}
+                </div>
+                {!isElectronClient() ? (
+                  <p className="text-xs text-foreground/75 leading-relaxed">{t("pulsoCsa.diagnosticsOnlyElectron")}</p>
+                ) : localDiagLoading && !localDiag ? (
+                  <div className="flex items-center gap-2 text-xs text-foreground/65">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                    {t("pulsoCsa.diagnosticsLoading")}
+                  </div>
+                ) : !localDiag ? (
+                  <p className="text-xs text-foreground/70">{t("pulsoCsa.diagnosticsUnavailable")}</p>
+                ) : (
+                  <ul className="text-xs text-foreground/80 space-y-1.5 list-none pl-0">
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground/55 shrink-0">{t("pulsoCsa.diagnosticsEngine")}</span>
+                      <span className={localDiag.engineRunning ? "text-emerald-600 dark:text-emerald-400" : "text-amber-700 dark:text-amber-300"}>
+                        {localDiag.engineRunning ? t("pulsoCsa.diagnosticsEngineOn") : t("pulsoCsa.diagnosticsEngineOff")}
+                      </span>
+                    </li>
+                    {localDiag.config?.baseUrl ? (
+                      <li>
+                        <span className="text-foreground/55">{t("pulsoCsa.diagnosticsLocalUrl")} </span>
+                        <code className="text-[11px] break-all">{localDiag.config.baseUrl}</code>
+                      </li>
+                    ) : null}
+                    {localDiag.lastStartError ? (
+                      <li className="text-amber-800 dark:text-amber-200/90">
+                        <span className="font-medium">{t("pulsoCsa.diagnosticsLastError")}: </span>
+                        {t(`pulsoCsa.diagnosticsError.${localDiag.lastStartError}`, {
+                          defaultValue: localDiag.lastStartError,
+                        })}
+                      </li>
+                    ) : null}
+                    {localDiag.apiRoot ? (
+                      <li>
+                        <span className="text-foreground/55">{t("pulsoCsa.diagnosticsApiRoot")} </span>
+                        <code className="text-[11px] break-all">{localDiag.apiRoot}</code>
+                      </li>
+                    ) : null}
+                    <li>
+                      <span className="text-foreground/55">{t("pulsoCsa.diagnosticsAllowlist")} </span>
+                      {t("pulsoCsa.diagnosticsRootsCount", { count: localDiag.allowedRootCount })}
+                      {localDiag.allowRootsPath ? (
+                        <>
+                          {" "}
+                          <code className="text-[10px] break-all opacity-80">({localDiag.allowRootsPath})</code>
+                        </>
+                      ) : null}
+                    </li>
+                    {localDiag.allowedRootsPreview.length > 0 ? (
+                      <li className="pl-2 border-l border-primary/15 text-[11px] text-foreground/65 max-h-20 overflow-y-auto space-y-0.5">
+                        {localDiag.allowedRootsPreview.map((r) => (
+                          <div key={r} className="truncate" title={r}>
+                            {r}
+                          </div>
+                        ))}
+                      </li>
+                    ) : null}
+                    <li>
+                      {localDiag.folderInAllowlist === null ? (
+                        <span className="text-foreground/65">{t("pulsoCsa.diagnosticsFolderUnset")}</span>
+                      ) : localDiag.folderInAllowlist ? (
+                        <span className="text-emerald-700 dark:text-emerald-400/90">{t("pulsoCsa.diagnosticsFolderOk")}</span>
+                      ) : (
+                        <span className="text-amber-800 dark:text-amber-200/90">{t("pulsoCsa.diagnosticsFolderBad")}</span>
+                      )}
+                    </li>
+                    {localDiag.relaxAllowlistInDev ? (
+                      <li className="text-foreground/60">{t("pulsoCsa.diagnosticsDevRelax")}</li>
+                    ) : null}
+                    {localDiag.logFilePath ? (
+                      <li>
+                        <span className="text-foreground/55">{t("pulsoCsa.diagnosticsLogFile")} </span>
+                        <code className="text-[10px] break-all opacity-80">{localDiag.logFilePath}</code>
+                      </li>
+                    ) : null}
+                  </ul>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">{t("pulsoCsa.envVarsLabel")}</Label>

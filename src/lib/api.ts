@@ -12,15 +12,33 @@ export function getApiBaseUrl(): string {
   return (import.meta.env.VITE_API_URL || _defaultBackend).toString().trim();
 }
 
-const API_BASE_URL = getApiBaseUrl();
-
 const LOG = (tag: string, ...args: unknown[]) => {
   console.log(`[Pulso:${tag}]`, new Date().toISOString(), ...args);
 };
 
+/** Mensagem útil quando fetch falha (backend parado, porta errada, offline). */
+function networkFailureHint(baseUrl: string, originalMessage: string): string {
+  const b = baseUrl.replace(/\/$/, "");
+  const isLocalDevOrigin =
+    typeof window !== "undefined" &&
+    (window.location.origin.includes("localhost") ||
+      window.location.origin.includes("127.0.0.1") ||
+      window.location.origin.includes("[::1]"));
+  const devHint = isLocalDevOrigin
+    ? " Em desenvolvimento o Vite faz proxy para o PulsoAPI em 127.0.0.1:8000 — arranque a API (ex.: na pasta PulsoAPI/api: uvicorn ou o comando do projeto) ou defina VITE_DEV_API_PROXY no .env com a URL correta."
+    : "";
+  return `Não foi possível contactar o servidor (${b}).${devHint} Detalhe: ${originalMessage}`;
+}
+
 // Log config no carregamento
 if (typeof window !== "undefined") {
-  LOG("api", "API_BASE_URL=", API_BASE_URL, "VITE_API_URL=", import.meta.env.VITE_API_URL ?? "(não definida)");
+  LOG(
+    "api",
+    "API_BASE_URL=",
+    getApiBaseUrl(),
+    "VITE_API_URL=",
+    import.meta.env.VITE_API_URL ?? "(não definida)",
+  );
 }
 
 // Storage keys
@@ -114,7 +132,7 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const response = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -156,6 +174,22 @@ export type ApiRequestBaseOverride = { baseUrl: string; localToken?: string };
 
 export type LocalApiConfig = { baseUrl: string; token: string };
 
+/** Estado do motor CSA no Electron (painel de diagnóstico). */
+export type LocalEngineDiagnostics = {
+  engineRunning: boolean;
+  config: LocalApiConfig | null;
+  lastStartError: string | null;
+  apiRoot: string | null;
+  allowRootsPath: string | null;
+  allowedRootCount: number;
+  allowedRootsPreview: string[];
+  logFilePath: string | null;
+  /** null = pasta ainda não preenchida */
+  folderInAllowlist: boolean | null;
+  isPackaged: boolean;
+  relaxAllowlistInDev: boolean;
+};
+
 let _localApiConfigCache: { value: LocalApiConfig | null; at: number } | null = null;
 const LOCAL_API_CONFIG_TTL_MS = 1500;
 
@@ -171,6 +205,18 @@ export async function getLocalApiConfig(): Promise<LocalApiConfig | null> {
   const value = await api.getLocalApiConfig();
   _localApiConfigCache = { value, at: now };
   return value;
+}
+
+/** Diagnóstico motor local + allowlist (só Electron). */
+export async function getLocalEngineDiagnostics(
+  folderPath?: string,
+): Promise<LocalEngineDiagnostics | null> {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as {
+    electronAPI?: { getLocalDiagnostics?: (p: string) => Promise<LocalEngineDiagnostics> };
+  };
+  if (!w.electronAPI?.getLocalDiagnostics) return null;
+  return w.electronAPI.getLocalDiagnostics(folderPath ?? '');
 }
 
 export async function apiRequest<T>(
@@ -197,7 +243,7 @@ export async function apiRequest<T>(
     requestHeaders['X-Pulso-Local-Token'] = baseOverride.localToken;
   }
 
-  const base = (baseOverride?.baseUrl ?? API_BASE_URL).replace(/\/$/, '');
+  const base = (baseOverride?.baseUrl ?? getApiBaseUrl()).replace(/\/$/, '');
   const fullUrl = `${base}${endpoint}`;
   LOG("apiRequest", "→", fetchOptions.method || "GET", fullUrl, {
     hasAuth: !!requestHeaders["Authorization"],
@@ -212,6 +258,11 @@ export async function apiRequest<T>(
     });
   } catch (fetchErr) {
     LOG("apiRequest", "FETCH FALHOU (rede/CORS?)", endpoint, fetchErr);
+    const raw =
+      fetchErr instanceof Error ? fetchErr.message : String(fetchErr ?? "erro de rede");
+    if (/failed to fetch|networkerror|load failed|network request failed/i.test(raw)) {
+      throw new Error(networkFailureHint(base, raw));
+    }
     throw fetchErr;
   }
 
@@ -235,10 +286,19 @@ export async function apiRequest<T>(
     if (newToken) {
       // Retry the request with new token
       requestHeaders['Authorization'] = `Bearer ${newToken}`;
-      const retryResponse = await fetch(`${base}${endpoint}`, {
-        ...fetchOptions,
-        headers: requestHeaders,
-      });
+      let retryResponse: Response;
+      try {
+        retryResponse = await fetch(`${base}${endpoint}`, {
+          ...fetchOptions,
+          headers: requestHeaders,
+        });
+      } catch (reErr) {
+        const raw = reErr instanceof Error ? reErr.message : String(reErr ?? "erro de rede");
+        if (/failed to fetch|networkerror|load failed|network request failed/i.test(raw)) {
+          throw new Error(networkFailureHint(base, raw));
+        }
+        throw reErr;
+      }
 
       if (retryResponse.ok) {
         const text = await retryResponse.text();
@@ -742,8 +802,11 @@ export type ComprehensionRunResponse = {
   framework?: string;
 };
 
+/** Alinhado a PULSO_CSA_WORKFLOW_MAX_SEC (300 s) no backend + margem de rede. */
+const CSA_CLIENT_BUDGET_MS = 5 * 60 * 1000 + 20_000;
+
 const COMPREHENSION_POLL_INTERVAL_MS = 2000;
-const COMPREHENSION_POLL_MAX_MS = 45 * 60 * 1000;
+const COMPREHENSION_POLL_MAX_MS = 5 * 60 * 1000;
 
 /**
  * fetch com Bearer + token local; em 401 tenta refresh uma vez (mesmo padrão de apiRequest).
@@ -767,7 +830,11 @@ async function fetchWithAuthRetry(
     requestHeaders['X-Pulso-Local-Token'] = baseOverride.localToken;
   }
 
-  let response = await fetch(fullUrl, { ...fetchOptions, headers: requestHeaders });
+  let response = await fetch(fullUrl, {
+    ...fetchOptions,
+    headers: requestHeaders,
+    signal: fetchOptions.signal,
+  });
 
   if (response.status === 401) {
     if (!isRefreshing) {
@@ -780,7 +847,11 @@ async function fetchWithAuthRetry(
 
     if (newToken) {
       requestHeaders['Authorization'] = `Bearer ${newToken}`;
-      response = await fetch(fullUrl, { ...fetchOptions, headers: requestHeaders });
+      response = await fetch(fullUrl, {
+        ...fetchOptions,
+        headers: requestHeaders,
+        signal: fetchOptions.signal,
+      });
     } else {
       removeStoredTokens();
       removeStoredProfileId();
@@ -823,6 +894,7 @@ async function pollComprehensionJob(
   base: string,
   pollPath: string,
   baseOverride: ApiRequestBaseOverride | null,
+  outerSignal: AbortSignal | undefined,
 ): Promise<ComprehensionRunResponse> {
   const deadline = Date.now() + COMPREHENSION_POLL_MAX_MS;
   LOG('comprehensionPoll', 'polling', pollPath);
@@ -830,7 +902,24 @@ async function pollComprehensionJob(
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, COMPREHENSION_POLL_INTERVAL_MS));
     const url = `${base}${pollPath}`;
-    const res = await fetchWithAuthRetry(url, { method: 'GET' }, baseOverride);
+    let res: Response;
+    try {
+      res = await fetchWithAuthRetry(
+        url,
+        {
+          method: 'GET',
+          ...(outerSignal ? { signal: outerSignal } : {}),
+        },
+        baseOverride,
+      );
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        throw new Error(
+          'Tempo máximo de 5 minutos para a operação Pulso CSA (rede + geração). Tente um pedido mais específico.',
+        );
+      }
+      throw e;
+    }
     if (!res.ok) {
       await parseJsonErrorAndThrow(res, pollPath);
     }
@@ -839,6 +928,20 @@ async function pollComprehensionJob(
       response?: ComprehensionRunResponse | null;
       error?: { code?: string; message?: string } | null;
     };
+    const st = data.status;
+    if (
+      st !== 'pending' &&
+      st !== 'running' &&
+      st !== 'completed' &&
+      st !== 'failed'
+    ) {
+      LOG('comprehensionPoll', 'estado inválido ou ausente', data);
+      throw new Error(
+        st
+          ? `Estado de job desconhecido: ${String(st)}`
+          : 'Resposta inválida ao consultar o job (sem status).',
+      );
+    }
     if (data.status === 'completed') {
       if (!data.response || typeof data.response !== 'object') {
         throw new Error('Workflow concluído sem corpo de resposta.');
@@ -851,7 +954,7 @@ async function pollComprehensionJob(
     }
   }
   throw new Error(
-    'Tempo limite ao aguardar o workflow (compreensão). Tente de novo ou use um prompt mais curto.',
+    'Tempo máximo de 5 minutos ao aguardar o workflow de compreensão. Tente um pedido mais curto ou em etapas.',
   );
 }
 
@@ -860,17 +963,37 @@ async function postComprehensionRun(
   body: string,
   baseOverride: ApiRequestBaseOverride | null,
 ): Promise<ComprehensionRunResponse> {
-  const base = (baseOverride?.baseUrl ?? API_BASE_URL).replace(/\/$/, '');
-  const fullUrl = `${base}${endpointPath}`;
-  LOG('comprehensionRun', 'POST', fullUrl);
+  const base = (baseOverride?.baseUrl ?? getApiBaseUrl()).replace(/\/$/, '');
+  /** Motor local (127.0.0.1): síncrono evita 202 + job em memória e garante escrita na pasta do PC. */
+  const asyncOff =
+    baseOverride != null
+      ? (endpointPath.includes('?') ? '&' : '?') + 'async_mode=false'
+      : '';
+  const fullUrl = `${base}${endpointPath}${asyncOff}`;
+  LOG('comprehensionRun', 'POST', fullUrl, baseOverride ? '(local, async_mode=false)' : '(cloud)');
 
-  let response = await fetchWithAuthRetry(
-    fullUrl,
-    { method: 'POST', body },
-    baseOverride,
-  );
+  const budgetController = new AbortController();
+  const budgetTimer = globalThis.setTimeout(() => budgetController.abort(), CSA_CLIENT_BUDGET_MS);
+
+  let response: Response;
+  try {
+    response = await fetchWithAuthRetry(
+      fullUrl,
+      { method: 'POST', body, signal: budgetController.signal },
+      baseOverride,
+    );
+  } catch (err) {
+    clearTimeout(budgetTimer);
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(
+        'Tempo máximo de 5 minutos para a operação Pulso CSA (rede + geração). Tente um pedido mais específico.',
+      );
+    }
+    throw err;
+  }
 
   if (response.status === 401) {
+    clearTimeout(budgetTimer);
     removeStoredTokens();
     removeStoredProfileId();
     dispatchSessionExpired();
@@ -893,16 +1016,28 @@ async function postComprehensionRun(
           ? defaultPoll
           : '';
     if (!pollPath || !jobId) {
+      clearTimeout(budgetTimer);
       throw new Error('Resposta 202 inválida: falta job_id ou poll_path.');
     }
-    return pollComprehensionJob(base, pollPath, baseOverride);
+    try {
+      return await pollComprehensionJob(
+        base,
+        pollPath,
+        baseOverride,
+        budgetController.signal,
+      );
+    } finally {
+      clearTimeout(budgetTimer);
+    }
   }
 
   if (!response.ok) {
+    clearTimeout(budgetTimer);
     await parseJsonErrorAndThrow(response, endpointPath);
   }
 
   const text = await response.text();
+  clearTimeout(budgetTimer);
   if (!text) {
     return {} as ComprehensionRunResponse;
   }

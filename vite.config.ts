@@ -6,6 +6,14 @@ import { componentTagger } from "lovable-tagger";
 
 const pkg = JSON.parse(readFileSync(path.join(__dirname, "package.json"), "utf-8"));
 
+/** Onde o Vite encaminha /auth, /api, etc. em `npm run dev` (PulsoAPI uvicorn). */
+const DEV_API_PROXY = (process.env.VITE_DEV_API_PROXY || "http://127.0.0.1:8000").replace(/\/$/, "");
+
+const proxyToDevApi = {
+  target: DEV_API_PROXY,
+  changeOrigin: true,
+};
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   base: "./",
@@ -18,20 +26,22 @@ export default defineConfig(({ mode }) => ({
     // Atenção: true permite qualquer host (usar só em dev)
     allowedHosts: true,
     proxy: {
-      "/health": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/auth": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/api": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/subscription": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/profiles": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/inteligencia-dados": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/insights": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/finops": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/infra": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/deploy": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/venv": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/comprehension": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/workflow": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/chat-history": { target: "http://127.0.0.1:8000", changeOrigin: true },
+      "/health": proxyToDevApi,
+      "/auth": proxyToDevApi,
+      "/api": proxyToDevApi,
+      "/subscription": proxyToDevApi,
+      "/profiles": proxyToDevApi,
+      "/inteligencia-dados": proxyToDevApi,
+      "/insights": proxyToDevApi,
+      "/finops": proxyToDevApi,
+      "/infra": proxyToDevApi,
+      "/deploy": proxyToDevApi,
+      "/venv": proxyToDevApi,
+      "/comprehension": proxyToDevApi,
+      "/comprehension-js": proxyToDevApi,
+      "/preview": proxyToDevApi,
+      "/workflow": proxyToDevApi,
+      "/chat-history": proxyToDevApi,
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),

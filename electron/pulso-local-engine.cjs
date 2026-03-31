@@ -13,6 +13,10 @@ let localSecret = "";
 let localPort = 0;
 let allowRootsPath = "";
 let logFilePath = "";
+/** Último código de falha ao arrancar (ex.: PULSO_API_ROOT_MISSING, HEALTH_TIMEOUT). */
+let lastStartError = null;
+/** Pasta PulsoAPI/api resolvida no último arranque bem-sucedido ou tentativa. */
+let lastResolvedApiRoot = null;
 
 function initPaths(userDataDir) {
   if (!userDataDir) return;
@@ -114,22 +118,28 @@ function stopLocalEngine() {
 
 async function startLocalEngine(app, appRoot, browserWindow) {
   stopLocalEngine();
+  lastStartError = null;
   const isPackaged = app.isPackaged;
   const resourcesPath = isPackaged ? process.resourcesPath : null;
-  const apiRoot = resolveApiRoot(appRoot);
-  if (!apiRoot) {
-    console.error("Pulso local: PulsoAPI/api não encontrado. Defina PULSO_API_ROOT ou coloque PulsoAPI ao lado de PulsoFrontend.");
-    return { ok: false, error: "PULSO_API_ROOT_MISSING" };
-  }
-
   const userData = app.getPath("userData");
   initPaths(userData);
+
+  const apiRoot = resolveApiRoot(appRoot);
+  lastResolvedApiRoot = apiRoot;
+  if (!apiRoot) {
+    lastStartError = "PULSO_API_ROOT_MISSING";
+    console.error("Pulso local: PulsoAPI/api não encontrado. Defina PULSO_API_ROOT ou coloque PulsoAPI ao lado de PulsoFrontend.");
+    return { ok: false, error: lastStartError };
+  }
   const logDir = path.dirname(logFilePath);
   if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
 
   localSecret = crypto.randomBytes(24).toString("hex");
   const port = await getFreePort();
-  if (!port) return { ok: false, error: "NO_PORT" };
+  if (!port) {
+    lastStartError = "NO_PORT";
+    return { ok: false, error: lastStartError };
+  }
 
   const py = resolvePythonExecutable(appRoot, isPackaged, resourcesPath);
   const env = {
@@ -206,10 +216,12 @@ async function startLocalEngine(app, appRoot, browserWindow) {
   });
 
   if (!finalCheck) {
+    lastStartError = "HEALTH_TIMEOUT";
     stopLocalEngine();
-    return { ok: false, error: "HEALTH_TIMEOUT" };
+    return { ok: false, error: lastStartError };
   }
 
+  lastStartError = null;
   return {
     ok: true,
     baseUrl: `http://127.0.0.1:${port}`,
@@ -226,11 +238,44 @@ function getLocalConfig() {
   };
 }
 
+/**
+ * Estado para o painel de diagnóstico no frontend (Electron).
+ * @param {{ isPackaged?: boolean, folderPath?: string }} opts
+ */
+function getLocalDiagnostics(opts = {}) {
+  const roots = readAllowRoots();
+  const fp = (opts.folderPath || "").trim();
+  const norm = (s) => s.replace(/[/\\]+$/g, "").toLowerCase();
+  const fpNorm = fp ? norm(fp) : "";
+  const folderInAllowlist =
+    fpNorm === ""
+      ? null
+      : roots.some((r) => {
+          const rn = norm(String(r));
+          return rn === fpNorm || fpNorm.startsWith(rn + "\\") || fpNorm.startsWith(rn + "/");
+        });
+
+  return {
+    engineRunning: Boolean(child && !child.killed && localPort > 0),
+    config: getLocalConfig(),
+    lastStartError,
+    apiRoot: lastResolvedApiRoot,
+    allowRootsPath: allowRootsPath || null,
+    allowedRootCount: roots.length,
+    allowedRootsPreview: roots.slice(0, 12),
+    logFilePath: logFilePath || null,
+    folderInAllowlist,
+    isPackaged: Boolean(opts.isPackaged),
+    relaxAllowlistInDev: !opts.isPackaged,
+  };
+}
+
 module.exports = {
   initPaths,
   startLocalEngine,
   stopLocalEngine,
   getLocalConfig,
+  getLocalDiagnostics,
   pickProjectFolder,
   registerAllowedRoot,
 };

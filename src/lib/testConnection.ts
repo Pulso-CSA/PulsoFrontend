@@ -2,8 +2,6 @@
 // Usa a mesma URL que api.ts para garantir consistência (proxy em dev, direto em prod/Electron)
 import { getApiBaseUrl } from '@/lib/api';
 
-const API_BASE_URL = getApiBaseUrl();
-
 export interface ConnectionTestResult {
   success: boolean;
   url: string;
@@ -17,7 +15,8 @@ export interface ConnectionTestResult {
  */
 export async function testBackendConnection(): Promise<ConnectionTestResult> {
   const startTime = Date.now();
-  const testUrl = `${API_BASE_URL}/health`;
+  const base = getApiBaseUrl().replace(/\/$/, "");
+  const testUrl = `${base}/health`;
   
   try {
     const response = await fetch(testUrl, {
@@ -54,7 +53,7 @@ export async function testBackendConnection(): Promise<ConnectionTestResult> {
       return {
         success: false,
         url: testUrl,
-        message: `Erro de CORS ou backend não está acessível. Verifique se o backend está rodando e se a URL está correta. URL atual: ${API_BASE_URL}`,
+        message: `Erro de CORS ou backend não está acessível. Verifique se o backend está rodando e se a URL está correta. URL atual: ${base}`,
         responseTime,
       };
     }
@@ -62,7 +61,7 @@ export async function testBackendConnection(): Promise<ConnectionTestResult> {
     return {
       success: false,
       url: testUrl,
-      message: `Erro ao conectar: ${error.message || 'Erro desconhecido'}. URL atual: ${API_BASE_URL}`,
+      message: `Erro ao conectar: ${error.message || 'Erro desconhecido'}. URL atual: ${base}`,
       responseTime,
     };
   }
