@@ -1,0 +1,4 @@
+Pedido original do usuário:
+{question}
+
+Refine o pedido acima mantendo a intenção exata. Retorne apenas o texto refinado, sem explicações adicionais.

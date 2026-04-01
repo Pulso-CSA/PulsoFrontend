@@ -1,0 +1,9 @@
+### INSTRUÇÃO DE REFINO (SAFE MODE):
+- Reescreva o prompt acima com maior clareza e objetividade.
+- Preserve INTEGRALMENTE a intenção original do usuário.
+- NÃO altere linguagem, tecnologia ou framework mencionados.
+- NÃO adicione novos requisitos.
+- NÃO expanda o escopo.
+- Corrija ambiguidades somente quando necessário.
+- Mantenha formato e propósito do pedido original.
+- Melhore a legibilidade sem transformar o propósito.

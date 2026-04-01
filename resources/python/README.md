@@ -7,12 +7,14 @@ Coloque aqui o **runtime Python** e o **site-packages** necessários para cada S
 
 Variável opcional: `PULSO_LOCAL_PYTHON` apontando para o executável.
 
-Em **desenvolvimento**, o Electron usa `python` / `python3` do PATH e espera o repositório **PulsoAPI** ao lado de **PulsoFrontend**, ou defina `PULSO_API_ROOT` para a pasta `PulsoAPI/api`.
+O motor CSA usa a pasta **`pulso-csa-api/`** na raiz do **PulsoFrontend**, **versionada neste repositório** (sem depender do repo PulsoAPI na build ou no runtime). Na **app instalada**, o `after-pack` copia `pulso-csa-api` para `resources/PulsoAPI/api`.
 
-Instalação de dependências CSA (a partir da raiz do repo PulsoAPI):
+Script opcional de migração: `npm run sync:csa-api` (não faz parte da CI). Overrides: `PULSO_API_ROOT`.
+
+Instalação de dependências CSA (na pasta **`pulso-csa-api/`** na raiz do PulsoFrontend):
 
 ```bash
-cd api
+cd pulso-csa-api
 pip install -r requirements.txt
 ```
 

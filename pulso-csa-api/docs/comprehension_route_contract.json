@@ -1,0 +1,98 @@
+{
+  "contract_endpoint": "GET /comprehension/contract — retorna este mesmo JSON em tempo de execução",
+  "route": {
+    "method": "POST",
+    "path": "/comprehension/run",
+    "description": "Entrada principal do workflow. Classifica a intenção (ANALISAR/EXECUTAR), decide o modo do projeto e dispara ou não governance/run ou workflow/correct/run."
+  },
+  "request": {
+    "Content-Type": "application/json",
+    "body": {
+      "usuario": {
+        "type": "string",
+        "required": true,
+        "description": "Identificação do usuário."
+      },
+      "prompt": {
+        "type": "string",
+        "required": true,
+        "description": "Prompt cru / descrição do projeto (ex.: texto do chat)."
+      },
+      "root_path": {
+        "type": "string | null",
+        "required": false,
+        "default": null,
+        "description": "Caminho raiz do projeto. Obrigatório para executar fluxo de correção (ROOT_COM_CONTEUDO)."
+      }
+    },
+    "example": {
+      "usuario": "usuario@email.com",
+      "prompt": "Criar API REST para gestão de pedidos",
+      "root_path": "C:\\Users\\pytho\\Desktop\\MeuProjeto"
+    }
+  },
+  "response": {
+    "Content-Type": "application/json",
+    "body": {
+      "intent": {
+        "type": "string",
+        "enum": ["ANALISAR", "EXECUTAR"],
+        "description": "Intenção classificada."
+      },
+      "project_state": {
+        "type": "string",
+        "enum": ["ROOT_VAZIA", "ROOT_COM_CONTEUDO"],
+        "description": "Estado da raiz do projeto."
+      },
+      "should_execute": {
+        "type": "boolean",
+        "description": "Se o gate de execução foi atendido (ex.: usuário disse 'faça', 'executar')."
+      },
+      "target_endpoint": {
+        "type": "string | null",
+        "enum": ["/governance/run", "/workflow/correct/run", null],
+        "description": "Endpoint que seria ou foi disparado; null quando intent é ANALISAR."
+      },
+      "explanation": {
+        "type": "string",
+        "description": "Explicação da decisão de roteamento."
+      },
+      "next_action": {
+        "type": "string",
+        "description": "Próximo passo descrito."
+      },
+      "message": {
+        "type": "string",
+        "description": "Mensagem humanizada para exibir no frontend (sucesso, análise ou pedido de confirmação)."
+      },
+      "file_tree": {
+        "type": "string | null",
+        "description": "Árvore de arquivos do projeto em texto; arquivos criados neste run têm * ao lado do nome. null se root_path não informado ou inválido."
+      },
+      "system_behavior": {
+        "type": "object | null",
+        "description": "JSON de contrato do sistema (input, output, parâmetros)."
+      },
+      "frontend_suggestion": {
+        "type": "string | null",
+        "description": "Sugestão de como exibir as mudanças na área do chat / Descrição do projeto."
+      }
+    },
+    "example": {
+      "intent": "EXECUTAR",
+      "project_state": "ROOT_VAZIA",
+      "should_execute": true,
+      "target_endpoint": "/governance/run",
+      "explanation": "Intenção: EXECUTAR. Projeto: ROOT_VAZIA. Sinal de execução: sim.",
+      "next_action": "Disparar fluxo: /governance/run",
+      "message": "Projeto criado com sucesso. Requisição: REQ-20250202-123456. Estrutura e código foram gerados conforme o planejamento.",
+      "file_tree": "REQ-20250202-123456/\n  generated_code/\n    main.py *\n    requirements.txt *",
+      "system_behavior": {},
+      "frontend_suggestion": "Mostre a 'message' como mensagem de sucesso no chat. Exiba a 'file_tree' em um bloco colapsável ou seção 'Árvore do projeto' (novos arquivos com *). Destaque a árvore de arquivos para o usuário revisar o que foi criado/alterado."
+    }
+  },
+  "errors": {
+    "400": "Campo 'prompt' vazio ou, no fluxo de correção, 'root_path' ausente.",
+    "500": "Erro ao executar fluxo de criação (governance) ou de correção (workflow/correct)."
+  }
+}

@@ -1,0 +1,15 @@
+Explique a estratégia de validação recomendada para um problema de previsão de churn.
+
+Regras:
+- A resposta deve seguir exatamente os pontos abaixo.
+- Não invente métricas ou métodos não listados.
+- Seja técnico e objetivo.
+- Formato da resposta: texto técnico curto em português.
+- Tamanho máximo: 4 frases.
+
+Estratégia:
+
+1. Use **validação cruzada estratificada (Stratified K-Fold)** com 5–10 folds, mantendo a proporção da classe churn em cada divisão.
+2. Separe um **conjunto de teste final independente** (ex.: 70% treino / 30% teste) para validação final após o tuning de hiperparâmetros.
+3. Avalie o modelo utilizando **AUC, recall, precisão e F1-score**.
+4. Em problemas de churn, explique que **recall ou F1-score geralmente devem ser priorizados**, pois perder clientes que irão churnar (falsos negativos) costuma ter maior impacto do que reduzir falsos positivos.

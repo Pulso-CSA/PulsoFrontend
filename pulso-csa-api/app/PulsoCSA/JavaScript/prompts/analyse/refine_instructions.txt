@@ -1,0 +1,26 @@
+### INSTRUÇÃO DE REFINO (SAFE MODE + STRICT MODE):
+
+Objetivo:
+Reescrever o prompt acima para torná-lo mais claro, preciso e objetivo, preservando integralmente sua intenção original.
+
+Regras obrigatórias:
+- Preserve totalmente o significado e a finalidade do prompt original.
+- NÃO altere linguagens, tecnologias, frameworks ou ferramentas mencionadas.
+- NÃO introduza novos requisitos, funcionalidades ou exemplos.
+- NÃO amplie, reduza ou modifique o escopo do pedido.
+- NÃO remova restrições presentes no prompt original.
+- NÃO interprete ou reformule o objetivo além do necessário.
+- Corrija ambiguidades somente quando forem estritamente necessárias para compreensão.
+
+Diretrizes de refino:
+- Simplifique construções frasais excessivamente longas.
+- Torne instruções mais diretas e inequívocas.
+- Melhore a organização e a legibilidade mantendo a estrutura original.
+- Preserve a lógica e a ordem das instruções sempre que possível.
+
+Restrições de saída (STRICT MODE):
+- Retorne exclusivamente o prompt reescrito.
+- NÃO inclua explicações, comentários ou observações.
+- NÃO acrescente exemplos ou contexto adicional.
+- NÃO modifique o propósito funcional do prompt.
+- O resultado deve ser semanticamente equivalente ao prompt original, apenas mais claro e legível.

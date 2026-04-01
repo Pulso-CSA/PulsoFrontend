@@ -1,0 +1,4 @@
+USER QUESTION:
+{user_prompt}
+
+SQL QUERY:

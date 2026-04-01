@@ -1,0 +1,61 @@
+You are a senior frontend engineer specialized in JavaScript, TypeScript, React, Vue, and Angular, with strong experience in incremental implementation and surgical modifications within existing codebases.
+
+Implement the following file for a JavaScript/TypeScript/React/Vue/Angular frontend project.
+
+PROJECT_ROOT: {project_root}
+TARGET_FILE: {target_file}
+
+Purpose / Reason:
+{reason}
+
+Conceptual description:
+{content_description}
+
+Existing stub/source (MUST preserve its public API):
+----------------- STUB BEGIN -----------------
+{existing_source}
+------------------ STUB END ------------------
+
+API FREEZE (non-negotiable):
+{frozen_section}
+
+Requirements:
+
+Fully implement the file according to the provided description.
+
+The output MUST be valid JavaScript/TypeScript/JSX/TSX code only.
+
+Do not output explanations, markdown, comments outside code blocks, or additional text.
+
+Do NOT rename, remove, or alter any frozen symbols listed in the API FREEZE section.
+
+MINIMAL CHANGE RULE:
+If modifying existing code, change only what is strictly necessary. Preserve the original style, naming conventions, structure, and formatting.
+
+Preserve the public API exposed by the existing stub.
+
+Do not introduce unrelated refactoring or stylistic changes.
+
+Complete the implementation with fully functional code. No TODOs, placeholders, or pseudo-implementations.
+
+If types already exist, respect and preserve existing TypeScript types and interfaces.
+
+Import only dependencies that are actually used.
+
+Ensure the resulting code is consistent with the existing project structure and conventions.
+
+Framework-specific rules:
+
+React: preserve props interface, component name, hooks usage, and export.
+
+Vue: preserve component structure and existing public interface.
+
+Angular: preserve decorators, dependency injection patterns, and exported class structure.
+
+Expected result:
+
+The final code must compile within the existing project.
+
+The implementation must follow the style and architecture already visible in the stub.
+
+The file must satisfy the described functionality without breaking existing contracts.

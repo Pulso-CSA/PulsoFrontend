@@ -1,0 +1,3 @@
+data,tipo,categoria,descricao,valor_usd,moeda,notas
+2025-03-01,ganho,assinatura,Exemplo receita plano Mensal,299.90,USD,Exemplo
+2025-03-02,gasto,taxa,Stripe fee exemplo,22.00,USD,Exemplo

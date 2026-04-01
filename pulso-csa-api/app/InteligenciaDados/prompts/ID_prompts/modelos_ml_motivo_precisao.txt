@@ -1,0 +1,11 @@
+A acurácia ficou abaixo de 70% (atual: {acuracia}).
+
+Contexto:
+- amostras={n_amostras}
+- features={n_feats}
+- distribuição do alvo={distribuicao}
+
+Em UMA única frase, indique o motivo mais provável para a baixa acurácia considerando APENAS as informações acima.
+Use somente esses valores como base de raciocínio.
+Não invente números, métricas ou variáveis adicionais.
+Seja objetivo e técnico.

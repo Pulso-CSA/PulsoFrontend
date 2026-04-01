@@ -1,0 +1,14 @@
+Modelo selecionado: {modelo_escolhido}
+Métricas disponíveis: precisão={precisao}, recall={recall}, F1={f1}
+
+Escreva EXATAMENTE duas frases curtas em português:
+
+1) Justifique objetivamente por que o modelo {modelo_escolhido} foi escolhido, utilizando APENAS as métricas fornecidas (precisão, recall e F1).
+2) Sugira uma melhoria direta para o modelo com base nessas métricas.
+
+Regras obrigatórias:
+- Use apenas os números fornecidos (não invente valores).
+- Não explique as métricas.
+- Não adicione texto antes ou depois das duas frases.
+- Cada frase deve terminar com ponto final.
+- Seja técnico e conciso.

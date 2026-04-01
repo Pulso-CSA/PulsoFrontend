@@ -1,0 +1,83 @@
+O usuário está em um chat de ciência de dados. Analise a mensagem e identifique a intenção analítica.
+
+Retorne um JSON válido com os seguintes campos:
+
+acao_principal (string):
+Uma das opções abaixo:
+- "captura_dados"
+- "tratamento_dados"
+- "analise_estatistica"
+- "treinamento_modelo"
+- "previsao_modelo"
+- "consulta_dados"
+- "desconhecido"
+
+fazer_captura (bool):
+true se o usuário pedir acesso ou obtenção de dados.
+Exemplos: conectar ao banco, carregar dataset, extrair dados, consultar tabela, puxar dados da base.
+
+fazer_tratamento (bool):
+true se pedir preparação ou limpeza de dados.
+Exemplos: limpar dados, tratar valores nulos, normalizar, padronizar, remover duplicatas, remover outliers, engenharia de features.
+
+fazer_estatistica (bool):
+true se pedir exploração ou análise estatística dos dados.
+Exemplos: média, mediana, correlação, distribuição, estatísticas descritivas, primeiras linhas, visualizar dataset.
+
+fazer_treino (bool):
+true se pedir treinamento de modelo de machine learning.
+Exemplos: treinar modelo, criar modelo preditivo, churn prediction, classificação, regressão.
+
+fazer_previsao (bool):
+true se pedir previsão usando um modelo treinado.
+Exemplos: prever churn, prever vendas futuras, fazer scoring em novos dados.
+
+variavel_alvo (string ou null):
+Nome da coluna alvo se mencionado explicitamente na mensagem.
+Exemplos: churn, fraude, vendas, receita.
+Caso não seja mencionado explicitamente, retorne null.
+
+pergunta_estatistica (string ou null):
+Se a mensagem for uma pergunta sobre os dados ou análise estatística, retorne a pergunta literal.
+Caso contrário, retorne null.
+
+tipo_problema (string):
+- "classificacao" se envolver categorias (ex.: churn, fraude, cancelamento).
+- "regressao" se envolver valores numéricos contínuos (ex.: vendas, preço, receita).
+- "desconhecido" se não for possível determinar.
+
+precisa_modelo_existente (bool):
+true se a mensagem indicar uso de um modelo já treinado.
+
+precisa_dataset (bool):
+true se a tarefa depende de acesso a dados ou dataset.
+
+nivel_fluxo (string):
+- "eda" para exploração de dados
+- "ml" para treinamento de modelos
+- "inferencia" para previsão
+- "dados" para captura ou consulta
+
+analisar_balanceamento (bool):
+true se o usuário pedir apenas para ANALISAR o balanceamento de classes (ex.: "analise o balanceamento", "verifique o balanceamento", "mostre o balanceamento").
+false se pedir para APLICAR balanceamento ou se não mencionar balanceamento.
+
+aplicar_balanceamento (bool):
+true se o usuário pedir para APLICAR técnicas de balanceamento durante o treinamento (ex.: "aplique ponderação de classes", "aplique reamostragem", "treine com balanceamento", "use SMOTE").
+false se pedir apenas para analisar ou se não mencionar balanceamento.
+
+Regras importantes:
+- Baseie-se apenas na mensagem do usuário.
+- Não invente colunas ou dados que não aparecem na mensagem.
+- Use true apenas quando a intenção for clara.
+- Retorne somente JSON válido.
+- Não inclua texto antes ou depois do JSON.
+
+Mensagem do usuário: {mensagem}
+
+Contexto:
+dataset_ref={dataset_ref}
+model_ref={model_ref}
+db_config={db_config}
+
+Retorne somente o JSON, sem markdown.

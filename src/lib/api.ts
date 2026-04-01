@@ -25,7 +25,7 @@ function networkFailureHint(baseUrl: string, originalMessage: string): string {
       window.location.origin.includes("127.0.0.1") ||
       window.location.origin.includes("[::1]"));
   const devHint = isLocalDevOrigin
-    ? " Em desenvolvimento o Vite faz proxy para o PulsoAPI em 127.0.0.1:8000 — arranque a API (ex.: na pasta PulsoAPI/api: uvicorn ou o comando do projeto) ou defina VITE_DEV_API_PROXY no .env com a URL correta."
+    ? " Em desenvolvimento o Vite faz proxy para o backend em 127.0.0.1:8000 — arranque a API (ex.: em pulso-csa-api/: uvicorn conforme o projeto) ou defina VITE_DEV_API_PROXY no .env com a URL correta."
     : "";
   return `Não foi possível contactar o servidor (${b}).${devHint} Detalhe: ${originalMessage}`;
 }

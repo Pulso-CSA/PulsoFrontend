@@ -1,0 +1,2 @@
+DATABASE SCHEMA:
+{database_schema}

@@ -1,0 +1,70 @@
+# PulsoAPI — runtime (Python 3.11, Linux/Docker/Render).
+# Mantido alinhado com ../../requirements.txt (Docker usa a raiz).
+# Dev no Windows: pywin32 só em win32.
+
+# --- API ---
+fastapi==0.115.6
+uvicorn[standard]==0.38.0
+python-dotenv==1.1.1
+python-multipart==0.0.20
+starlette==0.41.3
+
+# --- Modelos / validação ---
+pydantic==2.9.2
+email-validator>=2.0.0,<3
+
+# --- Auth / segurança ---
+bcrypt==4.2.1
+PyJWT[crypto]==2.10.1
+cryptography>=42.0.0,<46
+
+# --- MongoDB ---
+pymongo==4.10.1
+
+# --- FS / locks (Inteligência de Dados: id_artifacts_io.FileLock) ---
+filelock==3.16.1
+
+# --- SQL (Inteligência de Dados: fábrica de conexões) ---
+SQLAlchemy==2.0.35
+greenlet>=3.0.0,<4
+psycopg2-binary>=2.9.0
+pyodbc>=5.0.0
+oracledb>=2.0.0
+mysql-connector-python>=9.0.0,<10
+
+# --- HTTP / integrações ---
+httpx==0.28.1
+requests>=2.32.0,<3
+requests-oauthlib==2.0.0
+stripe==10.8.0
+boto3>=1.35.0,<2
+
+# --- OpenAI + LangChain + RAG ---
+openai==1.63.2
+langchain==0.3.10
+langchain-core==0.3.39
+langchain-community==0.3.10
+langchain-openai==0.3.6
+langchain-text-splitters==0.3.2
+langchain-ollama>=0.2.0,<1
+ollama>=0.3.0
+tenacity==9.1.2
+tiktoken>=0.8.0,<1
+faiss-cpu==1.11.0
+pypdf>=6.0.0,<7
+
+# --- Dados / ML (PyCaret + ID) ---
+numpy>=1.26.0,<2.0
+pandas>=2.0.0,<2.2.0
+scipy>=1.11.0,<2
+scikit-learn>=1.4.0,<2
+pyarrow>=17.0.0,<20
+openpyxl>=3.1.0,<4
+pycaret>=3.3.0,<3.4
+
+# --- FinOps (PDF + Streamlit em módulos FinOps / preview) ---
+reportlab>=4.0.0,<5
+streamlit>=1.39.0,<2
+
+# --- Windows (desenvolvimento local) ---
+pywin32==311; sys_platform == "win32"

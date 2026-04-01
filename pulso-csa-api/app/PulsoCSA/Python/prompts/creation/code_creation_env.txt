@@ -1,0 +1,10 @@
+Gere o conteúdo de um arquivo .env válido.
+Inclua variáveis essenciais no formato CHAVE=valor, sem comentários, sem aspas, sem código Python.
+
+Exemplo de formato esperado:
+DATABASE_URL=postgresql://user:password@localhost/dbname
+REDIS_URL=redis://localhost:6379/0
+SECRET_KEY=s3cr3tk3y
+
+Saída:
+Somente as linhas de variáveis.

@@ -1,0 +1,11 @@
+[
+  {
+    "agendamento_id": "841002ac",
+    "id_requisicao": "regen-r1",
+    "usuario": "tchelo@pulso.com",
+    "dataset_ref": "sample",
+    "variavel_alvo": "sample",
+    "tipo_problema": "classificacao",
+    "cron_expr": null,
+    "proxima_execucao_em_minutos": null,
+    "created_at": 

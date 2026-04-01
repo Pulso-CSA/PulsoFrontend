@@ -1,0 +1,20 @@
+Pergunta do usuário: {pergunta}
+
+Tarefa: responda à pergunta de forma técnica e objetiva no contexto de avaliação de modelos de churn.
+
+Diretrizes:
+- Responda em português.
+- Use entre 3 e 5 frases.
+- Não repita a pergunta.
+- Não utilize markdown ou listas.
+- Produza apenas o texto da resposta.
+
+Definições importantes para o contexto:
+RECALL (sensibilidade): capacidade do modelo de identificar todos os casos positivos reais, ou seja, todos os clientes que realmente irão churnar.
+
+PRECISÃO (valor preditivo positivo): proporção de previsões positivas que são corretas, isto é, entre os clientes previstos como churn, quantos realmente churnaram.
+
+Orientação analítica:
+Em problemas de churn, geralmente prioriza-se RECALL para capturar o maior número possível de clientes em risco. Entretanto, PRECISÃO torna-se relevante quando o custo de falsos positivos (intervenções desnecessárias) é alto.
+
+Se for pertinente para a pergunta, mencione explicitamente o trade-off entre recall e precisão.

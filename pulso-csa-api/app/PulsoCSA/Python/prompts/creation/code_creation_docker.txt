@@ -1,0 +1,11 @@
+Gere um arquivo Dockerfile funcional para um projeto Python baseado em FastAPI.
+
+Requisitos:
+- Base: python:3.11-slim
+- Instalar dependências via requirements.txt
+- Expor porta 8000
+- Rodar 'uvicorn app.main:app --host 0.0.0.0 --port 8000'
+- Não incluir código Python, apenas comandos Docker válidos.
+
+Saída:
+Somente o conteúdo do Dockerfile.

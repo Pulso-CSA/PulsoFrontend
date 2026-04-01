@@ -14,6 +14,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:icon": "node scripts/build-icon.cjs",
+    "sync:csa-api": "node scripts/sync-pulso-csa-api.cjs",
     "build:electron": "node scripts/kill-electron-processes.cjs && npm run build:icon && vite build && electron-builder --win --publish never",
     "build:electron:open": "npm run build:electron && node scripts/open-installer.cjs",
     "open:installer": "node scripts/open-installer.cjs",

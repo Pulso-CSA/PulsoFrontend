@@ -1,0 +1,679 @@
+{
+  "execution_id": "regen_1773689976_1f3e269d",
+  "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+  "scopes": [
+    "InteligenciaDados"
+  ],
+  "routes_analyzed": [
+    "POST /inteligencia-dados/analise-estatistica",
+    "POST /inteligencia-dados/analise-dados-inicial",
+    "GET /inteligencia-dados/insights/widgets",
+    "POST /inteligencia-dados/insights/generate",
+    "POST /inteligencia-dados/query",
+    "POST /inteligencia-dados/captura-dados",
+    "POST /inteligencia-dados/tratamento-limpeza",
+    "POST /inteligencia-dados/criar-modelo-ml",
+    "GET /inteligencia-dados/listar-modelos",
+    "POST /inteligencia-dados/prever",
+    "POST /inteligencia-dados/chat",
+    "POST /inteligencia-dados/agendar-retreino",
+    "POST /inteligencia-dados/executar-retreino-agendado",
+    "GET /inteligencia-dados/agendamentos-pendentes"
+  ],
+  "questions_by_scope": {
+    "InteligenciaDados": [
+      {
+        "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+        "category": "valid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+        "category": "valid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+        "category": "valid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+        "category": "invalid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+        "category": "invalid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+        "category": "invalid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+        "category": "edge_cases",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+        "category": "edge_cases",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+        "category": "edge_cases",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+        "category": "ambiguous_inputs",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+        "category": "ambiguous_inputs",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+        "category": "ambiguous_inputs",
+        "source_file": "inteligencia_dados_tests.md"
+      }
+    ]
+  },
+  "generated_inputs": [
+    {
+      "path": "/inteligencia-dados/analise-estatistica",
+      "raw_path": "/inteligencia-dados/analise-estatistica",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx."
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/analise-dados-inicial",
+      "raw_path": "/inteligencia-dados/analise-dados-inicial",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Confirmar endpoint de analise estatistica com parametros minimos validos."
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/insights/widgets",
+      "raw_path": "/inteligencia-dados/insights/widgets",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Verificar endpoint de previsao com input simples e resposta sem erro."
+      },
+      "json": null,
+      "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao."
+      },
+      "json": {
+        "prompt": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "invalid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx."
+      },
+      "json": {
+        "prompt": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+        "db_config": {
+          "db_type": "postgres",
+          "host": "localhost",
+          "port": 5432,
+          "database": "pulso_database",
+          "user": "postgres",
+          "password": "postgres"
+        }
+      },
+      "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "invalid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/captura-dados",
+      "raw_path": "/inteligencia-dados/captura-dados",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar formato de data inconsistente e verificar resposta de erro clara."
+      },
+      "json": {
+        "id_requisicao": "regen-r1",
+        "db_config": {
+          "db_type": "postgres",
+          "host": "localhost",
+          "port": 5432,
+          "database": "pulso_database",
+          "user": "postgres",
+          "password": "postgres"
+        }
+      },
+      "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "invalid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/tratamento-limpeza",
+      "raw_path": "/inteligencia-dados/tratamento-limpeza",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Testar volume maior de registros em consulta para observar tempo e estabilidade."
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "edge_cases"
+    },
+    {
+      "path": "/inteligencia-dados/criar-modelo-ml",
+      "raw_path": "/inteligencia-dados/criar-modelo-ml",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar dados com campos faltantes opcionais e validar fallback seguro."
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "edge_cases"
+    },
+    {
+      "path": "/inteligencia-dados/listar-modelos",
+      "raw_path": "/inteligencia-dados/listar-modelos",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+        "id_requisicao": "regen-r1"
+      },
+      "json": null,
+      "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "edge_cases"
+    },
+    {
+      "path": "/inteligencia-dados/prever",
+      "raw_path": "/inteligencia-dados/prever",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint."
+      },
+      "json": {
+        "id_requisicao": "regen-r1",
+        "model_ref": "sample"
+      },
+      "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "ambiguous_inputs"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento."
+      },
+      "json": {
+        "mensagem": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "ambiguous_inputs"
+    },
+    {
+      "path": "/inteligencia-dados/agendar-retreino",
+      "raw_path": "/inteligencia-dados/agendar-retreino",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio."
+      },
+      "json": {
+        "id_requisicao": "regen-r1",
+        "dataset_ref": "sample",
+        "variavel_alvo": "sample"
+      },
+      "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "ambiguous_inputs"
+    },
+    {
+      "path": "/inteligencia-dados/executar-retreino-agendado",
+      "raw_path": "/inteligencia-dados/executar-retreino-agendado",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx."
+      },
+      "json": {
+        "agendamento_id": "1"
+      },
+      "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/agendamentos-pendentes",
+      "raw_path": "/inteligencia-dados/agendamentos-pendentes",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Confirmar endpoint de analise estatistica com parametros minimos validos."
+      },
+      "json": null,
+      "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    }
+  ],
+  "cycles_executed": 1,
+  "failures_detected": [
+    "POST /inteligencia-dados/query status 500",
+    "POST /inteligencia-dados/captura-dados status 500",
+    "POST /inteligencia-dados/agendar-retreino erro: Object of type datetime is not JSON serializable",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+  ],
+  "input_validation_gaps": [],
+  "corrections_applied": [
+    {
+      "round": 1,
+      "applied": false,
+      "failures_received": 3,
+      "results_by_scope": [
+        {
+          "scope": "InteligenciaDados",
+          "applied": false,
+          "analise_retorno": {
+            "id_requisicao": "regen_1773689976_1f3e269d-r1-inteligenciadados",
+            "analise_retorno": {
+              "objetivo_final": "não atingido",
+              "falhas": [
+                "POST /inteligencia-dados/query: status=500",
+                "POST /inteligencia-dados/captura-dados: status=500",
+                "POST /inteligencia-dados/agendar-retreino: Object of type datetime is not JSON serializable"
+              ],
+              "vulnerabilidades": [],
+              "faltantes": [
+                "verificar logs para detalhes"
+              ],
+              "relatorio_logs": "POST /inteligencia-dados/query: status=500\nPOST /inteligencia-dados/captura-dados: status=500\nPOST /inteligencia-dados/agendar-retreino: Object of type datetime is not JSON serializable"
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correcao": {
+            "id_requisicao": "regen_1773689976_1f3e269d-r1-inteligenciadados",
+            "correcao": {
+              "erros_corrigidos": [
+                "POST /inteligencia-dados/query: status=500",
+                "POST /inteligencia-dados/captura-dados: status=500",
+                "POST /inteligencia-dados/agendar-retreino: Object of type datetime is not JSON serializable"
+              ],
+              "funcionalidades_atualizadas": [],
+              "estrutura_atualizada": [],
+              "status": "corrigido e aguardando validação",
+              "deve_reexecutar_teste": true,
+              "proximo_passo": "Reexecutar POST /teste-automatizado e em seguida POST /analise-retorno para validar se o objetivo foi atingido."
+            },
+            "workflow_result": {
+              "id_requisicao": "regen_1773689976_1f3e269d-r1-inteligenciadados",
+              "projeto_status": "existente",
+              "governanca": null,
+              "analise_estrutural": null,
+              "plano_de_codigo": null,
+              "blueprint": null,
+              "plano_de_mudancas": null,
+              "execucao": null,
+              "code_writer": null,
+              "code_implementer": {
+                "id_requisicao": "regen_1773689976_1f3e269d-r1-inteligenciadados",
+                "root_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\api\\app\\InteligenciaDados",
+                "usuario": "regenai",
+                "dry_run": false,
+                "executed_at": "2026-03-16T19:41:55.062583",
+                "status": "error",
+                "files": [],
+                "errors": [
+                  "Code-plan not found or invalid for regen_1773689976_1f3e269d-r1-inteligenciadados"
+                ]
+              },
+              "test_run": {
+                "success": false,
+                "message": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+                "method_used": null,
+                "logs": [],
+                "details": null
+              },
+              "pipeline_analise_retorno": null,
+              "pipeline_correcao": null,
+              "pipeline_seguranca_codigo_pos": null,
+              "pipeline_seguranca_infra_pos": null
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "reason": "autocorrecao sem mudanca efetiva",
+          "correction_status": "corrigido e aguardando validação"
+        }
+      ]
+    }
+  ],
+  "final_status": "completed",
+  "evidences": [
+    "POST /inteligencia-dados/query status 500",
+    "POST /inteligencia-dados/captura-dados status 500",
+    "POST /inteligencia-dados/agendar-retreino erro: Object of type datetime is not JSON serializable",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "inputs": 14,
+      "input_sources": [
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        }
+      ],
+      "failures": 4,
+      "correction_candidates": 3,
+      "input_validation_gaps": [],
+      "results": [
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-estatistica",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 48.92,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"analise_estatistica\":{\"quantidade_dados\":30000,\"resultados\":{\"media_valor\":350.75,\"desvio_padrao\":120.5,\"correlacoes\":{}},\"insights\":[\"Dataset analisado (30000 registros). Verifique gráficos e balanceamento antes de treinar.\"],\"modelos_sugeridos\":[\"Random Forest\",\"XGBoos"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-dados-inicial",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 44636.45,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"analise_inicial\":{\"objectivo_analise\":\"Análise Exploratória\",\"analises_recomendadas\":[\"análise exploratória\"],\"tratamentos_necessarios\":[],\"variaveis_alvo\":[]},\"dataset_ref\":null}"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/insights/widgets",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 44.09,
+          "body_preview": "{\"widgets\":[{\"id\":\"insight-default-pulso\",\"title\":\"Post Views\",\"value\":\"2.012\",\"trend\":\"+12.3%\",\"period\":\"Últimas 24h\",\"chart_type\":\"area\",\"progress_percent\":null,\"insights\":[\"O pico de visualizações ocorre entre 12h e 14h.\",\"Considere publicar nesse intervalo para maximizar alcance.\"],\"service_filt"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 46.92,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-2f5bd77fd1\",\"title\":\"Enviar dataset invalido para rota de analise e c\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifiq"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 542.34,
+          "body_preview": "{\"detail\":\"Erro interno ao processar a consulta.\"}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/captura-dados",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 538.55,
+          "body_preview": "{\"detail\":\"Erro interno ao processar a captura.\"}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/tratamento-limpeza",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 21.37,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"tratamento_limpeza\":{\"acoes\":[\"verificação de duplicatas\",\"tratamento de valores ausentes\"],\"justificativas\":[\"Duplicatas poderiam enviesar análises.\",\"Valores precisam estar na mesma escala para análise.\"],\"dataset_pronto\":\"dados_tratados_regen-r1.parquet\"}}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/criar-modelo-ml",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 49.35,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"modelo_ml\":{\"modelo_escolhido\":\"N/A\",\"motivo\":\"\",\"constatacoes\":\"Treino não executado (falta de dados, variável alvo ou acurácia insuficiente).\",\"melhorias_recomendadas\":[]},\"model_ref\":null,\"lista_model_refs\":[]}"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/listar-modelos",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 35.46,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"lista_model_refs\":[]}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/prever",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 31.33,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"previsoes\":[],\"dataset_com_previsao_ref\":null,\"total_previsto\":0,\"modelo_usado\":null,\"metricas_negocio\":null,\"intervalos_confianca\":null,\"erro_validacao\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 138078.75,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Claro, é possível misturar a previsão com a limpeza no mesmo payload. Para fazer isso, você precisa ter dados carregados primeiro, então conecte-se ao banco de dados e carregue os dados no formato necessário para o modelo de previsão. Depois disso, você "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/agendar-retreino",
+          "scope": "InteligenciaDados",
+          "status_code": null,
+          "success": false,
+          "elapsed_ms": 52.19,
+          "error": "Object of type datetime is not JSON serializable",
+          "body_preview": ""
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/executar-retreino-agendado",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 31.55,
+          "body_preview": "{\"agendamento_id\":\"1\",\"executado\":false,\"model_ref_novo\":null,\"modelo_ml\":null,\"erro\":\"Agendamento não encontrado ou já executado.\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/agendamentos-pendentes",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 16.62,
+          "body_preview": "{\"agendamentos\":[{\"_id\":\"69b8583acf8ff7af7050bee3\",\"agendamento_id\":\"ee1f1f81\",\"id_requisicao\":\"regen-r1\",\"usuario\":\"tchelo@pulso.com\",\"dataset_ref\":\"sample\",\"variavel_alvo\":\"sample\",\"tipo_problema\":\"classificacao\",\"cron_expr\":null,\"proxima_execucao_em_minutos\":null,\"created_at\":\"2026-03-16T19:21:30"
+        },
+        {
+          "method": "BASELINE",
+          "path": "api/app/InteligenciaDados",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 0,
+          "body_preview": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+          "error": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+        }
+      ]
+    }
+  ],
+  "generated_at": "2026-03-16T19:41:55.086434+00:00",
+  "report_json_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\RegenAI\\reports\\regen_1773689976_1f3e269d\\report.json",
+  "report_md_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\RegenAI\\reports\\regen_1773689976_1f3e269d\\report.md"
+}

@@ -1,0 +1,1369 @@
+{
+  "execution_id": "regen_1773688372_9221efa8",
+  "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+  "scopes": [
+    "InteligenciaDados"
+  ],
+  "routes_analyzed": [
+    "POST /inteligencia-dados/analise-estatistica",
+    "POST /inteligencia-dados/analise-dados-inicial",
+    "GET /inteligencia-dados/insights/widgets",
+    "POST /inteligencia-dados/insights/generate",
+    "POST /inteligencia-dados/query",
+    "POST /inteligencia-dados/captura-dados",
+    "POST /inteligencia-dados/tratamento-limpeza",
+    "POST /inteligencia-dados/criar-modelo-ml",
+    "GET /inteligencia-dados/listar-modelos",
+    "POST /inteligencia-dados/prever",
+    "POST /inteligencia-dados/chat",
+    "POST /inteligencia-dados/agendar-retreino",
+    "POST /inteligencia-dados/executar-retreino-agendado",
+    "GET /inteligencia-dados/agendamentos-pendentes"
+  ],
+  "questions_by_scope": {
+    "InteligenciaDados": [
+      {
+        "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+        "category": "valid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+        "category": "valid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+        "category": "valid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+        "category": "invalid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+        "category": "invalid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+        "category": "invalid_questions",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+        "category": "edge_cases",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+        "category": "edge_cases",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+        "category": "edge_cases",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+        "category": "ambiguous_inputs",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+        "category": "ambiguous_inputs",
+        "source_file": "inteligencia_dados_tests.md"
+      },
+      {
+        "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+        "category": "ambiguous_inputs",
+        "source_file": "inteligencia_dados_tests.md"
+      }
+    ]
+  },
+  "generated_inputs": [
+    {
+      "path": "/inteligencia-dados/analise-estatistica",
+      "raw_path": "/inteligencia-dados/analise-estatistica",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "valid_questions"
+      },
+      "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/analise-dados-inicial",
+      "raw_path": "/inteligencia-dados/analise-dados-inicial",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Confirmar endpoint de analise estatistica com parametros minimos validos."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "valid_questions"
+      },
+      "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/insights/widgets",
+      "raw_path": "/inteligencia-dados/insights/widgets",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Verificar endpoint de previsao com input simples e resposta sem erro."
+      },
+      "json": null,
+      "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "invalid_questions"
+      },
+      "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "invalid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "invalid_questions"
+      },
+      "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "invalid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/captura-dados",
+      "raw_path": "/inteligencia-dados/captura-dados",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar formato de data inconsistente e verificar resposta de erro clara."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "invalid_questions"
+      },
+      "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "invalid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/tratamento-limpeza",
+      "raw_path": "/inteligencia-dados/tratamento-limpeza",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Testar volume maior de registros em consulta para observar tempo e estabilidade."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "edge_cases"
+      },
+      "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "edge_cases"
+    },
+    {
+      "path": "/inteligencia-dados/criar-modelo-ml",
+      "raw_path": "/inteligencia-dados/criar-modelo-ml",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar dados com campos faltantes opcionais e validar fallback seguro."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "edge_cases"
+      },
+      "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "edge_cases"
+    },
+    {
+      "path": "/inteligencia-dados/listar-modelos",
+      "raw_path": "/inteligencia-dados/listar-modelos",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento."
+      },
+      "json": null,
+      "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "edge_cases"
+    },
+    {
+      "path": "/inteligencia-dados/prever",
+      "raw_path": "/inteligencia-dados/prever",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "ambiguous_inputs"
+      },
+      "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "ambiguous_inputs"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "ambiguous_inputs"
+      },
+      "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "ambiguous_inputs"
+    },
+    {
+      "path": "/inteligencia-dados/agendar-retreino",
+      "raw_path": "/inteligencia-dados/agendar-retreino",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "ambiguous_inputs"
+      },
+      "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "ambiguous_inputs"
+    },
+    {
+      "path": "/inteligencia-dados/executar-retreino-agendado",
+      "raw_path": "/inteligencia-dados/executar-retreino-agendado",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx."
+      },
+      "json": {
+        "objective": "Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.",
+        "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+        "round": 1,
+        "origin": "regenai",
+        "scope": "InteligenciaDados",
+        "question_source_file": "inteligencia_dados_tests.md",
+        "question_category": "valid_questions"
+      },
+      "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    },
+    {
+      "path": "/inteligencia-dados/agendamentos-pendentes",
+      "raw_path": "/inteligencia-dados/agendamentos-pendentes",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Confirmar endpoint de analise estatistica com parametros minimos validos."
+      },
+      "json": null,
+      "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+      "question_source_file": "inteligencia_dados_tests.md",
+      "question_category": "valid_questions"
+    }
+  ],
+  "cycles_executed": 3,
+  "failures_detected": [
+    "POST /inteligencia-dados/analise-estatistica status 422",
+    "POST /inteligencia-dados/analise-dados-inicial status 422",
+    "POST /inteligencia-dados/insights/generate status 422",
+    "POST /inteligencia-dados/query status 422",
+    "POST /inteligencia-dados/captura-dados status 422",
+    "POST /inteligencia-dados/tratamento-limpeza status 422",
+    "POST /inteligencia-dados/criar-modelo-ml status 422",
+    "GET /inteligencia-dados/listar-modelos status 422",
+    "POST /inteligencia-dados/prever status 422",
+    "POST /inteligencia-dados/chat status 422",
+    "POST /inteligencia-dados/agendar-retreino status 422",
+    "POST /inteligencia-dados/executar-retreino-agendado status 422",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+    "POST /inteligencia-dados/analise-estatistica status 422",
+    "POST /inteligencia-dados/analise-dados-inicial status 422",
+    "POST /inteligencia-dados/insights/generate status 422",
+    "POST /inteligencia-dados/query status 422",
+    "POST /inteligencia-dados/captura-dados status 422",
+    "POST /inteligencia-dados/tratamento-limpeza status 422",
+    "POST /inteligencia-dados/criar-modelo-ml status 422",
+    "GET /inteligencia-dados/listar-modelos status 422",
+    "POST /inteligencia-dados/prever status 422",
+    "POST /inteligencia-dados/chat status 422",
+    "POST /inteligencia-dados/agendar-retreino status 422",
+    "POST /inteligencia-dados/executar-retreino-agendado status 422",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+    "POST /inteligencia-dados/analise-estatistica status 422",
+    "POST /inteligencia-dados/analise-dados-inicial status 422",
+    "POST /inteligencia-dados/insights/generate status 422",
+    "POST /inteligencia-dados/query status 422",
+    "POST /inteligencia-dados/captura-dados status 422",
+    "POST /inteligencia-dados/tratamento-limpeza status 422",
+    "POST /inteligencia-dados/criar-modelo-ml status 422",
+    "GET /inteligencia-dados/listar-modelos status 422",
+    "POST /inteligencia-dados/prever status 422",
+    "POST /inteligencia-dados/chat status 422",
+    "POST /inteligencia-dados/agendar-retreino status 422",
+    "POST /inteligencia-dados/executar-retreino-agendado status 422",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+  ],
+  "corrections_applied": [
+    {
+      "round": 1,
+      "applied": true,
+      "failures_received": 13,
+      "results_by_scope": [
+        {
+          "scope": "unknown",
+          "applied": false,
+          "reason": "scope sem mapeamento de diretorio"
+        },
+        {
+          "scope": "InteligenciaDados",
+          "applied": true,
+          "analise_retorno": {
+            "id_requisicao": "regen_1773688372_9221efa8-r1-inteligenciadados",
+            "analise_retorno": {
+              "objetivo_final": "não atingido",
+              "falhas": [
+                "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+              ],
+              "vulnerabilidades": [],
+              "faltantes": [
+                "configuração docker-compose ou containers"
+              ],
+              "relatorio_logs": "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correcao": {
+            "id_requisicao": "regen_1773688372_9221efa8-r1-inteligenciadados",
+            "correcao": {
+              "erros_corrigidos": [
+                "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+              ],
+              "funcionalidades_atualizadas": [],
+              "estrutura_atualizada": [],
+              "status": "corrigido e aguardando validação",
+              "deve_reexecutar_teste": true,
+              "proximo_passo": "Reexecutar POST /teste-automatizado e em seguida POST /analise-retorno para validar se o objetivo foi atingido."
+            },
+            "workflow_result": {
+              "id_requisicao": "regen_1773688372_9221efa8-r1-inteligenciadados",
+              "projeto_status": "existente",
+              "governanca": null,
+              "analise_estrutural": null,
+              "plano_de_codigo": null,
+              "blueprint": null,
+              "plano_de_mudancas": null,
+              "execucao": null,
+              "code_writer": null,
+              "code_implementer": {
+                "id_requisicao": "regen_1773688372_9221efa8-r1-inteligenciadados",
+                "root_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\api\\app\\InteligenciaDados",
+                "usuario": "regenai",
+                "dry_run": false,
+                "executed_at": "2026-03-16T19:12:52.872435",
+                "status": "error",
+                "files": [],
+                "errors": [
+                  "Code-plan not found or invalid for regen_1773688372_9221efa8-r1-inteligenciadados"
+                ]
+              },
+              "test_run": {
+                "success": false,
+                "message": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+                "method_used": null,
+                "logs": [],
+                "details": null
+              },
+              "pipeline_analise_retorno": null,
+              "pipeline_correcao": null,
+              "pipeline_seguranca_codigo_pos": null,
+              "pipeline_seguranca_infra_pos": null
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correction_status": "corrigido e aguardando validação"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "applied": true,
+      "failures_received": 13,
+      "results_by_scope": [
+        {
+          "scope": "unknown",
+          "applied": false,
+          "reason": "scope sem mapeamento de diretorio"
+        },
+        {
+          "scope": "InteligenciaDados",
+          "applied": true,
+          "analise_retorno": {
+            "id_requisicao": "regen_1773688372_9221efa8-r2-inteligenciadados",
+            "analise_retorno": {
+              "objetivo_final": "não atingido",
+              "falhas": [
+                "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+              ],
+              "vulnerabilidades": [],
+              "faltantes": [
+                "configuração docker-compose ou containers"
+              ],
+              "relatorio_logs": "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correcao": {
+            "id_requisicao": "regen_1773688372_9221efa8-r2-inteligenciadados",
+            "correcao": {
+              "erros_corrigidos": [
+                "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+              ],
+              "funcionalidades_atualizadas": [],
+              "estrutura_atualizada": [],
+              "status": "corrigido e aguardando validação",
+              "deve_reexecutar_teste": true,
+              "proximo_passo": "Reexecutar POST /teste-automatizado e em seguida POST /analise-retorno para validar se o objetivo foi atingido."
+            },
+            "workflow_result": {
+              "id_requisicao": "regen_1773688372_9221efa8-r2-inteligenciadados",
+              "projeto_status": "existente",
+              "governanca": null,
+              "analise_estrutural": null,
+              "plano_de_codigo": null,
+              "blueprint": null,
+              "plano_de_mudancas": null,
+              "execucao": null,
+              "code_writer": null,
+              "code_implementer": {
+                "id_requisicao": "regen_1773688372_9221efa8-r2-inteligenciadados",
+                "root_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\api\\app\\InteligenciaDados",
+                "usuario": "regenai",
+                "dry_run": false,
+                "executed_at": "2026-03-16T19:12:52.996030",
+                "status": "error",
+                "files": [],
+                "errors": [
+                  "Code-plan not found or invalid for regen_1773688372_9221efa8-r2-inteligenciadados"
+                ]
+              },
+              "test_run": {
+                "success": false,
+                "message": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+                "method_used": null,
+                "logs": [],
+                "details": null
+              },
+              "pipeline_analise_retorno": null,
+              "pipeline_correcao": null,
+              "pipeline_seguranca_codigo_pos": null,
+              "pipeline_seguranca_infra_pos": null
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correction_status": "corrigido e aguardando validação"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "applied": true,
+      "failures_received": 13,
+      "results_by_scope": [
+        {
+          "scope": "unknown",
+          "applied": false,
+          "reason": "scope sem mapeamento de diretorio"
+        },
+        {
+          "scope": "InteligenciaDados",
+          "applied": true,
+          "analise_retorno": {
+            "id_requisicao": "regen_1773688372_9221efa8-r3-inteligenciadados",
+            "analise_retorno": {
+              "objetivo_final": "não atingido",
+              "falhas": [
+                "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+              ],
+              "vulnerabilidades": [],
+              "faltantes": [
+                "configuração docker-compose ou containers"
+              ],
+              "relatorio_logs": "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correcao": {
+            "id_requisicao": "regen_1773688372_9221efa8-r3-inteligenciadados",
+            "correcao": {
+              "erros_corrigidos": [
+                "BASELINE api/app/InteligenciaDados: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+              ],
+              "funcionalidades_atualizadas": [],
+              "estrutura_atualizada": [],
+              "status": "corrigido e aguardando validação",
+              "deve_reexecutar_teste": true,
+              "proximo_passo": "Reexecutar POST /teste-automatizado e em seguida POST /analise-retorno para validar se o objetivo foi atingido."
+            },
+            "workflow_result": {
+              "id_requisicao": "regen_1773688372_9221efa8-r3-inteligenciadados",
+              "projeto_status": "existente",
+              "governanca": null,
+              "analise_estrutural": null,
+              "plano_de_codigo": null,
+              "blueprint": null,
+              "plano_de_mudancas": null,
+              "execucao": null,
+              "code_writer": null,
+              "code_implementer": {
+                "id_requisicao": "regen_1773688372_9221efa8-r3-inteligenciadados",
+                "root_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\api\\app\\InteligenciaDados",
+                "usuario": "regenai",
+                "dry_run": false,
+                "executed_at": "2026-03-16T19:12:53.083163",
+                "status": "error",
+                "files": [],
+                "errors": [
+                  "Code-plan not found or invalid for regen_1773688372_9221efa8-r3-inteligenciadados"
+                ]
+              },
+              "test_run": {
+                "success": false,
+                "message": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+                "method_used": null,
+                "logs": [],
+                "details": null
+              },
+              "pipeline_analise_retorno": null,
+              "pipeline_correcao": null,
+              "pipeline_seguranca_codigo_pos": null,
+              "pipeline_seguranca_infra_pos": null
+            },
+            "run_id": null,
+            "correlation_id": null
+          },
+          "correction_status": "corrigido e aguardando validação"
+        }
+      ]
+    }
+  ],
+  "final_status": "failed",
+  "evidences": [
+    "POST /inteligencia-dados/analise-estatistica status 422",
+    "POST /inteligencia-dados/analise-dados-inicial status 422",
+    "POST /inteligencia-dados/insights/generate status 422",
+    "POST /inteligencia-dados/query status 422",
+    "POST /inteligencia-dados/captura-dados status 422",
+    "POST /inteligencia-dados/tratamento-limpeza status 422",
+    "POST /inteligencia-dados/criar-modelo-ml status 422",
+    "GET /inteligencia-dados/listar-modelos status 422",
+    "POST /inteligencia-dados/prever status 422",
+    "POST /inteligencia-dados/chat status 422",
+    "POST /inteligencia-dados/agendar-retreino status 422",
+    "POST /inteligencia-dados/executar-retreino-agendado status 422",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+    "POST /inteligencia-dados/analise-estatistica status 422",
+    "POST /inteligencia-dados/analise-dados-inicial status 422",
+    "POST /inteligencia-dados/insights/generate status 422",
+    "POST /inteligencia-dados/query status 422",
+    "POST /inteligencia-dados/captura-dados status 422",
+    "POST /inteligencia-dados/tratamento-limpeza status 422",
+    "POST /inteligencia-dados/criar-modelo-ml status 422",
+    "GET /inteligencia-dados/listar-modelos status 422",
+    "POST /inteligencia-dados/prever status 422",
+    "POST /inteligencia-dados/chat status 422",
+    "POST /inteligencia-dados/agendar-retreino status 422",
+    "POST /inteligencia-dados/executar-retreino-agendado status 422",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+    "POST /inteligencia-dados/analise-estatistica status 422",
+    "POST /inteligencia-dados/analise-dados-inicial status 422",
+    "POST /inteligencia-dados/insights/generate status 422",
+    "POST /inteligencia-dados/query status 422",
+    "POST /inteligencia-dados/captura-dados status 422",
+    "POST /inteligencia-dados/tratamento-limpeza status 422",
+    "POST /inteligencia-dados/criar-modelo-ml status 422",
+    "GET /inteligencia-dados/listar-modelos status 422",
+    "POST /inteligencia-dados/prever status 422",
+    "POST /inteligencia-dados/chat status 422",
+    "POST /inteligencia-dados/agendar-retreino status 422",
+    "POST /inteligencia-dados/executar-retreino-agendado status 422",
+    "BASELINE api/app/InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "inputs": 14,
+      "input_sources": [
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        }
+      ],
+      "failures": 13,
+      "results": [
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-estatistica",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 63.13,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Validar consulta basica de InteligenciaDados com retorno estruturado e st"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-dados-inicial",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 62.79,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Confirmar endpoint de analise estatistica com parametros minimos validos."
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/insights/widgets",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 56.93,
+          "body_preview": "{\"widgets\":[{\"id\":\"insight-default-pulso\",\"title\":\"Post Views\",\"value\":\"2.012\",\"trend\":\"+12.3%\",\"period\":\"Últimas 24h\",\"chart_type\":\"area\",\"progress_percent\":null,\"insights\":[\"O pico de visualizações ocorre entre 12h e 14h.\",\"Considere publicar nesse intervalo para maximizar alcance.\"],\"service_filt"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 65.39,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"prompt\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar dataset invalido para rota de analise e confirmar erro de validacao.\",\"ro"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 61.32,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"prompt\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.\",\"rou"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/captura-dados",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 70.58,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar formato de data inconsistente e verificar resposta de erro clara.\""
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/tratamento-limpeza",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 51.8,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Testar volume maior de registros em consulta para observar tempo e estabi"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/criar-modelo-ml",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 49.15,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar dados com campos faltantes opcionais e validar fallback seguro.\",\""
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/listar-modelos",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 31.86,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/prever",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 48.54,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 44.86,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"mensagem\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar t"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/agendar-retreino",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 39.23,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Informar objetivo de negocio sem dataset explicito e validar mensagem de "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/executar-retreino-agendado",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 18.49,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"agendamento_id\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Validar consulta basica de InteligenciaDados com retorno estruturado e s"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/agendamentos-pendentes",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 12.76,
+          "body_preview": "{\"agendamentos\":[]}"
+        },
+        {
+          "method": "BASELINE",
+          "path": "api/app/InteligenciaDados",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 0,
+          "body_preview": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+          "error": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "inputs": 14,
+      "input_sources": [
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        }
+      ],
+      "failures": 13,
+      "results": [
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-estatistica",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 46.97,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Validar consulta basica de InteligenciaDados com retorno estruturado e st"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-dados-inicial",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 41.32,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Confirmar endpoint de analise estatistica com parametros minimos validos."
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/insights/widgets",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 12.63,
+          "body_preview": "{\"widgets\":[{\"id\":\"insight-default-pulso\",\"title\":\"Post Views\",\"value\":\"2.012\",\"trend\":\"+12.3%\",\"period\":\"Últimas 24h\",\"chart_type\":\"area\",\"progress_percent\":null,\"insights\":[\"O pico de visualizações ocorre entre 12h e 14h.\",\"Considere publicar nesse intervalo para maximizar alcance.\"],\"service_filt"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 34.9,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"prompt\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar dataset invalido para rota de analise e confirmar erro de validacao.\",\"ro"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 38.41,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"prompt\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.\",\"rou"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/captura-dados",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 30.86,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar formato de data inconsistente e verificar resposta de erro clara.\""
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/tratamento-limpeza",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 42.73,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Testar volume maior de registros em consulta para observar tempo e estabi"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/criar-modelo-ml",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 38.63,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar dados com campos faltantes opcionais e validar fallback seguro.\",\""
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/listar-modelos",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 27.13,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/prever",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 32.71,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 32.29,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"mensagem\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar t"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/agendar-retreino",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 28.03,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Informar objetivo de negocio sem dataset explicito e validar mensagem de "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/executar-retreino-agendado",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 19.99,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"agendamento_id\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Validar consulta basica de InteligenciaDados com retorno estruturado e s"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/agendamentos-pendentes",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 13.86,
+          "body_preview": "{\"agendamentos\":[]}"
+        },
+        {
+          "method": "BASELINE",
+          "path": "api/app/InteligenciaDados",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 0,
+          "body_preview": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+          "error": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "inputs": 14,
+      "input_sources": [
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Verificar endpoint de previsao com input simples e resposta sem erro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Enviar dataset invalido para rota de analise e confirmar erro de validacao.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Enviar formato de data inconsistente e verificar resposta de erro clara.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "invalid_questions"
+        },
+        {
+          "question": "Testar volume maior de registros em consulta para observar tempo e estabilidade.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Enviar dados com campos faltantes opcionais e validar fallback seguro.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Usar valores extremos (muito altos/baixos) em campos numericos e observar comportamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "edge_cases"
+        },
+        {
+          "question": "Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao do endpoint.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar tratamento.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Informar objetivo de negocio sem dataset explicito e validar mensagem de apoio.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "ambiguous_inputs"
+        },
+        {
+          "question": "Validar consulta basica de InteligenciaDados com retorno estruturado e status 2xx.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        },
+        {
+          "question": "Confirmar endpoint de analise estatistica com parametros minimos validos.",
+          "scope": "InteligenciaDados",
+          "source_file": "inteligencia_dados_tests.md",
+          "category": "valid_questions"
+        }
+      ],
+      "failures": 13,
+      "results": [
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-estatistica",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 32.02,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Validar consulta basica de InteligenciaDados com retorno estruturado e st"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-dados-inicial",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 28.12,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Confirmar endpoint de analise estatistica com parametros minimos validos."
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/insights/widgets",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 13.62,
+          "body_preview": "{\"widgets\":[{\"id\":\"insight-default-pulso\",\"title\":\"Post Views\",\"value\":\"2.012\",\"trend\":\"+12.3%\",\"period\":\"Últimas 24h\",\"chart_type\":\"area\",\"progress_percent\":null,\"insights\":[\"O pico de visualizações ocorre entre 12h e 14h.\",\"Considere publicar nesse intervalo para maximizar alcance.\"],\"service_filt"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 25.12,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"prompt\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar dataset invalido para rota de analise e confirmar erro de validacao.\",\"ro"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 24.54,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"prompt\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Omitir metadados obrigatorios na rota de modelos ML e validar retorno 4xx.\",\"rou"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/captura-dados",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 22.21,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar formato de data inconsistente e verificar resposta de erro clara.\""
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/tratamento-limpeza",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 33.49,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Testar volume maior de registros em consulta para observar tempo e estabi"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/criar-modelo-ml",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 37.76,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar dados com campos faltantes opcionais e validar fallback seguro.\",\""
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/listar-modelos",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 24.15,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/prever",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 35.9,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Fazer pergunta analitica ampla sem metrica definida e avaliar orientacao "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 36.87,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"mensagem\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Enviar instrucao que mistura previsao e limpeza no mesmo payload e verificar t"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/agendar-retreino",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 35.73,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"id_requisicao\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Informar objetivo de negocio sem dataset explicito e validar mensagem de "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/executar-retreino-agendado",
+          "status_code": 422,
+          "success": false,
+          "elapsed_ms": 22.32,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"agendamento_id\"],\"msg\":\"Field required\",\"input\":{\"objective\":\"Validar respostas de InteligenciaDados, incluindo formato de saida para usuario final e analise de graficos.\",\"question\":\"Validar consulta basica de InteligenciaDados com retorno estruturado e s"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/agendamentos-pendentes",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 19.03,
+          "body_preview": "{\"agendamentos\":[]}"
+        },
+        {
+          "method": "BASELINE",
+          "path": "api/app/InteligenciaDados",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 0,
+          "body_preview": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+          "error": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+        }
+      ]
+    }
+  ],
+  "generated_at": "2026-03-16T19:12:53.087681+00:00",
+  "report_json_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\RegenAI\\reports\\regen_1773688372_9221efa8\\report.json",
+  "report_md_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\RegenAI\\reports\\regen_1773688372_9221efa8\\report.md"
+}

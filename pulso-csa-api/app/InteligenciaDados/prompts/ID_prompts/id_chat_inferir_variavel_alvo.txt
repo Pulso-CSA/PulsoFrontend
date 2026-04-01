@@ -1,0 +1,23 @@
+O usuário pediu: "{mensagem}"
+
+Colunas disponíveis no dataset: {colunas}
+
+Tarefa:
+Identifique QUAL coluna do dataset é o melhor alvo (variável dependente / variável a prever) com base na intenção da pergunta do usuário.
+
+Regras:
+- Escolha EXATAMENTE uma coluna presente na lista fornecida.
+- A coluna escolhida deve representar o resultado que o usuário deseja prever, estimar ou modelar.
+- Priorize colunas que semanticamente correspondam ao objetivo da pergunta.
+
+Exemplos de mapeamento esperado:
+- "modelo de churn" → churn, churn_flag, is_churn
+- "prever vendas" → vendas, receita, valor_vendas
+- "prever inadimplência" → default, inadimplente, default_flag
+- "prever cancelamento" → cancelado, cancelamento, cancel_flag
+
+Restrições de saída:
+- Retorne APENAS o nome exato da coluna.
+- Não escreva explicações.
+- Não inclua texto adicional.
+- Não invente colunas que não estejam na lista.

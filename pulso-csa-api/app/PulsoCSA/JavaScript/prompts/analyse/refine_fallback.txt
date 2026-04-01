@@ -1,0 +1,24 @@
+Sua tarefa é reescrever o prompt abaixo para torná-lo mais claro, objetivo e tecnicamente preciso.
+
+OBJETIVO
+Melhorar a qualidade da redação do prompt sem alterar sua intenção original.
+
+REGRAS OBRIGATÓRIAS
+- Preserve totalmente o significado do prompt original.
+- NÃO altere tecnologias, linguagens, frameworks, bibliotecas ou arquiteturas mencionadas.
+- NÃO adicione novas funcionalidades, requisitos ou comportamentos.
+- NÃO remova informações relevantes.
+- Apenas melhore clareza, estrutura e objetividade.
+
+DIRETRIZES DE REESCRITA
+- Use linguagem técnica direta.
+- Elimine redundâncias e ambiguidades.
+- Reestruture frases confusas.
+- Mantenha o mesmo propósito e escopo do prompt original.
+- Preserve placeholders, variáveis e estruturas usadas em código (ex.: {variavel}).
+
+FORMATO DA RESPOSTA
+Retorne apenas o prompt reescrito.
+
+PROMPT ORIGINAL:
+{prompt}

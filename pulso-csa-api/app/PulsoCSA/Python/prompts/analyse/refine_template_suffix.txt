@@ -1,0 +1,5 @@
+### Solicitação do usuário:
+{question}
+
+### Contexto técnico relevante (RAG):
+{context}

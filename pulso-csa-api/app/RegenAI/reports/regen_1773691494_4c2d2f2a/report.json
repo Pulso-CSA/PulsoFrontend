@@ -1,0 +1,2583 @@
+{
+  "execution_id": "regen_1773691494_4c2d2f2a",
+  "objective": "Testar InteligenciaDados como usuario final usando todas as perguntas de docs/PERGUNTAS_TESTE_ID.md",
+  "scopes": [
+    "InteligenciaDados"
+  ],
+  "routes_analyzed": [
+    "POST /inteligencia-dados/analise-dados-inicial",
+    "POST /inteligencia-dados/analise-estatistica",
+    "POST /inteligencia-dados/criar-modelo-ml",
+    "GET /inteligencia-dados/listar-modelos",
+    "GET /inteligencia-dados/insights/widgets",
+    "POST /inteligencia-dados/insights/generate",
+    "POST /inteligencia-dados/query",
+    "POST /inteligencia-dados/captura-dados",
+    "POST /inteligencia-dados/tratamento-limpeza",
+    "POST /inteligencia-dados/prever",
+    "POST /inteligencia-dados/chat",
+    "POST /inteligencia-dados/agendar-retreino",
+    "POST /inteligencia-dados/executar-retreino-agendado",
+    "GET /inteligencia-dados/agendamentos-pendentes"
+  ],
+  "questions_by_scope": {
+    "InteligenciaDados": [
+      {
+        "question": "Quais são as tabelas e volumes?",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Listagem de coleções/tabelas e contagem de registros"
+      },
+      {
+        "question": "Mostre as primeiras 5 linhas do dataset",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Amostra de 5 linhas em tabela ou JSON"
+      },
+      {
+        "question": "Quantos registros tem o dataset?",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Número total de linhas"
+      },
+      {
+        "question": "Liste as colunas disponíveis",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Nomes das colunas do schema"
+      },
+      {
+        "question": "Quais são os tipos de dados de cada coluna?",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Metadados: coluna → tipo (string, number, etc.)"
+      },
+      {
+        "question": "Existe coluna de churn?",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Confirmação e nome da coluna, ou indicação de ausência"
+      },
+      {
+        "question": "Mostre 10 registros aleatórios",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Amostra de 10 linhas"
+      },
+      {
+        "question": "Há valores nulos no dataset?",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Contagem ou percentual de nulos por coluna"
+      },
+      {
+        "question": "Qual o tamanho do dataset em memória?",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Informação de shape (linhas x colunas) ou tamanho"
+      },
+      {
+        "question": "Descreva o dataset em uma frase",
+        "category": "baixa_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Resumo breve (ex.: \"500 linhas, 20 colunas, variável alvo Churn\")"
+      },
+      {
+        "question": "Faça um resumo estatístico das variáveis numéricas",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Média, desvio padrão, quartis por variável numérica"
+      },
+      {
+        "question": "Mostre a distribuição da variável Partner",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Gráfico de contagem (Yes/No) ou barras por categoria"
+      },
+      {
+        "question": "Qual a média de MonthlyCharges?",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Valor numérico da média"
+      },
+      {
+        "question": "Calcule a correlação entre tenure e TotalCharges",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Coeficiente de correlação (Pearson)"
+      },
+      {
+        "question": "Quantos clientes têm Churn igual a Yes?",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Contagem ou percentual"
+      },
+      {
+        "question": "Mostre a distribuição de uma variável categórica (ex.: gender)",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Gráfico de barras por categoria, sem confundir com médias"
+      },
+      {
+        "question": "Quais são os valores únicos da coluna Contract?",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Lista de categorias (ex.: Month-to-month, One year, Two year)"
+      },
+      {
+        "question": "Faça um resumo das variáveis numéricas",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Métricas descritivas (média, mediana, dp, min, max)"
+      },
+      {
+        "question": "Existem outliers em MonthlyCharges?",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Análise de outliers (IQR, boxplot ou identificação)"
+      },
+      {
+        "question": "Qual a mediana de tenure?",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Valor numérico da mediana"
+      },
+      {
+        "question": "Mostre a contagem por Dependents",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Gráfico ou tabela Yes/No com contagens"
+      },
+      {
+        "question": "Quais colunas são numéricas e quais são categóricas?",
+        "category": "media_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Lista separada por tipo"
+      },
+      {
+        "question": "Faça uma análise gráfica e estatística do conjunto de dados e procure as variáveis correlacionadas para a previsão de churn",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Resumo estatístico, correlações com Churn, histogramas, dispersões"
+      },
+      {
+        "question": "Sugira um modelo de machine learning para previsão de churn",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Modelos recomendados (Random Forest, XGBoost, etc.) sem precisar de dataset"
+      },
+      {
+        "question": "Traga os gráficos da última análise",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Reutilização de contexto, exibição de graficos_dados sem nova captura"
+      },
+      {
+        "question": "Analise as correlações entre todas as variáveis numéricas",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Matriz ou lista de pares com coeficientes de correlação"
+      },
+      {
+        "question": "Faça um histograma de tenure",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Gráfico de distribuição (barras) da variável tenure"
+      },
+      {
+        "question": "Compare a distribuição de MonthlyCharges entre clientes que deram churn e os que não deram",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Gráfico comparativo ou estatísticas por grupo"
+      },
+      {
+        "question": "Quais variáveis têm maior variância?",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Lista ordenada por variância ou desvio padrão"
+      },
+      {
+        "question": "Faça um gráfico de dispersão entre tenure e TotalCharges",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Scatter plot com os dois eixos"
+      },
+      {
+        "question": "Analise a relação entre Contract e Churn",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Tabela cruzada ou gráfico de contagem por categoria"
+      },
+      {
+        "question": "Gere visualizações para as 5 variáveis mais importantes",
+        "category": "alta_complexidade",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Gráficos das variáveis selecionadas (por correlação ou importância)"
+      },
+      {
+        "question": "Analise o balanceamento de classes da variável alvo e indique se há necessidade de técnicas de reamostragem",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Contagem Yes/No, razão de desbalanceamento, sugestão de SMOTE/undersampling"
+      },
+      {
+        "question": "Quais variáveis têm maior poder preditivo para churn? Justifique com correlações e distribuições",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Variáveis ordenadas por correlação com Churn, resposta estruturada"
+      },
+      {
+        "question": "O dataset está pronto para treinar um modelo? O que falta?",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Diagnóstico: balanceamento, missing, tipos, sugestões de pré-processamento"
+      },
+      {
+        "question": "Recomende técnicas de feature engineering para este dataset",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Sugestões (encoding, normalização, criação de features)"
+      },
+      {
+        "question": "Qual a melhor estratégia de validação para este problema?",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Sugestão (holdout, k-fold, stratified) com justificativa"
+      },
+      {
+        "question": "Identifique possíveis vazamentos de dados (data leakage)",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Variáveis ou colunas que podem causar leakage"
+      },
+      {
+        "question": "Analise a importância das features para previsão de churn",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Ranking ou gráfico de importância (após treino ou por correlação)"
+      },
+      {
+        "question": "O modelo deve priorizar recall ou precisão para churn? Justifique",
+        "category": "profissional",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Recomendação com base no contexto de negócio"
+      },
+      {
+        "question": "Treine um modelo para prever churn",
+        "category": "treino_modelo",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "model_ref, métricas (acuracia, precisão, recall, F1), matriz de confusão"
+      },
+      {
+        "question": "Crie um modelo de classificação com churn como variável alvo",
+        "category": "treino_modelo",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Treino efetivo, model_ref, resultados"
+      },
+      {
+        "question": "Treine um modelo de machine learning para previsão de churn",
+        "category": "treino_modelo",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Idem, com inferência de variável alvo quando não explícita"
+      },
+      {
+        "question": "Qual foi o melhor modelo entre os testados?",
+        "category": "treino_modelo",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Nome do modelo escolhido, métricas, motivo da escolha"
+      },
+      {
+        "question": "Treine novamente com balanceamento de classes",
+        "category": "treino_modelo",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Modelo treinado com SMOTE ou similar, métricas atualizadas"
+      },
+      {
+        "question": "Gere previsões de churn para o dataset atual",
+        "category": "previsao",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Lista de previsões (Yes/No), uso de model_ref + dataset_ref"
+      },
+      {
+        "question": "Quais clientes devem churnar?",
+        "category": "previsao",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Lista ou tabela de clientes com previsão Yes, ou amostra"
+      },
+      {
+        "question": "Faça a previsão para estes dados: [JSON com dados]",
+        "category": "previsao",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Previsões para os registros em dados_para_prever"
+      },
+      {
+        "question": "Quantos clientes foram previstos como churn?",
+        "category": "previsao",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Contagem ou distribuição (Yes: N, No: M)"
+      },
+      {
+        "question": "Exporte as previsões com o ID do cliente",
+        "category": "previsao",
+        "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+        "expected_output": "Tabela ou JSON com identificador + previsão"
+      }
+    ]
+  },
+  "generated_inputs": [
+    {
+      "path": "/inteligencia-dados/analise-dados-inicial",
+      "raw_path": "/inteligencia-dados/analise-dados-inicial",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Quais são as tabelas e volumes?"
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quais são as tabelas e volumes?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/analise-estatistica",
+      "raw_path": "/inteligencia-dados/analise-estatistica",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Mostre as primeiras 5 linhas do dataset"
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Mostre as primeiras 5 linhas do dataset",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/criar-modelo-ml",
+      "raw_path": "/inteligencia-dados/criar-modelo-ml",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Quantos registros tem o dataset?"
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quantos registros tem o dataset?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/listar-modelos",
+      "raw_path": "/inteligencia-dados/listar-modelos",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Liste as colunas disponíveis",
+        "id_requisicao": "regen-r1"
+      },
+      "json": null,
+      "question": "Liste as colunas disponíveis",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/widgets",
+      "raw_path": "/inteligencia-dados/insights/widgets",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Quais são os tipos de dados de cada coluna?"
+      },
+      "json": null,
+      "question": "Quais são os tipos de dados de cada coluna?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Existe coluna de churn?"
+      },
+      "json": {
+        "prompt": "Existe coluna de churn?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Existe coluna de churn?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Mostre 10 registros aleatórios"
+      },
+      "json": {
+        "prompt": "Mostre 10 registros aleatórios",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Mostre 10 registros aleatórios",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/captura-dados",
+      "raw_path": "/inteligencia-dados/captura-dados",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Há valores nulos no dataset?"
+      },
+      "json": {
+        "id_requisicao": "regen-r1",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Há valores nulos no dataset?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/tratamento-limpeza",
+      "raw_path": "/inteligencia-dados/tratamento-limpeza",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Qual o tamanho do dataset em memória?"
+      },
+      "json": {
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Qual o tamanho do dataset em memória?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/prever",
+      "raw_path": "/inteligencia-dados/prever",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Descreva o dataset em uma frase"
+      },
+      "json": {
+        "id_requisicao": "regen-r1",
+        "model_ref": "sample"
+      },
+      "question": "Descreva o dataset em uma frase",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Faça um resumo estatístico das variáveis numéricas"
+      },
+      "json": {
+        "mensagem": "Faça um resumo estatístico das variáveis numéricas",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça um resumo estatístico das variáveis numéricas",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/agendar-retreino",
+      "raw_path": "/inteligencia-dados/agendar-retreino",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Mostre a distribuição da variável Partner"
+      },
+      "json": {
+        "id_requisicao": "regen-r1",
+        "dataset_ref": "sample",
+        "variavel_alvo": "sample"
+      },
+      "question": "Mostre a distribuição da variável Partner",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/executar-retreino-agendado",
+      "raw_path": "/inteligencia-dados/executar-retreino-agendado",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Qual a média de MonthlyCharges?"
+      },
+      "json": {
+        "agendamento_id": "1"
+      },
+      "question": "Qual a média de MonthlyCharges?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/agendamentos-pendentes",
+      "raw_path": "/inteligencia-dados/agendamentos-pendentes",
+      "method": "GET",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "minimal",
+        "regen_question": "Calcule a correlação entre tenure e TotalCharges"
+      },
+      "json": null,
+      "question": "Calcule a correlação entre tenure e TotalCharges",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "1",
+        "regen_question": "Quais são as tabelas e volumes?"
+      },
+      "json": {
+        "prompt": "Quais são as tabelas e volumes?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Quais são as tabelas e volumes?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "2",
+        "regen_question": "Mostre as primeiras 5 linhas do dataset"
+      },
+      "json": {
+        "prompt": "Mostre as primeiras 5 linhas do dataset",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Mostre as primeiras 5 linhas do dataset",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "3",
+        "regen_question": "Quantos registros tem o dataset?"
+      },
+      "json": {
+        "prompt": "Quantos registros tem o dataset?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Quantos registros tem o dataset?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "4",
+        "regen_question": "Liste as colunas disponíveis"
+      },
+      "json": {
+        "prompt": "Liste as colunas disponíveis",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Liste as colunas disponíveis",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "5",
+        "regen_question": "Quais são os tipos de dados de cada coluna?"
+      },
+      "json": {
+        "prompt": "Quais são os tipos de dados de cada coluna?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Quais são os tipos de dados de cada coluna?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "6",
+        "regen_question": "Existe coluna de churn?"
+      },
+      "json": {
+        "prompt": "Existe coluna de churn?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Existe coluna de churn?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "7",
+        "regen_question": "Mostre 10 registros aleatórios"
+      },
+      "json": {
+        "prompt": "Mostre 10 registros aleatórios",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Mostre 10 registros aleatórios",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "8",
+        "regen_question": "Há valores nulos no dataset?"
+      },
+      "json": {
+        "prompt": "Há valores nulos no dataset?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Há valores nulos no dataset?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "9",
+        "regen_question": "Qual o tamanho do dataset em memória?"
+      },
+      "json": {
+        "prompt": "Qual o tamanho do dataset em memória?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Qual o tamanho do dataset em memória?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "10",
+        "regen_question": "Descreva o dataset em uma frase"
+      },
+      "json": {
+        "prompt": "Descreva o dataset em uma frase",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Descreva o dataset em uma frase",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "baixa_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "11",
+        "regen_question": "Faça um resumo estatístico das variáveis numéricas"
+      },
+      "json": {
+        "mensagem": "Faça um resumo estatístico das variáveis numéricas",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça um resumo estatístico das variáveis numéricas",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "12",
+        "regen_question": "Mostre a distribuição da variável Partner"
+      },
+      "json": {
+        "prompt": "Mostre a distribuição da variável Partner",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Mostre a distribuição da variável Partner",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "13",
+        "regen_question": "Qual a média de MonthlyCharges?"
+      },
+      "json": {
+        "mensagem": "Qual a média de MonthlyCharges?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Qual a média de MonthlyCharges?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "14",
+        "regen_question": "Calcule a correlação entre tenure e TotalCharges"
+      },
+      "json": {
+        "prompt": "Calcule a correlação entre tenure e TotalCharges",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Calcule a correlação entre tenure e TotalCharges",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "15",
+        "regen_question": "Quantos clientes têm Churn igual a Yes?"
+      },
+      "json": {
+        "mensagem": "Quantos clientes têm Churn igual a Yes?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quantos clientes têm Churn igual a Yes?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "16",
+        "regen_question": "Mostre a distribuição de uma variável categórica (ex.: gender)"
+      },
+      "json": {
+        "prompt": "Mostre a distribuição de uma variável categórica (ex.: gender)",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Mostre a distribuição de uma variável categórica (ex.: gender)",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "17",
+        "regen_question": "Quais são os valores únicos da coluna Contract?"
+      },
+      "json": {
+        "prompt": "Quais são os valores únicos da coluna Contract?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Quais são os valores únicos da coluna Contract?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "18",
+        "regen_question": "Faça um resumo das variáveis numéricas"
+      },
+      "json": {
+        "mensagem": "Faça um resumo das variáveis numéricas",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça um resumo das variáveis numéricas",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "19",
+        "regen_question": "Existem outliers em MonthlyCharges?"
+      },
+      "json": {
+        "mensagem": "Existem outliers em MonthlyCharges?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Existem outliers em MonthlyCharges?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "20",
+        "regen_question": "Qual a mediana de tenure?"
+      },
+      "json": {
+        "mensagem": "Qual a mediana de tenure?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Qual a mediana de tenure?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "21",
+        "regen_question": "Mostre a contagem por Dependents"
+      },
+      "json": {
+        "mensagem": "Mostre a contagem por Dependents",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Mostre a contagem por Dependents",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "22",
+        "regen_question": "Quais colunas são numéricas e quais são categóricas?"
+      },
+      "json": {
+        "prompt": "Quais colunas são numéricas e quais são categóricas?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Quais colunas são numéricas e quais são categóricas?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "media_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "23",
+        "regen_question": "Faça uma análise gráfica e estatística do conjunto de dados e procure as variáveis correlacionadas para a previsão de ch"
+      },
+      "json": {
+        "mensagem": "Faça uma análise gráfica e estatística do conjunto de dados e procure as variáveis correlacionadas para a previsão de churn",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça uma análise gráfica e estatística do conjunto de dados e procure as variáveis correlacionadas para a previsão de churn",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "24",
+        "regen_question": "Sugira um modelo de machine learning para previsão de churn"
+      },
+      "json": {
+        "mensagem": "Sugira um modelo de machine learning para previsão de churn",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Sugira um modelo de machine learning para previsão de churn",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "25",
+        "regen_question": "Traga os gráficos da última análise"
+      },
+      "json": {
+        "prompt": "Traga os gráficos da última análise",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Traga os gráficos da última análise",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "26",
+        "regen_question": "Analise as correlações entre todas as variáveis numéricas"
+      },
+      "json": {
+        "mensagem": "Analise as correlações entre todas as variáveis numéricas",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Analise as correlações entre todas as variáveis numéricas",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "27",
+        "regen_question": "Faça um histograma de tenure"
+      },
+      "json": {
+        "mensagem": "Faça um histograma de tenure",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça um histograma de tenure",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "28",
+        "regen_question": "Compare a distribuição de MonthlyCharges entre clientes que deram churn e os que não deram"
+      },
+      "json": {
+        "prompt": "Compare a distribuição de MonthlyCharges entre clientes que deram churn e os que não deram",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Compare a distribuição de MonthlyCharges entre clientes que deram churn e os que não deram",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "29",
+        "regen_question": "Quais variáveis têm maior variância?"
+      },
+      "json": {
+        "mensagem": "Quais variáveis têm maior variância?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quais variáveis têm maior variância?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/insights/generate",
+      "raw_path": "/inteligencia-dados/insights/generate",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "30",
+        "regen_question": "Faça um gráfico de dispersão entre tenure e TotalCharges"
+      },
+      "json": {
+        "prompt": "Faça um gráfico de dispersão entre tenure e TotalCharges",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça um gráfico de dispersão entre tenure e TotalCharges",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "31",
+        "regen_question": "Analise a relação entre Contract e Churn"
+      },
+      "json": {
+        "mensagem": "Analise a relação entre Contract e Churn",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Analise a relação entre Contract e Churn",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "32",
+        "regen_question": "Gere visualizações para as 5 variáveis mais importantes"
+      },
+      "json": {
+        "mensagem": "Gere visualizações para as 5 variáveis mais importantes",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Gere visualizações para as 5 variáveis mais importantes",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "alta_complexidade"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "33",
+        "regen_question": "Analise o balanceamento de classes da variável alvo e indique se há necessidade de técnicas de reamostragem"
+      },
+      "json": {
+        "mensagem": "Analise o balanceamento de classes da variável alvo e indique se há necessidade de técnicas de reamostragem",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Analise o balanceamento de classes da variável alvo e indique se há necessidade de técnicas de reamostragem",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "34",
+        "regen_question": "Quais variáveis têm maior poder preditivo para churn? Justifique com correlações e distribuições"
+      },
+      "json": {
+        "mensagem": "Quais variáveis têm maior poder preditivo para churn? Justifique com correlações e distribuições",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quais variáveis têm maior poder preditivo para churn? Justifique com correlações e distribuições",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "35",
+        "regen_question": "O dataset está pronto para treinar um modelo? O que falta?"
+      },
+      "json": {
+        "prompt": "O dataset está pronto para treinar um modelo? O que falta?",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "O dataset está pronto para treinar um modelo? O que falta?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "36",
+        "regen_question": "Recomende técnicas de feature engineering para este dataset"
+      },
+      "json": {
+        "prompt": "Recomende técnicas de feature engineering para este dataset",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Recomende técnicas de feature engineering para este dataset",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "37",
+        "regen_question": "Qual a melhor estratégia de validação para este problema?"
+      },
+      "json": {
+        "mensagem": "Qual a melhor estratégia de validação para este problema?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Qual a melhor estratégia de validação para este problema?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "38",
+        "regen_question": "Identifique possíveis vazamentos de dados (data leakage)"
+      },
+      "json": {
+        "mensagem": "Identifique possíveis vazamentos de dados (data leakage)",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Identifique possíveis vazamentos de dados (data leakage)",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "39",
+        "regen_question": "Analise a importância das features para previsão de churn"
+      },
+      "json": {
+        "mensagem": "Analise a importância das features para previsão de churn",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Analise a importância das features para previsão de churn",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "40",
+        "regen_question": "O modelo deve priorizar recall ou precisão para churn? Justifique"
+      },
+      "json": {
+        "mensagem": "O modelo deve priorizar recall ou precisão para churn? Justifique",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "O modelo deve priorizar recall ou precisão para churn? Justifique",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "profissional"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "41",
+        "regen_question": "Treine um modelo para prever churn"
+      },
+      "json": {
+        "mensagem": "Treine um modelo para prever churn",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Treine um modelo para prever churn",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "treino_modelo"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "42",
+        "regen_question": "Crie um modelo de classificação com churn como variável alvo"
+      },
+      "json": {
+        "mensagem": "Crie um modelo de classificação com churn como variável alvo",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Crie um modelo de classificação com churn como variável alvo",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "treino_modelo"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "43",
+        "regen_question": "Treine um modelo de machine learning para previsão de churn"
+      },
+      "json": {
+        "mensagem": "Treine um modelo de machine learning para previsão de churn",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Treine um modelo de machine learning para previsão de churn",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "treino_modelo"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "44",
+        "regen_question": "Qual foi o melhor modelo entre os testados?"
+      },
+      "json": {
+        "mensagem": "Qual foi o melhor modelo entre os testados?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Qual foi o melhor modelo entre os testados?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "treino_modelo"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "45",
+        "regen_question": "Treine novamente com balanceamento de classes"
+      },
+      "json": {
+        "mensagem": "Treine novamente com balanceamento de classes",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Treine novamente com balanceamento de classes",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "treino_modelo"
+    },
+    {
+      "path": "/inteligencia-dados/query",
+      "raw_path": "/inteligencia-dados/query",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "46",
+        "regen_question": "Gere previsões de churn para o dataset atual"
+      },
+      "json": {
+        "prompt": "Gere previsões de churn para o dataset atual",
+        "db_config": {
+          "db_type": "mongodb",
+          "uri": "mongodb://localhost:27017",
+          "database": "pulso_database"
+        }
+      },
+      "question": "Gere previsões de churn para o dataset atual",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "previsao"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "47",
+        "regen_question": "Quais clientes devem churnar?"
+      },
+      "json": {
+        "mensagem": "Quais clientes devem churnar?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quais clientes devem churnar?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "previsao"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "48",
+        "regen_question": "Faça a previsão para estes dados: [JSON com dados]"
+      },
+      "json": {
+        "mensagem": "Faça a previsão para estes dados: [JSON com dados]",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Faça a previsão para estes dados: [JSON com dados]",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "previsao"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "49",
+        "regen_question": "Quantos clientes foram previstos como churn?"
+      },
+      "json": {
+        "mensagem": "Quantos clientes foram previstos como churn?",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Quantos clientes foram previstos como churn?",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "previsao"
+    },
+    {
+      "path": "/inteligencia-dados/chat",
+      "raw_path": "/inteligencia-dados/chat",
+      "method": "POST",
+      "scope": "InteligenciaDados",
+      "query": {
+        "regen_round": "1",
+        "regen_mode": "user_journey",
+        "regen_case_index": "50",
+        "regen_question": "Exporte as previsões com o ID do cliente"
+      },
+      "json": {
+        "mensagem": "Exporte as previsões com o ID do cliente",
+        "id_requisicao": "regen-r1"
+      },
+      "question": "Exporte as previsões com o ID do cliente",
+      "question_source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+      "question_category": "previsao"
+    }
+  ],
+  "cycles_executed": 1,
+  "failures_detected": [
+    "BASELINE C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+  ],
+  "input_validation_gaps": [],
+  "corrections_applied": [],
+  "final_status": "failed",
+  "evidences": [
+    "BASELINE C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\InteligenciaDados erro: Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "inputs": 64,
+      "input_sources": [
+        {
+          "question": "Quais são as tabelas e volumes?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Mostre as primeiras 5 linhas do dataset",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Quantos registros tem o dataset?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Liste as colunas disponíveis",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Quais são os tipos de dados de cada coluna?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Existe coluna de churn?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Mostre 10 registros aleatórios",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Há valores nulos no dataset?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Qual o tamanho do dataset em memória?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Descreva o dataset em uma frase",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Faça um resumo estatístico das variáveis numéricas",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Mostre a distribuição da variável Partner",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Qual a média de MonthlyCharges?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Calcule a correlação entre tenure e TotalCharges",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Quais são as tabelas e volumes?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Mostre as primeiras 5 linhas do dataset",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Quantos registros tem o dataset?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Liste as colunas disponíveis",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Quais são os tipos de dados de cada coluna?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Existe coluna de churn?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Mostre 10 registros aleatórios",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Há valores nulos no dataset?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Qual o tamanho do dataset em memória?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Descreva o dataset em uma frase",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "baixa_complexidade"
+        },
+        {
+          "question": "Faça um resumo estatístico das variáveis numéricas",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Mostre a distribuição da variável Partner",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Qual a média de MonthlyCharges?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Calcule a correlação entre tenure e TotalCharges",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Quantos clientes têm Churn igual a Yes?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Mostre a distribuição de uma variável categórica (ex.: gender)",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Quais são os valores únicos da coluna Contract?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Faça um resumo das variáveis numéricas",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Existem outliers em MonthlyCharges?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Qual a mediana de tenure?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Mostre a contagem por Dependents",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Quais colunas são numéricas e quais são categóricas?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "media_complexidade"
+        },
+        {
+          "question": "Faça uma análise gráfica e estatística do conjunto de dados e procure as variáveis correlacionadas para a previsão de churn",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Sugira um modelo de machine learning para previsão de churn",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Traga os gráficos da última análise",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Analise as correlações entre todas as variáveis numéricas",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Faça um histograma de tenure",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Compare a distribuição de MonthlyCharges entre clientes que deram churn e os que não deram",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Quais variáveis têm maior variância?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Faça um gráfico de dispersão entre tenure e TotalCharges",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Analise a relação entre Contract e Churn",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Gere visualizações para as 5 variáveis mais importantes",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "alta_complexidade"
+        },
+        {
+          "question": "Analise o balanceamento de classes da variável alvo e indique se há necessidade de técnicas de reamostragem",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "Quais variáveis têm maior poder preditivo para churn? Justifique com correlações e distribuições",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "O dataset está pronto para treinar um modelo? O que falta?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "Recomende técnicas de feature engineering para este dataset",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "Qual a melhor estratégia de validação para este problema?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "Identifique possíveis vazamentos de dados (data leakage)",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "Analise a importância das features para previsão de churn",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "O modelo deve priorizar recall ou precisão para churn? Justifique",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "profissional"
+        },
+        {
+          "question": "Treine um modelo para prever churn",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "treino_modelo"
+        },
+        {
+          "question": "Crie um modelo de classificação com churn como variável alvo",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "treino_modelo"
+        },
+        {
+          "question": "Treine um modelo de machine learning para previsão de churn",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "treino_modelo"
+        },
+        {
+          "question": "Qual foi o melhor modelo entre os testados?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "treino_modelo"
+        },
+        {
+          "question": "Treine novamente com balanceamento de classes",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "treino_modelo"
+        },
+        {
+          "question": "Gere previsões de churn para o dataset atual",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "previsao"
+        },
+        {
+          "question": "Quais clientes devem churnar?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "previsao"
+        },
+        {
+          "question": "Faça a previsão para estes dados: [JSON com dados]",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "previsao"
+        },
+        {
+          "question": "Quantos clientes foram previstos como churn?",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "previsao"
+        },
+        {
+          "question": "Exporte as previsões com o ID do cliente",
+          "scope": "InteligenciaDados",
+          "source_file": "C:/Users/pytho/Desktop/Study/Github Repos/PulsoAPI/docs/PERGUNTAS_TESTE_ID.md",
+          "category": "previsao"
+        }
+      ],
+      "failures": 1,
+      "correction_candidates": 0,
+      "input_validation_gaps": [],
+      "results": [
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-dados-inicial",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 49200.1,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"analise_inicial\":{\"objectivo_analise\":\"Análise Exploratória\",\"analises_recomendadas\":[\"análise exploratória\"],\"tratamentos_necessarios\":[],\"variaveis_alvo\":[]},\"dataset_ref\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/analise-estatistica",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 151.58,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"analise_estatistica\":{\"quantidade_dados\":30000,\"resultados\":{\"media_valor\":350.75,\"desvio_padrao\":120.5,\"correlacoes\":{}},\"insights\":[\"Dataset analisado (30000 registros). Verifique gráficos e balanceamento antes de treinar.\"],\"modelos_sugeridos\":[\"Random Forest\",\"XGBoos"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/criar-modelo-ml",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 156.72,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"modelo_ml\":{\"modelo_escolhido\":\"N/A\",\"motivo\":\"\",\"constatacoes\":\"Treino não executado (falta de dados, variável alvo ou acurácia insuficiente).\",\"melhorias_recomendadas\":[]},\"model_ref\":null,\"lista_model_refs\":[]}"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/listar-modelos",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 133.56,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"lista_model_refs\":[]}"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/insights/widgets",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 97.98,
+          "body_preview": "{\"widgets\":[{\"id\":\"insight-default-pulso\",\"title\":\"Post Views\",\"value\":\"2.012\",\"trend\":\"+12.3%\",\"period\":\"Últimas 24h\",\"chart_type\":\"area\",\"progress_percent\":null,\"insights\":[\"O pico de visualizações ocorre entre 12h e 14h.\",\"Considere publicar nesse intervalo para maximizar alcance.\"],\"service_filt"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 148.19,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-012737e7f2\",\"title\":\"Existe coluna de churn?\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifique gráficos e balanceamen"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 94.48,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/captura-dados",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 56308.37,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"captura_dados\":{\"tipo_base\":\"NoSQL\",\"tabelas\":[\"execution_layer\",\"chat_history\",\"id_agendamentos\",\"profiles\",\"auto_cor_arq_layer\",\"governance_layer\",\"invoices\",\"anal_correct_layer\",\"subscriptions\",\"Financeiro\",\"code_plan_layer\",\"app_versions\",\"login_layer\",\"architecture_"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/tratamento-limpeza",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 109.11,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"tratamento_limpeza\":{\"acoes\":[\"verificação de duplicatas\",\"tratamento de valores ausentes\"],\"justificativas\":[\"Duplicatas poderiam enviesar análises.\",\"Valores precisam estar na mesma escala para análise.\"],\"dataset_pronto\":\"dados_tratados_regen-r1.parquet\"}}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/prever",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 109.95,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"previsoes\":[],\"dataset_com_previsao_ref\":null,\"total_previsto\":0,\"modelo_usado\":null,\"metricas_negocio\":null,\"intervalos_confianca\":null,\"erro_validacao\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 199.42,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/agendar-retreino",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 267.19,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"agendamento_id\":\"11e7384b\",\"mensagem\":\"Agendamento registrado. Chame POST /inteligencia-dados/executar-retreino-agendado com body {'agendamento_id': '11e7384b'} para executar o retreino (ou use um cron externo).\"}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/executar-retreino-agendado",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 271.34,
+          "body_preview": "{\"agendamento_id\":\"1\",\"executado\":false,\"model_ref_novo\":null,\"modelo_ml\":null,\"erro\":\"Agendamento não encontrado ou já executado.\"}"
+        },
+        {
+          "method": "GET",
+          "path": "/inteligencia-dados/agendamentos-pendentes",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 224.17,
+          "body_preview": "{\"agendamentos\":[{\"_id\":\"69b8583acf8ff7af7050bee3\",\"agendamento_id\":\"ee1f1f81\",\"id_requisicao\":\"regen-r1\",\"usuario\":\"tchelo@pulso.com\",\"dataset_ref\":\"sample\",\"variavel_alvo\":\"sample\",\"tipo_problema\":\"classificacao\",\"cron_expr\":null,\"proxima_execucao_em_minutos\":null,\"created_at\":\"2026-03-16T19:21:30"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 202.08,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 105.39,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 99.24,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 70.27,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 60.99,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 30.55,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 32.02,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 45.26,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 39.3,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 34.23,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 39.69,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 18.78,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-3502d9a3b6\",\"title\":\"Mostre a distribuição da variável Partner\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifique gráf"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 23.05,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 19.85,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-bee1011d4b\",\"title\":\"Calcule a correlação entre tenure e TotalCharges\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifiq"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 26.29,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 26.19,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-8fc40a7ec6\",\"title\":\"Mostre a distribuição de uma variável categórica\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifiq"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 28.3,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 27.09,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 41.98,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 38.99,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 40.78,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 29.21,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 270486.58,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Opa! Gostaria de fazer uma análise gráfica e estatística do seu conjunto de dados e procurar variáveis correlacionadas para prever o churn? Para isso, você precisa ter os dados carregados primeiro. \\n\\nPara conectar ao banco de dados ou carregar os dados"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 711861.33,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"\\\"Olá! Seu pergunta foi: 'Sugira um modelo de machine learning para previsão de churn'. Entretanto, para responder adequadamente, precisamos de dois itens importantes: dataset_ref e model_ref. Por favor, carregue os dados e treine o seu modelo primeiro. "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 21.33,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-b007939b15\",\"title\":\"Traga os gráficos da última análise\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifique gráficos e"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 29.74,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se primeiro à base de dados.**\\n\\nPara ver estrutura, tabelas, volumes ou calcular correlações:\\n1. Clique no botão **Conexão** (canto superior)\\n2. Preencha Host, Base, Usuário e Senha do seu banco\\n3. Clique em **Aplicar**\\n4. Depois envie no"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 25.74,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 14.46,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-db68ca7c06\",\"title\":\"Compare a distribuição de MonthlyCharges entre c\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifiq"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 26.28,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/insights/generate",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 24.33,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"dataset_ref\":null,\"widget\":{\"id\":\"insight-2f9b607088\",\"title\":\"Faça um gráfico de dispersão entre tenure e Tota\",\"value\":\"65%\",\"trend\":\"+0%\",\"period\":\"Gerado por IA\",\"chart_type\":\"progress\",\"progress_percent\":65.0,\"insights\":[\"Dataset analisado (30000 registros). Verifiq"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 32.87,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se primeiro à base de dados.**\\n\\nPara ver estrutura, tabelas, volumes ou calcular correlações:\\n1. Clique no botão **Conexão** (canto superior)\\n2. Preencha Host, Base, Usuário e Senha do seu banco\\n3. Clique em **Aplicar**\\n4. Depois envie no"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 27.59,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 42.78,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se primeiro à base de dados.**\\n\\nPara ver estrutura, tabelas, volumes ou calcular correlações:\\n1. Clique no botão **Conexão** (canto superior)\\n2. Preencha Host, Base, Usuário e Senha do seu banco\\n3. Clique em **Aplicar**\\n4. Depois envie no"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 20.34,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se primeiro à base de dados.**\\n\\nPara ver estrutura, tabelas, volumes ou calcular correlações:\\n1. Clique no botão **Conexão** (canto superior)\\n2. Preencha Host, Base, Usuário e Senha do seu banco\\n3. Clique em **Aplicar**\\n4. Depois envie no"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 29.17,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 23.3,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 41.2,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Explique a estratégia de validação recomendada para um problema de previsão de churn.\\n\\nRegras:\\n- A resposta deve seguir exatamente os pontos abaixo.\\n- Não invente métricas ou métodos não listados.\\n- Seja técnico e objetivo.\\n- Formato da resposta: t"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 39.63,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 1086495.19,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Erro ao gerar texto com Ollama. Verifique se o Ollama está rodando (ollama serve) e os modelos estão instalados. Se ocorrer timeout, aumente OLLAMA_TIMEOUT_SEC no ambiente (ex.: 180).\",\"etapas_executadas\":[],\"previsoes\":null,\"distribuicao_previsoes\":null"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 1089387.57,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Erro ao gerar texto com Ollama. Verifique se o Ollama está rodando (ollama serve) e os modelos estão instalados. Se ocorrer timeout, aumente OLLAMA_TIMEOUT_SEC no ambiente (ex.: 180).\",\"etapas_executadas\":[\"analise_estatistica\"],\"previsoes\":null,\"distrib"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 1086491.58,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Erro ao gerar texto com Ollama. Verifique se o Ollama está rodando (ollama serve) e os modelos estão instalados. Se ocorrer timeout, aumente OLLAMA_TIMEOUT_SEC no ambiente (ex.: 180).\",\"etapas_executadas\":[],\"previsoes\":null,\"distribuicao_previsoes\":null"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 1086487.83,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Erro ao gerar texto com Ollama. Verifique se o Ollama está rodando (ollama serve) e os modelos estão instalados. Se ocorrer timeout, aumente OLLAMA_TIMEOUT_SEC no ambiente (ex.: 180).\",\"etapas_executadas\":[],\"previsoes\":null,\"distribuicao_previsoes\":null"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 647186.74,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Obrigado por chamar minha atenção!\\n\\nPrimeiro, é necessário ter dados carregados no seu sistema antes de treinar um modelo de machine learning para previsão de churn. Em seguida, você precisa treinar um modelo primeiro para prever o churn.\\n\\nSe você ai"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 53.28,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Nenhum modelo treinado nesta sessão. Treine um modelo primeiro (ex.: 'Treine um modelo para prever churn') e depois pergunte novamente. O frontend deve manter e reenviar o model_ref da resposta anterior.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribu"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 269190.93,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Olá! Seu modelo precisa ser treinado com dados primeiro para conseguir ser treinado novamente com balanceamento de classes. Você precisa carregar seus dados primeiro e então treinar o seu modelo. Talvez você também pode encontrar exemplos de como fazer i"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/query",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 19.26,
+          "body_preview": "{\"answer\":\"O endpoint de consulta atual suporta apenas bancos SQL. Para MongoDB, use o chat de Inteligência de Dados e envie sua pergunta em linguagem natural (ex.: 'mostre as 5 primeiras linhas'). O chat fará a captura e responderá com os dados.\",\"generated_sql\":\"\",\"raw_result\":null}"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 322559.39,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Olá! Quer saber quais clientes precisam deixar o negócio? Para resolver essa pergunta, você precisa ter dados carregados em primeiro lugar. Então, se você ainda não tem dados carregados, por favor conecte-se ao banco ou carregue os dados primeiramente. E"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 486096.55,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"Olá! Eu entendo que você quer realizar uma previsão utilizando os dados enviados, mas antes precisamos de dois itens para poder fazer isso: \\n\\n1. **Carregar os dados**: é necessário ter os dados carregados no seu computador primeiro. Você pode conectar "
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 1807.78,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "POST",
+          "path": "/inteligencia-dados/chat",
+          "scope": "InteligenciaDados",
+          "status_code": 200,
+          "success": true,
+          "elapsed_ms": 642.73,
+          "body_preview": "{\"id_requisicao\":\"regen-r1\",\"resposta_texto\":\"**Conecte-se à base de dados** para analisar dados.\\n\\nUse o botão **Conexão** no canto superior, configure seu banco e clique em **Aplicar**. Em seguida, faça sua pergunta ou use os botões de sugestão.\",\"etapas_executadas\":[],\"previsoes\":null,\"distribui"
+        },
+        {
+          "method": "BASELINE",
+          "path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\InteligenciaDados",
+          "scope": "InteligenciaDados",
+          "status_code": 500,
+          "success": false,
+          "elapsed_ms": 0,
+          "body_preview": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv).",
+          "error": "Nenhum método de teste disponível (sem docker-compose.yml e sem requirements.txt/venv)."
+        }
+      ]
+    }
+  ],
+  "generated_at": "2026-03-16T20:29:23.021665+00:00",
+  "report_json_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\RegenAI\\reports\\regen_1773691494_4c2d2f2a\\report.json",
+  "report_md_path": "C:\\Users\\pytho\\Desktop\\Study\\Github Repos\\PulsoAPI\\api\\app\\RegenAI\\reports\\regen_1773691494_4c2d2f2a\\report.md"
+}

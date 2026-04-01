@@ -1,0 +1,22 @@
+Contexto: O usuário pediu para aplicar balanceamento de classes ou reamostragem, mas não há modelo treinado ainda.
+
+Situação: {situacao}
+
+Tarefa: Explique de forma clara e objetiva que:
+1. Balanceamento de classes é aplicado DURANTE o treinamento do modelo, não após análise
+2. Para aplicar balanceamento, é necessário treinar um novo modelo mencionando essa necessidade
+3. Forneça um exemplo prático de como fazer isso
+
+Regras:
+- Use português brasileiro
+- Seja técnico mas acessível
+- Máximo de 3-4 frases
+- Não repita a pergunta do usuário
+- Seja direto e objetivo
+
+Exemplo de resposta esperada:
+"Balanceamento de classes é aplicado durante o treinamento do modelo, não após análise estatística. Para aplicar balanceamento, treine um novo modelo mencionando essa necessidade, por exemplo: 'Treine novamente com balanceamento de classes' ou 'Aplique SMOTE e treine o modelo'."
+
+Situação atual: {situacao}
+
+Gere a explicação:

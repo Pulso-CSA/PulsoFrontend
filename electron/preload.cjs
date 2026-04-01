@@ -34,4 +34,21 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("pulso-local-get-diagnostics", { folderPath: folderPath ?? "" }),
   pickProjectFolder: () => ipcRenderer.invoke("pulso-local-pick-folder"),
   registerAllowedRoot: (rootPath) => ipcRenderer.invoke("pulso-local-register-root", rootPath),
+
+  runtimeGetStatus: () => ipcRenderer.invoke("pulso-runtime-get-status"),
+  runtimeInstallPython: () => ipcRenderer.invoke("pulso-runtime-install-python"),
+  runtimePipInstall: () => ipcRenderer.invoke("pulso-runtime-pip-install"),
+  runtimeOllamaPull: () => ipcRenderer.invoke("pulso-runtime-ollama-pull"),
+  runtimeSaveLlmSettings: (payload) => ipcRenderer.invoke("pulso-runtime-save-llm-settings", payload),
+  runtimeRestartEngine: () => ipcRenderer.invoke("pulso-runtime-restart-engine"),
+  onRuntimeProgress: (cb) => {
+    const fn = (_, data) => cb(data || {});
+    ipcRenderer.on("pulso-runtime-progress", fn);
+    return () => ipcRenderer.removeListener("pulso-runtime-progress", fn);
+  },
+  onRuntimeLogLine: (cb) => {
+    const fn = (_, line) => cb(String(line ?? ""));
+    ipcRenderer.on("pulso-runtime-log-line", fn);
+    return () => ipcRenderer.removeListener("pulso-runtime-log-line", fn);
+  },
 });

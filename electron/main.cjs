@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu, ipcMain, shell, nativeImage } = require("elect
 const path = require("path");
 const fs = require("fs");
 const pulsoLocal = require("./pulso-local-engine.cjs");
+const pulsoRuntimeSetup = require("./pulso-runtime-setup.cjs");
 
 /** Windows: obrigatório para o ícone correto na barra de tarefas / atalhos (evita logo genérico do Electron). */
 if (process.platform === "win32") {
@@ -22,6 +23,7 @@ function registerPulsoLocalIpcOnce() {
       folderPath: folderPath || "",
       appRoot: path.join(__dirname, ".."),
       userDataDir: app.getPath("userData"),
+      resourcesPath: app.isPackaged ? process.resourcesPath : null,
     });
   });
   ipcMain.handle("pulso-local-pick-folder", async () => {
@@ -31,6 +33,55 @@ function registerPulsoLocalIpcOnce() {
   ipcMain.handle("pulso-local-register-root", (_, rootPath) => pulsoLocal.registerAllowedRoot(rootPath));
 }
 registerPulsoLocalIpcOnce.done = false;
+
+function registerPulsoRuntimeSetupIpcOnce() {
+  if (registerPulsoRuntimeSetupIpcOnce.done) return;
+  registerPulsoRuntimeSetupIpcOnce.done = true;
+
+  const runtimeCtx = () => ({
+    userData: app.getPath("userData"),
+    appRoot: path.join(__dirname, ".."),
+    isPackaged: app.isPackaged,
+    resourcesPath: app.isPackaged ? process.resourcesPath : null,
+    computeApiRoot: pulsoLocal.computeApiRoot,
+  });
+
+  ipcMain.handle("pulso-runtime-get-status", () => pulsoRuntimeSetup.getStatus(runtimeCtx()));
+
+  ipcMain.handle("pulso-runtime-install-python", async () => {
+    const wc = mainWindow?.webContents;
+    return pulsoRuntimeSetup.installEmbeddedPythonWindows(app.getPath("userData"), (phase, detail, pct) => {
+      wc?.send("pulso-runtime-progress", { phase, detail, pct: pct ?? 0 });
+    });
+  });
+
+  ipcMain.handle("pulso-runtime-pip-install", async () => {
+    const wc = mainWindow?.webContents;
+    return pulsoRuntimeSetup.runPipInstallRequirements(
+      {
+        ...runtimeCtx(),
+        onLine: (line) => wc?.send("pulso-runtime-log-line", line),
+      },
+      pulsoLocal,
+    );
+  });
+
+  ipcMain.handle("pulso-runtime-ollama-pull", async () => {
+    const wc = mainWindow?.webContents;
+    return pulsoRuntimeSetup.pullOllamaModels(undefined, (line) => wc?.send("pulso-runtime-log-line", line));
+  });
+
+  ipcMain.handle("pulso-runtime-save-llm-settings", (_, payload) =>
+    pulsoRuntimeSetup.saveUserLlmSettings(app.getPath("userData"), payload || {}),
+  );
+
+  ipcMain.handle("pulso-runtime-restart-engine", async () => {
+    const appRoot = path.join(__dirname, "..");
+    pulsoLocal.stopLocalEngine();
+    return pulsoLocal.startLocalEngine(app, appRoot, mainWindow);
+  });
+}
+registerPulsoRuntimeSetupIpcOnce.done = false;
 
 /** Caminhos candidatos ao ícone (Windows: .ico com vários tamanhos; PNG na barra costuma falhar). */
 function resolveWindowIconPaths() {
@@ -347,6 +398,7 @@ function createWindow() {
   mainWindow.on("closed", () => { mainWindow = null; });
 
   registerPulsoLocalIpcOnce();
+  registerPulsoRuntimeSetupIpcOnce();
 }
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();

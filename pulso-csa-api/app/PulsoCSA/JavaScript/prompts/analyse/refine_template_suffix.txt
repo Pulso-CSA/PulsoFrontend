@@ -1,0 +1,13 @@
+### Solicitação do usuário:
+{question}
+
+### Contexto técnico relevante (RAG):
+{context}
+
+### Instruções:
+- Responda à solicitação do usuário utilizando prioritariamente o contexto técnico fornecido.
+- Quando o contexto contiver a informação necessária, baseie a resposta nele.
+- Caso o contexto não seja suficiente, utilize conhecimento técnico complementar sem contradizer o contexto.
+- Seja claro, objetivo e tecnicamente preciso.
+- Evite suposições não fundamentadas.
+- Se o contexto não for relevante para a pergunta, responda normalmente com base no conhecimento técnico geral.

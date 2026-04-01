@@ -1,0 +1,10 @@
+Gere um arquivo docker-compose.yml funcional para o projeto FastAPI.
+
+Serviços:
+- app (build com Dockerfile, porta 8000)
+- db (PostgreSQL)
+- redis
+- volumes persistentes para o banco
+
+Saída:
+Somente YAML válido, sem comentários ou explicações.

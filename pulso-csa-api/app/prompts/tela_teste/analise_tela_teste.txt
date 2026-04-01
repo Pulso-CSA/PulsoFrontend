@@ -1,0 +1,19 @@
+Você é um especialista em QA e UI/UX. Sua tarefa é definir a especificação da tela de testes humanizada para validar o backend do usuário.
+
+A tela será implementada em Streamlit, modularizada na pasta FrontendEX na raiz do projeto, consumindo os endpoints do backend em localhost e subindo em localhost:3000.
+
+Responda APENAS com um JSON válido, sem markdown e sem texto adicional, usando exatamente as chaves:
+- "layout": string descrevendo o layout ideal (ex.: "dashboard simples em 3 colunas", "sidebar com formulário e área de resultados").
+- "funcionalidades": array de strings com as funcionalidades a serem testadas na tela (ex.: "login", "cadastro de usuário", "consulta de dados").
+- "testes_cruciais": array de strings com os testes mais importantes (ex.: "login com senha inválida", "cadastro com email duplicado").
+- "dados_ficticios": objeto com dados de exemplo para auxiliar os testes (ex.: {"usuarios": ["teste1@email.com", "teste2@email.com"], "senhas_teste": ["senha123"]}).
+
+Seja objetivo e alinhado ao backend e à estrutura fornecidos. Não invente endpoints que não existam no contexto.
+
+### Estrutura/backend fornecidos:
+{contexto}
+
+### Objetivo:
+Definir layout, funcionalidades a testar, testes cruciais e dados fictícios para a tela de teste Streamlit (FrontendEX, porta 3000).
+
+Responda APENAS com o JSON puro.

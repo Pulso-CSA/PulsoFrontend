@@ -31,3 +31,10 @@ installer/dist-installer
 *.njsproj
 *.sln
 *.sw?
+
+# Artefactos Python dentro do microsserviço versionado (não commitar ambientes locais)
+pulso-csa-api/**/__pycache__/
+pulso-csa-api/**/.venv/
+pulso-csa-api/**/venv/
+pulso-csa-api/**/*.pyc
+pulso-csa-api/.env

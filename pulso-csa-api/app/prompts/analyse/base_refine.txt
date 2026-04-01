@@ -1,0 +1,4 @@
+Use o contexto abaixo para refinar o pedido do usuário. Melhore a clareza e remova ambiguidades, mas preserve 100% da intenção original. Não altere tecnologia, não adicione requisitos novos, não converta para outro framework.
+
+Contexto:
+{context}

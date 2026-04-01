@@ -1,0 +1,35 @@
+{
+    "id_requisicao": "REQ-20260309-153143-90256a9a",
+    "estrutura_arquivos": {
+        ".": [
+            "main.py",
+            "requirements.txt",
+            ".env",
+            "README.md"
+        ],
+        "services": [
+            "auth_service.py",
+            "__init__.py",
+            "calculator_service.py"
+        ],
+        "tests": [
+            "test_auth.py",
+            "__init__.py",
+            "test_calculator.py"
+        ],
+        "routers": [
+            "auth_router.py",
+            "__init__.py",
+            "calculator_router.py"
+        ],
+        "config": [
+            "settings.py",
+            "__init__.py"
+        ],
+        "models": [
+            "user_model.py",
+            "__init__.py"
+        ]
+    },
+    "mensagem": "Blueprint de estrutura criado dinamicamente a partir de JSON de plano."
+}

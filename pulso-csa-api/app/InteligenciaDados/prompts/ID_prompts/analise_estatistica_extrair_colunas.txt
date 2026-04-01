@@ -1,0 +1,16 @@
+O usuário perguntou: '{pergunta}'
+
+Colunas numéricas disponíveis no dataset: {colunas_numericas}
+
+Analise a pergunta e determine quais métricas numéricas do dataset são mais diretamente relacionadas ao que foi solicitado.
+
+Selecione EXATAMENTE 2 nomes de colunas da lista fornecida que melhor respondem à pergunta.
+
+Regras:
+- Escolha apenas colunas presentes em {colunas_numericas}.
+- Priorize correspondência semântica direta com a pergunta.
+- Não invente colunas.
+- Não repita colunas.
+- Se houver mais de duas possíveis, selecione as duas mais relevantes.
+
+Responda APENAS com os dois nomes das colunas separados por vírgula, sem explicações ou texto adicional.

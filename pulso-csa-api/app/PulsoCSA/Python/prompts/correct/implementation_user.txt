@@ -1,0 +1,25 @@
+Implement the following Python file for a FastAPI-based backend.
+
+PROJECT_ROOT: {project_root}
+TARGET_FILE: {target_file}
+
+Purpose / Reason:
+{reason}
+
+Conceptual description:
+{content_description}
+
+Existing stub/source (MUST preserve its public API):
+----------------- STUB BEGIN -----------------
+{existing_source}
+------------------ STUB END ------------------
+
+API FREEZE (non-negotiable):
+{frozen_section}
+
+Requirements:
+- Implement fully the file according to the description.
+- Output MUST be valid Python code only.
+- Do NOT rename any frozen symbols.
+- MINIMAL CHANGE: if modifying existing code, change only what is strictly necessary; preserve original style and structure.
+- If this is a router file: keep endpoint path as '/' and rely on main.py include_router(prefix=...).

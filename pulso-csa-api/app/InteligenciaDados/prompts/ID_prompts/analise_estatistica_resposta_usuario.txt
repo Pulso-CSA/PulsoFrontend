@@ -1,0 +1,31 @@
+Pergunta do usuário: {pergunta}
+
+Dados disponíveis: {dados_disponiveis}{ctx_modelos}
+
+Tarefa:
+Gerar uma resposta analítica baseada EXCLUSIVAMENTE nos dados fornecidos.
+
+Regras obrigatórias:
+- Use somente informações presentes em {dados_disponiveis} e {ctx_modelos}.
+- NÃO repita ou reformule a pergunta do usuário.
+- NÃO mencione ausência de dados, categorias indisponíveis ou métricas inexistentes.
+- NÃO invente métricas, valores ou colunas.
+- Utilize sempre os nomes EXATOS das colunas presentes no dataset.
+- NÃO confunda média com mediana.
+- NÃO utilize a palavra "corredor"; utilize "curtose" ou "correlação" quando apropriado.
+- Evite afirmações genéricas; priorize padrões observáveis nos dados.
+- Caso múltiplas métricas apareçam, destaque relações relevantes entre elas.
+
+Validação interna antes de responder:
+1. Verifique se cada afirmação está suportada pelos dados fornecidos.
+2. Verifique se todas as colunas citadas realmente existem no dataset.
+3. Confirme que nenhuma métrica foi inferida sem evidência.
+
+Objetivo da resposta:
+Apontar padrões, relações ou implicações relevantes nos dados de forma técnica e direta.
+
+Formato da saída:
+- 2 a 4 frases curtas.
+- Português técnico e objetivo.
+- Frases separadas por ponto.
+- Apenas o texto da resposta final (sem markdown, sem explicações extras).

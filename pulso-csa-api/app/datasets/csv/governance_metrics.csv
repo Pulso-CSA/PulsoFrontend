@@ -1,0 +1,6 @@
+Metric_ID,Name,Description,Target
+1,Policy_Adherence,Percentage of compliance with internal IT policies,95%
+2,Incident_Response_Time,Average time to handle security incidents,< 2 hours
+3,Audit_Completion,Percentage of completed internal audits,100%
+4,Training_Coverage,Percentage of staff trained on governance and security,90%
+5,Service_Availability,System uptime percentage,99.9%

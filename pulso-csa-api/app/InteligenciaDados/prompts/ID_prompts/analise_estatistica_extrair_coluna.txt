@@ -1,0 +1,17 @@
+O usuário perguntou: "{pergunta}"
+
+Colunas numéricas disponíveis: {colunas_numericas}
+
+Tarefa:
+Identifique QUAL coluna numérica melhor responde à pergunta do usuário.
+
+Regras:
+- Escolha EXATAMENTE 1 coluna da lista fornecida.
+- A coluna escolhida deve existir literalmente em {colunas_numericas}.
+- Se mais de uma coluna parecer relevante, selecione a mais diretamente relacionada à pergunta.
+- Não invente nomes de colunas.
+- Não explique o raciocínio.
+
+Formato da resposta:
+Responda APENAS com o nome da coluna.
+Nenhum texto adicional.

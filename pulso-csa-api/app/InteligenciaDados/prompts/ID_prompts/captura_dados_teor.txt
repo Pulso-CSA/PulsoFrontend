@@ -1,0 +1,14 @@
+Com base APENAS nos nomes das tabelas/coleções abaixo, identifique o tipo predominante de dados que essa base provavelmente contém 
+(ex.: cadastro, logs, métricas, eventos, transações, telemetria, analytics).
+
+Utilize somente padrões semânticos presentes nos nomes das tabelas/coleções (ex.: users, logs, transactions, metrics, events).
+Não invente informações, não assuma colunas ou contexto externo.
+
+Se houver múltiplos domínios aparentes, escolha o tipo predominante.
+
+Responda com UMA única frase curta em português descrevendo o tipo de dados da base.
+
+Não explique o raciocínio.
+Não repita os nomes das tabelas.
+
+Tabelas/coleções: {tabelas}

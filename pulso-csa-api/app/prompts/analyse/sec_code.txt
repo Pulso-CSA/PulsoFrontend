@@ -1,0 +1,8 @@
+Use o contexto abaixo para responder à pergunta. Responda APENAS com um JSON válido, sem markdown.
+
+Contexto:
+{context}
+
+Pergunta: {query}
+
+Responda com um JSON contendo: "vulnerabilidades_potenciais", "recomendacoes", "checklist" para auditoria de segurança de código. Não invente dados ausentes.

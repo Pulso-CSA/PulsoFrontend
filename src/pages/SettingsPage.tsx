@@ -1,6 +1,7 @@
 import { useState, useEffect, type ComponentProps } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, Trash2, RefreshCw, Shield } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, Save, Loader2, Trash2, RefreshCw, Shield, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,7 @@ function SettingsBody({ className, ...props }: ComponentProps<"p">) {
 }
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -176,6 +178,25 @@ export default function SettingsPage() {
           </p>
         </div>
       </div>
+
+      {electron && (
+        <Card className="border-border/80 shadow-sm overflow-hidden bg-card">
+          <CardHeader className="space-y-1 pb-2 border-b border-border/60 bg-muted/30">
+            <CardTitle className="text-lg text-foreground flex items-center gap-2">
+              <Cpu className="h-5 w-5 text-primary shrink-0" />
+              {t("settings.runtimeSetupLinkTitle")}
+            </CardTitle>
+            <CardDescription className="text-foreground/70 text-sm">
+              {t("settings.runtimeSetupLinkDesc")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4 pb-6">
+            <Button type="button" variant="default" asChild className="gap-2">
+              <Link to="/settings/environment">{t("runtimeSetup.title")}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {electron && (
         <Card className="border-border/80 shadow-sm overflow-hidden bg-card">

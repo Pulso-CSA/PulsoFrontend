@@ -1,0 +1,36 @@
+{
+    "id_requisicao": "REQ-20260308-184613-0ff841b6",
+    "estrutura_arquivos": {
+        "routers": [
+            "__init__.py",
+            "auth_router.py",
+            "calculator_router.py"
+        ],
+        "services": [
+            "__init__.py",
+            "auth_service.py",
+            "calculator_service.py"
+        ],
+        ".": [
+            "docker-compose.yml",
+            "main.py",
+            "requirements.txt",
+            ".env",
+            "README.md"
+        ],
+        "models": [
+            "__init__.py",
+            "user_model.py"
+        ],
+        "config": [
+            "__init__.py",
+            "settings.py"
+        ],
+        "tests": [
+            "__init__.py",
+            "test_auth.py",
+            "test_calculator.py"
+        ]
+    },
+    "mensagem": "Blueprint de estrutura criado dinamicamente a partir de JSON de plano."
+}

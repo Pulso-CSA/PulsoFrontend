@@ -1,0 +1,4 @@
+# usado em treinamento generativo
+{"input": "crie uma politica de segurança", "output": "Elabore uma política de segurança da informação aderente à ISO 27001, considerando confidencialidade, integridade e disponibilidade."}
+{"input": "explique o que é governança de ti", "output": "Descreva os princípios de governança de TI segundo o COBIT 5, com foco em alinhamento estratégico e entrega de valor."}
+{"input": "quero melhorar a privacidade", "output": "Proponha melhorias em privacidade e proteção de dados alinhadas à LGPD, priorizando consentimento e transparência no tratamento de dados."}

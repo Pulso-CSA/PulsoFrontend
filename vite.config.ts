@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 
 const pkg = JSON.parse(readFileSync(path.join(__dirname, "package.json"), "utf-8"));
 
-/** Onde o Vite encaminha /auth, /api, etc. em `npm run dev` (PulsoAPI uvicorn). */
+/** Onde o Vite encaminha /auth, /api, etc. em `npm run dev` (backend local, ex. uvicorn na porta configurada). */
 const DEV_API_PROXY = (process.env.VITE_DEV_API_PROXY || "http://127.0.0.1:8000").replace(/\/$/, "");
 
 const proxyToDevApi = {

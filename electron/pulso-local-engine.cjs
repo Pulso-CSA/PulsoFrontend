@@ -1,6 +1,7 @@
 /**
  * Motor local Pulso CSA: uvicorn app.pulso_csa_local.main em 127.0.0.1:porta dinâmica.
- * Dev: Python no PATH. Empacotado: resources/python (ver README em resources/python).
+ * Código: sempre PulsoFrontend/pulso-csa-api (versionado neste repo) ou cópia em resources/ no instalador.
+ * Overrides opcionais: PULSO_API_ROOT ou ficheiro manual em userData.
  */
 const { spawn } = require("child_process");
 const fs = require("fs");
@@ -15,7 +16,7 @@ let allowRootsPath = "";
 let logFilePath = "";
 /** Último código de falha ao arrancar (ex.: PULSO_API_ROOT_MISSING, HEALTH_TIMEOUT). */
 let lastStartError = null;
-/** Pasta PulsoAPI/api resolvida no último arranque bem-sucedido ou tentativa. */
+/** Pasta api resolvida (cwd do uvicorn). */
 let lastResolvedApiRoot = null;
 
 function initPaths(userDataDir) {
@@ -36,12 +37,15 @@ function getFreePort() {
   });
 }
 
+function isValidApiCwd(dir) {
+  return dir && fs.existsSync(path.join(dir, "app", "pulso_csa_local", "main.py"));
+}
+
 /**
- * Resolve pasta PulsoAPI/api (cwd do uvicorn). Ordem: env → ficheiro em userData → pastas irmãs.
- * @param {string} appRoot Raiz do PulsoFrontend (pasta que contém electron/)
- * @param {string} [userDataDir] AppData do Electron (ficheiro opcional pulso-csa-pulsoapi-root.txt)
+ * Resolve pasta api (cwd do uvicorn).
+ * Ordem: PULSO_API_ROOT → ficheiro manual → pulso-csa-api/ na raiz do frontend → resources/PulsoAPI/api (empacotado).
  */
-function resolveApiRoot(appRoot, userDataDir) {
+function resolveApiRoot(appRoot, userDataDir, isPackaged, resourcesPath) {
   const envRoot = (process.env.PULSO_API_ROOT || "").trim();
   if (envRoot && fs.existsSync(envRoot)) {
     return path.resolve(envRoot);
@@ -67,20 +71,43 @@ function resolveApiRoot(appRoot, userDataDir) {
     }
   }
 
-  const candidates = [
-    path.resolve(appRoot, "..", "PulsoAPI", "api"),
-    path.resolve(appRoot, "..", "..", "PulsoAPI", "api"),
-  ];
-  for (const c of candidates) {
-    if (fs.existsSync(c)) return c;
+  if (appRoot) {
+    const embedded = path.join(appRoot, "pulso-csa-api");
+    if (isValidApiCwd(embedded)) {
+      return path.resolve(embedded);
+    }
+  }
+
+  if (isPackaged && resourcesPath) {
+    const bundled = path.join(resourcesPath, "PulsoAPI", "api");
+    if (fs.existsSync(bundled) && fs.existsSync(path.join(bundled, "app"))) {
+      return path.resolve(bundled);
+    }
+  }
+
+  return null;
+}
+
+function readEmbeddedPythonExeFromConfig(userData) {
+  if (!userData) return null;
+  try {
+    const cfgPath = path.join(userData, "pulso-runtime-config.json");
+    if (!fs.existsSync(cfgPath)) return null;
+    const j = JSON.parse(fs.readFileSync(cfgPath, "utf-8"));
+    const exe = (j.pythonExe || "").trim();
+    if (exe && fs.existsSync(exe)) return exe;
+  } catch {
+    /* ignore */
   }
   return null;
 }
 
-function resolvePythonExecutable(appRoot, isPackaged, resourcesPath) {
+function resolvePythonExecutable(appRoot, isPackaged, resourcesPath, userData) {
   if (process.env.PULSO_LOCAL_PYTHON && fs.existsSync(process.env.PULSO_LOCAL_PYTHON)) {
     return process.env.PULSO_LOCAL_PYTHON;
   }
+  const fromSetup = readEmbeddedPythonExeFromConfig(userData);
+  if (fromSetup) return fromSetup;
   if (isPackaged && resourcesPath) {
     const win = process.platform === "win32";
     const rel = win
@@ -156,11 +183,14 @@ async function startLocalEngine(app, appRoot, browserWindow) {
   const userData = app.getPath("userData");
   initPaths(userData);
 
-  const apiRoot = resolveApiRoot(appRoot, userData);
+  const apiRoot = resolveApiRoot(appRoot, userData, isPackaged, resourcesPath);
   lastResolvedApiRoot = apiRoot;
   if (!apiRoot) {
     lastStartError = "PULSO_API_ROOT_MISSING";
-    console.error("Pulso local: PulsoAPI/api não encontrado. Defina PULSO_API_ROOT ou coloque PulsoAPI ao lado de PulsoFrontend.");
+    console.error(
+      "Pulso local: falta pulso-csa-api/ na raiz do projeto (ou cópia em resources no instalador). " +
+        "Opcional: PULSO_API_ROOT ou pulso-csa-pulsoapi-root.txt em userData.",
+    );
     return { ok: false, error: lastStartError };
   }
   const logDir = path.dirname(logFilePath);
@@ -173,7 +203,7 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     return { ok: false, error: lastStartError };
   }
 
-  const py = resolvePythonExecutable(appRoot, isPackaged, resourcesPath);
+  const py = resolvePythonExecutable(appRoot, isPackaged, resourcesPath, userData);
   const env = {
     ...process.env,
     PYTHONUNBUFFERED: "1",
@@ -182,6 +212,10 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     PULSO_ALLOWED_ROOTS_FILE: allowRootsPath,
     PULSO_LOCAL_LOG_FILE: logFilePath,
   };
+  const userEnvFile = path.join(userData, "pulso-csa-user.env");
+  if (fs.existsSync(userEnvFile)) {
+    env.PULSO_CSA_USER_ENV = userEnvFile;
+  }
   if (!app.isPackaged) {
     env.PULSO_LOCAL_RELAX_ROOT_ALLOWLIST = "1";
   }
@@ -272,7 +306,7 @@ function getLocalConfig() {
 
 /**
  * Estado para o painel de diagnóstico no frontend (Electron).
- * @param {{ isPackaged?: boolean, folderPath?: string, appRoot?: string, userDataDir?: string }} opts
+ * @param {{ isPackaged?: boolean, folderPath?: string, appRoot?: string, userDataDir?: string, resourcesPath?: string|null }} opts
  */
 function getLocalDiagnostics(opts = {}) {
   const ud = opts.userDataDir || null;
@@ -293,8 +327,10 @@ function getLocalDiagnostics(opts = {}) {
         });
 
   const appRoot = (opts.appRoot || "").trim();
-  const expectedSibling = appRoot ? path.resolve(appRoot, "..", "PulsoAPI", "api") : null;
-  const expectedGrand = appRoot ? path.resolve(appRoot, "..", "..", "PulsoAPI", "api") : null;
+  const resourcesPath = opts.resourcesPath || null;
+  const embeddedCsa = appRoot ? path.join(appRoot, "pulso-csa-api") : null;
+  const bundledApi =
+    opts.isPackaged && resourcesPath ? path.join(resourcesPath, "PulsoAPI", "api") : null;
   const manualPulsoapiFile = ud ? path.join(ud, "pulso-csa-pulsoapi-root.txt") : null;
   const envPulsoApiRoot = (process.env.PULSO_API_ROOT || "").trim() || null;
 
@@ -311,8 +347,8 @@ function getLocalDiagnostics(opts = {}) {
     isPackaged: Boolean(opts.isPackaged),
     relaxAllowlistInDev: !opts.isPackaged,
     pulsoApiCandidates: [
-      expectedSibling ? { path: expectedSibling, exists: fs.existsSync(expectedSibling) } : null,
-      expectedGrand ? { path: expectedGrand, exists: fs.existsSync(expectedGrand) } : null,
+      embeddedCsa ? { path: embeddedCsa, exists: isValidApiCwd(embeddedCsa) } : null,
+      bundledApi ? { path: bundledApi, exists: fs.existsSync(bundledApi) } : null,
     ].filter(Boolean),
     manualPulsoapiFile,
     envPulsoApiRoot,
@@ -328,4 +364,7 @@ module.exports = {
   getLocalDiagnostics,
   pickProjectFolder,
   registerAllowedRoot,
+  computeApiRoot: resolveApiRoot,
+  resolvePythonExecutable,
+  readEmbeddedPythonExeFromConfig,
 };

@@ -1,0 +1,6 @@
+Risk_ID,Category,Description,Impact,Mitigation
+1,Security,Access controls not enforced,High,Implement role-based access control
+2,Privacy,Data collected without consent,High,Apply LGPD and GDPR guidelines
+3,Compliance,Lack of audit logs,Medium,Enable automated compliance logging
+4,Operational,Unpatched systems,High,Implement continuous patch management
+5,Governance,No data ownership defined,Medium,Define accountability per business unit

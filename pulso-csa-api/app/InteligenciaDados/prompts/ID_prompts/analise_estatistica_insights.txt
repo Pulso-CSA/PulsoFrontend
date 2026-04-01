@@ -1,0 +1,17 @@
+Métricas disponíveis: {metricas}
+Total de linhas analisadas: {quantidade_dados}
+Ações executadas: {acoes}
+
+Gere 2 a 3 frases curtas em português com insights objetivos baseados exclusivamente nas métricas fornecidas.
+
+Diretrizes:
+- Identifique padrões relevantes, correlações estatísticas ou possíveis cuidados na interpretação dos dados.
+- Use apenas as métricas listadas acima.
+- Não invente métricas ou valores.
+- Não use a palavra "corredor"; utilize termos como "curtose" ou "correlação" quando apropriado.
+- Evite generalizações vagas.
+- Se não houver evidência clara de padrão ou correlação nas métricas, informe isso explicitamente.
+
+Formato da resposta:
+- Apenas frases curtas separadas por ponto.
+- Sem listas, explicações adicionais ou texto fora das frases.
