@@ -375,12 +375,26 @@ function createWindow() {
   });
 
   const isDev = !app.isPackaged;
+  mainWindow.webContents.on("did-fail-load", (_e, code, desc, validatedURL) => {
+    console.error("Pulso: falha ao carregar página", code, desc, validatedURL);
+    try {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.show();
+    } catch {
+      /* ignora */
+    }
+  });
+
   if (isDev) {
     mainWindow.loadURL("http://localhost:8080");
   } else {
     const indexPath = path.join(app.getAppPath(), "dist", "index.html");
     mainWindow.loadFile(indexPath).catch((err) => {
       console.error("Erro ao carregar app:", err);
+      try {
+        if (mainWindow && !mainWindow.isDestroyed()) mainWindow.show();
+      } catch {
+        /* ignora */
+      }
     });
   }
 
@@ -412,16 +426,20 @@ if (!gotSingleInstanceLock) {
     }
   });
 
-  app.whenReady().then(async () => {
+  app.whenReady().then(() => {
     pulsoLocal.initPaths(app.getPath("userData"));
     const appRoot = path.join(__dirname, "..");
-    const started = await pulsoLocal.startLocalEngine(app, appRoot, null);
-    if (!started.ok) {
-      console.warn("pulso-csa-local não iniciou:", started.error);
-    }
 
+    // Abrir janela já — não bloquear na espera do uvicorn (até 120s), senão a app fica só
+    // como processos em segundo plano sem UI (comum após atualização / Python lento / health atrasado).
     createWindow();
     setupAutoUpdater();
+
+    pulsoLocal.startLocalEngine(app, appRoot, mainWindow).then((started) => {
+      if (!started.ok) {
+        console.warn("pulso-csa-local não iniciou:", started.error);
+      }
+    });
   });
 
   app.on("before-quit", () => {
