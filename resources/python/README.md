@@ -1,21 +1,14 @@
-# Python embutido (Pulso CSA local)
+# Runtime Python / Node no instalador Windows
 
-Coloque aqui o **runtime Python** e o **site-packages** necessários para cada SO, gerados em CI, por exemplo:
+Para o **instalador Windows** (`npm run build:electron` / release), o runtime **não** se coloca manualmente aqui:
 
-- **Windows:** `python/python.exe` + `Lib/site-packages`
-- **macOS/Linux:** `python/bin/python3` + `lib/python3.x/site-packages`
+1. `npm run bundle:csa-runtime` (ou o **prebuild:electron** automático) gera `build/bundled-runtime/win/python` (Python 3.11 embeddable + `pip install -r pulso-csa-api/requirements.txt`) e `build/bundled-runtime/win/node` (Node LTS portátil com npm).
+2. O hook **`after-pack`** copia essas pastas para `resources/python` e `resources/node` junto do `.exe`.
 
-Variável opcional: `PULSO_LOCAL_PYTHON` apontando para o executável.
+Build rápido **sem** empacotar Python/Node (motor usa Python/npm do sistema): defina `PULSO_SKIP_CSA_RUNTIME_BUNDLE=1` antes do `electron-builder` (o `after-pack` não exige o bundle).
 
-O motor CSA usa a pasta **`pulso-csa-api/`** na raiz do **PulsoFrontend**, **versionada neste repositório** (sem depender do repo PulsoAPI na build ou no runtime). Na **app instalada**, o `after-pack` copia `pulso-csa-api` para `resources/PulsoAPI/api`.
+Overrides em runtime: `PULSO_LOCAL_PYTHON`, `PULSO_API_ROOT`.
 
-Script opcional de migração: `npm run sync:csa-api` (não faz parte da CI). Overrides: `PULSO_API_ROOT`.
+**Dev** (`npm run dev:app`): use Python e Node no PATH e `pip install -r pulso-csa-api/requirements.txt` num venv local.
 
-Instalação de dependências CSA (na pasta **`pulso-csa-api/`** na raiz do PulsoFrontend):
-
-```bash
-cd pulso-csa-api
-pip install -r requirements.txt
-```
-
-Para um pacote menor no futuro, use um `requirements-csa-local.txt` derivado por análise de imports.
+Script opcional de migração de fontes: `npm run sync:csa-api`.

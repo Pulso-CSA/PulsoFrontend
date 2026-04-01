@@ -3,6 +3,7 @@
 # O nome do .exe DEVE ser o de package.json build.win.artifactName (ex.: Pulso-Setup-x.y.z.exe);
 # se latest.yml apontar para outro ficheiro, o download no cliente devolve 404.
 # NAO substituir só pelo instalador do subprojeto installer (sem latest.yml alinhado).
+# O prebuild:electron corre bundle-csa-runtime (Python embed + pip + Node portátil) — primeira build pode demorar >15 min.
 name: Release
 
 on:
@@ -22,6 +23,12 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - uses: actions/cache@v4
+        id: cache-csa-runtime
+        with:
+          path: build/bundled-runtime
+          key: ${{ runner.os }}-csa-runtime-${{ hashFiles('pulso-csa-api/requirements.txt', 'scripts/bundle-csa-runtime.cjs') }}
 
       - run: npm ci
       - run: npm run build:electron

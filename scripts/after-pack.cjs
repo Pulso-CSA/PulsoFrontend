@@ -57,6 +57,42 @@ module.exports = async function afterPack(context) {
   copyPulsoApiFiltered(srcApi, destApi);
   console.log(`after-pack: PulsoAPI/api copiado de ${srcApi} → ${destApi}`);
 
+  const skipRuntime = process.env.PULSO_SKIP_CSA_RUNTIME_BUNDLE === "1";
+  if (context.electronPlatformName === "win32") {
+    if (!skipRuntime) {
+      const bundleWin = path.join(rootDir, "build", "bundled-runtime", "win");
+      const pySrc = path.join(bundleWin, "python");
+      const nodeSrc = path.join(bundleWin, "node");
+      const pyExe = path.join(pySrc, "python.exe");
+      const nodeExe = path.join(nodeSrc, "node.exe");
+
+      if (!fs.existsSync(pyExe)) {
+        throw new Error(
+          "after-pack (Windows): falta build/bundled-runtime/win/python/python.exe. " +
+            "Corra `npm run bundle:csa-runtime` (demora na primeira vez) ou use o fluxo normal `npm run build:electron` (prebuild executa o bundle). " +
+            "Build rápido sem runtime: PULSO_SKIP_CSA_RUNTIME_BUNDLE=1.",
+        );
+      }
+      if (!fs.existsSync(nodeExe)) {
+        throw new Error(
+          "after-pack (Windows): falta build/bundled-runtime/win/node/node.exe. Corra `npm run bundle:csa-runtime`.",
+        );
+      }
+
+      const destPy = path.join(resourcesDir, "python");
+      const destNode = path.join(resourcesDir, "node");
+      fs.rmSync(destPy, { recursive: true, force: true });
+      fs.cpSync(pySrc, destPy, { recursive: true });
+      console.log(`after-pack: Python + dependências pip (CSA) → ${destPy}`);
+
+      fs.rmSync(destNode, { recursive: true, force: true });
+      fs.cpSync(nodeSrc, destNode, { recursive: true });
+      console.log(`after-pack: Node.js portátil (npm/npx) → ${destNode}`);
+    } else {
+      console.warn("after-pack: Python/Node empacotados omitidos (PULSO_SKIP_CSA_RUNTIME_BUNDLE=1)");
+    }
+  }
+
   if (context.electronPlatformName !== "win32") {
     return;
   }

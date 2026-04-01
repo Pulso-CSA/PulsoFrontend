@@ -192,6 +192,10 @@ export type LocalEngineDiagnostics = {
   manualPulsoapiFile?: string | null;
   envPulsoApiRoot?: string | null;
   frontendRoot?: string | null;
+  bundledPythonPath?: string | null;
+  bundledPythonExists?: boolean;
+  bundledNodeDir?: string | null;
+  bundledNodeExists?: boolean;
 };
 
 let _localApiConfigCache: { value: LocalApiConfig | null; at: number } | null = null;

@@ -27,7 +27,6 @@ const Billing = lazy(() => import("./pages/Billing"));
 const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
 const ProfileSelection = lazy(() => import("./pages/ProfileSelection"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const LocalRuntimeSetupPage = lazy(() => import("./pages/LocalRuntimeSetupPage"));
 const SFAPPage = lazy(() => import("./pages/sfap"));
 const Error = lazy(() => import("./pages/Error"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -42,7 +41,12 @@ const queryClient = new QueryClient({
 function PageLoader() {
   const { t } = useTranslation();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background" role="status" aria-live="polite" aria-label={t("app.loading")}>
+    <div
+      className="flex flex-1 min-h-0 items-center justify-center bg-background"
+      role="status"
+      aria-live="polite"
+      aria-label={t("app.loading")}
+    >
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
@@ -65,16 +69,18 @@ const App = () => {
             <LayoutProvider>
               <VersionGate>
                 <TooltipProvider>
-                  <ElectronTitleBar />
-                  <UpdateAvailableScreen />
-                  <a href="#main-content" className="skip-link">
-                    {t("app.skipToContent")}
-                  </a>
-                  <Toaster />
-                  <Sonner />
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route element={<AppShell />}>
+                  <div className="flex min-h-0 flex-1 flex-col">
+                    <ElectronTitleBar />
+                    <UpdateAvailableScreen />
+                    <a href="#main-content" className="skip-link">
+                      {t("app.skipToContent")}
+                    </a>
+                    <Toaster />
+                    <Sonner />
+                    <Suspense fallback={<PageLoader />}>
+                      <div className="flex min-h-0 flex-1 flex-col">
+                        <Routes>
+                          <Route element={<AppShell />}>
                         {/* Public routes */}
                         <Route path="/" element={<Index />} />
                         <Route path="/download" element={<DownloadPage />} />
@@ -118,14 +124,6 @@ const App = () => {
                           }
                         />
                         <Route
-                          path="/settings/environment"
-                          element={
-                            <ProtectedRoute>
-                              <LocalRuntimeSetupPage />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
                           path="/sfap"
                           element={
                             <ProtectedRoute requireProfile>
@@ -146,9 +144,11 @@ const App = () => {
 
                         {/* Catch-all */}
                         <Route path="*" element={<NotFound />} />
-                      </Route>
-                    </Routes>
-                  </Suspense>
+                          </Route>
+                        </Routes>
+                      </div>
+                    </Suspense>
+                  </div>
                 </TooltipProvider>
               </VersionGate>
             </LayoutProvider>

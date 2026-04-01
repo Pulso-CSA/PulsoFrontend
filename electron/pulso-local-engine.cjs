@@ -106,8 +106,7 @@ function resolvePythonExecutable(appRoot, isPackaged, resourcesPath, userData) {
   if (process.env.PULSO_LOCAL_PYTHON && fs.existsSync(process.env.PULSO_LOCAL_PYTHON)) {
     return process.env.PULSO_LOCAL_PYTHON;
   }
-  const fromSetup = readEmbeddedPythonExeFromConfig(userData);
-  if (fromSetup) return fromSetup;
+  /** Instalador: Python + pip já vêm em resources/python (bundle pré-build). */
   if (isPackaged && resourcesPath) {
     const win = process.platform === "win32";
     const rel = win
@@ -116,7 +115,31 @@ function resolvePythonExecutable(appRoot, isPackaged, resourcesPath, userData) {
     const bundled = path.join(resourcesPath, rel);
     if (fs.existsSync(bundled)) return bundled;
   }
+  const fromSetup = readEmbeddedPythonExeFromConfig(userData);
+  if (fromSetup) return fromSetup;
   return process.platform === "win32" ? "python" : "python3";
+}
+
+/** npm / node para workflows JS no CSA (preview, autocorrect, tests). */
+function prependBundledRuntimePath(env, resourcesPath) {
+  if (!resourcesPath) return;
+  const win = process.platform === "win32";
+  const parts = [];
+  const pyRoot = path.join(resourcesPath, "python");
+  const pyExe = win ? path.join(pyRoot, "python.exe") : path.join(pyRoot, "bin", "python3");
+  if (fs.existsSync(pyExe)) {
+    parts.push(pyRoot);
+    const scripts = win ? path.join(pyRoot, "Scripts") : path.join(pyRoot, "bin");
+    if (fs.existsSync(scripts)) parts.push(scripts);
+  }
+  const nodeRoot = path.join(resourcesPath, "node");
+  const nodeOk = win ? fs.existsSync(path.join(nodeRoot, "node.exe")) : fs.existsSync(path.join(nodeRoot, "bin", "node"));
+  if (nodeOk) {
+    parts.push(win ? nodeRoot : path.join(nodeRoot, "bin"));
+  }
+  if (parts.length === 0) return;
+  const prefix = parts.join(path.delimiter);
+  env.PATH = `${prefix}${path.delimiter}${env.PATH || ""}`;
 }
 
 function readAllowRoots() {
@@ -212,6 +235,9 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     PULSO_ALLOWED_ROOTS_FILE: allowRootsPath,
     PULSO_LOCAL_LOG_FILE: logFilePath,
   };
+  if (isPackaged && resourcesPath) {
+    prependBundledRuntimePath(env, resourcesPath);
+  }
   const userEnvFile = path.join(userData, "pulso-csa-user.env");
   if (fs.existsSync(userEnvFile)) {
     env.PULSO_CSA_USER_ENV = userEnvFile;
@@ -333,6 +359,8 @@ function getLocalDiagnostics(opts = {}) {
     opts.isPackaged && resourcesPath ? path.join(resourcesPath, "PulsoAPI", "api") : null;
   const manualPulsoapiFile = ud ? path.join(ud, "pulso-csa-pulsoapi-root.txt") : null;
   const envPulsoApiRoot = (process.env.PULSO_API_ROOT || "").trim() || null;
+  const bundledPy = opts.isPackaged && resourcesPath ? path.join(resourcesPath, "python", "python.exe") : null;
+  const bundledNodeDir = opts.isPackaged && resourcesPath ? path.join(resourcesPath, "node") : null;
 
   return {
     engineRunning: Boolean(child && !child.killed && localPort > 0),
@@ -353,6 +381,17 @@ function getLocalDiagnostics(opts = {}) {
     manualPulsoapiFile,
     envPulsoApiRoot,
     frontendRoot: appRoot || null,
+    bundledPythonPath: bundledPy,
+    bundledPythonExists: Boolean(bundledPy && fs.existsSync(bundledPy)),
+    bundledNodeDir,
+    bundledNodeExists: Boolean(
+      bundledNodeDir &&
+        fs.existsSync(
+          process.platform === "win32"
+            ? path.join(bundledNodeDir, "node.exe")
+            : path.join(bundledNodeDir, "bin", "node"),
+        ),
+    ),
   };
 }
 
