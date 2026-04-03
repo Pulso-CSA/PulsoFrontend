@@ -196,6 +196,8 @@ export type LocalEngineDiagnostics = {
   bundledPythonExists?: boolean;
   bundledNodeDir?: string | null;
   bundledNodeExists?: boolean;
+  resolvedPythonExe?: string | null;
+  lastEngineStderrTail?: string | null;
 };
 
 let _localApiConfigCache: { value: LocalApiConfig | null; at: number } | null = null;

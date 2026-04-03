@@ -312,7 +312,7 @@
     "assistantAlt": "Pulso CSA",
     "previewLink": "Open preview: {{url}}",
     "noLocalEngineTitle": "Local CSA engine not running",
-    "noLocalEngineDesc": "With a project folder set, the local engine (Python + CSA code in pulso-csa-api/) must run on this machine. That code ships with the PulsoFrontend repo; install Python deps (pip) and use npm run electron:dev. Without the engine, the cloud API writes on the server, not your folder.",
+    "noLocalEngineDesc": "With a project folder set, the local CSA engine must be running. In the installed app, Python and npm are bundled; the first startup can take several minutes. Use the diagnostics panel below for the Python path and errors (log under app data). Without the engine, the cloud API writes on the server, not your folder.",
     "diagnosticsTitle": "Diagnostics — saving on your PC",
     "diagnosticsRefresh": "Refresh",
     "diagnosticsOnlyElectron": "This panel only appears in the Electron app. In the browser, requests go to the cloud API and files are not written to the folder you type.",
@@ -339,9 +339,12 @@
     "diagnosticsFolderBad": "This path is not on the allowlist. Blur the path field or use the folder picker to register it.",
     "diagnosticsDevRelax": "Dev mode: allowlist relaxed (PULSO_LOCAL_RELAX_ROOT_ALLOWLIST). Packaged builds use strict checks.",
     "diagnosticsLogFile": "Engine log:",
+    "diagnosticsPythonExe": "Python executable:",
+    "diagnosticsStderrTitle": "Recent stderr:",
     "diagnosticsError": {
       "PULSO_API_ROOT_MISSING": "Missing pulso-csa-api/ in the project (should be committed in PulsoFrontend) or bundled copy in the installer. Pull the repo or reinstall. Optional: PULSO_API_ROOT / app-data path file.",
-      "HEALTH_TIMEOUT": "Python started but /health did not respond. Check pip deps, API .env, and the [pulso-csa-local] console output.",
+      "HEALTH_TIMEOUT": "/health did not respond in time (up to ~10 minutes on first launch when packaged). Check stderr below and the log file. Common causes: installer built without the Python bundle, missing module, or .env/Mongo issues.",
+      "ENGINE_EXITED": "The Python process exited before the server was ready. Check stderr below — often missing uvicorn, import error, or wrong Python on PATH.",
       "NO_PORT": "Could not bind a free TCP port on 127.0.0.1."
     },
     "placeholderWaiting": "Waiting for response...",

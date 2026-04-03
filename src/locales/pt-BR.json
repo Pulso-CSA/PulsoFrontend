@@ -312,7 +312,7 @@
     "assistantAlt": "Pulso CSA",
     "previewLink": "Acessar preview: {{url}}",
     "noLocalEngineTitle": "Motor CSA local inativo",
-    "noLocalEngineDesc": "Com uma pasta definida, o motor local (Python + microsserviço em pulso-csa-api/) tem de correr neste PC. Esse código vem com o PulsoFrontend (repositório); instale dependências Python (pip) e use npm run electron:dev. Sem motor, a API na cloud grava no servidor, não na pasta local.",
+    "noLocalEngineDesc": "Com uma pasta definida, o motor CSA local tem de estar ativo. Na app instalada o Python e o npm vêm no pacote; no primeiro arranque pode demorar vários minutos. Abra o diagnóstico abaixo para ver o Python usado e erros (log em %AppData%). Sem motor, a API na cloud grava no servidor, não na pasta local.",
     "diagnosticsTitle": "Diagnóstico — gravação no teu PC",
     "diagnosticsRefresh": "Atualizar",
     "diagnosticsOnlyElectron": "Este painel só existe na app Electron. No navegador, o pedido vai para a API na cloud e os ficheiros não são criados na pasta que indicar.",
@@ -339,9 +339,12 @@
     "diagnosticsFolderBad": "Esta pasta não está na allowlist. Saia do campo do caminho ou use o seletor de pasta para a registar automaticamente.",
     "diagnosticsDevRelax": "Modo dev: allowlist relaxada (PULSO_LOCAL_RELAX_ROOT_ALLOWLIST). Em build empacotada a validação é estrita.",
     "diagnosticsLogFile": "Log do motor:",
+    "diagnosticsPythonExe": "Python usado:",
+    "diagnosticsStderrTitle": "Saída recente (stderr):",
     "diagnosticsError": {
       "PULSO_API_ROOT_MISSING": "Falta a pasta pulso-csa-api/ no projeto (deve estar versionada no PulsoFrontend) ou a cópia em resources no instalador. Reinstale a app ou faça pull do repositório. Opcional: PULSO_API_ROOT ou ficheiro nos dados da app.",
-      "HEALTH_TIMEOUT": "O Python arrancou mas /health não respondeu. Verifique dependências (pip), .env da API e a consola [pulso-csa-local].",
+      "HEALTH_TIMEOUT": "/health não respondeu a tempo (até ~10 min na app instalada no 1.º arranque). Veja o stderr abaixo e o ficheiro de log. Causas comuns: build sem bundle Python (reinstale com build completo), módulo em falta, ou .env/Mongo.",
+      "ENGINE_EXITED": "O processo Python terminou antes do servidor ficar pronto. Veja o stderr abaixo — muitas vezes falta uvicorn, import em erro ou Python errado no PATH.",
       "NO_PORT": "Não foi possível obter uma porta livre em 127.0.0.1."
     },
     "placeholderWaiting": "Aguardando resposta...",

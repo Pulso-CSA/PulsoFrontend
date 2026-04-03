@@ -82,6 +82,10 @@ app = FastAPI(
 async def pulso_local_secret_middleware(request: Request, call_next):
     expected = (os.getenv("PULSO_LOCAL_SECRET") or "").strip()
     if expected:
+        # Liveness: o Electron faz probe HTTP sem header; não exigir token aqui (só 127.0.0.1).
+        p = request.url.path.rstrip("/") or "/"
+        if request.method == "GET" and p == "/health":
+            return await call_next(request)
         got = (request.headers.get("X-Pulso-Local-Token") or "").strip()
         if got != expected:
             return JSONResponse(

@@ -18,6 +18,10 @@ let logFilePath = "";
 let lastStartError = null;
 /** Pasta api resolvida (cwd do uvicorn). */
 let lastResolvedApiRoot = null;
+/** Últimas linhas stderr do subprocesso (diagnóstico). */
+let lastEngineStderrTail = "";
+/** Interpretador Python usado no último arranque. */
+let lastResolvedPythonExe = null;
 
 function initPaths(userDataDir) {
   if (!userDataDir) return;
@@ -198,9 +202,27 @@ function stopLocalEngine() {
   localPort = 0;
 }
 
+function appendEngineProcessLog(kind, chunk) {
+  const s = typeof chunk === "string" ? chunk : chunk.toString();
+  if (!s) return;
+  if (kind === "stderr") {
+    lastEngineStderrTail = (lastEngineStderrTail + s).slice(-8000);
+  }
+  if (logFilePath) {
+    try {
+      const line = `[${new Date().toISOString()}] [${kind}] ${s}`;
+      fs.appendFileSync(logFilePath, line, "utf-8");
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 async function startLocalEngine(app, appRoot, browserWindow) {
   stopLocalEngine();
   lastStartError = null;
+  lastEngineStderrTail = "";
+  lastResolvedPythonExe = null;
   const isPackaged = app.isPackaged;
   const resourcesPath = isPackaged ? process.resourcesPath : null;
   const userData = app.getPath("userData");
@@ -227,6 +249,7 @@ async function startLocalEngine(app, appRoot, browserWindow) {
   }
 
   const py = resolvePythonExecutable(appRoot, isPackaged, resourcesPath, userData);
+  lastResolvedPythonExe = py;
   const env = {
     ...process.env,
     PYTHONUNBUFFERED: "1",
@@ -235,6 +258,17 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     PULSO_ALLOWED_ROOTS_FILE: allowRootsPath,
     PULSO_LOCAL_LOG_FILE: logFilePath,
   };
+  /** Evita escrita de __pycache__ em resources (instalação pode ser só leitura). */
+  if (isPackaged) {
+    const pyc = path.join(userData, "pulso-csa-pycache");
+    try {
+      fs.mkdirSync(pyc, { recursive: true });
+      env.PYTHONPYCACHEPREFIX = pyc;
+    } catch {
+      env.PYTHONDONTWRITEBYTECODE = "1";
+    }
+  }
+  env.PYTHONPATH = [apiRoot, path.join(apiRoot, "app"), env.PYTHONPATH || ""].filter(Boolean).join(path.delimiter);
   if (isPackaged && resourcesPath) {
     prependBundledRuntimePath(env, resourcesPath);
   }
@@ -257,6 +291,8 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     "info",
   ];
 
+  appendEngineProcessLog("meta", `spawn ${py} ${args.join(" ")} cwd=${apiRoot}\n`);
+
   child = spawn(py, args, {
     cwd: apiRoot,
     env,
@@ -266,14 +302,21 @@ async function startLocalEngine(app, appRoot, browserWindow) {
 
   child.stdout?.on("data", (d) => {
     const s = d.toString();
+    appendEngineProcessLog("stdout", s);
     if (s.trim()) console.log("[pulso-csa-local]", s.trim().slice(0, 500));
   });
   child.stderr?.on("data", (d) => {
     const s = d.toString();
+    appendEngineProcessLog("stderr", s);
     if (s.trim()) console.error("[pulso-csa-local]", s.trim().slice(0, 500));
+  });
+  child.on("error", (err) => {
+    appendEngineProcessLog("stderr", `spawn error: ${err && err.message ? err.message : String(err)}\n`);
+    console.error("[pulso-csa-local] spawn error", err);
   });
   child.on("exit", (code) => {
     console.warn("pulso-csa-local exit", code);
+    appendEngineProcessLog("meta", `exit code=${code}\n`);
     child = null;
     localPort = 0;
     browserWindow?.webContents?.send("pulso-local-engine-stopped", code ?? 0);
@@ -281,27 +324,38 @@ async function startLocalEngine(app, appRoot, browserWindow) {
 
   localPort = port;
 
-  const deadline = Date.now() + 120000;
+  /** Primeiro arranque com deps pesadas (LangChain, etc.) pode exceder 2 min. */
+  const healthWaitMs = isPackaged ? 600000 : 240000;
+  const deadline = Date.now() + healthWaitMs;
   const http = require("http");
   while (Date.now() < deadline) {
+    if (child === null) {
+      lastStartError = "ENGINE_EXITED";
+      break;
+    }
     const ok = await new Promise((resolve) => {
       const req = http.get(`http://127.0.0.1:${port}/health`, (res) => {
         resolve(res.statusCode === 200);
       });
       req.on("error", () => resolve(false));
-      req.setTimeout(1500, () => {
+      req.setTimeout(4000, () => {
         req.destroy();
         resolve(false);
       });
     });
     if (ok) break;
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  if (lastStartError === "ENGINE_EXITED") {
+    stopLocalEngine();
+    return { ok: false, error: lastStartError };
   }
 
   const finalCheck = await new Promise((resolve) => {
     const req = http.get(`http://127.0.0.1:${port}/health`, (res) => resolve(res.statusCode === 200));
     req.on("error", () => resolve(false));
-    req.setTimeout(2000, () => {
+    req.setTimeout(5000, () => {
       req.destroy();
       resolve(false);
     });
@@ -392,6 +446,8 @@ function getLocalDiagnostics(opts = {}) {
             : path.join(bundledNodeDir, "bin", "node"),
         ),
     ),
+    resolvedPythonExe: lastResolvedPythonExe || null,
+    lastEngineStderrTail: lastEngineStderrTail.trim() ? lastEngineStderrTail.trim().slice(-6000) : null,
   };
 }
 

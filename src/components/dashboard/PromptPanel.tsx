@@ -955,6 +955,20 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
                         })}
                       </li>
                     ) : null}
+                    {localDiag.resolvedPythonExe ? (
+                      <li>
+                        <span className="text-foreground/55">{t("pulsoCsa.diagnosticsPythonExe")} </span>
+                        <code className="text-[10px] break-all opacity-90">{localDiag.resolvedPythonExe}</code>
+                      </li>
+                    ) : null}
+                    {localDiag.lastEngineStderrTail ? (
+                      <li className="space-y-1">
+                        <span className="text-foreground/55 text-[11px]">{t("pulsoCsa.diagnosticsStderrTitle")}</span>
+                        <pre className="text-[10px] leading-snug whitespace-pre-wrap break-all max-h-40 overflow-y-auto rounded border border-border/60 bg-muted/40 p-2 text-foreground/85">
+                          {localDiag.lastEngineStderrTail}
+                        </pre>
+                      </li>
+                    ) : null}
                     {localDiag.apiRoot ? (
                       <li>
                         <span className="text-foreground/55">{t("pulsoCsa.diagnosticsApiRoot")} </span>
