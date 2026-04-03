@@ -216,6 +216,8 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.cjs"),
+      // Empacotado: página é file://; pedidos ao motor local (http://127.0.0.1) podem ser bloqueados com webSecurity ativo.
+      webSecurity: !app.isPackaged,
     },
     ...(windowIcon ? { icon: windowIcon } : {}),
     show: false,
