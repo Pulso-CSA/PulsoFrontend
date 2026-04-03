@@ -3,6 +3,7 @@
 #━━━━━━━━━━━━━━❮◆❯━━━━━━━━━━━━━━
 
 import os
+import sys
 import datetime
 import threading
 from contextvars import ContextVar
@@ -41,7 +42,15 @@ def add_log(level: str, message: str, source: str, request_id: Optional[str] = N
         if len(LOG_STORE) > LOG_STORE_MAX_ENTRIES:
             del LOG_STORE[: LOG_STORE_MAX_ENTRIES // 2]
     level_tag = level.upper()[:5]
-    print(f"[{ts}] [{level_tag}] [{source}] {log_msg}")
+    line = f"[{ts}] [{level_tag}] [{source}] {log_msg}"
+    try:
+        print(line)
+    except UnicodeEncodeError:
+        enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+        try:
+            print(line.encode(enc, errors="replace").decode(enc, errors="replace"))
+        except Exception:
+            print(line.encode("ascii", errors="replace").decode("ascii"))
 
 
 def get_logs(filter_level: str = None, filter_source: str = None) -> List[Dict]:

@@ -36,6 +36,14 @@ if _user_env:
 
 os.environ.setdefault("PULSO_CSA_LOCAL", "1")
 
+# Windows (cp1252): print() e uvicorn não podem falhar por emoji em logs.
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except (OSError, ValueError, AttributeError):
+        pass
+
 from app.pulso_csa_local.auth_cache import install_local_auth_cache
 from app.pulso_csa_local.allowlist_middleware import AllowlistedRootPathsMiddleware
 from app.pulso_csa_local.local_log_bridge import install_local_file_logging

@@ -253,6 +253,9 @@ async function startLocalEngine(app, appRoot, browserWindow) {
   const env = {
     ...process.env,
     PYTHONUNBUFFERED: "1",
+    /** Windows: evita UnicodeEncodeError (charmap) em print/log com emoji no stdout. */
+    PYTHONIOENCODING: "utf-8",
+    ...(process.platform === "win32" ? { PYTHONUTF8: "1" } : {}),
     PULSO_CSA_LOCAL: "1",
     /** Só 127.0.0.1: sem Mongo/.env igual à cloud, auth+plano não podem bloquear o CSA. */
     PULSO_LOCAL_DESKTOP_ENTITLEMENT_GRACE: "1",
