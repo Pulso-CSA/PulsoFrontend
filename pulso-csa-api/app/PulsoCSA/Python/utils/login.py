@@ -166,6 +166,30 @@ def verify_jwt_token(token: str) -> Dict[str, Any]:
         )
 
 
+def decode_access_token_unverified_for_local_desktop(token: str) -> Dict[str, Any]:
+    """
+    CSA local (Electron): o access token é assinado na API cloud com JWT_SECRET de produção;
+    o .env empacotado no PC costuma ter outra chave → verify_jwt_token falha com assinatura inválida.
+    Só usar quando PULSO_CSA_LOCAL=1 (uvicorn em 127.0.0.1). Valida exp; não valida assinatura.
+    """
+    try:
+        return jwt.decode(
+            token,
+            options={"verify_signature": False},
+            algorithms=[JWT_ALGORITHM, JWT_ALGORITHM_PQC],
+        )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expirado",
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido",
+        )
+
+
 def verify_refresh_token(token: str) -> Dict[str, Any]:
     """Validate and decode refresh token (returns full payload)."""
     payload = verify_jwt_token(token)
