@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { infraApi } from "@/lib/api";
+import { emitPulsoNotification } from "@/lib/pulsoNotifications";
 import { getRootPath, setRootPath, getCloudChatSessions, setCloudChatSessions, getAllCloudCredentials, setCloudCredentials, type ChatSession } from "@/lib/connectionStorage";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
@@ -196,6 +197,11 @@ const CloudChat = () => {
       };
 
       setMessages((prev) => [...prev, systemMessage]);
+      emitPulsoNotification({
+        title: t("notifications.cloudTitle"),
+        body: content.slice(0, 350),
+        kind: "update",
+      });
     } catch (err) {
       toast({
         title: "Erro na geração de infraestrutura",
@@ -210,6 +216,11 @@ const CloudChat = () => {
         provider: activeProvider,
       };
       setMessages((prev) => [...prev, errorMessage]);
+      emitPulsoNotification({
+        title: t("notifications.cloudErrorTitle"),
+        body: (err instanceof Error ? err.message : "Erro Cloud").slice(0, 300),
+        kind: "error",
+      });
     } finally {
       setLoading(false);
     }

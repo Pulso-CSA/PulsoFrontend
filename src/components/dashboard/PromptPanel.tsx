@@ -29,6 +29,7 @@ import {
 import FileTree, { type FileNode } from "./FileTree";
 import { LoaderGenerating } from "@/components/loaders";
 import { exportReport } from "@/lib/exportReport";
+import { emitPulsoNotification } from "@/lib/pulsoNotifications";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
 import { FolderFileUpload } from "@/components/ui/FolderFileUpload";
 import { ChatSidebar } from "./ChatSidebar";
@@ -597,6 +598,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
         title: res.intent === "EXECUTAR" && res.should_execute ? t("pulsoCsa.executedTitle") : t("pulsoCsa.responseReceivedTitle"),
         description: res.next_action || undefined,
       });
+      emitPulsoNotification({
+        title: t("notifications.csaResponseTitle"),
+        body: [res.message, res.next_action].filter(Boolean).join("\n").slice(0, 400),
+        kind: "success",
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : t("pulsoCsa.tryAgain");
       const is400 =
@@ -617,6 +623,11 @@ const PromptPanel = ({ onComprehensionResult, onClear, toolbarExtra }: PromptPan
         title: is400 ? t("pulsoCsa.invalidDataTitle") : t("pulsoCsa.sendErrorTitle"),
         description: msg,
         variant: "destructive",
+      });
+      emitPulsoNotification({
+        title: t("notifications.csaErrorTitle"),
+        body: msg.slice(0, 300),
+        kind: "error",
       });
     } finally {
       setLoading(false);

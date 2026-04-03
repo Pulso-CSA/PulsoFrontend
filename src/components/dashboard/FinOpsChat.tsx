@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { finopsApi } from "@/lib/api";
+import { emitPulsoNotification } from "@/lib/pulsoNotifications";
 import { getFinOpsChatSessions, setFinOpsChatSessions, getAllCloudCredentials, setCloudCredentials, type ChatSession } from "@/lib/connectionStorage";
 import { exportReport } from "@/lib/exportReport";
 import { DownloadReportButton } from "@/components/ui/DownloadReportButton";
@@ -224,6 +225,11 @@ const FinOpsChat = () => {
       };
 
       setMessages((prev) => [...prev, systemMessage]);
+      emitPulsoNotification({
+        title: t("notifications.finopsTitle"),
+        body: content.slice(0, 350),
+        kind: "success",
+      });
     } catch (err) {
       toast({
         title: "Erro na análise FinOps",
@@ -237,6 +243,11 @@ const FinOpsChat = () => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
+      emitPulsoNotification({
+        title: t("notifications.finopsErrorTitle"),
+        body: (err instanceof Error ? err.message : "Falha FinOps").slice(0, 300),
+        kind: "error",
+      });
     } finally {
       setLoading(false);
     }

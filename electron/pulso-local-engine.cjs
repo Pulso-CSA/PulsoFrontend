@@ -259,6 +259,9 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     PULSO_CSA_LOCAL: "1",
     /** Só 127.0.0.1: sem Mongo/.env igual à cloud, auth+plano não podem bloquear o CSA. */
     PULSO_LOCAL_DESKTOP_ENTITLEMENT_GRACE: "1",
+    /** Desktop: evita orçamento de 300s vindo de .env empacotado; override com PULSO_CSA_WORKFLOW_MAX_SEC no sistema. */
+    ...(process.env.PULSO_CSA_WORKFLOW_MAX_SEC ? {} : { PULSO_CSA_WORKFLOW_MAX_SEC: "7200" }),
+    ...(process.env.PULSO_CSA_LLM_CALL_TIMEOUT_SEC ? {} : { PULSO_CSA_LLM_CALL_TIMEOUT_SEC: "600" }),
     PULSO_LOCAL_SECRET: localSecret,
     PULSO_ALLOWED_ROOTS_FILE: allowRootsPath,
     PULSO_LOCAL_LOG_FILE: logFilePath,

@@ -53,6 +53,7 @@ import {
   type InsightQueryResponse,
   type InsightSessionDetail,
 } from "@/lib/insightsV1Api";
+import { emitPulsoNotification } from "@/lib/pulsoNotifications";
 
 export type InsightsFilterKey = "all" | ServiceKey | "custom";
 
@@ -713,6 +714,11 @@ const Dashboard = () => {
       title: t("dashboard.chartUpdated"),
       description: prompt ? t("dashboard.chartUpdatedAnalysis") : t("dashboard.chartUpdatedPrefs"),
     });
+    emitPulsoNotification({
+      title: t("notifications.insightTitle"),
+      body: (prompt ? t("dashboard.chartUpdatedAnalysis") : t("dashboard.chartUpdatedPrefs")).slice(0, 350),
+      kind: "update",
+    });
   };
 
   const handleInsightsCreateFromChat = async (prompt: string): Promise<{
@@ -738,10 +744,20 @@ const Dashboard = () => {
           title: t("dashboard.ambiguousPrompt"),
           description: res.ambiguity?.message ?? t("dashboard.ambiguousSuggestions"),
         });
+        emitPulsoNotification({
+          title: t("dashboard.ambiguousPrompt"),
+          body: (res.ambiguity?.message ?? t("dashboard.ambiguousSuggestions")).slice(0, 350),
+          kind: "update",
+        });
       } else if (res.status === "degraded") {
         toast({
           title: t("dashboard.partialInsight"),
           description: t("dashboard.partialRefine"),
+        });
+        emitPulsoNotification({
+          title: t("dashboard.partialInsight"),
+          body: t("dashboard.partialRefine").slice(0, 350),
+          kind: "update",
         });
       }
       const payload = mapInsightV1ResponseToWidget(res, { widgetId: id, customPrompt: prompt });
@@ -751,6 +767,11 @@ const Dashboard = () => {
         setInsightsPositions((pos) => ({ ...pos, [id]: { x: 20 + (newIndex % 3) * 280, y: 20 + Math.floor(newIndex / 3) * 200 } }));
       }
       toast({ title: t("dashboard.chartAdded"), description: t("dashboard.chartAddedDesc", { title: mapped.title }) });
+      emitPulsoNotification({
+        title: t("notifications.insightNewTitle"),
+        body: t("dashboard.chartAddedDesc", { title: mapped.title }).slice(0, 350),
+        kind: "success",
+      });
       return {
         ok: true,
         chartTitle: mapped.title,
@@ -761,6 +782,11 @@ const Dashboard = () => {
       toast({
         title: t("dashboard.backendInsightFail"),
         description: t("dashboard.backendInsightFallback"),
+      });
+      emitPulsoNotification({
+        title: t("dashboard.backendInsightFail"),
+        body: t("dashboard.backendInsightFallback").slice(0, 300),
+        kind: "error",
       });
       const fbLocale = i18n.language?.replace(/_/g, "-") || "pt-BR";
       const title = prompt.length > 36 ? prompt.slice(0, 36) + "…" : prompt;

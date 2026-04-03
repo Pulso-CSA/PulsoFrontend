@@ -92,6 +92,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { inteligenciaApi, type DbConfig } from "@/lib/api";
+import { emitPulsoNotification } from "@/lib/pulsoNotifications";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { cn } from "@/lib/utils";
 import { getDbConnection, setDbConnection, getDataChatContext, setDataChatContext, clearDataChatContext, getDataChatSessions, setDataChatSessions, type ChatSession } from "@/lib/connectionStorage";
@@ -448,6 +449,11 @@ const DataChat = () => {
         sugestaoProximoPasso: res?.sugestao_proximo_passo,
       };
       setMessages((prev) => [...prev, systemMessage]);
+      emitPulsoNotification({
+        title: t("notifications.dataChatTitle"),
+        body: content.slice(0, 350),
+        kind: "success",
+      });
     } catch (err: unknown) {
       const errObj = err as { response?: { data?: { detail?: unknown } }; message?: string };
       const msg = errObj?.response?.data?.detail ?? errObj?.message;
@@ -476,6 +482,11 @@ const DataChat = () => {
         errorType: isConnectionError ? "connection" : isDatasetRefError ? "dataset_ref" : "generic",
       };
       setMessages((prev) => [...prev, errorMessage]);
+      emitPulsoNotification({
+        title: t("notifications.dataChatErrorTitle"),
+        body: displayMsg.slice(0, 300),
+        kind: "error",
+      });
     } finally {
       setLoading(false);
     }

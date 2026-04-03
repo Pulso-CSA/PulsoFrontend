@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSfapAllowed } from "@/hooks/useSfapAllowed";
 import { useToast } from "@/hooks/use-toast";
 import ProfileDialog from "./ProfileDialog";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -45,6 +46,7 @@ export function HeaderControls() {
   return (
     <>
       <div className="flex items-center gap-1.5 shrink-0 rounded-full glass px-2.5 py-1.5 border border-border/50">
+        <NotificationBell />
         {/* Tema claro/escuro */}
         <Button
           variant="ghost"

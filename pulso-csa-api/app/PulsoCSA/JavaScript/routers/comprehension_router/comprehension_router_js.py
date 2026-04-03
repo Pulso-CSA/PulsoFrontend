@@ -457,7 +457,7 @@ async def run_comprehension_js(
         True,
         description=(
             "Se true, governance/correct longos retornam 202 + job_id; consulte GET /comprehension-js/jobs/{job_id}. "
-            "Orçamento máximo: PULSO_CSA_WORKFLOW_MAX_SEC (default 300 s)."
+            "Orçamento máximo: PULSO_CSA_WORKFLOW_MAX_SEC (default 7200 s)."
         ),
     ),
 ) -> Union[ComprehensionJSResponse, JSONResponse]:
@@ -465,7 +465,7 @@ async def run_comprehension_js(
     Primeira etapa do workflow JavaScript: classifica a intenção, decide o modo do projeto
     e dispara (ou não) governance/run ou workflow/correct/run para JavaScript/TypeScript/React.
     Com async_mode=true (padrão), fluxos longos retornam 202 e evitam timeout de proxy.
-    Orçamento máximo por pedido/job: PULSO_CSA_WORKFLOW_MAX_SEC (default 300 s).
+    Orçamento máximo por pedido/job: PULSO_CSA_WORKFLOW_MAX_SEC (default 7200 s).
     Requer autenticação (Bearer token).
     """
     t0 = time.perf_counter()

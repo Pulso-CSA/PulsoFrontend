@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLayoutContext } from "@/contexts/LayoutContext";
 import { useToast } from "@/hooks/use-toast";
 import ProfileDialog from "@/components/dashboard/ProfileDialog";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { useSfapAllowed } from "@/hooks/useSfapAllowed";
 import "@/styles/pulso-layouts.css";
 
@@ -247,6 +248,9 @@ export function LayoutA({ activeService, onServiceChange, children, className }:
               </div>
             );
           })}
+          <div className="flex items-center justify-center shrink-0 mr-1">
+            <NotificationBell />
+          </div>
           {/* Avatar: efeito mantido (anel + brilho). Hover mostra painel de configurações (portal) sobrepondo tudo */}
           <div
             ref={avatarRef}

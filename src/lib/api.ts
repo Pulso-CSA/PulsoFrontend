@@ -812,11 +812,25 @@ export type ComprehensionRunResponse = {
   framework?: string;
 };
 
-/** Alinhado a PULSO_CSA_WORKFLOW_MAX_SEC (300 s) no backend + margem de rede. */
-const CSA_CLIENT_BUDGET_MS = 5 * 60 * 1000 + 20_000;
+/** Alinhado a PULSO_CSA_WORKFLOW_MAX_SEC no backend (default 7200 s) + margem de rede. Override: VITE_PULSO_CSA_WORKFLOW_BUDGET_SEC (segundos). */
+const CSA_WORKFLOW_BUDGET_SEC = Math.max(
+  60,
+  Number.parseInt(String(import.meta.env.VITE_PULSO_CSA_WORKFLOW_BUDGET_SEC ?? '7200'), 10) || 7200,
+);
+const CSA_CLIENT_BUDGET_MS = CSA_WORKFLOW_BUDGET_SEC * 1000 + 120_000;
 
 const COMPREHENSION_POLL_INTERVAL_MS = 2000;
-const COMPREHENSION_POLL_MAX_MS = 5 * 60 * 1000;
+const COMPREHENSION_POLL_MAX_MS = CSA_CLIENT_BUDGET_MS;
+
+function csaClientTimeoutMessage(): string {
+  const min = Math.max(1, Math.round(CSA_WORKFLOW_BUDGET_SEC / 60));
+  return `Tempo máximo de ${min} minuto(s) para a operação Pulso CSA (rede + geração). Tente um pedido mais específico ou divida em etapas.`;
+}
+
+function csaPollTimeoutMessage(): string {
+  const min = Math.max(1, Math.round(CSA_WORKFLOW_BUDGET_SEC / 60));
+  return `Tempo máximo de ${min} minuto(s) ao aguardar o workflow de compreensão. Tente um pedido mais curto ou em etapas.`;
+}
 
 /**
  * fetch com Bearer + token local; em 401 tenta refresh uma vez (mesmo padrão de apiRequest).
@@ -924,9 +938,7 @@ async function pollComprehensionJob(
       );
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
-        throw new Error(
-          'Tempo máximo de 5 minutos para a operação Pulso CSA (rede + geração). Tente um pedido mais específico.',
-        );
+        throw new Error(csaClientTimeoutMessage());
       }
       throw e;
     }
@@ -963,9 +975,7 @@ async function pollComprehensionJob(
       throw new Error(typeof m === 'string' ? m : JSON.stringify(m));
     }
   }
-  throw new Error(
-    'Tempo máximo de 5 minutos ao aguardar o workflow de compreensão. Tente um pedido mais curto ou em etapas.',
-  );
+  throw new Error(csaPollTimeoutMessage());
 }
 
 async function postComprehensionRun(
@@ -995,9 +1005,7 @@ async function postComprehensionRun(
   } catch (err) {
     clearTimeout(budgetTimer);
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new Error(
-        'Tempo máximo de 5 minutos para a operação Pulso CSA (rede + geração). Tente um pedido mais específico.',
-      );
+      throw new Error(csaClientTimeoutMessage());
     }
     throw err;
   }

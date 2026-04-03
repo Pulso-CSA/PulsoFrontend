@@ -8,6 +8,27 @@
     "skipToContent": "Pular para o conteúdo principal",
     "loading": "Carregando"
   },
+  "notifications": {
+    "bellAria": "Notificações",
+    "bellAriaUnread": "Notificações, {{count}} não lidas",
+    "title": "Notificações",
+    "empty": "Nenhuma notificação ainda.",
+    "clear": "Limpar",
+    "removeAria": "Remover notificação",
+    "allRead": "Todas lidas",
+    "kindError": "Erro",
+    "kindSuccess": "Concluído",
+    "csaResponseTitle": "Pulso CSA — resposta pronta",
+    "csaErrorTitle": "Pulso CSA — falha no envio",
+    "dataChatTitle": "Dados & IA — nova resposta",
+    "dataChatErrorTitle": "Dados & IA — erro",
+    "finopsTitle": "FinOps — nova resposta",
+    "finopsErrorTitle": "FinOps — erro",
+    "cloudTitle": "Cloud IaC — atualização",
+    "cloudErrorTitle": "Cloud IaC — erro",
+    "insightTitle": "Insights — gráfico atualizado",
+    "insightNewTitle": "Insights — novo gráfico"
+  },
   "layout": {
     "servicesBarAria": "Serviços",
     "serviceActive": "ativo",

@@ -2,7 +2,7 @@
 """
 Limites de tempo Pulso CSA: geração de código e fluxo de compreensão.
 
-Orçamento padrão: 5 minutos (300 s) por pedido síncrono ou por job assíncrono.
+Orçamento padrão: 2 horas (7200 s) por pedido síncrono ou por job assíncrono.
 Override: PULSO_CSA_WORKFLOW_MAX_SEC, PULSO_CSA_LLM_CALL_TIMEOUT_SEC
 """
 from __future__ import annotations
@@ -14,9 +14,9 @@ from typing import Callable, TypeVar
 
 T = TypeVar("T")
 
-CSA_WORKFLOW_WALL_CLOCK_SEC = float(os.getenv("PULSO_CSA_WORKFLOW_MAX_SEC", "300"))
+CSA_WORKFLOW_WALL_CLOCK_SEC = float(os.getenv("PULSO_CSA_WORKFLOW_MAX_SEC", "7200"))
 
-CSA_LLM_CALL_TIMEOUT_SEC = int(os.getenv("PULSO_CSA_LLM_CALL_TIMEOUT_SEC", "120"))
+CSA_LLM_CALL_TIMEOUT_SEC = int(os.getenv("PULSO_CSA_LLM_CALL_TIMEOUT_SEC", "600"))
 
 
 def csa_timeout_user_message() -> str:

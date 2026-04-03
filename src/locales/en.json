@@ -8,6 +8,27 @@
     "skipToContent": "Skip to main content",
     "loading": "Loading"
   },
+  "notifications": {
+    "bellAria": "Notifications",
+    "bellAriaUnread": "Notifications, {{count}} unread",
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "clear": "Clear all",
+    "removeAria": "Remove notification",
+    "allRead": "All read",
+    "kindError": "Error",
+    "kindSuccess": "Done",
+    "csaResponseTitle": "Pulso CSA — response ready",
+    "csaErrorTitle": "Pulso CSA — request failed",
+    "dataChatTitle": "Data & AI — new reply",
+    "dataChatErrorTitle": "Data & AI — error",
+    "finopsTitle": "FinOps — new reply",
+    "finopsErrorTitle": "FinOps — error",
+    "cloudTitle": "Cloud IaC — update",
+    "cloudErrorTitle": "Cloud IaC — error",
+    "insightTitle": "Insights — chart updated",
+    "insightNewTitle": "Insights — new chart"
+  },
   "layout": {
     "servicesBarAria": "Services",
     "serviceActive": "active",

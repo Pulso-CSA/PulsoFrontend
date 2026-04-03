@@ -7,6 +7,7 @@ import { HashRouter, Routes, Route, Outlet } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LayoutProvider } from "@/contexts/LayoutContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { AppShell } from "@/layouts/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -67,6 +68,7 @@ const App = () => {
         <HashRouter>
           <AuthProvider>
             <LayoutProvider>
+              <NotificationProvider>
               <VersionGate>
                 <TooltipProvider>
                   <div className="flex min-h-0 flex-1 flex-col">
@@ -151,6 +153,7 @@ const App = () => {
                   </div>
                 </TooltipProvider>
               </VersionGate>
+              </NotificationProvider>
             </LayoutProvider>
           </AuthProvider>
         </HashRouter>

@@ -370,7 +370,7 @@ async def run_comprehension(
         True,
         description=(
             "Se true, criação/correção longa retorna 202 + job_id; consulte GET /comprehension/jobs/{job_id}. "
-            "false = síncrono. Orçamento máximo de execução: PULSO_CSA_WORKFLOW_MAX_SEC (default 300 s)."
+            "false = síncrono. Orçamento máximo de execução: PULSO_CSA_WORKFLOW_MAX_SEC (default 7200 s)."
         ),
     ),
 ) -> Union[ComprehensionResponse, JSONResponse]:
@@ -378,7 +378,7 @@ async def run_comprehension(
     Primeira etapa do workflow: classifica a intenção, decide o modo do projeto
     e dispara (ou não) governance/run ou workflow/correct/run.
     Com async_mode=true (padrão), fluxos longos respondem 202 e processam em background.
-    Orçamento máximo de execução (síncrono ou por job): PULSO_CSA_WORKFLOW_MAX_SEC (default 300 s).
+    Orçamento máximo de execução (síncrono ou por job): PULSO_CSA_WORKFLOW_MAX_SEC (default 7200 s).
     Requer autenticação (Bearer token).
     """
     t0 = time.perf_counter()
