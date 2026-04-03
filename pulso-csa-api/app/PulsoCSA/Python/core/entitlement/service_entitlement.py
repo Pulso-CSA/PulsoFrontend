@@ -2,6 +2,7 @@
 """
 Valida acesso a serviços conforme plano e usuários isentos.
 """
+import os
 from typing import Optional
 
 from fastapi import HTTPException
@@ -18,6 +19,29 @@ except ImportError:
     from app.storage.database.subscription.database_subscription import get_subscription_by_user_id
 
 
+def _local_desktop_entitlement_grace() -> bool:
+    return (os.getenv("PULSO_LOCAL_DESKTOP_ENTITLEMENT_GRACE") or "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+
+def _pulso_csa_local_mode() -> bool:
+    return (os.getenv("PULSO_CSA_LOCAL") or "").strip().lower() in ("1", "true", "yes")
+
+
+def _elite_entitlement_local_desktop(tenant_id: str) -> dict:
+    """Motor CSA no Electron: utilizador já autenticou na cloud; Mongo local pode estar ausente."""
+    return {
+        "tenant_id": tenant_id,
+        "plano": "elite",
+        "max_services": 999,
+        "services_enabled": list(SERVICE_IDS),
+        "is_exempt": False,
+    }
+
+
 async def get_user_entitlement(user_id: str, user: Optional[dict] = None) -> dict:
     """
     Retorna entitlement do usuário: plano, max_services, services_enabled, is_exempt.
@@ -32,8 +56,15 @@ async def get_user_entitlement(user_id: str, user: Optional[dict] = None) -> dic
             "is_exempt": True,
         }
 
-    sub = await get_subscription_by_user_id(user_id)
+    sub = None
+    try:
+        sub = await get_subscription_by_user_id(user_id)
+    except Exception:
+        sub = None
+
     if not sub or sub.get("status") not in ("active", "trialing"):
+        if _pulso_csa_local_mode() and _local_desktop_entitlement_grace():
+            return _elite_entitlement_local_desktop(user_id)
         return {
             "tenant_id": user_id,
             "plano": None,

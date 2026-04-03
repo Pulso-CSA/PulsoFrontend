@@ -254,6 +254,8 @@ async function startLocalEngine(app, appRoot, browserWindow) {
     ...process.env,
     PYTHONUNBUFFERED: "1",
     PULSO_CSA_LOCAL: "1",
+    /** Só 127.0.0.1: sem Mongo/.env igual à cloud, auth+plano não podem bloquear o CSA. */
+    PULSO_LOCAL_DESKTOP_ENTITLEMENT_GRACE: "1",
     PULSO_LOCAL_SECRET: localSecret,
     PULSO_ALLOWED_ROOTS_FILE: allowRootsPath,
     PULSO_LOCAL_LOG_FILE: logFilePath,
